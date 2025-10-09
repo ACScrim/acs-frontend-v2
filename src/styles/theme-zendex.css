@@ -1,0 +1,244 @@
+/* ===========================
+   ZENDEX THEME - Dark Gaming UI
+   =========================== */
+
+:root {
+  /* === COULEURS PRINCIPALES ZENDEX === */
+  /* Deep Navy Blue - Couleur de fond principale */
+  --acs-navy-950: #020a1a;
+  --acs-navy-900: #0a1628;
+  --acs-navy-800: #0f1f3a;
+  --acs-navy-700: #152847;
+  --acs-navy-600: #1a3455;
+  --acs-navy-500: #1f4063;
+
+  /* Electric Blue - Couleur accent principale */
+  --acs-electric-blue-500: #0ea5e9;
+  --acs-electric-blue-600: #0284c7;
+  --acs-electric-blue-700: #0369a1;
+  --acs-electric-blue-800: #075985;
+
+  /* Cyan lumineux - Pour les éléments interactifs */
+  --acs-cyan-400: #22d3ee;
+  --acs-cyan-500: #06b6d4;
+  --acs-cyan-600: #0891b2;
+
+  /* Orange gaming - Pour les accents chauds */
+  --acs-orange-400: #fb923c;
+  --acs-orange-500: #f97316;
+  --acs-orange-600: #ea580c;
+
+  /* === OVERRIDE DES VARIABLES ACS === */
+  /* Couleurs primaires -> Electric Blue */
+  --acs-primary-400: #38bdf8;
+  --acs-primary-500: #0ea5e9;
+  --acs-primary-600: #0284c7;
+  --acs-primary-700: #0369a1;
+  --acs-primary-800: #075985;
+  --acs-primary-900: #0c4a6e;
+
+  /* Couleurs accent -> Cyan */
+  --acs-accent-400: #22d3ee;
+  --acs-accent-500: #06b6d4;
+  --acs-accent-600: #0891b2;
+
+  /* === GRADIENTS ZENDEX === */
+  --acs-gradient-primary: linear-gradient(
+    135deg,
+    #0ea5e9 0%,
+    #0284c7 100%
+  );
+
+  --acs-gradient-gaming: linear-gradient(
+    135deg,
+    #0a1628 0%,
+    #152847 50%,
+    #1a3455 100%
+  );
+
+  --acs-gradient-neon: linear-gradient(
+    135deg,
+    #0ea5e9 0%,
+    #22d3ee 50%,
+    #06b6d4 100%
+  );
+
+  --acs-gradient-cyber: linear-gradient(
+    135deg,
+    #fb923c 0%,
+    #f97316 100%
+  );
+
+  /* Gradient pour les cartes */
+  --acs-gradient-card: linear-gradient(
+    135deg,
+    rgba(14, 165, 233, 0.1) 0%,
+    rgba(6, 182, 212, 0.05) 100%
+  );
+
+  /* Gradient pour le bouton */
+  --acs-gradient-button: linear-gradient(
+    90deg,
+    #0ea5e9 0%,
+    #0284c7 100%
+  );
+
+  /* === BACKGROUNDS THÈME SOMBRE === */
+  --acs-bg-primary: #020a1a;
+  --acs-bg-secondary: #0a1628;
+  --acs-bg-tertiary: #0f1f3a;
+  --acs-bg-card: rgba(10, 22, 40, 0.8);
+  --acs-bg-elevated: rgba(15, 31, 58, 0.9);
+
+  /* === TEXTE === */
+  --acs-text-primary: #f8fafc;
+  --acs-text-secondary: #cbd5e1;
+  --acs-text-muted: #64748b;
+  --acs-text-accent: #0ea5e9;
+
+  /* === BORDURES === */
+  --acs-border-primary: rgba(14, 165, 233, 0.3);
+  --acs-border-secondary: rgba(6, 182, 212, 0.2);
+  --acs-border-card: rgba(14, 165, 233, 0.15);
+  --acs-border-subtle: rgba(100, 116, 139, 0.2);
+
+  /* === OMBRES ZENDEX === */
+  --acs-shadow-glow-blue: 0 0 20px rgba(14, 165, 233, 0.5),
+    0 0 40px rgba(14, 165, 233, 0.3);
+  --acs-shadow-glow-cyan: 0 0 20px rgba(34, 211, 238, 0.5),
+    0 0 40px rgba(34, 211, 238, 0.3);
+  --acs-shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(14, 165, 233, 0.1);
+  --acs-shadow-elevated: 0 20px 50px -10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(14, 165, 233, 0.15);
+
+  /* === OVERLAY === */
+  --acs-overlay: rgba(2, 10, 26, 0.9);
+  --acs-overlay-light: rgba(2, 10, 26, 0.6);
+}
+
+/* === CLASSES UTILITAIRES ZENDEX === */
+
+/* Card avec effet glassmorphism Zendex */
+.zendex-card {
+  background: var(--acs-bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--acs-border-card);
+  border-radius: var(--acs-radius-lg);
+  box-shadow: var(--acs-shadow-card);
+}
+
+/* Card avec bordure illuminée */
+.zendex-card-glow {
+  background: var(--acs-bg-card);
+  backdrop-filter: blur(20px);
+  border: 2px solid var(--acs-border-primary);
+  border-radius: var(--acs-radius-lg);
+  box-shadow: var(--acs-shadow-glow-blue);
+  position: relative;
+}
+
+.zendex-card-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--acs-gradient-card);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+/* Bouton style Zendex */
+.zendex-button {
+  background: var(--acs-gradient-button);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border-radius: var(--acs-radius-md);
+  cursor: pointer;
+  transition: all var(--acs-transition-normal);
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+}
+
+.zendex-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
+}
+
+.zendex-button:active {
+  transform: translateY(0);
+}
+
+/* Bouton avec clip-path diagonal */
+.zendex-button-clip {
+  background: var(--acs-gradient-button);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  clip-path: polygon(5% 0%, 100% 0, 95% 100%, 0% 100%);
+  transition: all var(--acs-transition-normal);
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.5);
+}
+
+.zendex-button-clip:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(14, 165, 233, 0.7);
+}
+
+/* Background avec effet starfield */
+.zendex-bg {
+  background: radial-gradient(
+      ellipse at center,
+      rgba(14, 165, 233, 0.15) 0%,
+      transparent 50%
+    ),
+    var(--acs-bg-primary);
+}
+
+/* Effet neon text */
+.zendex-text-glow {
+  color: #0ea5e9;
+  text-shadow: 0 0 10px rgba(14, 165, 233, 0.8), 0 0 20px rgba(14, 165, 233, 0.6),
+    0 0 30px rgba(14, 165, 233, 0.4);
+}
+
+/* Border avec animation glow */
+@keyframes zendex-border-glow {
+  0%,
+  100% {
+    border-color: rgba(14, 165, 233, 0.3);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+  }
+  50% {
+    border-color: rgba(14, 165, 233, 0.6);
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
+  }
+}
+
+.zendex-animate-border {
+  animation: zendex-border-glow 2s ease-in-out infinite;
+}
+
+/* Scrollbar personnalisée Zendex */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--acs-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--acs-primary-600);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--acs-primary-500);
+}

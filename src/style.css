@@ -84,6 +84,11 @@
   --acs-gray-900: #0f172a;
   --acs-gray-950: #020617;
 
+  --acs-electric-blue-500: #0ea5e9;
+  --acs-electric-blue-600: #0284c7;
+  --acs-electric-blue-700: #0369a1;
+  --acs-electric-blue-800: #075985;
+
   /* === GRADIENTS PERSONNALISÉS === */
   --acs-gradient-primary: linear-gradient(
     135deg,
@@ -348,3 +353,5 @@ code,
 pre {
   font-family: var(--acs-font-family-mono);
 }
+
+@import "./styles/theme-zendex.css";

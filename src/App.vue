@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import UIKitDemo from "./components/UIKitDemo.vue";
+import Container from "./components/global/Container.vue";
+import Sidebar from "./components/Sidebar.vue";
+import { useUserStore } from "./stores/userStore";
 
 // TEMP: A DEPLACER DANS LA BONNE PAGE - Logique d'authentification Discord
 const params = new URLSearchParams(window.location.search);
@@ -50,8 +52,19 @@ if (params.has("invite")) {
     alert("Temps d'attente dépassé. Veuillez recommencer.");
   }, 5 * 60 * 1000);
 }
+
+// Fetch user
+const userStore = useUserStore();
+userStore.fetchUser();
 </script>
 
 <template>
-  <UIKitDemo />
+  <Container>
+    <template #aside>
+      <Sidebar />
+    </template>
+    <template #view>
+      <RouterView />
+    </template>
+  </Container>
 </template>

@@ -197,7 +197,7 @@ export const useUIClasses = () => {
         break;
     }
 
-    if (rounded) classes.push("rounded-[var(--acs-radius-2xl)]");
+    if (rounded) classes.push("rounded-[var(--acs-radius-lg)]");
     if (hoverable)
       classes.push(
         "hover:shadow-[var(--acs-shadow-lg)] cursor-pointer acs-hover-lift"
