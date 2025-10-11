@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import TextSvg from '@/components/ui/TextSvg.vue';
 import Hero from './Hero.vue';
 import Stats from './Stats.vue';
-
+import NextTournaments from './NextTournaments.vue';
 </script>
 
 <template>
-  <Hero />
+  <div class="h-full flex flex-col justify-center gap-40">
+    <Hero />
+    <NextTournaments />
+  </div>
+  <TextSvg text="Quelques stats ?" stroke-color="black" :stroke-width="3" class="uppercase"
+    fill-color="var(--color-vibrant-cyan-500)" />
   <Stats />
 </template>

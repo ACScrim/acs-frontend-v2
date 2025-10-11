@@ -8,7 +8,7 @@ export type Color =
   | "danger"
   | "info"
   | "gray";
-export type Variant = "solid" | "outline" | "ghost" | "soft" | "link";
+export type Variant = "solid" | "outline" | "ghost" | "soft" | "link" | "gaming";
 
 // Types pour les boutons
 export interface ButtonProps {
@@ -41,7 +41,7 @@ export interface InputProps {
 
 // Types pour les cards
 export interface CardProps {
-  variant?: "elevated" | "outlined" | "filled" | "glass";
+  variant?: "elevated" | "outlined" | "filled" | "glass" | "gaming";
   padding?: Size;
   rounded?: boolean;
   shadow?: boolean;

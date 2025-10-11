@@ -354,4 +354,5 @@ pre {
   font-family: var(--acs-font-family-mono);
 }
 
-@import "./styles/theme-zendex.css";
+/* @import "./styles/theme-zendex.css"; */
+@import "./styles/theme-gaming-vibrant.css";

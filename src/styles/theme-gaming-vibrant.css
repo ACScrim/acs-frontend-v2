@@ -1,0 +1,307 @@
+/* ===========================
+   GAMING VIBRANT THEME
+   Inspiré du design "Let The Game Begin"
+   =========================== */
+
+@theme {
+  /* === COULEURS GAMING VIBRANT === */
+  
+  /* Magenta/Pink primaire */
+  --color-vibrant-pink-50: #fef1f7;
+  --color-vibrant-pink-100: #fee5f0;
+  --color-vibrant-pink-200: #fecce3;
+  --color-vibrant-pink-300: #ffa3cd;
+  --color-vibrant-pink-400: #ff69aa;
+  --color-vibrant-pink-500: #ff0099;
+  --color-vibrant-pink-600: #e6008a;
+  --color-vibrant-pink-700: #cc0077;
+  --color-vibrant-pink-800: #a60062;
+  --color-vibrant-pink-900: #800050;
+  --color-vibrant-pink-950: #4d0030;
+
+  /* Violet gaming */
+  --color-vibrant-purple-50: #f5f3ff;
+  --color-vibrant-purple-100: #ede9fe;
+  --color-vibrant-purple-200: #ddd6fe;
+  --color-vibrant-purple-300: #c4b5fd;
+  --color-vibrant-purple-400: #a78bfa;
+  --color-vibrant-purple-500: #8b5cf6;
+  --color-vibrant-purple-600: #7c3aed;
+  --color-vibrant-purple-700: #6d28d9;
+  --color-vibrant-purple-800: #5b21b6;
+  --color-vibrant-purple-900: #4c1d95;
+  --color-vibrant-purple-950: #2e1065;
+
+  /* Jaune électrique */
+  --color-vibrant-yellow-50: #fefce8;
+  --color-vibrant-yellow-100: #fef9c3;
+  --color-vibrant-yellow-200: #fef08a;
+  --color-vibrant-yellow-300: #fde047;
+  --color-vibrant-yellow-400: #facc15;
+  --color-vibrant-yellow-500: #eab308;
+  --color-vibrant-yellow-600: #ca8a04;
+  --color-vibrant-yellow-700: #a16207;
+  --color-vibrant-yellow-800: #854d0e;
+  --color-vibrant-yellow-900: #713f12;
+  --color-vibrant-yellow-950: #422006;
+
+  /* Cyan/Turquoise */
+  --color-vibrant-cyan-50: #ecfeff;
+  --color-vibrant-cyan-100: #cffafe;
+  --color-vibrant-cyan-200: #a5f3fc;
+  --color-vibrant-cyan-300: #67e8f9;
+  --color-vibrant-cyan-400: #22d3ee;
+  --color-vibrant-cyan-500: #00d4ff;
+  --color-vibrant-cyan-600: #00b8e6;
+  --color-vibrant-cyan-700: #0891b2;
+  --color-vibrant-cyan-800: #0e7490;
+  --color-vibrant-cyan-900: #155e75;
+  --color-vibrant-cyan-950: #083344;
+
+  /* Orange vibrant */
+  --color-vibrant-orange-50: #fff7ed;
+  --color-vibrant-orange-100: #ffedd5;
+  --color-vibrant-orange-200: #fed7aa;
+  --color-vibrant-orange-300: #fdba74;
+  --color-vibrant-orange-400: #fb923c;
+  --color-vibrant-orange-500: #ff6b00;
+  --color-vibrant-orange-600: #ea580c;
+  --color-vibrant-orange-700: #c2410c;
+  --color-vibrant-orange-800: #9a3412;
+  --color-vibrant-orange-900: #7c2d12;
+  --color-vibrant-orange-950: #431407;
+
+  /* === GRADIENTS GAMING === */
+  --color-gradient-vibrant-primary: linear-gradient(135deg, #ff0099 0%, #8b5cf6 100%);
+  --color-gradient-vibrant-secondary: linear-gradient(135deg, #7c3aed 0%, #ff0099 100%);
+  --color-gradient-vibrant-neon: linear-gradient(135deg, #00d4ff 0%, #ff0099 50%, #fde047 100%);
+  --color-gradient-vibrant-sunset: linear-gradient(135deg, #ff6b00 0%, #ff0099 50%, #7c3aed 100%);
+  --color-gradient-vibrant-cyber: linear-gradient(135deg, #fde047 0%, #00d4ff 100%);
+
+  /* === SHADOWS GAMING === */
+  --shadow-vibrant-pink: 0 10px 40px -10px rgba(255, 0, 153, 0.5);
+  --shadow-vibrant-purple: 0 10px 40px -10px rgba(124, 58, 237, 0.5);
+  --shadow-vibrant-yellow: 0 10px 40px -10px rgba(253, 224, 71, 0.4);
+  --shadow-vibrant-cyan: 0 10px 40px -10px rgba(0, 212, 255, 0.4);
+  --shadow-vibrant-neon: 0 0 20px rgba(255, 0, 153, 0.5), 0 0 40px rgba(124, 58, 237, 0.3);
+  
+  /* === BORDER RADIUS GAMING === */
+  --radius-gaming-sm: 0.5rem;
+  --radius-gaming-md: 1rem;
+  --radius-gaming-lg: 1.5rem;
+  --radius-gaming-xl: 2rem;
+  --radius-gaming-bubble: 2.5rem;
+}
+
+/* === CLASSES UTILITAIRES GAMING === */
+
+/* Backgrounds gaming */
+.bg-vibrant-gradient-primary {
+  background: linear-gradient(135deg, #ff0099 0%, #8b5cf6 100%);
+}
+
+.bg-vibrant-gradient-neon {
+  background: linear-gradient(135deg, #00d4ff 0%, #ff0099 50%, #fde047 100%);
+}
+
+.bg-vibrant-gradient-sunset {
+  background: linear-gradient(135deg, #ff6b00 0%, #ff0099 50%, #7c3aed 100%);
+}
+
+.bg-vibrant-gradient-cyber {
+  background: linear-gradient(135deg, #fde047 0%, #00d4ff 100%);
+}
+
+/* Text gradients */
+.text-vibrant-gradient-primary {
+  background: linear-gradient(135deg, #ff0099 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-vibrant-gradient-neon {
+  background: linear-gradient(135deg, #00d4ff 0%, #ff0099 50%, #fde047 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Neon glow effects */
+.glow-vibrant-pink {
+  box-shadow: 0 0 20px rgba(255, 0, 153, 0.6), 
+              0 0 40px rgba(255, 0, 153, 0.4),
+              0 0 60px rgba(255, 0, 153, 0.2);
+}
+
+.glow-vibrant-purple {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.6), 
+              0 0 40px rgba(124, 58, 237, 0.4),
+              0 0 60px rgba(124, 58, 237, 0.2);
+}
+
+.glow-vibrant-yellow {
+  box-shadow: 0 0 20px rgba(253, 224, 71, 0.6), 
+              0 0 40px rgba(253, 224, 71, 0.4),
+              0 0 60px rgba(253, 224, 71, 0.2);
+}
+
+.glow-vibrant-multi {
+  box-shadow: 0 0 20px rgba(255, 0, 153, 0.5), 
+              0 0 40px rgba(124, 58, 237, 0.3),
+              0 0 60px rgba(0, 212, 255, 0.2);
+}
+
+/* Border glow effects */
+.border-glow-vibrant-pink {
+  border: 2px solid #ff0099;
+  box-shadow: inset 0 0 10px rgba(255, 0, 153, 0.3),
+              0 0 20px rgba(255, 0, 153, 0.4);
+}
+
+.border-glow-vibrant-purple {
+  border: 2px solid #7c3aed;
+  box-shadow: inset 0 0 10px rgba(124, 58, 237, 0.3),
+              0 0 20px rgba(124, 58, 237, 0.4);
+}
+
+/* Gaming card effect */
+.gaming-card {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(255, 0, 153, 0.1) 100%);
+  border: 2px solid rgba(255, 0, 153, 0.3);
+  border-radius: 1rem;
+  box-shadow: 0 10px 40px -10px rgba(255, 0, 153, 0.3);
+  transition: all 0.3s ease;
+}
+
+.gaming-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px -10px rgba(255, 0, 153, 0.5),
+              0 0 30px rgba(124, 58, 237, 0.3);
+  border-color: rgba(255, 0, 153, 0.6);
+}
+
+/* Button gaming style */
+.btn-gaming-primary {
+  background: linear-gradient(135deg, #ff0099 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 10px 30px -10px rgba(255, 0, 153, 0.5);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-gaming-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px -10px rgba(255, 0, 153, 0.7),
+              0 0 30px rgba(124, 58, 237, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-gaming-secondary {
+  background: #7c3aed;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.5);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.btn-gaming-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px -10px rgba(124, 58, 237, 0.7);
+  background: #6d28d9;
+}
+
+/* Gaming badge */
+.badge-gaming {
+  background: linear-gradient(135deg, #ff0099 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 15px -5px rgba(255, 0, 153, 0.5);
+}
+
+.border-shadow {
+  box-shadow: 10px 10px 0 var(--border-shadow-color, rgba(0, 0, 0));
+  transition: all 0.3s ease;
+}
+
+/* Animations gaming */
+@keyframes vibrant-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(255, 0, 153, 0.6);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px rgba(255, 0, 153, 0.8),
+                0 0 60px rgba(124, 58, 237, 0.5);
+  }
+}
+
+@keyframes vibrant-glow-rotate {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 0, 153, 0.6), 
+                0 0 40px rgba(124, 58, 237, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.6), 
+                0 0 50px rgba(255, 0, 153, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 0, 153, 0.6), 
+                0 0 40px rgba(124, 58, 237, 0.4);
+  }
+}
+
+@keyframes vibrant-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-vibrant-pulse {
+  animation: vibrant-pulse 2s ease-in-out infinite;
+}
+
+.animate-vibrant-glow {
+  animation: vibrant-glow-rotate 3s ease-in-out infinite;
+}
+
+.animate-vibrant-float {
+  animation: vibrant-float 3s ease-in-out infinite;
+}
+
+/* Gaming grid pattern */
+.gaming-grid-bg {
+  background-image: 
+    linear-gradient(rgba(255, 0, 153, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Retro gaming text effect */
+.text-gaming-retro {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 
+    3px 3px 0px rgba(124, 58, 237, 0.8),
+    6px 6px 0px rgba(255, 0, 153, 0.6);
+}

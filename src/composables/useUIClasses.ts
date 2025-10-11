@@ -22,6 +22,7 @@ export const useUIClasses = () => {
         "text-[var(--acs-primary-600)] hover:bg-[var(--acs-primary-50)] focus:bg-[var(--acs-primary-100)] dark:hover:bg-[var(--acs-primary-950)]",
       soft: "bg-[var(--acs-primary-100)] text-[var(--acs-primary-800)] hover:bg-[var(--acs-primary-200)] focus:ring-[var(--acs-primary-500)] dark:bg-[var(--acs-primary-950)] dark:text-[var(--acs-primary-200)]",
       link: "text-[var(--acs-primary-600)] hover:text-[var(--acs-primary-800)] underline-offset-4 hover:underline",
+      gaming: "bg-vibrant-cyan-500 rounded-sm transition-all duration-300 shadow-[5px_5px_0_black] px-4 py-2 focus:ring-0!"
     },
     secondary: {
       solid:
@@ -32,6 +33,7 @@ export const useUIClasses = () => {
         "text-[var(--acs-gray-700)] hover:bg-[var(--acs-gray-50)] focus:bg-[var(--acs-gray-100)] dark:text-[var(--acs-gray-300)] dark:hover:bg-[var(--acs-gray-800)]",
       soft: "bg-[var(--acs-gray-100)] text-[var(--acs-gray-700)] hover:bg-[var(--acs-gray-200)] focus:ring-[var(--acs-gray-500)] dark:bg-[var(--acs-gray-800)] dark:text-[var(--acs-gray-300)]",
       link: "text-[var(--acs-gray-700)] hover:text-[var(--acs-gray-900)] underline-offset-4 hover:underline dark:text-[var(--acs-gray-300)]",
+      gaming: ""
     },
     success: {
       solid:
@@ -42,6 +44,7 @@ export const useUIClasses = () => {
         "text-[var(--acs-success-600)] hover:bg-[var(--acs-success-50)] focus:bg-[var(--acs-success-100)]",
       soft: "bg-[var(--acs-success-100)] text-[var(--acs-success-800)] hover:bg-[var(--acs-success-200)] focus:ring-[var(--acs-success-500)]",
       link: "text-[var(--acs-success-600)] hover:text-[var(--acs-success-800)] underline-offset-4 hover:underline",
+      gaming: ""
     },
     warning: {
       solid:
@@ -52,6 +55,7 @@ export const useUIClasses = () => {
         "text-[var(--acs-warning-600)] hover:bg-[var(--acs-warning-50)] focus:bg-[var(--acs-warning-100)]",
       soft: "bg-[var(--acs-warning-100)] text-[var(--acs-warning-800)] hover:bg-[var(--acs-warning-200)] focus:ring-[var(--acs-warning-500)]",
       link: "text-[var(--acs-warning-600)] hover:text-[var(--acs-warning-800)] underline-offset-4 hover:underline",
+      gaming: ""
     },
     danger: {
       solid:
@@ -62,6 +66,7 @@ export const useUIClasses = () => {
         "text-[var(--acs-danger-600)] hover:bg-[var(--acs-danger-50)] focus:bg-[var(--acs-danger-100)]",
       soft: "bg-[var(--acs-danger-100)] text-[var(--acs-danger-800)] hover:bg-[var(--acs-danger-200)] focus:ring-[var(--acs-danger-500)]",
       link: "text-[var(--acs-danger-600)] hover:text-[var(--acs-danger-800)] underline-offset-4 hover:underline",
+      gaming: ""
     },
     info: {
       solid:
@@ -72,6 +77,7 @@ export const useUIClasses = () => {
         "text-[var(--acs-accent-600)] hover:bg-[var(--acs-accent-50)] focus:bg-[var(--acs-accent-100)]",
       soft: "bg-[var(--acs-accent-100)] text-[var(--acs-accent-800)] hover:bg-[var(--acs-accent-200)] focus:ring-[var(--acs-accent-500)]",
       link: "text-[var(--acs-accent-600)] hover:text-[var(--acs-accent-800)] underline-offset-4 hover:underline",
+      gaming: ""
     },
     gray: {
       solid:
@@ -82,7 +88,8 @@ export const useUIClasses = () => {
         "text-[var(--acs-text-secondary)] hover:bg-[var(--acs-bg-tertiary)] focus:bg-[var(--acs-bg-tertiary)]",
       soft: "bg-[var(--acs-bg-tertiary)] text-[var(--acs-text-secondary)] hover:bg-[var(--acs-gray-200)] focus:ring-[var(--acs-gray-500)] dark:hover:bg-[var(--acs-gray-700)]",
       link: "text-[var(--acs-text-secondary)] hover:text-[var(--acs-text-primary)] underline-offset-4 hover:underline",
-    },
+      gaming: ""
+    }
   };
 
   // Classes de base pour les boutons avec les transitions personnalisées
@@ -163,7 +170,7 @@ export const useUIClasses = () => {
   };
 
   const getCardClasses = (
-    variant: "elevated" | "outlined" | "filled" | "glass" = "elevated",
+    variant: "elevated" | "outlined" | "filled" | "glass" | "gaming" = "elevated",
     padding: Size = "md",
     rounded = true,
     shadow = true,
@@ -195,9 +202,17 @@ export const useUIClasses = () => {
       case "glass":
         classes.push("acs-glass");
         break;
+      case "gaming":
+        classes.push("bg-vibrant-purple-500 text-white relative border-shadow border-2 border-black");
+        // if (shadow) classes.push("glow-vibrant-purple");
+        break;
     }
 
-    if (rounded) classes.push("rounded-[var(--acs-radius-lg)]");
+    if (rounded) {
+      if (!classes.reduce((acc, cls) => acc && cls.startsWith("rounded"), true)) {
+        classes.push("rounded-[var(--acs-radius-lg)]");
+      }
+    }
     if (hoverable)
       classes.push(
         "hover:shadow-[var(--acs-shadow-lg)] cursor-pointer acs-hover-lift"

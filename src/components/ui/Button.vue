@@ -98,16 +98,16 @@ const handleClick = (event: MouseEvent) => {
     </svg>
 
     <!-- Icône gauche -->
-    <span v-if="icon && iconPosition === 'left' && !loading" class="mr-2">
-      {{ icon }}
+    <span v-if="$slots.icon && iconPosition === 'left' && !loading" class="mr-2">
+      <slot name="icon"></slot>
     </span>
 
     <!-- Contenu du slot -->
-    <slot />
+    <slot></slot>
 
     <!-- Icône droite -->
-    <span v-if="icon && iconPosition === 'right' && !loading" class="ml-2">
-      {{ icon }}
+    <span v-if="$slots.icon && iconPosition === 'right' && !loading" class="ml-2">
+      <slot name="icon"></slot>
     </span>
   </component>
 </template>

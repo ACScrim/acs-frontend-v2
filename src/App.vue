@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Container from "./components/global/Container.vue";
 import Sidebar from "./components/Sidebar.vue";
+import useTournamentStore from "./stores/tournamentStore";
 import { useUserStore } from "./stores/userStore";
 
 // TEMP: A DEPLACER DANS LA BONNE PAGE - Logique d'authentification Discord
@@ -54,8 +55,10 @@ if (params.has("invite")) {
 }
 
 // Fetch user
-const userStore = useUserStore();
-userStore.fetchUser();
+useUserStore().fetchUser();
+
+// Fetch tournaments
+useTournamentStore().fetchTournaments();
 </script>
 
 <template>

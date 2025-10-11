@@ -48,9 +48,7 @@ const handleClick = (event: MouseEvent) => {
     </header>
 
     <!-- Contenu principal -->
-    <div>
-      <slot />
-    </div>
+    <slot />
 
     <!-- Footer slot -->
     <footer v-if="$slots.footer" class="mt-4">
