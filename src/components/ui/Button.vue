@@ -73,7 +73,12 @@ const handleClick = (event: MouseEvent) => {
 </script>
 
 <template>
-  <component :is="component" v-bind="componentProps" @click="handleClick">
+  <component
+    :is="component"
+    v-bind="componentProps"
+    @click="handleClick"
+    class="cursor-pointer"
+  >
     <!-- Loading spinner -->
     <svg
       v-if="loading"
@@ -98,7 +103,10 @@ const handleClick = (event: MouseEvent) => {
     </svg>
 
     <!-- Icône gauche -->
-    <span v-if="$slots.icon && iconPosition === 'left' && !loading" class="mr-2">
+    <span
+      v-if="$slots.icon && iconPosition === 'left' && !loading"
+      class="mr-2"
+    >
       <slot name="icon"></slot>
     </span>
 
@@ -106,7 +114,10 @@ const handleClick = (event: MouseEvent) => {
     <slot></slot>
 
     <!-- Icône droite -->
-    <span v-if="$slots.icon && iconPosition === 'right' && !loading" class="ml-2">
+    <span
+      v-if="$slots.icon && iconPosition === 'right' && !loading"
+      class="ml-2"
+    >
       <slot name="icon"></slot>
     </span>
   </component>
