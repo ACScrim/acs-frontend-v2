@@ -1,11 +1,10 @@
 <template>
-  <RouterLink to="/" class="p-4 mb-8">
-    <img src="/acs.avif" width="200" />
-  </RouterLink>
-  <aside class="border rounded-tr-2xl border-blue-500 flex-1 flex flex-col items-center bg-blue-950 p-4 gap-4">
+  <aside class="flex-1 flex flex-col items-center p-4 m-8 gap-4 bg-vibrant-purple-500 rounded-xl border-2 border-shadow">
+    <RouterLink to="/" class="p-4 mb-8">
+      <img src="/acs.avif" width="200" style="filter: drop-shadow(5px 5px 0 black)" />
+    </RouterLink>
     <RouterLink v-for="route in asideRoutes" :key="route.path" :to="route.path"
-      class="text-white hover:bg-blue-400 rounded-md flex flex-row gap-4 w-full p-2"
-      active-class="bg-blue-400">
+      class="text-white border-2 border-transparent hover:bg-vibrant-purple-500 hover:border-vibrant-purple-700 hover:shadow-[5px_5px_0_var(--color-vibrant-purple-700)] rounded-md flex flex-row gap-4 w-full p-2" active-class="bg-vibrant-cyan-500 border-vibrant-cyan-700 shadow-[5px_5px_0_var(--color-vibrant-cyan-700)]">
       <VueIcon v-if="route.meta.icon" :name="route.meta.icon" class="size-6" />
       <span>{{ route.name }}</span>
     </RouterLink>
