@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
-  { path: '/', component: () => import('@/views/home/index.vue'), name: 'Home', meta: { title: 'Home', icon: "home", showInAside: false } },
+  { path: '/', component: () => import('@/views/home/Home.vue'), name: 'Home', meta: { title: 'Home', icon: "home", showInAside: false } },
   { path: '/tournaments', component: () => import('@/components/UIKitDemo.vue'), name: 'Tournois', meta: { title: 'Tournois', icon: "bs:trophy", showInAside: true } },
   { path: '/leaderboard', component: () => import('@/components/UIKitDemo.vue'), name: 'Classement', meta: { title: 'Classement', icon: "ic:leaderboard-star", showInAside: true } },
   { path: '/game-proposals', component: () => import('@/components/UIKitDemo.vue'), name: 'Propositions de jeux', meta: { title: 'Propositions de jeux', icon: "bx:upvote", showInAside: true } },

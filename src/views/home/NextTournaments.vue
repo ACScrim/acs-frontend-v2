@@ -13,15 +13,6 @@ const tournaments = computed(() => tournamentStore.nextTournaments);
 const getPlayerPercentage = (current: number, cap: number) => {
   return cap > 0 ? Math.round((current / cap) * 100) : 0;
 };
-
-// Fonction pour déterminer la couleur selon le taux de remplissage
-const getPlayerCountColor = (current: number, cap: number) => {
-  if (cap === 0) return 'text-vibrant-cyan-500';
-  const percentage = getPlayerPercentage(current, cap);
-  if (percentage >= 90) return 'text-red-500';
-  if (percentage >= 70) return 'text-orange-500';
-  return 'text-green-500';
-};
 </script>
 
 <template>
@@ -40,7 +31,7 @@ const getPlayerCountColor = (current: number, cap: number) => {
         hoverable
         v-for="tournament in tournaments"
         :key="tournament.id"
-        class="px-0! py-0! overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20"
+        class="px-0! py-0! overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-2xs hover:shadow-cyan-500/20"
       >
         <div class="flex flex-col h-full">
           <!-- Image avec overlay gradient -->
@@ -55,7 +46,7 @@ const getPlayerCountColor = (current: number, cap: number) => {
             
             <!-- Badge jour -->
             <Badge
-              class="uppercase ml-auto absolute top-4 right-4 font-bold h-auto text-sm! bg-vibrant-purple-500/90 backdrop-blur-sm rounded-lg px-3 py-1 shadow-lg"
+              class="uppercase ml-auto absolute top-4 right-4 font-bold h-auto text-sm! bg-acs-purple/90 backdrop-blur-sm rounded-lg px-3 py-1"
             >
               {{ formatDate(new Date(tournament.date), "dddd") }}
             </Badge>
@@ -65,8 +56,8 @@ const getPlayerCountColor = (current: number, cap: number) => {
               :class="[
                 'absolute bottom-4 left-4 font-bold text-xs uppercase tracking-wide',
                 tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap 
-                  ? 'bg-red-500/90' 
-                  : 'bg-green-500/90'
+                  ? 'bg-acs-red/90' 
+                  : 'bg-acs-green/90'
               ]"
             >
               {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Complet' : 'Ouvert' }}
@@ -76,22 +67,22 @@ const getPlayerCountColor = (current: number, cap: number) => {
           <!-- Contenu -->
           <div class="flex-1 flex flex-col justify-between p-6 space-y-4">
             <div class="space-y-4">
-              <h2 class="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-2">
+              <h2 class="text-xl font-bold text-white group-hover:text-acs-yellow transition-colors line-clamp-1" :title="tournament.name">
                 {{ tournament.name }}
               </h2>
               
               <div class="space-y-3">
                 <div class="inline-flex gap-3 items-center text-gray-300">
-                  <VueIcon name="ak:calendar" class="text-cyan-400 text-xl" />
-                  <span class="font-medium">
+                  <VueIcon name="ak:calendar" class="text-acs-orange-light text-2xl" />
+                  <span class="font-medium text-lg">
                     {{ formatDate(new Date(tournament.date), "DD/MM/YYYY HH:mm") }}
                   </span>
                 </div>
                 
                 <div class="space-y-2">
                   <div class="inline-flex gap-3 items-center">
-                    <VueIcon name="cl:users-group" class="text-cyan-400 text-xl" />
-                    <span :class="['font-medium', getPlayerCountColor(tournament.players.length, tournament.playerCap)]">
+                    <VueIcon name="cl:users" class="text-acs-orange-light text-2xl" />
+                    <span class="font-medium text-gray-300 text-lg">
                       {{ tournament.players.length }}
                       {{ tournament.playerCap > 0 ? `/ ${tournament.playerCap}` : '' }}
                       joueur{{ tournament.players.length > 1 ? 's' : '' }}
@@ -103,9 +94,9 @@ const getPlayerCountColor = (current: number, cap: number) => {
                     <div 
                       class="h-full transition-all duration-500 rounded-full"
                       :class="[
-                        getPlayerPercentage(tournament.players.length, tournament.playerCap) >= 90 ? 'bg-red-500' : '',
-                        getPlayerPercentage(tournament.players.length, tournament.playerCap) >= 70 ? 'bg-orange-500' : '',
-                        'bg-green-500'
+                        getPlayerPercentage(tournament.players.length, tournament.playerCap) >= 90 ? 'bg-acs-red' : '',
+                        getPlayerPercentage(tournament.players.length, tournament.playerCap) >= 70 ? 'bg-acs-orange-dark' : '',
+                        'bg-acs-green'
                       ]"
                       :style="{ width: `${getPlayerPercentage(tournament.players.length, tournament.playerCap)}%` }"
                     ></div>
@@ -116,23 +107,19 @@ const getPlayerCountColor = (current: number, cap: number) => {
 
             <!-- Bouton d'action -->
             <Button
-              variant="gaming"
-              size="lg"
-              color="primary"
-              :full-width="true"
-              type="button"
-              class="font-bold transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="[
-                tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'bg-vibrant-orange-400' : ''
-              ]"
+              color="acs-yellow"
+              button-classes="w-full text-acs-purple font-bold"
+              icon-position="lr"
             >
               <template #icon>
                 <VueIcon 
-                  :name="tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'bs:lock' : 'bs:controller'" 
+                  :name="tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'bs:clock' : 'bs:controller'" 
                   class="transition-transform group-hover:scale-110 text-lg"
                 />
               </template>
-              {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Rejoindre la liste d\'attente' : 'Je veux jouer !' }}
+              <span class="line-clamp-1 text-left">
+                {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Rejoindre la liste d\'attente' : 'Je veux jouer !' }}
+              </span>
             </Button>
           </div>
         </div>

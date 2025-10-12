@@ -1,47 +1,25 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import type { CardProps } from "@/types/ui";
-import { useUIClasses } from "@/composables/useUIClasses";
 
-interface Props extends CardProps {
-  tag?: "div" | "article" | "section";
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  variant: "elevated",
-  padding: "md",
-  rounded: true,
-  shadow: true,
-  hoverable: false,
-  tag: "div",
+const props = withDefaults(defineProps<{ cardClasses?: string, color?: string }>(), {
+  cardClasses: "",
+  color: "acs-orange-dark"
 });
 
-const emit = defineEmits<{
-  click: [event: MouseEvent];
-}>();
-
-const { getCardClasses } = useUIClasses();
-
-// Classes calculées
-const cardClasses = computed(() =>
-  getCardClasses(
-    props.variant,
-    props.padding,
-    props.rounded,
-    props.shadow,
-    props.hoverable
-  )
-);
-
-const handleClick = (event: MouseEvent) => {
-  if (props.hoverable) {
-    emit("click", event);
-  }
-};
+const colorClasses: Record<string, string> = {
+  'acs-red': "bg-acs-red/75 border-acs-red",
+  'acs-purple': "bg-acs-purple/75 border-acs-purple",
+  'acs-yellow': "bg-acs-yellow/75 border-acs-yellow",
+  'acs-orange-light': "bg-acs-orange-light/75 border-acs-orange-light",
+  'acs-orange-dark': "bg-acs-orange-dark/75 border-acs-orange-dark"
+}
 </script>
 
 <template>
-  <component :is="tag" :class="cardClasses" @click="handleClick">
+  <div 
+    class="text-white rounded-xl border-2 shadow-acs-card" 
+    :class="`${colorClasses[props.color]} ${props.cardClasses}`" 
+    :style="`--tw-shadow-color: var(--color-${props.color})`" v-tw-merge
+  >
     <!-- Header slot -->
     <header v-if="$slots.header" class="mb-4">
       <slot name="header" />
@@ -54,5 +32,5 @@ const handleClick = (event: MouseEvent) => {
     <footer v-if="$slots.footer" class="mt-4">
       <slot name="footer" />
     </footer>
-  </component>
+  </div>
 </template>

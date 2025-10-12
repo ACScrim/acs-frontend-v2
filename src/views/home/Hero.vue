@@ -13,7 +13,7 @@ const displayText = computed(() => isHovered.value ? hoverText : defaultText);
 
 <template>
   <div class="flex flex-col-reverse lg:flex-row gap-x-20">
-    <Card variant="gaming" rounded class="p-8! relative max-w-4xl flex flex-col justify-between">
+    <Card card-classes="p-8! relative max-w-4xl flex flex-col justify-between" color="acs-purple">
       <template #header>
         <h1 class="uppercase text-xl font-bold">Viens jouer avec nous !</h1>
       </template>
@@ -24,7 +24,7 @@ const displayText = computed(() => isHovered.value ? hoverText : defaultText);
       </p>
 
       <template #footer>
-        <Button variant="gaming" type="button" to="/join-discord" @mouseenter="isHovered = true"
+        <Button to="/join-discord" icon-position="l" @mouseenter="isHovered = true"
           @mouseleave="isHovered = false" class="relative overflow-hidden">
           <template #icon v-if="isHovered">
             <VueIcon name="bs:discord" class="text-2xl" />

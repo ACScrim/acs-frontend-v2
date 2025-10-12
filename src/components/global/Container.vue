@@ -1,5 +1,5 @@
 <template>
-  <main class="maincontainer bg-vibrant-yellow-300">
+  <main class="maincontainer bg-acs-orange-light">
     <div class="aside">
       <slot name="aside"></slot>
     </div>
@@ -19,8 +19,8 @@
   width: 100%;
   background-size: 40px 40px;
   background-image:
-    linear-gradient(to right, #80808012 1px, transparent 1px),
-    linear-gradient(to bottom, #80808012 1px, transparent 1px);
+    linear-gradient(to right, #80808024 1px, transparent 1px),
+    linear-gradient(to bottom, #80808024 1px, transparent 1px);
 }
 
 .aside {

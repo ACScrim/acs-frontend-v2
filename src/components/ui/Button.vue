@@ -1,83 +1,61 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import type { ButtonProps } from "@/types/ui";
-import { useUIClasses } from "@/composables/useUIClasses";
+import { computed } from 'vue';
 
-interface Props extends ButtonProps {
-  type?: "button" | "submit" | "reset";
-  href?: string;
-  target?: "_blank" | "_self" | "_parent" | "_top";
-  to?: string; // Pour Vue Router
+interface Props {
+  loading?: boolean
+  iconPosition?: "r" | "l" | "lr"
+  to?: string
+  buttonClasses?: string
+  disabled?: boolean
+  color?: keyof typeof colorClasses
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  size: "md",
-  color: "primary",
-  variant: "solid",
-  type: "button",
-  disabled: false,
-  loading: false,
-  fullWidth: false,
-  rounded: false,
-  iconPosition: "left",
-});
-
-const emit = defineEmits<{
-  click: [event: MouseEvent];
-}>();
-
-const { getButtonClasses } = useUIClasses();
-
-// Classes calculées
-const buttonClasses = computed(() =>
-  getButtonClasses(
-    props.size,
-    props.color,
-    props.variant,
-    props.rounded,
-    props.fullWidth
-  )
-);
-
-// Détermine le tag à utiliser (button, a, router-link)
 const component = computed(() => {
-  if (props.href) return "a";
   if (props.to) return "router-link";
   return "button";
 });
 
-// Props pour le composant
 const componentProps = computed(() => {
   const baseProps: any = {
-    class: buttonClasses.value,
+    class: props.buttonClasses,
     disabled: props.disabled || props.loading,
   };
 
-  if (props.href) {
-    baseProps.href = props.href;
-    baseProps.target = props.target;
-  } else if (props.to) {
+  if (props.to) {
     baseProps.to = props.to;
-  } else {
-    baseProps.type = props.type;
   }
 
   return baseProps;
 });
 
-const handleClick = (event: MouseEvent) => {
-  if (!props.disabled && !props.loading) {
-    emit("click", event);
-  }
-};
+
+const props = withDefaults(defineProps<Props>(), {
+  loading: false,
+  iconPosition: "r",
+  to: undefined,
+  buttonClasses: "",
+  disabled: false,
+  color: "acs-orange-light"
+});
+
+const colorClasses: Record<string, string> = {
+  'acs-red': "bg-acs-red/85 border-acs-red",
+  'acs-purple': "bg-acs-purple/85 border-acs-purple",
+  'acs-yellow': "bg-acs-yellow/85 border-acs-yellow",
+  'acs-orange-light': "bg-acs-orange-light/85 border-acs-orange-light",
+  'acs-orange-dark': "bg-acs-orange-dark/85 border-acs-orange-dark"
+}
+
 </script>
 
 <template>
-  <component
+  <component 
     :is="component"
     v-bind="componentProps"
-    @click="handleClick"
-    class="cursor-pointer"
+    class="cursor-pointer flex flex-row rounded-xl py-4 px-8 items-center justify-center shadow-acs-button hover:shadow-sm transition-all w-fit"
+    :class="`${colorClasses[props.color]} ${props.buttonClasses}`"
+    :style="`--tw-shadow-color: var(--color-${props.color})`"
+    v-tw-merge
   >
     <!-- Loading spinner -->
     <svg
@@ -104,7 +82,7 @@ const handleClick = (event: MouseEvent) => {
 
     <!-- Icône gauche -->
     <span
-      v-if="$slots.icon && iconPosition === 'left' && !loading"
+      v-if="$slots.icon && iconPosition !== 'r' && !loading"
       class="mr-2"
     >
       <slot name="icon"></slot>
@@ -115,25 +93,10 @@ const handleClick = (event: MouseEvent) => {
 
     <!-- Icône droite -->
     <span
-      v-if="$slots.icon && iconPosition === 'right' && !loading"
+      v-if="$slots.icon && iconPosition !== 'l' && !loading"
       class="ml-2"
     >
       <slot name="icon"></slot>
     </span>
   </component>
 </template>
-
-<style scoped>
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>
