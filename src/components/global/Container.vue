@@ -21,12 +21,18 @@
   background-image:
     linear-gradient(to right, #80808024 1px, transparent 1px),
     linear-gradient(to bottom, #80808024 1px, transparent 1px);
+  z-index: -1;
 }
 
 .aside {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.aside > * {
+  z-index: 1;
 }
 
 .view {

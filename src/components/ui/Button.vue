@@ -5,7 +5,7 @@ interface Props {
   loading?: boolean
   iconPosition?: "r" | "l" | "lr"
   to?: string
-  buttonClasses?: string
+  class?: string
   disabled?: boolean
   color?: keyof typeof colorClasses
 }
@@ -17,7 +17,7 @@ const component = computed(() => {
 
 const componentProps = computed(() => {
   const baseProps: any = {
-    class: props.buttonClasses,
+    class: props.class,
     disabled: props.disabled || props.loading,
   };
 
@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   iconPosition: "r",
   to: undefined,
-  buttonClasses: "",
+  class: "",
   disabled: false,
   color: "acs-orange-light"
 });
@@ -53,7 +53,7 @@ const colorClasses: Record<string, string> = {
     :is="component"
     v-bind="componentProps"
     class="cursor-pointer flex flex-row rounded-xl py-4 px-8 items-center justify-center shadow-acs-button hover:shadow-sm transition-all w-fit"
-    :class="`${colorClasses[props.color]} ${props.buttonClasses}`"
+    :class="`${colorClasses[props.color]} ${props.class}`"
     :style="`--tw-shadow-color: var(--color-${props.color})`"
     v-tw-merge
   >
