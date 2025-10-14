@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Container from "./components/global/Container.vue";
 import Sidebar from "./components/Sidebar.vue";
+import useStatsStore from "./stores/statsStore";
 import useTournamentStore from "./stores/tournamentStore";
 import { useUserStore } from "./stores/userStore";
 
@@ -59,6 +60,8 @@ useUserStore().fetchUser();
 
 // Fetch tournaments
 useTournamentStore().fetchTournaments();
+
+useStatsStore().fetchHomeStats();
 </script>
 
 <template>

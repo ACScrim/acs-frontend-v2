@@ -6,11 +6,11 @@ const props = withDefaults(defineProps<{ cardClasses?: string, color?: string }>
 });
 
 const colorClasses: Record<string, string> = {
-  'acs-red': "bg-acs-red/75 border-acs-red",
-  'acs-purple': "bg-acs-purple/75 border-acs-purple",
-  'acs-yellow': "bg-acs-yellow/75 border-acs-yellow",
-  'acs-orange-light': "bg-acs-orange-light/75 border-acs-orange-light",
-  'acs-orange-dark': "bg-acs-orange-dark/75 border-acs-orange-dark"
+  'acs-red': "bg-acs-red/75 border-acs-red/75",
+  'acs-purple': "bg-acs-purple/75 border-acs-purple/75",
+  'acs-yellow': "bg-acs-yellow/75 border-acs-yellow/75",
+  'acs-orange-light': "bg-acs-orange-light/75 border-acs-orange-light/75",
+  'acs-orange-dark': "bg-acs-orange-dark/75 border-acs-orange-dark/75"
 }
 </script>
 
