@@ -6,7 +6,7 @@ const fps = useFps()
 
 <template>
   <span class="absolute text-green-500">{{ fps }}</span>
-  <main class="maincontainer bg-acs-orange-light">
+  <main class="maincontainer">
     <div class="aside">
       <slot name="aside"></slot>
     </div>
@@ -29,6 +29,16 @@ const fps = useFps()
     linear-gradient(to right, #80808024 1px, transparent 1px),
     linear-gradient(to bottom, #80808024 1px, transparent 1px);
   z-index: -1;
+  animation: bg-animate 3s alternate infinite;
+}
+
+@keyframes bg-animate {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: 10px 10px;
+  }
 }
 
 .aside {

@@ -5,6 +5,7 @@ import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import Separator from './ui/Separator.vue';
+import { Button } from './ui';
 
 const router = useRouter();
 const asideRoutes = computed(() =>
@@ -19,6 +20,7 @@ const mobileFooterRoutes = computed(() =>
 );
 
 const userStore = useUserStore();
+const API_URL = import.meta.env.VITE_API_URL
 </script>
 
 <template>
@@ -37,9 +39,18 @@ const userStore = useUserStore();
       </RouterLink>
     </div>
 
-    <div class="mt-auto">
-      <Avatar v-if="userStore.isLoggedIn" :src="userStore.user?.avatarUrl" />
-      <VueIcon name="ak:discord-fill" v-else class="text-white text-3xl" />
+    <div class="mt-auto w-full">
+      <Button v-if="userStore.isLoggedIn && userStore.user" to="/profile" color="acs-orange-dark" shadow-color="acs-orange-light" class="text-white w-full gap-4">
+        <Avatar :src="userStore.user.avatarUrl" />
+        <div class="flex flex-col">
+          <span class="font-bold text-lg uppercase text-left">{{ userStore.user.username }}</span>
+          <span class="text-xs italic underline">Voir mon profil</span>
+        </div>
+      </Button>
+      <Button v-else color="acs-orange-dark" shadow-color="acs-orange-light" class="text-white" :to="`${API_URL}/auth/discord`">
+        <VueIcon name="ak:discord-fill" class="text-3xl" />
+        <span class="font-bold text-lg uppercase">Connexion</span>
+      </Button>
     </div>
   </aside>
   <footer class="lg:hidden fixed bottom-0 w-full flex flex-row items-center h-14 backdrop-blur-sm p-10">

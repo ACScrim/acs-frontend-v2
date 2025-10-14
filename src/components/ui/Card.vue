@@ -1,24 +1,34 @@
 <script setup lang="ts">
 
-const props = withDefaults(defineProps<{ cardClasses?: string, color?: string }>(), {
+const props = withDefaults(defineProps<{ cardClasses?: string, color?: string, shadowColor?: string }>(), {
   cardClasses: "",
-  color: "acs-orange-dark"
+  color: "acs-orange-dark",
+  shadowColor: undefined
 });
 
 const colorClasses: Record<string, string> = {
-  'acs-red': "bg-acs-red/75 border-acs-red/75",
-  'acs-purple': "bg-acs-purple/75 border-acs-purple/75",
-  'acs-yellow': "bg-acs-yellow/75 border-acs-yellow/75",
-  'acs-orange-light': "bg-acs-orange-light/75 border-acs-orange-light/75",
-  'acs-orange-dark': "bg-acs-orange-dark/75 border-acs-orange-dark/75"
+  'acs-red': "bg-acs-red/75",
+  'acs-purple': "bg-acs-purple/75",
+  'acs-yellow': "bg-acs-yellow/75",
+  'acs-orange-light': "bg-acs-orange-light/75",
+  'acs-orange-dark': "bg-acs-orange-dark/75"
+}
+
+const borderColorClasses: Record<string, string> = {
+  'acs-red': "border-acs-red",
+  'acs-purple': "border-acs-purple",
+  'acs-yellow': "border-acs-yellow",
+  'acs-orange-light': "border-acs-orange-light",
+  'acs-orange-dark': "border-acs-orange-dark",
+  'black': "border-black"
 }
 </script>
 
 <template>
   <div 
     class="text-white rounded-xl border-2 shadow-acs-card" 
-    :class="`${colorClasses[props.color]} ${props.cardClasses}`" 
-    :style="`--tw-shadow-color: var(--color-${props.color})`" v-tw-merge
+    :class="`${colorClasses[props.color]} ${borderColorClasses[props.shadowColor || props.color]} ${props.cardClasses}`" 
+    :style="`--tw-shadow-color: var(--color-${props.shadowColor || props.color})`" v-tw-merge
   >
     <!-- Header slot -->
     <header v-if="$slots.header" class="mb-4">

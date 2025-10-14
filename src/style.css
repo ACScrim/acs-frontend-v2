@@ -10,4 +10,7 @@
 
   --shadow-acs-card: 10px 10px 0 var(--tw-shadow-color);
   --shadow-acs-button: 5px 5px 0 var(--tw-shadow-color);
+  --shadow-acs-separator: 3px 3px 0 var(--tw-shadow-color);
+
+  --breakpoint-2k: 1921px;
 }

@@ -27,8 +27,6 @@ const getPlayerPercentage = (current: number, cap: number) => {
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
       <Card
-        variant="gaming"
-        hoverable
         v-for="tournament in tournaments"
         :key="tournament.id"
         class="px-0! py-0! overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-2xs hover:shadow-cyan-500/20"
@@ -109,8 +107,9 @@ const getPlayerPercentage = (current: number, cap: number) => {
 
             <!-- Bouton d'action -->
             <Button
-              color="acs-yellow"
-              class="w-full font-bold text-acs-purple"
+              color="acs-orange-dark"
+              shadow-color="acs-orange-light"
+              class="w-full font-bold text-white"
               icon-position="lr"
             >
               <template #icon>

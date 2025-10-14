@@ -16,7 +16,7 @@ const displayText = computed(() => isHovered.value ? hoverText : defaultText);
 const homeStats = computed(() => statsStore.homeStats);
 
 const titleRef = ref<HTMLElement>();
-const { variant } = useMotion(titleRef, {
+const { variant, motionProperties } = useMotion(titleRef, {
   initial: {
     translateY: 0
   },
@@ -41,13 +41,15 @@ const { variant } = useMotion(titleRef, {
     }
   }
 })
+
+const API_URL = import.meta.env.VITE_API_URL;
 </script>
 
 <template>
   <div class="flex flex-col-reverse items-center lg:flex-row gap-x-20">
     <Card card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-4" color="acs-purple">
       <template #header>
-        <h1 class="uppercase text-6xl font-bold overflow-hidden">
+        <h1 class="uppercase text-6xl font-bold overflow-hidden" :title="`Alors ça ${(motionProperties as any)['translateY'] === 0 ? 'Scrim' : 'Chill'} ?`">
           Alors Ca 
           <div class="inline-block h-[4.5rem] overflow-hidden relative align-top leading-none">
             <div ref="titleRef" class="flex flex-col">
@@ -81,7 +83,7 @@ const { variant } = useMotion(titleRef, {
       </div>
 
       <template #footer>
-        <Button to="/join-discord" icon-position="l" @mouseenter="isHovered = true"
+        <Button :to="`${API_URL}/auth/discord`" icon-position="l" @mouseenter="isHovered = true"
           @mouseleave="isHovered = false" class="relative overflow-hidden text-acs-purple font-bold">
           <template #icon v-if="isHovered">
             <VueIcon name="bs:discord" class="text-2xl" />
