@@ -45,7 +45,7 @@ const { variant } = useMotion(titleRef, {
 
 <template>
   <div class="flex flex-col-reverse items-center lg:flex-row gap-x-20">
-    <Card card-classes="p-8! relative max-w-4xl flex flex-col justify-between space-y-4" color="acs-purple">
+    <Card card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-4" color="acs-purple">
       <template #header>
         <h1 class="uppercase text-6xl font-bold overflow-hidden">
           Alors Ca 

@@ -56,7 +56,7 @@ if (params.has("invite")) {
 }
 
 // Fetch user
-useUserStore().fetchUser();
+useUserStore().fetchUser()
 
 // Fetch tournaments
 useTournamentStore().fetchTournaments();

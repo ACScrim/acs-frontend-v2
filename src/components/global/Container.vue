@@ -1,10 +1,17 @@
+<script setup lang="ts">
+import { useFps } from '@vueuse/core';
+
+const fps = useFps()
+</script>
+
 <template>
+  <span class="absolute text-green-500">{{ fps }}</span>
   <main class="maincontainer bg-acs-orange-light">
     <div class="aside">
       <slot name="aside"></slot>
     </div>
     <div class="view">
-      <div class="h-full w-full max-w-7xl mx-auto p-5 space-y-8">
+      <div class="lg:h-full w-full mb-14 lg:mb-0 max-w-7xl mx-auto p-5 space-y-8">
         <slot name="view"></slot>
       </div>
     </div>

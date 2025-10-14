@@ -18,7 +18,6 @@ export const useUserStore = defineStore('user', {
         const response = await api.get("/users/me");
         this.user = response.data;
       } catch (error) {
-        console.error("Error fetching user profile:", error);
         this.user = null; // Assurez-vous de réinitialiser l'utilisateur en cas d'erreur
       }
     },

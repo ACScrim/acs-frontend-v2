@@ -3,7 +3,7 @@ import { Badge, Button, Card } from "@/components/ui";
 import TextSvg from "@/components/ui/TextSvg.vue";
 import useTournamentStore from "@/stores/tournamentStore";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
-import { formatDate } from "@vueuse/core";
+import { formatDate, useTimeAgoIntl } from "@vueuse/core";
 import { computed } from "vue";
 
 const tournamentStore = useTournamentStore();
@@ -24,8 +24,8 @@ const getPlayerPercentage = (current: number, cap: number) => {
       class="uppercase text-4xl lg:text-6xl"
       fill-color="cyan"
     />
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
       <Card
         variant="gaming"
         hoverable
@@ -73,16 +73,16 @@ const getPlayerPercentage = (current: number, cap: number) => {
               
               <div class="space-y-3">
                 <div class="inline-flex gap-3 items-center text-gray-300">
-                  <VueIcon name="ak:calendar" class="text-acs-orange-light text-2xl" />
-                  <span class="font-medium text-lg">
-                    {{ formatDate(new Date(tournament.date), "DD/MM/YYYY HH:mm") }}
+                  <VueIcon name="ak:calendar" class="text-acs-orange-light text-xl" />
+                  <span class="font-medium">
+                    {{ formatDate(new Date(tournament.date), "DD/MM/YYYY HH:mm") }} ( {{ useTimeAgoIntl(new Date(tournament.date), { locale: "fr" }) }} )
                   </span>
                 </div>
                 
                 <div class="space-y-2">
                   <div class="inline-flex gap-3 items-center">
-                    <VueIcon name="cl:users" class="text-acs-orange-light text-2xl" />
-                    <span class="font-medium text-gray-300 text-lg">
+                    <VueIcon name="cl:users" class="text-acs-orange-light text-xl" />
+                    <span class="font-medium text-gray-300">
                       {{ tournament.players.length }}
                       {{ tournament.playerCap > 0 ? `/ ${tournament.playerCap}` : '' }}
                       joueur{{ tournament.players.length > 1 ? 's' : '' }}
@@ -98,7 +98,9 @@ const getPlayerPercentage = (current: number, cap: number) => {
                         getPlayerPercentage(tournament.players.length, tournament.playerCap) >= 70 ? 'bg-acs-orange-dark' : '',
                         'bg-acs-green'
                       ]"
-                      :style="{ width: `${getPlayerPercentage(tournament.players.length, tournament.playerCap)}%` }"
+                      :style="{
+                        width: `${getPlayerPercentage(tournament.players.length, tournament.playerCap)}%`
+                      }"
                     ></div>
                   </div>
                 </div>
@@ -108,17 +110,17 @@ const getPlayerPercentage = (current: number, cap: number) => {
             <!-- Bouton d'action -->
             <Button
               color="acs-yellow"
-              button-classes="w-full text-acs-purple font-bold"
+              class="w-full font-bold text-acs-purple"
               icon-position="lr"
             >
               <template #icon>
                 <VueIcon 
                   :name="tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'bs:clock' : 'bs:controller'" 
-                  class="transition-transform group-hover:scale-110 text-lg"
+                  class="transition-transform group-hover:scale-110 text-xl"
                 />
               </template>
               <span class="line-clamp-1 text-left">
-                {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Rejoindre la liste d\'attente' : 'Je veux jouer !' }}
+                {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Rejoindre la liste d\'attente' : 'Je veux m\'inscrire !' }}
               </span>
             </Button>
           </div>
