@@ -1,4 +1,4 @@
-import { type ApiResponse, type Tournament } from "@/types/models";
+import { type ApiResponse, type Game, type Tournament } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 
@@ -9,6 +9,20 @@ const useTournamentStore = defineStore('tournament', {
   getters: {
     nextTournaments: (state) => {
       return state.tournaments.filter(t => !t.finished).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 3);
+    },
+    finishedTournaments: (state) => {
+      return state.tournaments.filter(t => t.finished).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) || [];
+    },
+    upcomingTournaments: (state) => {
+      return state.tournaments.filter(t => !t.finished).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+    },
+    gamesPlayed: (state) => {
+      return state.tournaments.reduce((acc: Game[], tournament: Tournament) => {
+        if (acc.includes(tournament.game)) {
+          return acc;
+        }
+        return [...acc, tournament.game];
+      }, []);
     }
   },
   actions: {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const props = withDefaults(defineProps<{ cardClasses?: string, color?: string, shadowColor?: string }>(), {
   cardClasses: "",
   color: "acs-orange-dark",
@@ -20,7 +19,8 @@ const borderColorClasses: Record<string, string> = {
   'acs-yellow': "border-acs-yellow",
   'acs-orange-light': "border-acs-orange-light",
   'acs-orange-dark': "border-acs-orange-dark",
-  'black': "border-black"
+  'black': "border-black",
+  'white': "border-white",
 }
 </script>
 

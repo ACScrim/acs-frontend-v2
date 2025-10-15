@@ -23,7 +23,9 @@ const getPlayerPercentage = (current: number, cap: number) => {
       <!-- Image avec overlay gradient -->
       <div class="relative overflow-hidden">
         <img :src="tournament.game.imageUrl" :alt="tournament.game.name"
-          class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110" />
+          class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+          fetchpriority="high" loading="lazy"
+        />
         <!-- Gradient overlay -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
@@ -34,7 +36,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
         </Badge>
 
         <!-- Badge statut -->
-        <Badge :class="[
+        <Badge v-if="!tournament.finished" :class="[
           'absolute bottom-4 left-4 font-bold text-xs uppercase tracking-wide rounded-lg px-2 py-1',
           tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap
             ? 'bg-acs-red/90'
@@ -71,7 +73,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
               </div>
 
               <!-- Barre de progression si playerCap défini -->
-              <div v-if="tournament.playerCap > 0" class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+              <div v-if="tournament.playerCap > 0 && !tournament.finished" class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
                 <div class="h-full transition-all duration-500 rounded-full" 
                   :class="[
                     getPlayerPercentage(tournament.players.length, tournament.playerCap) >= 90 ? 'bg-acs-red' : '',
@@ -87,8 +89,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
         </div>
 
         <!-- Bouton d'action -->
-        <Button color="acs-orange-dark" shadow-color="acs-orange-light" class="w-full font-bold text-white"
-          icon-position="lr">
+        <Button v-if="!tournament.finished" color="acs-orange-dark" shadow-color="acs-orange-light" class="w-full font-bold text-white" icon-position="lr">
           <template #icon>
             <VueIcon
               :name="tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'bs:clock' : 'bs:controller'"
@@ -98,6 +99,11 @@ const getPlayerPercentage = (current: number, cap: number) => {
             {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Rejoindre la liste d\'attente' : 'Je veux m\'inscrire !' }}
           </span>
         </Button>
+        <Card v-else shadow-color="white" class="shadow-acs-button">
+          <div class="text-center p-4">
+            <span class="text-white font-medium inline-flex gap-1 items-center">Vainqueur <VueIcon name="bs:arrow-right" /> {{ tournament.teams.filter(team => team.ranking === 1)[0]?.name || "Aucun" }}</span>
+          </div>
+        </Card>
       </div>
     </div>
   </Card>
