@@ -1,4 +1,4 @@
-import type { User } from "@/types/models";
+import type { ApiResponse, User } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 
@@ -15,8 +15,8 @@ export const useUserStore = defineStore('user', {
   actions: {
     async fetchUser() {
       try {
-        const response = await api.get("/users/me");
-        this.user = response.data;
+        const response = await api.get<ApiResponse<User>>("/users/me");
+        this.user = response.data.data;
       } catch (error) {
         this.user = null; // Assurez-vous de réinitialiser l'utilisateur en cas d'erreur
       }

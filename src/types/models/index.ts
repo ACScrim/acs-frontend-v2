@@ -1,3 +1,17 @@
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: {
+    message: string;
+    code: string;
+  };
+  meta?: {
+    timestamp: string;
+    path: string;
+    method: string;
+  }
+}
+
 export interface User {
   id: string;
   email: string;
@@ -55,4 +69,10 @@ export interface Game {
   name: string;
   roles: string[];
   updatedAt: string;
+}
+
+export interface HomeStats {
+  tournaments: number,
+  users: number,
+  gamesPlayed: number
 }
