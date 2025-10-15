@@ -30,7 +30,7 @@ const API_URL = import.meta.env.VITE_API_URL
       <img src="/acs.avif" width="200" style="filter: drop-shadow(5px 5px 0 black)" />
     </RouterLink>
     <Separator />
-    <div class="my-auto">
+    <div class="my-auto space-y-4">
       <RouterLink v-for="route in asideRoutes" :key="route.path" :to="route.path"
         class="font-bold px-6 py-4 border-2 border-transparent hover:text-white hover:bg-acs-purple/80 hover:border-acs-purple hover:shadow-acs-button hover:shadow-acs-purple rounded-md flex flex-row gap-4 w-full p-2"
         active-class="bg-acs-purple/80 border-acs-purple text-white shadow-acs-button shadow-acs-purple">
@@ -70,6 +70,7 @@ aside::before {
   opacity: 0.75;
   z-index: 0;
   background: linear-gradient(to left, var(--color-acs-orange-light), var(--color-acs-orange-dark) 0%);
+  border: 2px solid var(--color-acs-purple);
 }
 
 aside>* {
