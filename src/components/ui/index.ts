@@ -8,6 +8,3 @@ export { default as Toast } from "./Toast.vue";
 // Export des types
 export type * from "@/types/ui";
 
-// Export du composable
-export { useUIClasses } from "@/composables/useUIClasses";
-
