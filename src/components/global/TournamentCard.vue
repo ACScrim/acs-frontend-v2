@@ -32,7 +32,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
         <!-- Badge jour -->
         <Badge
           class="uppercase ml-auto absolute top-4 right-4 font-bold h-auto text-sm! bg-acs-purple/90 backdrop-blur-sm rounded-lg px-3 py-1">
-          {{ formatDate(new Date(tournament.date), "dddd") }}
+          {{ formatDate(new Date(tournament.date), "dddd", { locales: "fr" }) }}
         </Badge>
 
         <!-- Badge statut -->

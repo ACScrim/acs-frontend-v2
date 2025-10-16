@@ -76,3 +76,12 @@ export interface HomeStats {
   users: number,
   gamesPlayed: number
 }
+
+export interface LeaderboardEntry {
+  ranking: number;
+  user: User;
+  tournamentsCount: number;
+  victoriesCount: number;
+  top25Count: number;
+  points: number;
+}
