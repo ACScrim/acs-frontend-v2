@@ -13,12 +13,13 @@ interface Props {
   delay?: number;
   width?: string;
   maxWidth?: string;
+  animated?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   fontSize: 80,
-  strokeColor: '#7c3aed',
-  fillColor: '#7c3aed',
+  strokeColor: '#D4AF37',
+  fillColor: '#D4AF37',
   strokeWidth: 2,
   duration: 3,
   fontFamily: 'Arial Black, sans-serif',
@@ -26,6 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
   delay: 0,
   width: '100%',
   maxWidth: '100%',
+  animated: true,
 });
 
 const textRef = ref<SVGTextElement>();
@@ -46,9 +48,13 @@ onMounted(() => {
     const padding = props.strokeWidth * 2;
     viewBox.value = `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`;
     
-    setTimeout(() => {
+    if (props.animated) {
+      setTimeout(() => {
+        isAnimating.value = true;
+      }, props.delay);
+    } else {
       isAnimating.value = true;
-    }, props.delay);
+    }
   }
 });
 
@@ -72,6 +78,33 @@ const style = computed(() => ({
     :style="style"
     preserveAspectRatio="xMidYMid meet"
   >
+    <defs>
+      <!-- Gradients Noël -->
+      <linearGradient id="christmasGold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#F4E4C1;stop-opacity:1" />
+      </linearGradient>
+      
+      <linearGradient id="christmasRed" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#C41E3A;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#8B0000;stop-opacity:1" />
+      </linearGradient>
+      
+      <linearGradient id="christmasGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#0F4C3A;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#2D5C4E;stop-opacity:1" />
+      </linearGradient>
+
+      <!-- Filtre de brillance Noël -->
+      <filter id="christmasGlow">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
     <text
       ref="textRef"
       x="0"
@@ -82,6 +115,7 @@ const style = computed(() => ({
       :class="{ 'is-animating': isAnimating }"
       class="svg-text"
       dominant-baseline="hanging"
+      filter="url(#christmasGlow)"
     >
       {{ text }}
     </text>
@@ -104,11 +138,13 @@ const style = computed(() => ({
   stroke-linejoin: round;
   stroke-dasharray: var(--path-length);
   stroke-dashoffset: var(--path-length);
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
 }
 
 .svg-text.is-animating {
   animation: draw var(--animation-duration) ease-in-out forwards,
-             fill calc(var(--animation-duration) * 0.3) ease-in calc(var(--animation-duration) * 0.1) forwards;
+             fill calc(var(--animation-duration) * 0.3) ease-in calc(var(--animation-duration) * 0.1) forwards,
+             glow var(--animation-duration) ease-in-out infinite;
 }
 
 @keyframes draw {
@@ -120,6 +156,15 @@ const style = computed(() => ({
 @keyframes fill {
   to {
     fill: var(--fill-color);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.8));
   }
 }
 </style>

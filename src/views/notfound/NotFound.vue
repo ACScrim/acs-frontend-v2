@@ -43,11 +43,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <Card class="h-[calc(100dvh_-_7rem)] lg:size-full relative" shadow-color="black">
+  <Card class="h-[calc(100dvh_-_7rem)] lg:size-full relative">
     <canvas id="notfound-canvas" class="size-full">
       Your browser does not support the HTML5 canvas tag.
     </canvas>
-    <Card class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4" shadow-color="black">
+    <Card class="absolute! top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-4">
       <template #header>
         <h1 class="text-4xl font-bold text-center">Oups...</h1>
       </template>

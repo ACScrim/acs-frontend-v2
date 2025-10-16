@@ -32,7 +32,7 @@ const { variant, motionProperties } = useMotion(titleRef, {
     }
   },
   animate: {
-    translateY: -72, // Hauteur d'une ligne de texte
+    translateY: -72,
     transition: {
       duration: 1000,
       repeat: Infinity,
@@ -46,45 +46,56 @@ const API_URL = import.meta.env.VITE_API_URL;
 </script>
 
 <template>
-  <div class="flex flex-col-reverse items-center lg:flex-row gap-x-20">
-    <Card card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-4" color="acs-purple">
+  <div class="flex flex-col-reverse items-center lg:flex-row gap-x-20 py-12">
+    <!-- Carte principale -->
+    <Card 
+      card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-6 border-christmas-lights" 
+      style="background: linear-gradient(135deg, #0A1B3D 0%, #1a2942 100%); border: 2px solid #D4AF37;"
+    >
       <template #header>
-        <h1 class="uppercase text-6xl font-bold overflow-hidden" :title="`Alors ça ${(motionProperties as any)['translateY'] === 0 ? 'Scrim' : 'Chill'} ?`">
-          Alors Ca 
-          <div class="inline-block h-[4.5rem] overflow-hidden relative align-top leading-none">
+        <h1 
+          class="uppercase text-6xl font-bold overflow-hidden text-christmas-snow drop-shadow-lg" 
+          :title="`Alors ça ${(motionProperties as any)['translateY'] === 0 ? 'Scrim' : 'Chill'} ?`"
+        >
+          <span class="bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent">
+            Alors Ca
+          </span>
+          <div class="inline-block h-[4.5rem] overflow-hidden relative align-top leading-none ml-2">
             <div ref="titleRef" class="flex flex-col">
-              <span class="inline-block h-[4.5rem] leading-none">Scrim</span>
-              <span class="inline-block h-[4.5rem] leading-none">Chill</span>
+              <span class="inline-block h-[4.5rem] leading-none bg-gradient-to-r from-christmas-red to-christmas-crimson bg-clip-text text-transparent">Scrim</span>
+              <span class="inline-block h-[4.5rem] leading-none bg-gradient-to-r from-christmas-pine to-christmas-forest bg-clip-text text-transparent">Chill</span>
             </div>
           </div>
           ?
         </h1>
+        <p class="text-christmas-gold-light text-lg mt-2 opacity-90">Rejoins la communauté gaming ultime</p>
       </template>
 
-      <div class="grid grid-cols-3 gap-4">
-        <Card card-classes="shadow-acs-button flex flex-col items-center justify-center [&>footer]:mt-0 p-2" color="white">
-          <span class="text-xl font-bold">{{ homeStats.tournaments }}</span>
-          <template #footer>
-            Tournois joués
-          </template>
-        </Card>
-        <Card card-classes="shadow-acs-button flex flex-col items-center justify-center [&>footer]:mt-0 p-2" color="white">
-          <span class="text-xl font-bold">{{ homeStats.users }}</span>
-          <template #footer>
-            Joueurs
-          </template>
-        </Card>
-        <Card card-classes="shadow-acs-button flex flex-col items-center justify-center [&>footer]:mt-0 p-2" color="white">
-          <span class="text-xl font-bold">{{ homeStats.gamesPlayed }}</span>
-          <template #footer>
-            Jeux
-          </template>
-        </Card>
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-3 gap-4 mt-6">
+        <div class="bg-gradient-to-br from-christmas-gold to-christmas-gold-light rounded-lg p-4 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <span class="text-3xl font-bold text-christmas-navy">{{ homeStats.tournaments }}</span>
+          <span class="text-sm text-christmas-navy font-semibold mt-2">Tournois joués</span>
+        </div>
+        <div class="bg-gradient-to-br from-christmas-red to-christmas-crimson rounded-lg p-4 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <span class="text-3xl font-bold text-christmas-snow">{{ homeStats.users }}</span>
+          <span class="text-sm text-christmas-snow font-semibold mt-2">Joueurs</span>
+        </div>
+        <div class="bg-gradient-to-br from-christmas-pine to-christmas-forest rounded-lg p-4 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <span class="text-3xl font-bold text-christmas-ice">{{ homeStats.gamesPlayed }}</span>
+          <span class="text-sm text-christmas-snow font-semibold mt-2">Jeux</span>
+        </div>
       </div>
 
+      <!-- Footer Button -->
       <template #footer>
-        <Button :to="`${API_URL}/auth/discord`" icon-position="l" @mouseenter="isHovered = true"
-          @mouseleave="isHovered = false" class="relative overflow-hidden text-acs-purple font-bold">
+        <Button 
+          :to="`${API_URL}/auth/discord`" 
+          icon-position="l" 
+          @mouseenter="isHovered = true"
+          @mouseleave="isHovered = false" 
+          class="relative overflow-hidden font-bold text-lg bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+        >
           <template #icon v-if="isHovered">
             <VueIcon name="bs:discord" class="text-2xl" />
           </template>
@@ -92,16 +103,28 @@ const API_URL = import.meta.env.VITE_API_URL;
             <VueIcon name="bs:controller" class="text-2xl" />
           </template>
           <span class="letter-animation">
-            <span v-for="(char, index) in displayText" :key="`${char}-${index}-${isHovered}`"
-              class="inline-block letter uppercase" :style="{ animationDelay: `${index * 0.03}s` }">
+            <span 
+              v-for="(char, index) in displayText" 
+              :key="`${char}-${index}-${isHovered}`"
+              class="inline-block letter uppercase" 
+              :style="{ animationDelay: `${index * 0.03}s` }"
+            >
               {{ char === ' ' ? '\u00A0' : char }}
             </span>
           </span>
         </Button>
       </template>
     </Card>
-    <div class="basis-1/3 h-60 lg:aspect-square">
-      <img src="/Logo_ACS.png" class="w-60 h-60 place-self-center" />
+
+    <!-- Right Section - TODO: Last Tournament -->
+    <div class="basis-1/3 h-60 lg:aspect-square relative">
+      <div class="absolute inset-0 bg-gradient-to-br from-christmas-gold/20 via-transparent to-christmas-red/20 rounded-2xl border-2 border-dashed border-christmas-gold/50 flex items-center justify-center">
+        <div class="text-center">
+          <VueIcon name="bs:trophy" class="text-6xl text-christmas-gold mx-auto mb-4 opacity-60" />
+          <p class="text-christmas-gold-light font-semibold">Dernier tournoi</p>
+          <p class="text-christmas-snow/70 text-sm mt-1">À venir...</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>

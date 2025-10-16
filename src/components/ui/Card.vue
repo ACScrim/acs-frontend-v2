@@ -6,11 +6,17 @@ const props = withDefaults(defineProps<{ cardClasses?: string, color?: string, s
 });
 
 const colorClasses: Record<string, string> = {
-  'acs-red': "bg-acs-red/75",
-  'acs-purple': "bg-acs-purple/75",
-  'acs-yellow': "bg-acs-yellow/75",
-  'acs-orange-light': "bg-acs-orange-light/75",
-  'acs-orange-dark': "bg-acs-orange-dark/75"
+  'navy': "bg-christmas-navy",
+  'midnight': "bg-christmas-midnight",
+  'gold': "bg-christmas-gold",
+  'gold-light': "bg-christmas-gold-light",
+  'crimson': "bg-christmas-crimson",
+  'red': "bg-christmas-red",
+  'pine': "bg-christmas-pine",
+  'forest': "bg-christmas-forest",
+  'snow': "bg-christmas-snow",
+  'silver': "bg-christmas-silver",
+  'ice': "bg-christmas-ice"
 }
 
 const borderColorClasses: Record<string, string> = {
@@ -26,8 +32,8 @@ const borderColorClasses: Record<string, string> = {
 
 <template>
   <div 
-    class="text-white rounded-xl border-2 shadow-acs-card" 
-    :class="`${colorClasses[props.color]} ${borderColorClasses[props.shadowColor || props.color]} ${props.cardClasses}`" 
+    class="text-white rounded-xl border-christmas-lights" 
+    :class="`${colorClasses[props.color]} ${props.cardClasses}`" 
     :style="`--tw-shadow-color: var(--color-${props.shadowColor || props.color})`" v-tw-merge
   >
     <!-- Header slot -->

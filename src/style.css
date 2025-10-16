@@ -1,16 +1,144 @@
 @import "tailwindcss";
 
 @theme {
-  --color-acs-purple: #210140;
-  --color-acs-yellow: #F2D49B;
-  --color-acs-orange-light: #F2D4AE;
-  --color-acs-orange-dark: #BF533B;
-  --color-acs-red: #A6382E;
-  --color-acs-green: #4C9A2A;
+  /* Palette de Noël */
+  --color-christmas-navy: #0A1B3D;        /* Bleu nuit profond */
+  --color-christmas-midnight: #1a2942;     /* Bleu minuit */
+  --color-christmas-gold: #D4AF37;         /* Or royal */
+  --color-christmas-gold-light: #F4E4C1;   /* Or champagne */
+  --color-christmas-crimson: #8B0000;      /* Rouge profond */
+  --color-christmas-red: #C41E3A;          /* Rouge de Noël */
+  --color-christmas-pine: #0F4C3A;         /* Vert sapin foncé */
+  --color-christmas-forest: #2D5C4E;       /* Vert forêt */
+  --color-christmas-snow: #FAFAFA;         /* Blanc neige */
+  --color-christmas-silver: #C0C0C0;       /* Argent */
+  --color-christmas-ice: #E8F4F8;          /* Bleu glacé */
 
-  --shadow-acs-card: 10px 10px 0 var(--tw-shadow-color);
-  --shadow-acs-button: 5px 5px 0 var(--tw-shadow-color);
-  --shadow-acs-separator: 3px 3px 0 var(--tw-shadow-color);
+  /* Ombres améliorées */
+  --shadow-christmas-glow: 0 0 20px var(--tw-shadow-color);
+
+  /* Guirlande lumineuse - effet multi-couleurs */
+  --shadow-christmas-lights: 
+    0 0 10px var(--color-christmas-red),
+    5px 5px 15px var(--color-christmas-gold),
+    -5px 5px 15px var(--color-christmas-pine),
+    10px -5px 15px var(--color-christmas-crimson),
+    -10px -5px 15px var(--color-christmas-ice);
+  
+  /* Guirlande classique - alternance rouge/or/vert */
+  --shadow-christmas-garland:
+    2px 2px 8px var(--color-christmas-red),
+    6px 6px 8px var(--color-christmas-gold),
+    10px 10px 8px var(--color-christmas-pine),
+    14px 14px 8px var(--color-christmas-red),
+    18px 18px 8px var(--color-christmas-gold);
 
   --breakpoint-2k: 1921px;
+}
+
+/* Animations pour les guirlandes */
+@keyframes twinkle-1 {
+  0%, 100% { opacity: 1; filter: brightness(1.2) drop-shadow(0 0 8px currentColor); }
+  50% { opacity: 0.5; filter: brightness(0.8) drop-shadow(0 0 4px currentColor); }
+}
+
+@keyframes twinkle-2 {
+  0%, 100% { opacity: 0.5; filter: brightness(0.8) drop-shadow(0 0 4px currentColor); }
+  50% { opacity: 1; filter: brightness(1.2) drop-shadow(0 0 8px currentColor); }
+}
+
+@keyframes twinkle-3 {
+  0%, 100% { opacity: 0.7; filter: brightness(0.9); }
+  33% { opacity: 1; filter: brightness(1.2); }
+  66% { opacity: 0.5; filter: brightness(0.8); }
+}
+
+/* Bordure avec guirlande lumineuse */
+.border-christmas-lights {
+  position: relative;
+  border: 1px solid #fff1;
+}
+
+.border-christmas-lights::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: inherit;
+  background: 
+    /* Haut */
+    radial-gradient(circle 6px at 5% 6px, var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 6px at 20% 6px, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 6px at 35% 6px, var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 6px at 50% 6px, var(--color-christmas-crimson) 70%, transparent 70%),
+    radial-gradient(circle 6px at 65% 6px, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 6px at 80% 6px, var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 6px at 95% 6px, var(--color-christmas-pine) 70%, transparent 70%),
+    
+    /* Droite */
+    radial-gradient(circle 6px at calc(100% - 6px) 20%, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 6px at calc(100% - 6px) 40%, var(--color-christmas-crimson) 70%, transparent 70%),
+    radial-gradient(circle 6px at calc(100% - 6px) 60%, var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 6px at calc(100% - 6px) 80%, var(--color-christmas-red) 70%, transparent 70%),
+    
+    /* Bas */
+    radial-gradient(circle 6px at 95% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 6px at 80% calc(100% - 6px), var(--color-christmas-crimson) 70%, transparent 70%),
+    radial-gradient(circle 6px at 65% calc(100% - 6px), var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 6px at 50% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 6px at 35% calc(100% - 6px), var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 6px at 20% calc(100% - 6px), var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 6px at 5% calc(100% - 6px), var(--color-christmas-crimson) 70%, transparent 70%),
+    
+    /* Gauche */
+    radial-gradient(circle 6px at 6px 80%, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 6px at 6px 60%, var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 6px at 6px 40%, var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 6px at 6px 20%, var(--color-christmas-crimson) 70%, transparent 70%);
+  
+  pointer-events: none;
+  animation: twinkle-1 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+.border-christmas-lights::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: inherit;
+  background: 
+    /* Haut - entre les premières lumières */
+    radial-gradient(circle 5px at 12.5% 6px, var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 5px at 27.5% 6px, var(--color-christmas-crimson) 70%, transparent 70%),
+    radial-gradient(circle 5px at 42.5% 6px, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 5px at 57.5% 6px, var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 5px at 72.5% 6px, var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 5px at 87.5% 6px, var(--color-christmas-gold) 70%, transparent 70%),
+    
+    /* Droite */
+    radial-gradient(circle 5px at calc(100% - 6px) 30%, var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 5px at calc(100% - 6px) 50%, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 5px at calc(100% - 6px) 70%, var(--color-christmas-crimson) 70%, transparent 70%),
+    
+    /* Bas */
+    radial-gradient(circle 5px at 87.5% calc(100% - 6px), var(--color-christmas-red) 70%, transparent 70%),
+    radial-gradient(circle 5px at 72.5% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 5px at 57.5% calc(100% - 6px), var(--color-christmas-crimson) 70%, transparent 70%),
+    radial-gradient(circle 5px at 42.5% calc(100% - 6px), var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 5px at 27.5% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 5px at 12.5% calc(100% - 6px), var(--color-christmas-red) 70%, transparent 70%),
+    
+    /* Gauche */
+    radial-gradient(circle 5px at 6px 70%, var(--color-christmas-pine) 70%, transparent 70%),
+    radial-gradient(circle 5px at 6px 50%, var(--color-christmas-gold) 70%, transparent 70%),
+    radial-gradient(circle 5px at 6px 30%, var(--color-christmas-red) 70%, transparent 70%);
+  
+  pointer-events: none;
+  animation: twinkle-2 2s ease-in-out infinite;
+  z-index: 1;
 }
