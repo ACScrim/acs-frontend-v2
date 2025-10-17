@@ -49,7 +49,7 @@ const API_URL = import.meta.env.VITE_API_URL;
   <div class="flex flex-col-reverse items-center lg:flex-row gap-x-20 py-12">
     <!-- Carte principale -->
     <Card 
-      card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-6 border-christmas-lights" 
+      card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-6" 
       style="background: linear-gradient(135deg, #0A1B3D 0%, #1a2942 100%); border: 2px solid #D4AF37;"
     >
       <template #header>
@@ -94,7 +94,6 @@ const API_URL = import.meta.env.VITE_API_URL;
           icon-position="l" 
           @mouseenter="isHovered = true"
           @mouseleave="isHovered = false" 
-          class="relative overflow-hidden font-bold text-lg bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           <template #icon v-if="isHovered">
             <VueIcon name="bs:discord" class="text-2xl" />

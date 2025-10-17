@@ -18,7 +18,9 @@ const getPlayerPercentage = (current: number, cap: number) => {
 
 <template>
   <Card
-    class="px-0! py-0! overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-christmas-gold/30 border border-christmas-gold/30">
+    class="px-0! py-0! overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-christmas-gold/30 border border-christmas-gold/30"
+    color="navy"
+  >
     <div class="flex flex-col h-full">
       <!-- Image avec overlay gradient -->
       <div class="relative overflow-hidden">
@@ -89,7 +91,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
         </div>
 
         <!-- Bouton d'action -->
-        <Button v-if="!tournament.finished" class="w-full font-bold text-christmas-navy bg-christmas-gold hover:bg-gradient-to-r hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl" icon-position="lr">
+        <Button v-if="!tournament.finished" class="w-full font-bold" icon-position="lr">
           <template #icon>
             <VueIcon
               :name="tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'bs:clock' : 'bs:controller'"

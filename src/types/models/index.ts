@@ -85,3 +85,10 @@ export interface LeaderboardEntry {
   top25Count: number;
   points: number;
 }
+
+export interface Season {
+  id: string;
+  number: number;
+  tournaments: Tournament[];
+  winner: User | null;
+}

@@ -45,23 +45,31 @@ const props = withDefaults(defineProps<Props>(), {
   to: undefined,
   class: "",
   disabled: false,
-  color: "acs-orange-light"
+  color: "christmas-gold"
 });
 
 const bgColorClasses: Record<string, string> = {
-  'acs-red': "bg-acs-red/75",
-  'acs-purple': "bg-acs-purple/75",
-  'acs-yellow': "bg-acs-yellow/75",
-  'acs-orange-light': "bg-acs-orange-light/75",
-  'acs-orange-dark': "bg-acs-orange-dark/75"
+  'christmas-gold': "bg-gradient-to-r from-christmas-gold to-christmas-gold-light hover:from-christmas-red hover:to-christmas-crimson",
+  'christmas-red': "bg-gradient-to-r from-christmas-red to-christmas-crimson hover:from-christmas-crimson hover:to-christmas-red",
+  'christmas-green': "bg-gradient-to-r from-christmas-pine to-christmas-forest hover:from-christmas-forest hover:to-christmas-pine",
+  'christmas-navy': "bg-gradient-to-r from-christmas-navy to-christmas-midnight hover:from-christmas-gold hover:to-christmas-gold-light",
+  'christmas-ice': "bg-gradient-to-r from-christmas-ice to-christmas-snow hover:from-christmas-gold hover:to-christmas-gold-light",
 }
 
 const borderColorClasses: Record<string, string> = {
-  'acs-red': "border-acs-red",
-  'acs-purple': "border-acs-purple",
-  'acs-yellow': "border-acs-yellow",
-  'acs-orange-light': "border-acs-orange-light",
-  'acs-orange-dark': "border-acs-orange-dark"
+  'christmas-gold': "border-christmas-gold hover:border-christmas-red",
+  'christmas-red': "border-christmas-red hover:border-christmas-crimson",
+  'christmas-green': "border-christmas-pine hover:border-christmas-forest",
+  'christmas-navy': "border-christmas-navy hover:border-christmas-gold",
+  'christmas-ice': "border-christmas-ice hover:border-christmas-gold",
+}
+
+const textColorClasses: Record<string, string> = {
+  'christmas-gold': "text-christmas-navy hover:text-christmas-snow",
+  'christmas-red': "text-christmas-snow",
+  'christmas-green': "text-christmas-snow",
+  'christmas-navy': "text-christmas-gold-light hover:text-christmas-gold",
+  'christmas-ice': "text-christmas-navy hover:text-christmas-navy",
 }
 </script>
 
@@ -69,9 +77,8 @@ const borderColorClasses: Record<string, string> = {
   <component 
     :is="component"
     v-bind="componentProps"
-    class="cursor-pointer flex flex-row rounded-xl py-4 px-8 items-center justify-center shadow-acs-button hover:shadow-sm transition-all w-fit border-2 gap-2"
-    :class="`${bgColorClasses[props.color]} ${borderColorClasses[props.shadowColor || props.color]} ${props.class}`"
-    :style="`--tw-shadow-color: var(--color-${props.shadowColor || props.color})`"
+    class="cursor-pointer flex flex-row rounded-xl py-4 px-8 items-center justify-center shadow-lg hover:shadow-xl transition-all w-fit border-2 gap-2 font-bold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+    :class="`${bgColorClasses[props.color]} ${borderColorClasses[props.color]} ${textColorClasses[props.color]} ${props.class}`"
     v-tw-merge
   >
     <!-- Loading spinner -->

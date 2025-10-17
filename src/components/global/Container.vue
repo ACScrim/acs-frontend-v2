@@ -51,7 +51,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="aside z-10 bg-gradient-to-b from-christmas-navy/95 to-christmas-midnight/90 border-r-2 border-christmas-gold/30 shadow-lg">
+    <div class="aside z-10 bg-gradient-to-b from-christmas-navy/95 to-christmas-midnight/90">
       <slot name="aside"></slot>
     </div>
     <div class="view z-10">
