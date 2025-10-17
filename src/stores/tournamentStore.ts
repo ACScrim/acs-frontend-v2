@@ -24,6 +24,9 @@ const useTournamentStore = defineStore('tournament', {
         }
         return [...acc, tournament.game];
       }, []);
+    },
+    getById: (state) => {
+      return (id: string) => state.tournaments.find(t => t.id === id);
     }
   },
   actions: {
@@ -31,7 +34,6 @@ const useTournamentStore = defineStore('tournament', {
       this.isLoading = true;
       const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
       this.tournaments = response.data.data;
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Simulate loading time
       this.isLoading = false;
     }
   },

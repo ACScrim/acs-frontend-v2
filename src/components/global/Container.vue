@@ -31,7 +31,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <span class="absolute text-christmas-gold z-10 font-bold">{{ fps }} FPS</span>
+  <span class="absolute text-christmas-gold z-10 font-bold z-20">{{ fps }} FPS</span>
   <main class="maincontainer bg-gradient-to-br from-christmas-navy via-christmas-midnight to-christmas-navy">
     <!-- Arrière-plan avec flocons de neige -->
     <div class="snowflakes-container">

@@ -18,7 +18,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
 
 <template>
   <Card
-    class="px-0! py-0! overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-christmas-gold/30 border border-christmas-gold/30"
+    class="overflow-hidden group transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-christmas-gold/30 border border-christmas-gold/30"
     color="navy"
   >
     <div class="flex flex-col h-full">

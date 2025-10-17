@@ -92,3 +92,20 @@ export interface Season {
   tournaments: Tournament[];
   winner: User | null;
 }
+
+export interface GameProposal {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string | null;
+  rawgId: number | null;
+  proposedBy: User;
+  status: 'pending' | 'approved';
+  votes: {
+    user: User;
+    value: number;
+  }[];
+  totalVotes: number;
+  createdAt: string;
+  updatedAt: string;
+}

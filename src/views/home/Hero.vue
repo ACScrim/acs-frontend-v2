@@ -49,7 +49,7 @@ const API_URL = import.meta.env.VITE_API_URL;
   <div class="flex flex-col-reverse items-center lg:flex-row gap-x-20 py-12">
     <!-- Carte principale -->
     <Card 
-      card-classes="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-6" 
+      class="p-8! relative w-full lg:w-auto lg:max-w-4xl flex flex-col justify-between space-y-6" 
       style="background: linear-gradient(135deg, #0A1B3D 0%, #1a2942 100%); border: 2px solid #D4AF37;"
     >
       <template #header>
