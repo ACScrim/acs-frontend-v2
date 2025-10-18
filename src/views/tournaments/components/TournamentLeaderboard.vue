@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Card } from '@/components/ui';
 import type { Tournament } from '@/types/models';
+import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 defineProps<{ tournament: Tournament }>();
 </script>
 
@@ -64,7 +65,7 @@ defineProps<{ tournament: Tournament }>();
       </div>
 
       <!-- Décoration entre podium et classement -->
-      <div class="flex items-center gap-4 px-4">
+      <div class="flex items-center gap-4 px-4" v-if="tournament.teams.length > 3">
         <div class="flex-1 h-1 bg-gradient-to-r from-christmas-gold/0 via-christmas-gold to-christmas-gold/0 rounded-full"></div>
         <VueIcon name="bs:stars" class="text-christmas-gold text-2xl" />
         <div class="flex-1 h-1 bg-gradient-to-r from-christmas-gold/0 via-christmas-gold to-christmas-gold/0 rounded-full"></div>
@@ -96,11 +97,6 @@ defineProps<{ tournament: Tournament }>();
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Message si peu de teams -->
-      <div v-else class="text-center py-4 px-4">
-        <p class="text-christmas-gold-light">Podium complet avec {{ tournament.teams.length }} équipe{{ tournament.teams.length > 1 ? 's' : '' }}</p>
       </div>
     </div>
   </Card>

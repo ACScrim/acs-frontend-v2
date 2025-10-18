@@ -43,7 +43,7 @@ export interface Tournament {
     mvpVotes: string[];
   }[];
   playerCap: number;
-  teamPublished: boolean;
+  teamsPublished: boolean;
   finished: boolean;
   description: string;
   discordReminderDate: string;
@@ -54,7 +54,7 @@ export interface Tournament {
   mvpVoteOpen: boolean;
   teams:{
     name: string;
-    users: string[];
+    users: User[];
     score: number;
     ranking: number;
     id: string;

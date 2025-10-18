@@ -12,7 +12,6 @@ const props = withDefaults(defineProps<{
 }>(), {
   data: () => [],
   emptyTitle: 'Aucun élément trouvé',
-  emptyMessage: 'Il n\'y a actuellement aucun élément à afficher.',
   maxCols: 3,
 });
 
@@ -59,7 +58,7 @@ const getGridColsClass = () => {
       >
       <slot name="emptyIcon" />
       <h2 class="text-2xl font-bold text-christmas-snow mb-2">{{ emptyTitle }}</h2>
-      <p class="text-christmas-gold-light">{{ emptyMessage }}</p>
+      <p v-if="emptyMessage" class="text-christmas-gold-light">{{ emptyMessage }}</p>
       </Card>
     </div>
   </div>
