@@ -26,19 +26,19 @@ const shouldShowFallback = computed(() => !shouldShowImage.value);
 </script>
 
 <template>
-  <div>
+  <div class="size-12 rounded-full" v-tw-merge>
     <!-- Image -->
-    <img
-      v-if="shouldShowImage"
-      :src="src"
-      :alt="alt"
-      @error="handleImageError"
-      class="size-12"
-    />
+    <img v-if="shouldShowImage" :src="src" :alt="alt" @error="handleImageError" class="size-12" />
 
     <!-- Fallback -->
-    <span v-else-if="shouldShowFallback" class="font-medium text-center">
-      <slot name="fallback">{{ fallback }}</slot>
+    <span v-else-if="shouldShowFallback" class="font-medium text-center size-full">
+      <slot name="fallback">
+        <div class="flex items-center justify-center bg-christmas-pine size-full">
+          <span class="text-christmas-snow font-bold text-lg">
+            {{ fallback }}
+          </span>
+        </div>
+      </slot>
     </span>
 
     <!-- Slot pour contenu personnalisé -->

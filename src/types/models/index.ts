@@ -34,7 +34,7 @@ export interface Tournament {
   discordChannelName: string;
   players: {
     id: string;
-    userId: string;
+    user: User;
     inWaitlist: boolean;
     registrationDate: string;
     hasCheckin: boolean;

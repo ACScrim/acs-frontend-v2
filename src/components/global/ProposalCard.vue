@@ -77,15 +77,8 @@ const handleVoteClick = (value: number) => {
                     :key="vote.user.id"
                     :alt="vote.user.username"
                     :title="vote.user.username"
-                  >
-                    <template #fallback>
-                      <div class="flex items-center justify-center bg-christmas-pine size-10">
-                        <span class="text-christmas-snow font-bold text-lg">
-                          {{ vote.user.username.charAt(0).toUpperCase() }}
-                        </span>
-                      </div>
-                    </template>
-                  </Avatar>
+                    :fallback="vote.user.username.charAt(0).toUpperCase()"
+                  />
                 </div>
               </div>
             </div>

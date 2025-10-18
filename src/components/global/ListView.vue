@@ -2,25 +2,44 @@
 import { Card } from '../ui';
 
 
-defineProps<{
+const props = withDefaults(defineProps<{
   data: Array<T>;
-  title: string;
-  emptyTitle: string;
-  emptyMessage: string;
+  title?: string;
+  emptyTitle?: string;
+  emptyMessage?: string;
   to?: (item: T) => string;
-}>();
+  maxCols?: number;
+}>(), {
+  data: () => [],
+  emptyTitle: 'Aucun élément trouvé',
+  emptyMessage: 'Il n\'y a actuellement aucun élément à afficher.',
+  maxCols: 3,
+});
+
+const getGridColsClass = () => {
+  switch (props.maxCols) {
+    case 1:
+      return 'grid gap-4 grid-cols-1';
+    case 2:
+      return 'grid gap-4 grid-cols-1 md:grid-cols-2';
+    case 3:
+      return 'grid gap-4 grid-cols-1 md:grid-cols-2 2xl:grid-cols-3';
+    default:
+      return 'grid gap-4 grid-cols-1 md:grid-cols-2 2xl:grid-cols-3';
+  }
+};
 </script>
 
 <template>
   <div class="space-y-6">
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3" v-if="title">
       <div class="h-1 w-12 bg-gradient-to-r from-christmas-gold to-christmas-gold-light rounded-full"></div>
       <h1 class="text-4xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent uppercase">
         {{ title }} ( {{ data.length }} )
       </h1>
     </div>
 
-    <div v-if="data.length > 0" class="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-6">
+    <div v-if="data.length > 0" :class="getGridColsClass()">
       <RouterLink 
         v-if="to"
         v-for="item in data" 
