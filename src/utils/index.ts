@@ -2,6 +2,10 @@ import type { Tournament } from "@/types/models";
 
 type CalendarProvider = 'google' | 'outlook';
 
+export const getTournamentLink = (tournament: Tournament) => {
+  return `/tournaments/${tournament.id}`;
+};
+
 export const generateCalendarLink = (tournament: Tournament, provider: CalendarProvider = 'google') => {
   try {
     if (!tournament.date) return "#";

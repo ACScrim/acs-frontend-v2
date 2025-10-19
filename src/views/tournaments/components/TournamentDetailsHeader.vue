@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Card, ProgressBar } from '@/components/ui';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { generateCalendarLink } from '@/utils/calendar';
+import { generateCalendarLink } from '@/utils';
 import type { Tournament } from '@/types/models';
 
 interface Props {

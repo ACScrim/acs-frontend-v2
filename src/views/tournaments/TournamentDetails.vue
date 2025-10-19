@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import ListView from '@/components/global/ListView.vue';
+import TournamentCard from '@/components/global/TournamentCard.vue';
 import useTournamentStore from '@/stores/tournamentStore';
 import { useUserStore } from '@/stores/userStore';
 import type { Tournament, User } from '@/types/models';
+import { getTournamentLink } from '@/utils';
 import { whenever } from '@vueuse/core';
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
@@ -17,6 +20,7 @@ import TournamentTeamsList from './components/TournamentTeamsList.vue';
 const route = useRoute();
 const tournamentStore = useTournamentStore();
 const tournament = computed(() => tournamentStore.getById(route.params.tournamentId as string));
+const oldTournaments = computed(() => tournamentStore.tournaments.filter(t => t.finished && t.gameId === tournament.value?.gameId && t.id !== tournament.value.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 
@@ -195,5 +199,18 @@ onUnmounted(() => {
         />
       </div>
     </div>
+    <ListView
+      :data="oldTournaments"
+      title="Anciens tournois"
+      :to="getTournamentLink"
+      v-if="oldTournaments.length > 0"
+    >>
+      <template #item="{ item }">
+        <TournamentCard 
+          class="h-full transition-all duration-300 group-hover:-translate-y-2" 
+          :tournament="item" 
+        />
+      </template>
+    </ListView>
   </div>
 </template>

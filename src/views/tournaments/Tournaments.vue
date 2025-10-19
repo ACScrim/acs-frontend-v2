@@ -5,7 +5,7 @@ import PageHeader from '@/components/global/PageHeader.vue';
 import TournamentCard from '@/components/global/TournamentCard.vue';
 import { Button, Select } from '@/components/ui';
 import useTournamentStore from '@/stores/tournamentStore';
-import type { Tournament } from '@/types/models';
+import { getTournamentLink } from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed, onMounted, ref } from 'vue';
 
@@ -33,10 +33,6 @@ const games = computed(() => {
 onMounted(() => {
   tournamentStore.fetchTournaments();
 })
-
-const getTournamentLink = (tournament: Tournament) => {
-  return `/tournaments/${tournament.id}`;
-};
 </script>
 
 <template>

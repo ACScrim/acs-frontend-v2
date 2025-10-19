@@ -56,7 +56,7 @@ onMounted(() => {
       <slot name="aside"></slot>
     </div>
     <div class="view z-10">
-      <div class="lg:h-full w-full mb-16 lg:mb-0 max-w-7xl mx-auto p-5 space-y-8">
+      <div class="w-full mb-16 lg:mb-0 max-w-7xl mx-auto p-5 space-y-8">
         <slot name="view"></slot>
       </div>
     </div>
