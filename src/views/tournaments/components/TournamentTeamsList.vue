@@ -8,9 +8,12 @@ import type { Tournament, User } from '@/types/models';
 interface Props {
   teams: Tournament['teams'];
   tournament: Tournament;
+  maxCols?: number;
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), {
+  maxCols: 2,
+});
 
 const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tournament['players'][number]) => {
   return {
@@ -35,7 +38,7 @@ const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tou
       <template #item="{ item }">
         <div class="p-4 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20">
           <h3 class="text-christmas-gold font-bold text-xl mb-2">{{ item.name }}</h3>
-          <ListView :data="item.users" empty-title="Aucun joueur dans cette équipe" :max-cols="2">
+          <ListView :data="item.users" empty-title="Aucun joueur dans cette équipe" :max-cols="maxCols">
             <template #item="{ item: player }">
               <TournamentUserCard 
                 :player="mergeUserAndTournamentPlayerData(player, tournament.players.find(p => p.user.id === player.id))" 

@@ -6,36 +6,68 @@ interface Props {
   playerCap: number;
   currentPlayerCount: number;
   isFinished: boolean;
+  isRegistered: boolean;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
   register: [];
+  registerAsCaster: [];
+  unregister: [];
 }>();
 
 const canRegister = () => props.playerCap <= 0 || props.currentPlayerCount < props.playerCap;
 </script>
 
 <template>
-  <Card class="p-6 bg-christmas-navy/50" style="border: 2px solid #D4AF37;">
+  <Card class="p-6 bg-christmas-navy/50 space-y-4" style="border: 2px solid #D4AF37;">
     <template #header>
       <h2 class="text-xl font-bold text-christmas-gold">Actions</h2>
     </template>
 
     <Button 
       class="w-full"
-      @click="emit('register')"
-      :color="!canRegister() ? 'christmas-red' : 'christmas-gold'"
+      @click="emit('unregister')"
+      color="christmas-red"
+      v-if="props.isRegistered"
     >
       <template #icon>
         <VueIcon
-          :name="!canRegister() ? 'bs:clock' : 'bs:controller'"
+          name="gl:leave"
           class="text-xl"
         />
       </template>
-      {{ !canRegister() ? "Rejoindre l'attente" : "M'inscrire" }}
+      Me désinscrire
     </Button>
+    <template v-else>
+      <Button 
+        class="w-full"
+        @click="emit('register')"
+        :color="!canRegister() ? 'christmas-red' : 'christmas-gold'"
+      >
+        <template #icon>
+          <VueIcon
+          :name="!canRegister() ? 'bs:clock' : 'bs:controller'"
+          class="text-xl"
+          />
+        </template>
+        {{ !canRegister() ? "Rejoindre l'attente" : "M'inscrire" }}
+      </Button>
+      <Button 
+        class="w-full"
+        @click="emit('registerAsCaster')"
+        color="christmas-green"
+      >
+        <template #icon>
+          <VueIcon
+            name="bs:mic"
+            class="text-xl"
+          />
+        </template>
+        Rejoindre le cast
+      </Button>
+    </template>
 
     <Button v-if="isFinished" class="w-full mt-3" color="christmas-green">
       <template #icon>

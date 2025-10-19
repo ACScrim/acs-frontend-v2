@@ -1,28 +1,31 @@
 <script setup lang="ts">
-import { whenever } from '@vueuse/core';
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 import useTournamentStore from '@/stores/tournamentStore';
+import { useUserStore } from '@/stores/userStore';
 import type { Tournament, User } from '@/types/models';
-import TournamentDetailsHeader from './components/TournamentDetailsHeader.vue';
-import TournamentPlayersList from './components/TournamentPlayersList.vue';
-import TournamentTeamsList from './components/TournamentTeamsList.vue';
+import { whenever } from '@vueuse/core';
+import { computed, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import TournamentActionsCard from './components/TournamentActionsCard.vue';
 import TournamentCastersList from './components/TournamentCastersList.vue';
+import TournamentClips from './components/TournamentClips.vue';
+import TournamentDetailsHeader from './components/TournamentDetailsHeader.vue';
 import TournamentLeaderboard from './components/TournamentLeaderboard.vue';
 import TournamentMvp from './components/TournamentMvp.vue';
-import TournamentClips from './components/TournamentClips.vue';
+import TournamentPlayersList from './components/TournamentPlayersList.vue';
+import TournamentTeamsList from './components/TournamentTeamsList.vue';
 
 const route = useRoute();
 const tournamentStore = useTournamentStore();
 const tournament = computed(() => tournamentStore.getById(route.params.tournamentId as string));
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
 
 const casters = computed(() =>
   tournament.value?.players.filter(p => p.isCaster) || []
 );
 
 const players = computed(() =>
-  tournament.value?.players.filter(p => !p.isCaster).map(p => 
+  tournament.value?.players.filter(p => !p.isCaster && !p.inWaitlist).map(p =>
     mergeUserAndTournamentPlayerData(p.user, p)
   ) || []
 );
@@ -55,9 +58,58 @@ const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tou
 });
 
 const handleRegister = () => {
-  console.log('Register clicked');
-  // TODO: Implémenter l'inscription
+  try {
+    tournamentStore.registerToTournament(tournament.value!.id);
+  } catch (error) {
+    console.error('Erreur lors de l\'inscription au tournoi :', error);
+  }
 };
+
+const handleRegisterAsCaster = () => {
+  try {
+    tournamentStore.registerToTournament(tournament.value!.id, "caster");
+  } catch (error) {
+    console.error('Erreur lors de l\'inscription en tant que caster au tournoi :', error);
+  }
+};
+
+const handleUnregister = () => {
+  try {
+    tournamentStore.unregisterFromTournament(tournament.value!.id);
+  } catch (error) {
+    console.error('Erreur lors de la désinscription du tournoi :', error);
+  }
+};
+
+const handleAddClip = (clipUrl: string) => {
+  try {
+    tournamentStore.addClipToTournament(tournament.value!.id, clipUrl);
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout du clip :', error);
+  }
+};
+
+const handleVoteMvp = (playerId: string) => {
+  try {
+    tournamentStore.voteMvpInTournament(tournament.value!.id, playerId);
+  } catch (error) {
+    console.error('Erreur lors du vote MVP :', error);
+  }
+};
+
+onMounted(() => {
+  const view = document.getElementsByClassName('view')[0] as HTMLDivElement;
+  if (view && tournament.value?.game.imageUrl) {
+    view.style.setProperty('background', `linear-gradient(135deg, rgba(10, 27, 61, 0.85), rgba(26, 41, 66, 0.85)), url(${tournament.value.game.imageUrl}) no-repeat center/cover`);
+  }
+});
+
+onUnmounted(() => {
+  const view = document.getElementsByClassName('view')[0] as HTMLDivElement;
+  if (view) {
+    view.style.removeProperty('background');
+  }
+});
 </script>
 
 <template>
@@ -80,8 +132,11 @@ const handleRegister = () => {
           :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
           :is-finished="tournament.finished"
+          :is-registered="!!tournament.players.find(p => p.user.id === user?.id)"
           class="lg:hidden"
           @register="handleRegister"
+          @register-as-caster="handleRegisterAsCaster"
+          @unregister="handleUnregister"
         />
 
         <!-- Leaderboard -->
@@ -103,10 +158,10 @@ const handleRegister = () => {
         />
 
         <!-- MVP -->
-        <TournamentMvp v-if="tournament.finished" :tournament="tournament" />
+        <TournamentMvp v-if="tournament.finished" :tournament="tournament" @vote="handleVoteMvp" />
 
         <!-- Clips -->
-        <TournamentClips v-if="tournament.finished" :tournament="tournament" />
+        <TournamentClips v-if="tournament.finished" :tournament="tournament" @add-clip="handleAddClip" />
       </div>
 
       <!-- Colonne latérale -->
@@ -117,8 +172,11 @@ const handleRegister = () => {
           :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
           :is-finished="tournament.finished"
+          :is-registered="!!tournament.players.find(p => p.user.id === user?.id)"
           class="hidden lg:block"
           @register="handleRegister"
+          @register-as-caster="handleRegisterAsCaster"
+          @unregister="handleUnregister"
         />
 
         <!-- Casters -->
@@ -133,6 +191,7 @@ const handleRegister = () => {
           v-if="tournament.finished"
           :teams="tournament.teams"
           :tournament="tournament"
+          :max-cols="1"
         />
       </div>
     </div>

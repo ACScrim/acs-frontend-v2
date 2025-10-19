@@ -64,7 +64,7 @@ defineProps<Props>();
           Participants
         </div>
         <p class="text-christmas-snow font-bold text-2xl">
-          {{ playerCount }}<span class="text-christmas-gold-light text-lg">/{{ tournament.playerCap }}</span>
+          {{ playerCount }}<span class="text-christmas-gold-light text-lg" v-if="tournament.playerCap > 0">/{{ tournament.playerCap }}</span>
         </p>
         <p class="text-christmas-gold-light text-sm">inscrit{{ playerCount > 1 ? 's' : '' }}</p>
       </div>

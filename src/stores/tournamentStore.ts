@@ -1,5 +1,5 @@
-import { type ApiResponse, type Game, type Tournament } from "@/types/models";
-import api from "@/utils/api";
+import tournamentService from "@/services/tournamentService";
+import { type Game, type Tournament } from "@/types/models";
 import { defineStore } from "pinia";
 
 const useTournamentStore = defineStore('tournament', {
@@ -32,8 +32,43 @@ const useTournamentStore = defineStore('tournament', {
   actions: {
     async fetchTournaments() {
       this.isLoading = true;
-      const response = await api.get<ApiResponse<Tournament[]>>('/tournaments');
-      this.tournaments = response.data.data;
+      this.tournaments = await tournamentService.getTournaments();
+      this.isLoading = false;
+    },
+    async registerToTournament(tournamentId: string, registrationType: "caster" | "player" = "player") {
+      this.isLoading = true;
+      const updatedTournament = await tournamentService.registerToTournament(tournamentId, registrationType);
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
+      this.isLoading = false;
+    },
+    async unregisterFromTournament(tournamentId: string) {
+      this.isLoading = true;
+      const updatedTournament = await tournamentService.unregisterFromTournament(tournamentId);
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
+      this.isLoading = false;
+    },
+    async addClipToTournament(tournamentId: string, clipUrl: string) {
+      this.isLoading = true;
+      const updatedTournament = await tournamentService.addClipToTournament(tournamentId, clipUrl);
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
+      this.isLoading = false;
+    },
+    async voteMvpInTournament(tournamentId: string, playerId: string) {
+      this.isLoading = true;
+      const updatedTournament = await tournamentService.voteMvpInTournament(tournamentId, playerId);
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
       this.isLoading = false;
     }
   },

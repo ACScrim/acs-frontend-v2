@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
 import { Avatar, Button, Card } from '@/components/ui';
+import { useUserStore } from '@/stores/userStore';
 import type { Tournament } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
 
 const props = defineProps<{
   tournament: Tournament;
+}>();
+
+const emit = defineEmits<{
+  vote: [playerId: string];
 }>();
 
 const sortedMvps = computed(() => {
@@ -21,6 +26,14 @@ const isTournamentWinner = (playerId: string) => {
     team.ranking === 1 && team.users.some(user => user.id === playerId)
   );
 };
+
+const userIdIVotedFor = computed(() => {
+  const myUserId = useUserStore().user?.id;
+  if (!myUserId) return null;
+  return props.tournament.players.find(player =>
+    player.mvpVotes.includes(myUserId)
+  )?.user.id;
+});
 </script>
 
 <template>
@@ -41,7 +54,7 @@ const isTournamentWinner = (playerId: string) => {
               class="size-10 [&>img]:size-10 rounded-full border-2 border-christmas-gold/30 overflow-hidden flex items-center justify-center" />
               <span class="font-bold text-christmas-gold">{{ item.user.username }} <span v-if="isTournamentWinner(item.user.id)">🏆</span></span>
             </div>
-            <Button class="px-2 py-1 text-md">Vote</Button>
+            <Button @click="emit('vote', item.id)" :disabled="userIdIVotedFor === item.user.id" class="px-2 py-1 text-md disabled:opacity-10">Vote</Button>
           </div>
         </template>
       </ListView>

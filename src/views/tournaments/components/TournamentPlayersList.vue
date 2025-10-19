@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
 import { Card } from '@/components/ui';
+import type { Tournament, User } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import TournamentUserCard from './TournamentUserCard.vue';
-import type { Tournament, User } from '@/types/models';
-import { Fragment } from 'vue';
 
 interface Props {
   players: (User & { hasCheckin: boolean; isCaster: boolean; inWaitlist: boolean })[];
@@ -30,7 +29,7 @@ defineProps<Props>();
       </template>
     </ListView>
 
-    <Fragment v-if="waitlist.length > 0">
+    <template v-if="waitlist.length > 0">
       <h2 class="text-2xl font-bold text-christmas-gold flex items-center gap-2">
         <VueIcon name="bs:info-circle" />
         Liste d'attente
@@ -40,6 +39,6 @@ defineProps<Props>();
           <TournamentUserCard :player="item" :reminderSent="tournament.reminderSent" :tournament-started="new Date(tournament.date) < new Date()" />
         </template>
       </ListView>
-    </Fragment>
+    </template>
   </Card>
 </template>
