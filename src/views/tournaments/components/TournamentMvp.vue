@@ -48,9 +48,15 @@ const isTournamentWinner = (playerId: string) => {
     </div>
     <!-- Mvp Results -->
     <div v-else>
-      <ListView :data="sortedMvps.slice(0, 4)" :max-cols="3">
+      <div v-if="sortedMvps && sortedMvps.length > 0 && sortedMvps[0]" class="mb-6 flex flex-col items-center">
+        <Avatar :src="sortedMvps[0].user.avatarUrl" alt="Avatar" :fallback="sortedMvps[0].user.username.charAt(0).toUpperCase()"
+        class="size-24 [&>img]:size-24 rounded-full border-4 border-christmas-gold/50 overflow-hidden flex items-center justify-center mb-4" />
+        <h3 class="text-2xl font-bold text-christmas-gold mb-2">{{ sortedMvps[0].user.username }} <span v-if="isTournamentWinner(sortedMvps[0].user.id)">🏆</span></h3>
+        <p class="text-christmas-snow text-lg">{{ sortedMvps[0].mvpVotes.length || 0 }} vote(s)</p>
+      </div>
+      <ListView :data="sortedMvps.slice(1, 4)" :max-cols="3">
         <template #item="{ item }">
-          <div class="w-full flex items-center justify-between p-4 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20 first:col-span-1 md:first:col-span-2 2xl:first:col-span-3">
+          <div class="w-full flex items-center justify-between p-4 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20">
             <div class="inline-flex gap-2 items-center">
               <Avatar :src="item.user.avatarUrl" alt="Avatar" :fallback="item.user.username.charAt(0).toUpperCase()"
               class="size-10 [&>img]:size-10 rounded-full border-2 border-christmas-gold/30 overflow-hidden flex items-center justify-center" />

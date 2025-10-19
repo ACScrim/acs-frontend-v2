@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useFps } from '@vueuse/core';
 import { ref, onMounted } from 'vue';
+import MobileMenu from './MobileMenu.vue';
 
 const fps = useFps()
 
@@ -31,7 +32,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <span class="absolute text-christmas-gold z-10 font-bold z-20">{{ fps }} FPS</span>
+  <span class="absolute text-christmas-gold font-bold z-20">{{ fps }} FPS</span>
   <main class="maincontainer bg-gradient-to-br from-christmas-navy via-christmas-midnight to-christmas-navy">
     <!-- Arrière-plan avec flocons de neige -->
     <div class="snowflakes-container">
@@ -55,10 +56,11 @@ onMounted(() => {
       <slot name="aside"></slot>
     </div>
     <div class="view z-10">
-      <div class="lg:h-full w-full mb-14 lg:mb-0 max-w-7xl mx-auto p-5 space-y-8">
+      <div class="lg:h-full w-full mb-16 lg:mb-0 max-w-7xl mx-auto p-5 space-y-8">
         <slot name="view"></slot>
       </div>
     </div>
+    <MobileMenu />
   </main>
 </template>
 

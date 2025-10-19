@@ -59,6 +59,12 @@ export interface Tournament {
     ranking: number;
     id: string;
   }[];
+  clips: {
+    url: string;
+    addedBy?: User;
+    addedAt: string;
+    id: string;
+  }[];
 }
 
 export interface Game {
