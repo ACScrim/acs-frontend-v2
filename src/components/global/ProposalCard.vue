@@ -16,7 +16,7 @@ const proposalStore = useProposalStore();
 
 const isLoading = ref(false);
 
-const handleVoteClick = (value: number) => {
+const handleVoteClick = (value: boolean) => {
   isLoading.value = true;
   proposalStore.voteOnProposal(props.proposal.id, value).finally(() => {
     isLoading.value = false;
@@ -99,7 +99,7 @@ const handleVoteClick = (value: number) => {
           :disabled="!userId || isLoading"
           :loading="isLoading"
           :color="proposal.votes.find(vote => vote.user.id === userId) ? 'christmas-red' : 'christmas-gold'"
-          @click="handleVoteClick(proposal.votes.find(vote => vote.user.id === userId) ? -1 : 1)"
+          @click="handleVoteClick(proposal.votes.find(vote => vote.user.id === userId) ? false : true)"
         >
           <template #icon>
             <VueIcon

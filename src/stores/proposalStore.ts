@@ -17,9 +17,9 @@ const useProposalStore = defineStore('proposalStore', {
         this.isLoading = false;
       }
     },
-    async voteOnProposal(id: string, value: number) {
+    async voteOnProposal(id: string, vote: boolean) {
       try {
-        const response = await api.post<ApiResponse<GameProposal>>('/proposals', { id, value });
+        const response = await api.post<ApiResponse<GameProposal>>('/proposals', { id, vote });
         const updatedProposal = response.data.data;
         const index = this.proposals.findIndex(p => p.id === id);
         if (index !== -1) {
