@@ -19,8 +19,11 @@ const user = computed(() => {
     <Avatar
       :src="user?.avatarUrl || ''"
       :alt="user ? `${user.username}` : 'Utilisateur inconnu'"
-      class="mx-auto mb-4 border-christmas-gold border-4"
-      :size="12"
+      class="mx-auto mb-4"
+      :size="32"
     />
+    <h1 class="text-3xl font-bold text-christmas-snow text-center mb-2">
+      {{ user ? user.username : 'Utilisateur inconnu' }}
+    </h1>
   </Card>
 </template>

@@ -22,6 +22,8 @@ const router = createRouter({
 router.beforeEach((to, _) => {
   document.title = `ACSV2 - ${to.meta.title}`;
 
+  document.getElementsByClassName('view')[0]?.scrollTo(0, 0);
+
   const userStore = useUserStore();
   if (userStore.isLoggedIn && userStore.user && to.name !== 'Profil') {
     to.params.userId = userStore.user.id;
