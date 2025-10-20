@@ -73,11 +73,12 @@ const handleVoteClick = (value: boolean) => {
                   <RouterLink :to="`/user/${vote.user.id}`" v-for="vote in proposal.votes" :key="vote.user.id" class="transition-all hover:scale-125 hover:not-first:ml-6 hover:not-first:mr-1 hover:first:mr-2.5">
                     <Avatar 
                       :src="vote.user.avatarUrl"
-                      class="rounded-full overflow-hidden size-10 [&>img]:object-cover"
+                      class="rounded-full overflow-hidden"
                       :key="vote.user.id"
                       :alt="vote.user.username"
                       :title="vote.user.username"
                       :fallback="vote.user.username.charAt(0).toUpperCase()"
+                      :size="10"
                     />
                   </RouterLink>
                 </div>

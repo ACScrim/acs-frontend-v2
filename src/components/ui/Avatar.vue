@@ -5,12 +5,14 @@ interface Props {
   src?: string;
   alt?: string;
   fallback?: string; // Texte ou emoji de fallback
+  size?: number;
 }
 
 // Props avec valeurs par défaut
 const props = withDefaults(defineProps<Props>(), {
   alt: "Avatar",
-  fallback: "👤"
+  fallback: "👤",
+  size: 12
 });
 
 const imageError = ref(false);
@@ -26,9 +28,9 @@ const shouldShowFallback = computed(() => !shouldShowImage.value);
 </script>
 
 <template>
-  <div class="size-12 rounded-full" v-tw-merge>
+  <div class="rounded-full" :style="`width: calc(var(--spacing) * ${props.size})`" v-tw-merge>
     <!-- Image -->
-    <img v-if="shouldShowImage" :src="src" :alt="alt" @error="handleImageError" class="size-12" />
+    <img v-if="shouldShowImage" :src="src" :alt="alt" @error="handleImageError" :style="`width: calc(var(--spacing) * ${props.size})`" class="object-cover" />
 
     <!-- Fallback -->
     <span v-else-if="shouldShowFallback" class="font-medium text-center size-full">

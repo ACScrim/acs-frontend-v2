@@ -10,8 +10,7 @@ const routes: RouterOptions['routes'] = [
   { path: '/badges', component: () => import('@/views/notfound/NotFound.vue'), name: 'Badges', meta: { title: 'Badges', icon: "ci:medal", showInAside: false, showInMobileFooter: false } },
   { path: '/members', component: () => import('@/views/notfound/NotFound.vue'), name: 'Membres', meta: { title: 'Membres', icon: "cl:users-group", showInAside: false, showInMobileFooter: false } },
   { path: '/games', component: () => import('@/views/notfound/NotFound.vue'), name: 'Jeux', meta: { title: 'Jeux', icon: "ca:game-console", showInAside: true, showInMobileFooter: false } },
-  { path: '/profile', component: () => import('@/views/notfound/NotFound.vue'), name: 'Profil', meta: { title: 'Profil', icon: "cd:account", showInAside: false, showInMobileFooter: true } },
-  { path: '/profile/:userId', component: () => import('@/views/notfound/NotFound.vue'), name: 'Profil', meta: { title: 'Profil', icon: null, showInAside: false, showInMobileFooter: false } },
+  { path: '/profile/:userId?', component: () => import('@/views/profile/Profile.vue'), name: 'Profil', meta: { title: 'Profil', icon: "cd:account", showInAside: false, showInMobileFooter: true } },
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false } },
 ]
 
@@ -24,7 +23,7 @@ router.beforeEach((to, _) => {
   document.title = `ACSV2 - ${to.meta.title}`;
 
   const userStore = useUserStore();
-  if (userStore.isLoggedIn && userStore.user) {
+  if (userStore.isLoggedIn && userStore.user && to.name !== 'Profil') {
     to.params.userId = userStore.user.id;
   }
 })

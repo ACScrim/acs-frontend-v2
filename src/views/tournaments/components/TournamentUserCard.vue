@@ -19,7 +19,7 @@ defineProps<{
   <div class="p-4 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20 flex items-center justify-between">
     <RouterLink :to="`/profile/${player.id}`" class="flex items-center gap-4">
       <Avatar :src="player.avatarUrl" alt="Avatar" :fallback="player.username.charAt(0).toUpperCase()"
-        class="size-12 rounded-full border-2 border-christmas-gold/30 overflow-hidden flex items-center justify-center" />
+        class="border-2 border-christmas-gold/30 overflow-hidden flex items-center justify-center" />
       <div>
         <p class="text-christmas-snow font-bold">{{ player.username }}</p>
         <p class="text-christmas-gold-light text-sm">{{ player.isCaster ? 'Caster' : player.inWaitlist ? 'En attente' : 'Joueur' }}</p>
