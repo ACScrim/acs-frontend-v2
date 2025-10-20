@@ -4,7 +4,8 @@ import { defineStore } from "pinia";
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null as User | null
+    user: null as User | null,
+    users: [] as User[]
   }),
   getters: {
     isSuperAdmin: (state) => state.user?.role === "superadmin",

@@ -1,29 +1,47 @@
 <script setup lang="ts">
-import { Avatar, Card } from '@/components/ui';
 import { useUserStore } from '@/stores/userStore';
-import { computed } from 'vue';
+import { type ApiResponse, type UserWithStats } from '@/types/models';
+import api from '@/utils/api';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const userStore = useUserStore();
+const isLoading = ref(false);
+const user = ref<UserWithStats | null>(null);
 
-const user = computed(() => {
-  const userId = route.params.userId as string | undefined;
-  if (userId) return null;
-  return userStore.user;
-});
+// Fonction pour charger le profil
+const fetchUserProfile = async (userId: string) => {
+  isLoading.value = true;
+  try {
+    const response = await api.get<ApiResponse<UserWithStats>>(`/users/profile/${userId}`);
+    user.value = response.data.data;
+    
+    // Optionnel : ajouter au store si nécessaire
+    if (!userStore.users.find(u => u.id === userId)) {
+      userStore.users.push(response.data.data);
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement du profil:', error);
+    user.value = null;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+watch(
+  () => route.params.userId,
+  async (newUserId) => {
+    if (newUserId) {
+      await fetchUserProfile(newUserId as string);
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
-  <Card class="bg-christmas-navy/50 p-6">
-    <Avatar
-      :src="user?.avatarUrl || ''"
-      :alt="user ? `${user.username}` : 'Utilisateur inconnu'"
-      class="mx-auto mb-4"
-      :size="32"
-    />
-    <h1 class="text-3xl font-bold text-christmas-snow text-center mb-2">
-      {{ user ? user.username : 'Utilisateur inconnu' }}
-    </h1>
-  </Card>
+  <pre>
+    {{ isLoading ? 'Loading...' : JSON.stringify(user, null, 2) }}
+  </pre>
 </template>

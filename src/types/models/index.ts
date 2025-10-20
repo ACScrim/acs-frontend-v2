@@ -25,6 +25,24 @@ export interface User {
   updatedAt: string;
 }
 
+export interface UserWithStats extends User {
+  tournamentStats: {
+    firstPlaceCount: number;
+    secondPlaceCount: number;
+    thirdPlaceCount: number;
+    top25Count: number;
+    tournamentsCount: number;
+    points: number;
+  };
+  tournamentHistory: Tournament[];
+  lastActivity: string;
+  perGameStats: [{
+    game: Pick<Game, 'id' | 'name' | 'imageUrl'>;
+    tournamentsCount: number;
+    victoriesCount: number;
+  }];
+}
+
 export interface Tournament {
   id: string;
   name: string;
