@@ -1,6 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { createRouter, createWebHistory, type RouterOptions } from 'vue-router';
 
-const routes = [
+const routes: RouterOptions['routes'] = [
   { path: '/', component: () => import('@/views/home/Home.vue'), name: 'Home', meta: { title: 'Home', icon: "home", showInAside: false, showInMobileFooter: false } },
   { path: '/tournaments', component: () => import('@/views/tournaments/Tournaments.vue'), name: 'Tournois', meta: { title: 'Tournois', icon: "bs:trophy", showInAside: true, showInMobileFooter: true } },
   { path: '/tournaments/:tournamentId', component: () => import('@/views/tournaments/TournamentDetails.vue'), name: 'Détails du tournoi', meta: { title: 'Détails du tournoi', icon: null, showInAside: false, showInMobileFooter: false } },
@@ -11,12 +12,21 @@ const routes = [
   { path: '/games', component: () => import('@/views/notfound/NotFound.vue'), name: 'Jeux', meta: { title: 'Jeux', icon: "ca:game-console", showInAside: true, showInMobileFooter: false } },
   { path: '/profile', component: () => import('@/views/notfound/NotFound.vue'), name: 'Profil', meta: { title: 'Profil', icon: "cd:account", showInAside: false, showInMobileFooter: true } },
   { path: '/profile/:userId', component: () => import('@/views/notfound/NotFound.vue'), name: 'Profil', meta: { title: 'Profil', icon: null, showInAside: false, showInMobileFooter: false } },
-  { path: '/:catchAll(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false } },
+  { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false } },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.beforeEach((to, _) => {
+  document.title = `ACSV2 - ${to.meta.title}`;
+
+  const userStore = useUserStore();
+  if (userStore.isLoggedIn && userStore.user) {
+    to.params.userId = userStore.user.id;
+  }
 })
 
 export default router;

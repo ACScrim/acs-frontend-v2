@@ -1,13 +1,26 @@
+<script lang="ts">
+export default {
+  beforeRouteEnter: (to: RouteLocationNormalizedGeneric, _: RouteLocationNormalizedLoadedGeneric, next: NavigationGuardNext) => {
+    const tournamentStore = useTournamentStore();
+    const tournamentId = to.params.tournamentId as string;
+    if (tournamentStore.getById(tournamentId)) {
+      next();
+    } else {
+      next({ path: '/not-found', query: { message: 'Tournoi non trouvé' } });
+    }
+  }
+};
+</script>
+
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
 import TournamentCard from '@/components/global/TournamentCard.vue';
 import useTournamentStore from '@/stores/tournamentStore';
-import { useUserStore } from '@/stores/userStore';
 import type { Tournament, User } from '@/types/models';
 import { getTournamentLink } from '@/utils';
 import { whenever } from '@vueuse/core';
 import { computed, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, type NavigationGuardNext, type RouteLocationNormalizedGeneric, type RouteLocationNormalizedLoadedGeneric } from 'vue-router';
 import TournamentActionsCard from './components/TournamentActionsCard.vue';
 import TournamentCastersList from './components/TournamentCastersList.vue';
 import TournamentClips from './components/TournamentClips.vue';
@@ -18,11 +31,12 @@ import TournamentPlayersList from './components/TournamentPlayersList.vue';
 import TournamentTeamsList from './components/TournamentTeamsList.vue';
 
 const route = useRoute();
+const params = computed(() => route.params as { userId: string; tournamentId: string });
+const { userId } = params.value;
+
 const tournamentStore = useTournamentStore();
-const tournament = computed(() => tournamentStore.getById(route.params.tournamentId as string));
+const tournament = computed(() => tournamentStore.getById(params.value.tournamentId as string));
 const oldTournaments = computed(() => tournamentStore.tournaments.filter(t => t.finished && t.gameId === tournament.value?.gameId && t.id !== tournament.value.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-const userStore = useUserStore();
-const user = computed(() => userStore.user);
 
 const casters = computed(() =>
   tournament.value?.players.filter(p => p.isCaster) || []
@@ -50,6 +64,7 @@ const getCasterCount = () => casters.value.length;
 whenever(tournament, () => {
   const div = document.getElementsByClassName('view')[0] as HTMLDivElement;
   if (div && tournament.value) {
+    div.scrollTo(0, 0);
     div.style.setProperty('background', `linear-gradient(135deg, rgba(10, 27, 61, 0.85), rgba(26, 41, 66, 0.85)), url(${tournament.value.game.imageUrl}) no-repeat center/cover`);
   }
 });
@@ -136,7 +151,7 @@ onUnmounted(() => {
           :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
           :is-finished="tournament.finished"
-          :is-registered="!!tournament.players.find(p => p.user.id === user?.id)"
+          :is-registered="!!tournament.players.find(p => p.user.id === userId)"
           class="lg:hidden"
           @register="handleRegister"
           @register-as-caster="handleRegisterAsCaster"
@@ -176,7 +191,7 @@ onUnmounted(() => {
           :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
           :is-finished="tournament.finished"
-          :is-registered="!!tournament.players.find(p => p.user.id === user?.id)"
+          :is-registered="!!tournament.players.find(p => p.user.id === userId)"
           class="hidden lg:block"
           @register="handleRegister"
           @register-as-caster="handleRegisterAsCaster"
