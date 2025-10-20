@@ -70,15 +70,16 @@ const handleVoteClick = (value: boolean) => {
                   {{ proposal.votes.length }} vote{{ proposal.votes.length > 1 ? 's' : '' }}
                 </span>
                 <div class="inline-flex -space-x-6">
-                  <Avatar 
-                    v-for="vote in proposal.votes"
-                    :src="vote.user.avatarUrl"
-                    class="rounded-full overflow-hidden size-10 [&>img]:object-cover transition-all hover:scale-125 hover:not-first:ml-6 hover:not-first:mr-1 hover:first:mr-2.5"
-                    :key="vote.user.id"
-                    :alt="vote.user.username"
-                    :title="vote.user.username"
-                    :fallback="vote.user.username.charAt(0).toUpperCase()"
-                  />
+                  <RouterLink :to="`/user/${vote.user.id}`" v-for="vote in proposal.votes" :key="vote.user.id" class="transition-all hover:scale-125 hover:not-first:ml-6 hover:not-first:mr-1 hover:first:mr-2.5">
+                    <Avatar 
+                      :src="vote.user.avatarUrl"
+                      class="rounded-full overflow-hidden size-10 [&>img]:object-cover"
+                      :key="vote.user.id"
+                      :alt="vote.user.username"
+                      :title="vote.user.username"
+                      :fallback="vote.user.username.charAt(0).toUpperCase()"
+                    />
+                  </RouterLink>
                 </div>
               </div>
             </div>

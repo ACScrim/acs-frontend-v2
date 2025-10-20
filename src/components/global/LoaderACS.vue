@@ -1,6 +1,6 @@
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
-    viewBox="0 0 1080 1080" class="loader-svg size-100">
+    viewBox="0 0 1080 1080" class="loader-svg size-100 place-self-center-safe">
     <polygon class="st7"
       points="163.61 542.07 259.01 542.07 274.82 511.64 288.26 542.07 381.68 542.07 323.65 389.57 202.56 389.57 219.4 406.42 163.61 542.07" />
     <polygon class="st3" points="159.78 572.07 57.54 829.02 188.88 731.37 255.1 572.07 159.78 572.07" />
