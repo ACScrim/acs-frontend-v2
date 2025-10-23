@@ -37,6 +37,7 @@ export interface UserWithStats extends User {
   tournamentHistory: Tournament[];
   lastActivity: string;
   perGameStats: [{
+    id: string;
     game: Pick<Game, 'id' | 'name' | 'imageUrl'>;
     tournamentsCount: number;
     victoriesCount: number;

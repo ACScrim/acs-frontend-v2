@@ -29,11 +29,14 @@ import TournamentLeaderboard from './components/TournamentLeaderboard.vue';
 import TournamentMvp from './components/TournamentMvp.vue';
 import TournamentPlayersList from './components/TournamentPlayersList.vue';
 import TournamentTeamsList from './components/TournamentTeamsList.vue';
+import { useUserStore } from '@/stores/userStore';
 
 const route = useRoute();
 const tournamentStore = useTournamentStore();
+const userStore = useUserStore();
 const tournament = computed(() => tournamentStore.getById(route.params.tournamentId as string));
 const oldTournaments = computed(() => tournamentStore.tournaments.filter(t => t.finished && t.gameId === tournament.value?.gameId && t.id !== tournament.value.id).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+const currentUserId = computed(() => userStore.user?.id);
 
 const casters = computed(() =>
   tournament.value?.players.filter(p => p.isCaster) || []
@@ -148,7 +151,7 @@ onUnmounted(() => {
           :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
           :is-finished="tournament.finished"
-          :is-registered="!!tournament.players.find(p => p.user.id === $route.params.userId)"
+          :is-registered="!!tournament.players.find(p => p.user.id === currentUserId)"
           class="lg:hidden"
           @register="handleRegister"
           @register-as-caster="handleRegisterAsCaster"
@@ -188,7 +191,7 @@ onUnmounted(() => {
           :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
           :is-finished="tournament.finished"
-          :is-registered="!!tournament.players.find(p => p.user.id === $route.params.userId)"
+          :is-registered="!!tournament.players.find(p => p.user.id === currentUserId)"
           class="hidden lg:block"
           @register="handleRegister"
           @register-as-caster="handleRegisterAsCaster"

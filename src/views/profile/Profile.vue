@@ -1,39 +1,39 @@
 <script setup lang="ts">
+import LoaderACS from '@/components/global/LoaderACS.vue';
 import { useUserStore } from '@/stores/userStore';
-import { type ApiResponse, type UserWithStats } from '@/types/models';
-import api from '@/utils/api';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import ProfileHeader from './components/ProfileHeader.vue';
+import ProfileTournamentHistory from './components/ProfileTournamentHistory.vue';
+import ProfilePerGameStats from './components/ProfilePerGameStats.vue';
+import ProfilePersonalBests from './components/ProfilePersonalBests.vue';
 
 const route = useRoute();
 const userStore = useUserStore();
 const isLoading = ref(false);
-const user = ref<UserWithStats | null>(null);
+const user = computed(() => {
+  const userId = (route.params.userId || userStore.user?.id) as string;
+  return userStore.users[userId] || null;
+});
 
-// Fonction pour charger le profil
 const fetchUserProfile = async (userId: string) => {
-  isLoading.value = true;
+  isLoading.value = user !== null ? false : true;
   try {
-    const response = await api.get<ApiResponse<UserWithStats>>(`/users/profile/${userId}`);
-    user.value = response.data.data;
-    
-    // Optionnel : ajouter au store si nécessaire
-    if (!userStore.users.find(u => u.id === userId)) {
-      userStore.users.push(response.data.data);
-    }
+    await userStore.fetchUserById(userId);
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Simuler un délai pour le chargement
   } catch (error) {
     console.error('Erreur lors du chargement du profil:', error);
-    user.value = null;
   } finally {
     isLoading.value = false;
   }
 };
 
 watch(
-  () => route.params.userId,
-  async (newUserId) => {
-    if (newUserId) {
-      await fetchUserProfile(newUserId as string);
+  () => [route.params.userId, userStore.user?.id],
+  async (newParams) => {
+    const newUserID = newParams[0] || newParams[1];
+    if (newUserID) {
+      await fetchUserProfile(newUserID as string);
     }
   },
   { immediate: true }
@@ -41,7 +41,11 @@ watch(
 </script>
 
 <template>
-  <pre>
-    {{ isLoading ? 'Loading...' : JSON.stringify(user, null, 2) }}
-  </pre>
+  <LoaderACS v-if="isLoading" />
+  <template v-else-if="user">
+    <ProfileHeader :user="user" />
+    <ProfilePersonalBests :user="user" />
+    <ProfileTournamentHistory :user="user" />
+    <ProfilePerGameStats :user="user" />
+  </template>
 </template>

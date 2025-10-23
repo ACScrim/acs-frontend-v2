@@ -86,6 +86,8 @@ onMounted(() => {
     empty-title="Aucun tournoi terminé"
     empty-message="Il n'y a actuellement aucun tournoi terminé. Revenez plus tard pour découvrir les résultats des événements en cours !"
     :to="getTournamentLink"
+    :paginate="true"
+    :items-per-page="6"
   >
     <template #emptyIcon>
       <VueIcon name="bs:calendar-x" class="text-6xl text-christmas-gold/50 mx-auto mb-4" />

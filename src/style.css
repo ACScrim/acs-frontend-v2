@@ -13,6 +13,7 @@
   --color-christmas-snow: #FAFAFA;         /* Blanc neige */
   --color-christmas-silver: #C0C0C0;       /* Argent */
   --color-christmas-ice: #E8F4F8;          /* Bleu glacé */
+  --color-christmas-bronze: #CD7F32;       /* Bronze */
 
   /* Ombres améliorées */
   --shadow-christmas-glow: 0 0 20px var(--tw-shadow-color);
@@ -56,7 +57,7 @@
 /* Bordure avec guirlande lumineuse */
 .border-christmas-lights {
   position: relative;
-  border: 1px solid #fff1;
+  border: 1px solid var(--tw-border-color, #fff1);
 }
 
 .border-christmas-lights::before {

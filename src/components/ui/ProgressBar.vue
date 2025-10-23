@@ -7,6 +7,7 @@ interface Props {
   label?: string;
   showPercentage?: boolean;
   animated?: boolean;
+  forceBarColorClass?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -20,6 +21,9 @@ const percentage = computed(() => {
 });
 
 const barColor = computed(() => {
+  if (props.forceBarColorClass) {
+    return props.forceBarColorClass;
+  }
   if (percentage.value >= 90) {
     return 'bg-gradient-to-r from-christmas-red to-christmas-crimson shadow-christmas-red/50';
   } else if (percentage.value >= 70) {

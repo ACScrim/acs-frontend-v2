@@ -28,9 +28,9 @@ const shouldShowFallback = computed(() => !shouldShowImage.value);
 </script>
 
 <template>
-  <div class="rounded-full" :style="`width: calc(var(--spacing) * ${props.size})`" v-tw-merge>
+  <div class="rounded-full" :style="`width: calc(var(--spacing) * ${props.size}); height: calc(var(--spacing) * ${props.size})`" v-tw-merge>
     <!-- Image -->
-    <img v-if="shouldShowImage" :src="src" :alt="alt" @error="handleImageError" :style="`width: calc(var(--spacing) * ${props.size})`" class="object-cover" />
+    <img v-if="shouldShowImage" :src="src" :alt="alt" fetchpriority="high" loading="lazy" @error="handleImageError" :style="`width: calc(var(--spacing) * ${props.size}); height: calc(var(--spacing) * ${props.size})`" class="object-cover rounded-full" />
 
     <!-- Fallback -->
     <span v-else-if="shouldShowFallback" class="font-medium text-center size-full">

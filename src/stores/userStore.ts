@@ -1,11 +1,11 @@
-import type { ApiResponse, User } from "@/types/models";
+import type { ApiResponse, User, UserWithStats } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null as User | null,
-    users: [] as User[]
+    users: {} as Record<string, UserWithStats>
   }),
   getters: {
     isSuperAdmin: (state) => state.user?.role === "superadmin",
@@ -20,6 +20,14 @@ export const useUserStore = defineStore('user', {
         this.user = response.data.data;
       } catch (error) {
         this.user = null; // Assurez-vous de réinitialiser l'utilisateur en cas d'erreur
+      }
+    },
+    async fetchUserById(id: string) {
+      try {
+        const response = await api.get<ApiResponse<UserWithStats>>(`/users/profile/${id}`);
+        this.users[id] = response.data.data;
+      } catch (error) {
+        console.error(`Error fetching user with id ${id}:`, error);
       }
     },
     async logout() {
