@@ -1,19 +1,34 @@
 <script setup lang="ts">
+import TournamentCard from '@/components/global/TournamentCard.vue';
 import { Button, Card } from '@/components/ui';
 import useStatsStore from '@/stores/statsStore';
+import useTournamentStore from '@/stores/tournamentStore';
+import { useUserStore } from '@/stores/userStore';
+import { API_URL } from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { useMotion } from '@vueuse/motion';
 import { computed, ref } from 'vue';
 
 const isHovered = ref(false);
 
+const userStore = useUserStore();
 const statsStore = useStatsStore();
+const tournamentStore = useTournamentStore();
 
 const defaultText = "Tu veux jouer avec nous ?";
 const hoverText = "Rejoins-nous sur discord !";
+const hoverTextConnected = "Rejoins-nous pendant un ACS !";
 
-const displayText = computed(() => isHovered.value ? hoverText : defaultText);
+const userConnected = computed(() => userStore.isLoggedIn);
+
+const displayText = computed(() => isHovered.value ? userConnected ? hoverTextConnected : hoverText : defaultText);
 const homeStats = computed(() => statsStore.homeStats);
+
+const lastFinishedTournament = computed(() => {
+  return tournamentStore.finishedTournaments.length > 0
+    ? tournamentStore.finishedTournaments[0]
+    : null;
+});
 
 const titleRef = ref<HTMLElement>();
 const { variant, motionProperties } = useMotion(titleRef, {
@@ -42,7 +57,6 @@ const { variant, motionProperties } = useMotion(titleRef, {
   }
 })
 
-const API_URL = import.meta.env.VITE_API_URL;
 </script>
 
 <template>
@@ -90,7 +104,7 @@ const API_URL = import.meta.env.VITE_API_URL;
       <!-- Footer Button -->
       <template #footer>
         <Button 
-          :to="`${API_URL}/auth/discord`" 
+          :to="userConnected ? '/tournaments' : `${API_URL}/auth/discord`" 
           icon-position="l" 
           @mouseenter="isHovered = true"
           @mouseleave="isHovered = false" 
@@ -116,14 +130,16 @@ const API_URL = import.meta.env.VITE_API_URL;
     </Card>
 
     <!-- Right Section - TODO: Last Tournament -->
-    <div class="basis-1/3 h-60 lg:aspect-square relative">
-      <div class="absolute inset-0 bg-gradient-to-br from-christmas-gold/20 via-transparent to-christmas-red/20 rounded-2xl border-2 border-dashed border-christmas-gold/50 flex items-center justify-center">
-        <div class="text-center">
-          <VueIcon name="bs:trophy" class="text-6xl text-christmas-gold mx-auto mb-4 opacity-60" />
-          <p class="text-christmas-gold-light font-semibold">Dernier tournoi</p>
-          <p class="text-christmas-snow/70 text-sm mt-1">À venir...</p>
-        </div>
-      </div>
+    <div class="basis-1/3 lg:aspect-square relative">
+      <h2 class="text-white text-2xl font-bold absolute bottom-full">Dernier tournoi</h2>
+      <RouterLink
+        :to="lastFinishedTournament ? `/tournaments/${lastFinishedTournament.id}` : '#'"
+      >
+        <TournamentCard 
+          :tournament="lastFinishedTournament"
+          v-if="lastFinishedTournament"
+        />
+      </RouterLink>
     </div>
   </div>
 </template>

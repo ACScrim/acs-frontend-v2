@@ -2,6 +2,8 @@ import type { Tournament } from "@/types/models";
 
 type CalendarProvider = 'google' | 'outlook';
 
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
 export const getTournamentLink = (tournament: Tournament) => {
   return `/tournaments/${tournament.id}`;
 };

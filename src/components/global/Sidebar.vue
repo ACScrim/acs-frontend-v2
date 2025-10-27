@@ -6,15 +6,16 @@ import { computed } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import Separator from '../ui/Separator.vue';
 import { Button } from '../ui';
+import { API_URL } from '@/utils';
 
 const router = useRouter();
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
 const asideRoutes = computed(() =>
   router.getRoutes().filter(
-    (r) => r.meta.showInAside
+    (r) => typeof r.meta.showInAside === 'function' ? user.value ? r.meta.showInAside(user.value) : false : r.meta.showInAside
   )
 );
-const userStore = useUserStore();
-const API_URL = import.meta.env.VITE_API_URL
 </script>
 
 <template>
