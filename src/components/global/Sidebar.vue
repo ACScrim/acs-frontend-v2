@@ -3,17 +3,30 @@ import Avatar from '@/components/ui/Avatar.vue';
 import { useUserStore } from '@/stores/userStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import Separator from '../ui/Separator.vue';
 import { Button } from '../ui';
 import { API_URL } from '@/utils';
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const asideRoutes = computed(() =>
-  router.getRoutes().filter(
-    (r) => typeof r.meta.showInAside === 'function' ? user.value ? r.meta.showInAside(user.value) : false : r.meta.showInAside
+router.getRoutes()
+.filter(
+  (r) => {
+      const showInAside = r.meta.showInAside;
+      const showInAdminBar = r.meta.showInAdminBar;
+      if (route.path.startsWith('/admin')) {
+        return showInAdminBar;
+      }
+      if (!user.value) return false;
+      if (typeof showInAside === 'function') {
+        return showInAside(user.value);
+      }
+      return showInAside === true;
+    }
   )
 );
 </script>
