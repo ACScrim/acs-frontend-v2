@@ -44,6 +44,18 @@ export interface UserWithStats extends User {
   }];
 }
 
+export interface UserAdmin extends User {
+  reports: Report[];
+}
+
+export interface Report {
+  id: string;
+  userId: string;
+  reason: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Tournament {
   id: string;
   name: string;

@@ -18,6 +18,7 @@ const routes: RouterOptions['routes'] = [
 const adminRoutes: RouterOptions['routes'] = [
   { path: '/admin', component: () => import('@/views/notfound/NotFound.vue'), name: 'Admin', meta: { title: 'Admin', icon: 'bx:shield-quarter', showInAside: (user: User) => user.role === "superadmin", showInMobileFooter: false, showInAdminBar: false }},
   { path: '/admin/users', component: () => import('@/views/admin/users/Users.vue'), name: 'Gestion des utilisateurs', meta: { title: 'Users', icon: 'bx:user', showInAside: false, showInMobileFooter: false, showInAdminBar: true } },
+  { path: '/admin/tournaments', component: () => import('@/views/notfound/NotFound.vue'), name: 'Gestion des tournois', meta: { title: 'Tournois', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: true } },
 ]
 
 const router = createRouter({
