@@ -1,3 +1,4 @@
+import { useToastStore } from '@/stores/toastStore';
 import { useUserStore } from '@/stores/userStore';
 import type { User } from '@/types/models';
 import { createRouter, createWebHistory, type RouterOptions } from 'vue-router';
@@ -31,10 +32,18 @@ router.beforeEach((to, _) => {
 
   document.getElementsByClassName('view')[0]?.scrollTo(0, 0);
 
+  const userStore = useUserStore();
+  const toastStore = useToastStore();
+
   if (to.path === '/admin') {
-    const userStore = useUserStore();
     if (!userStore.user || userStore.user.role !== "superadmin") {
       return { path: '/not-found' };
+    }
+  }
+  if (to.path !== '/') {
+    if (!userStore.isLoggedIn) {
+      toastStore.error("Vous devez être connecté pour accéder à cette page.");
+      return { path: '/' };
     }
   }
 })
