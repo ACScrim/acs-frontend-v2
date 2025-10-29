@@ -11,7 +11,7 @@ defineProps<{
 <template>
   <Card class="p-6 bg-christmas-navy/80" style="--tw-border-color: var(--color-christmas-ice)">
     <ListView
-      :data="user.perGameStats"
+      :data="user.perGameStats.sort((a, b) => (b.victoriesCount / b.tournamentsCount) - (a.victoriesCount / a.tournamentsCount))"
       title="Performance par jeu"
       :paginate="true"
       :items-per-page="3"
