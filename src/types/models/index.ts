@@ -104,8 +104,9 @@ export interface Game {
   description: string;
   imageUrl: string;
   name: string;
-  roles: string[];
+  roles: { name: string; color: string; id: string; }[];
   updatedAt: string;
+  currentPlayerLevel: string | null;
 }
 
 export interface HomeStats {

@@ -30,6 +30,7 @@ import TournamentMvp from './components/TournamentMvp.vue';
 import TournamentPlayersList from './components/TournamentPlayersList.vue';
 import TournamentTeamsList from './components/TournamentTeamsList.vue';
 import { useUserStore } from '@/stores/userStore';
+import TournamentPlayerGameLevel from './components/TournamentPlayerGameLevel.vue';
 
 const route = useRoute();
 const tournamentStore = useTournamentStore();
@@ -197,6 +198,8 @@ onUnmounted(() => {
           @register-as-caster="handleRegisterAsCaster"
           @unregister="handleUnregister"
         />
+        
+        <TournamentPlayerGameLevel :tournament="tournament" />
 
         <!-- Casters -->
         <TournamentCastersList 

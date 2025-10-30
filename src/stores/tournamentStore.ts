@@ -70,6 +70,12 @@ const useTournamentStore = defineStore('tournament', {
         this.tournaments[index] = updatedTournament;
       }
       this.isLoading = false;
+    },
+    async setGameLevel(tournament: Tournament, data: { level: string, selectedRoles: string[], gameUsername: string, isRanked: boolean, rank?: string, comment?: string }) {
+      this.isLoading = true;
+      await tournamentService.setGameLevel(tournament, data);
+      await this.fetchTournaments();
+      this.isLoading = false;
     }
   },
 });
