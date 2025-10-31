@@ -54,7 +54,7 @@ const logout = async () => {
     </div>
 
     <div class="mt-auto w-full">
-      <div v-if="userStore.isLoggedIn && userStore.user" class="relative bg-red-500" @mouseleave="isMenuOpen = false">
+      <div v-if="userStore.isLoggedIn && userStore.user" class="relative" @mouseleave="isMenuOpen = false">
         <!-- Bouton utilisateur -->
         <button 
           @click="isMenuOpen = !isMenuOpen"
