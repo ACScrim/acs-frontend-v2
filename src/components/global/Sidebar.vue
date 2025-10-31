@@ -2,7 +2,7 @@
 import Avatar from '@/components/ui/Avatar.vue';
 import { useUserStore } from '@/stores/userStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import Separator from '../ui/Separator.vue';
 import { Button } from '../ui';
@@ -12,10 +12,11 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
+const isMenuOpen = ref(false);
+
 const asideRoutes = computed(() =>
-router.getRoutes()
-.filter(
-  (r) => {
+  router.getRoutes()
+    .filter((r) => {
       const showInAside = r.meta.showInAside;
       const showInAdminBar = r.meta.showInAdminBar;
       if (route.path.startsWith('/admin')) {
@@ -26,9 +27,14 @@ router.getRoutes()
         return showInAside(user.value);
       }
       return showInAside === true;
-    }
-  )
+    })
 );
+
+const logout = async () => {
+  await userStore.logout();
+  isMenuOpen.value = false;
+  router.push('/');
+};
 </script>
 
 <template>
@@ -48,13 +54,63 @@ router.getRoutes()
     </div>
 
     <div class="mt-auto w-full">
-      <Button v-if="userStore.isLoggedIn && userStore.user" to="/profile" class="w-full gap-4 bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl">
-        <Avatar :src="userStore.user.avatarUrl" />
-        <div class="flex flex-col">
-          <span class="font-bold text-lg uppercase text-left">{{ userStore.user.username }}</span>
-          <span class="text-xs italic underline">Voir mon profil</span>
+      <div v-if="userStore.isLoggedIn && userStore.user" class="relative bg-red-500" @mouseleave="isMenuOpen = false">
+        <!-- Bouton utilisateur -->
+        <button 
+          @click="isMenuOpen = !isMenuOpen"
+          @mouseover="isMenuOpen = true"
+          class="w-full gap-4 bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl px-4 py-3 rounded-lg font-bold flex items-center"
+        >
+          <Avatar :src="userStore.user.avatarUrl" class="size-10" />
+          <div class="flex flex-col text-left flex-1">
+            <span class="text-lg uppercase">{{ userStore.user.username }}</span>
+            <span class="text-xs italic">Menu</span>
+          </div>
+          <VueIcon name="bs:chevron-up" :class="['transition-transform', isMenuOpen ? 'rotate-180' : '']" />
+        </button>
+
+        <!-- Menu déroulant -->
+        <div 
+          v-show="isMenuOpen"
+          class="absolute bottom-full left-0 right-0 bg-christmas-navy border-2 border-christmas-gold border-b-0 rounded-t-lg shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
+        >
+          <RouterLink 
+            to="/profile"
+            @click="isMenuOpen = false"
+            class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
+          >
+            <VueIcon name="cd:account" class="text-lg" />
+            <span>Profil</span>
+          </RouterLink>
+
+          <RouterLink 
+            to="/profile?tab=game-levels"
+            @click="isMenuOpen = false"
+            class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
+          >
+            <VueIcon name="bs:joystick" class="text-lg" />
+            <span>Mes niveaux de jeu</span>
+          </RouterLink>
+
+          <RouterLink 
+            to="/profile?tab=settings"
+            @click="isMenuOpen = false"
+            class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
+          >
+            <VueIcon name="bs:gear" class="text-lg" />
+            <span>Paramètres</span>
+          </RouterLink>
+
+          <button 
+            @click="logout"
+            class="flex items-center gap-3 w-full px-4 py-3 text-red-300 hover:bg-red-500/10 hover:text-red-200 transition-colors font-bold"
+          >
+            <VueIcon name="bs:box-arrow-right" class="text-lg" />
+            <span>Déconnexion</span>
+          </button>
         </div>
-      </Button>
+      </div>
+
       <Button v-else class="w-full bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl" :to="`${API_URL}/auth/discord`">
         <VueIcon name="ak:discord-fill" class="text-3xl" />
         <span class="font-bold text-lg uppercase">Connexion</span>
@@ -79,4 +135,4 @@ aside::before {
 aside > * {
   z-index: 1;
 }
-  </style>
+</style>
