@@ -42,21 +42,6 @@ const tournamentService = {
       throw new Error('Failed to vote MVP in tournament');
     }
     return response.data.data;
-  },
-  setGameLevel: async (tournament: Tournament, data: { level: string, selectedRoles: string[], gameUsername: string, isRanked: boolean, rank?: string, comment?: string }) => {
-    const response = await api.post<ApiResponse<Tournament>>(`/playergamelevels/set-level`, {
-      gameId: tournament.game.id,
-      level: data.level,
-      selectedRoles: data.selectedRoles,
-      gameUsername: data.gameUsername,
-      isRanked: data.isRanked,
-      rank: data.rank,
-      comment: data.comment
-    });
-    if (!response.data.success) {
-      throw new Error('Failed to set game level');
-    }
-    return response.data.data;
   }
 };
 

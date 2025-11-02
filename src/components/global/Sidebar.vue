@@ -84,7 +84,7 @@ const logout = async () => {
           </RouterLink>
 
           <RouterLink 
-            to="/profile?tab=game-levels"
+            to="/player-levels"
             @click="isMenuOpen = false"
             class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
           >
@@ -93,7 +93,7 @@ const logout = async () => {
           </RouterLink>
 
           <RouterLink 
-            to="/profile?tab=settings"
+            to="/settings"
             @click="isMenuOpen = false"
             class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
           >

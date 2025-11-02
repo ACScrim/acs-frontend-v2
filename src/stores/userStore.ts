@@ -2,7 +2,7 @@ import type { ApiResponse, User, UserWithStats } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 
-export const useUserStore = defineStore('user', {
+export const useUserStore = defineStore('acs-user', {
   state: () => ({
     user: null as User | null,
     users: {} as Record<string, UserWithStats>
@@ -39,4 +39,7 @@ export const useUserStore = defineStore('user', {
       }
     },
   },
+  persist: {
+    storage: localStorage
+  }
 });

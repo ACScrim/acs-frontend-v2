@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button, Card } from '@/components/ui';
+import usePlayerLevelStore from '@/stores/playerLevelStore';
 import useTournamentStore from '@/stores/tournamentStore';
 import type { Tournament } from '@/types/models';
 import { ref } from 'vue';
@@ -8,12 +9,12 @@ const props = defineProps<{
   tournament: Tournament;
 }>();
 
-const tournamentStore = useTournamentStore();
+const playerLevelStore = usePlayerLevelStore();
 
 const showLevelForm = ref(false);
 const isRanked = ref(false);
 
-const onSubmitHandler = (e: Event) => {
+const onSubmitHandler = async (e: Event) => {
   e.preventDefault();
   const form = e.target as HTMLFormElement;
   const formData = new FormData(form);
@@ -24,7 +25,7 @@ const onSubmitHandler = (e: Event) => {
   const rank = isRankedValue ? (formData.get('rank') as string) : undefined;
   const comment = formData.get('comment') as string | undefined;
 
-  tournamentStore.setGameLevel(props.tournament, {
+  await playerLevelStore.setGameLevel(props.tournament.game, {
     level,
     selectedRoles,
     gameUsername,
@@ -32,6 +33,9 @@ const onSubmitHandler = (e: Event) => {
     rank,
     comment
   });
+
+  await useTournamentStore().fetchTournaments();
+  
 
   showLevelForm.value = false;
 };

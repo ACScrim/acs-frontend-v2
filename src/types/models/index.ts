@@ -147,3 +147,18 @@ export interface GameProposal {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PlayerGameLevel {
+  id: string;
+  userId: string;
+  gameId: string;
+  game: Game;
+  level: string;
+  gameUsername: string;
+  isRanked: boolean;
+  rank: string;
+  selectedRoles: string[];
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -50,10 +50,12 @@ const getGridColsClass = () => {
 
     <template v-if="data.length > 0">
       <div :class="getGridColsClass()">
+        <slot name="add-preprend" />
         <RouterLink v-if="to" v-for="item in data.slice(pagination.offset, pagination.offset + pagination.limit)" :key="item.id" :to="to(item)" class="group">
           <slot name="item" :item="item" />
         </RouterLink>
         <slot v-else name="item" v-for="item in data.slice(pagination.offset, pagination.offset + pagination.limit)" :item="item" />
+        <slot name="add-append" />
       </div>
       <Paginator v-if="paginate" v-model:current-page="currentPage" :total="data.length" :items-per-page="itemsPerPage" :max-visible-pages="3" @paginate="({ limit, offset }) => pagination = { limit, offset }" />
     </template>
