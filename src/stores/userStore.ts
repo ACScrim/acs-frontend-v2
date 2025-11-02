@@ -38,8 +38,5 @@ export const useUserStore = defineStore('acs-user', {
         console.error("Error logging out:", error);
       }
     },
-  },
-  persist: {
-    storage: localStorage
   }
 });

@@ -27,10 +27,6 @@ const usePlayerLevelStore = defineStore('acs-playerLevels', {
       });
       this.isLoading = false;
     }
-  },
-  persist: {
-    storage: localStorage,
-    pick: ['levels']
   }
 })
 
