@@ -31,6 +31,7 @@ import TournamentPlayersList from './components/TournamentPlayersList.vue';
 import TournamentTeamsList from './components/TournamentTeamsList.vue';
 import { useUserStore } from '@/stores/userStore';
 import TournamentPlayerGameLevel from './components/TournamentPlayerGameLevel.vue';
+import { useToastStore } from '@/stores/toastStore';
 
 const route = useRoute();
 const tournamentStore = useTournamentStore();
@@ -79,41 +80,45 @@ const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tou
 
 const handleRegister = () => {
   try {
+    if (!tournament.value?.game.currentPlayerLevel) {
+      throw new Error('Vous devez définir votre niveau de jeu avant de pouvoir vous inscrire à ce tournoi.');
+    }
+
     tournamentStore.registerToTournament(tournament.value!.id);
-  } catch (error) {
-    console.error('Erreur lors de l\'inscription au tournoi :', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors de l\'inscription au tournoi :', error.message || error);
   }
 };
 
 const handleRegisterAsCaster = () => {
   try {
     tournamentStore.registerToTournament(tournament.value!.id, "caster");
-  } catch (error) {
-    console.error('Erreur lors de l\'inscription en tant que caster au tournoi :', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors de l\'inscription en tant que caster au tournoi :', error.message || error);
   }
 };
 
 const handleUnregister = () => {
   try {
     tournamentStore.unregisterFromTournament(tournament.value!.id);
-  } catch (error) {
-    console.error('Erreur lors de la désinscription du tournoi :', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors de la désinscription du tournoi :', error.message || error);
   }
 };
 
 const handleAddClip = (clipUrl: string) => {
   try {
     tournamentStore.addClipToTournament(tournament.value!.id, clipUrl);
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout du clip :', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors de l\'ajout du clip :', error.message || error);
   }
 };
 
 const handleVoteMvp = (playerId: string) => {
   try {
     tournamentStore.voteMvpInTournament(tournament.value!.id, playerId);
-  } catch (error) {
-    console.error('Erreur lors du vote MVP :', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors du vote MVP :', error.message || error);
   }
 };
 
@@ -149,9 +154,8 @@ onUnmounted(() => {
         <!-- Actions -->
         <TournamentActionsCard 
           v-if="!tournament.finished"
-          :player-cap="tournament.playerCap"
+          :tournament="tournament"
           :current-player-count="playerCount"
-          :is-finished="tournament.finished"
           :is-registered="!!tournament.players.find(p => p.user.id === currentUserId)"
           class="lg:hidden"
           @register="handleRegister"
@@ -189,9 +193,8 @@ onUnmounted(() => {
         <!-- Actions -->
         <TournamentActionsCard 
           v-if="!tournament.finished"
-          :player-cap="tournament.playerCap"
           :current-player-count="playerCount"
-          :is-finished="tournament.finished"
+          :tournament="tournament"
           :is-registered="!!tournament.players.find(p => p.user.id === currentUserId)"
           class="hidden lg:block"
           @register="handleRegister"

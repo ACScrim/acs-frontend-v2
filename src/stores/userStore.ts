@@ -1,6 +1,7 @@
 import type { ApiResponse, User, UserWithStats } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
+import { useToastStore } from "./toastStore";
 
 export const useUserStore = defineStore('acs-user', {
   state: () => ({
@@ -26,16 +27,16 @@ export const useUserStore = defineStore('acs-user', {
       try {
         const response = await api.get<ApiResponse<UserWithStats>>(`/users/profile/${id}`);
         this.users[id] = response.data.data;
-      } catch (error) {
-        console.error(`Error fetching user with id ${id}:`, error);
+      } catch (error: any) {
+        useToastStore().error(`Error fetching user with id ${id}:`, error.message || error);
       }
     },
     async logout() {
       try {
         await api.post("/auth/logout");
         this.user = null;
-      } catch (error) {
-        console.error("Error logging out:", error);
+      } catch (error: any) {
+        useToastStore().error("Error logging out:", error.message || error);
       }
     },
   }

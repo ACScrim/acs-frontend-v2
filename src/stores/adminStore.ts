@@ -1,6 +1,7 @@
 import type { ApiResponse, Report, UserAdmin } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
+import { useToastStore } from "./toastStore";
 
 const useAdminStore = defineStore('admin', {
   state: () => ({
@@ -12,8 +13,8 @@ const useAdminStore = defineStore('admin', {
         const response = await api.get<ApiResponse<UserAdmin[]>>("/admin/users");
         const usersArray = response.data.data;
         this.users = usersArray;
-      } catch (error) {
-        console.error("Error fetching all users:", error);
+      } catch (error: any) {
+        useToastStore().error("Error fetching all users:", error.message || error);
       }
     },
     async addReportToUser(userId: string, reason: string) {
@@ -24,8 +25,8 @@ const useAdminStore = defineStore('admin', {
         if (user) {
           user.reports.push(newReport);
         }
-      } catch (error) {
-        console.error("Error adding report to user:", error);
+      } catch (error: any) {
+        useToastStore().error("Error adding report to user:", error.message || error);
       }
     },
     async removeReport(reportId: string, userId: string) {
@@ -35,8 +36,8 @@ const useAdminStore = defineStore('admin', {
         if (user) {
           user.reports = user.reports.filter(report => report.id !== reportId);
         }
-      } catch (error) {
-        console.error("Error removing report from user:", error);
+      } catch (error: any) {
+        useToastStore().error("Error removing report from user:", error.message || error);
       }
     }
   }

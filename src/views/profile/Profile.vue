@@ -7,6 +7,7 @@ import ProfileHeader from './components/ProfileHeader.vue';
 import ProfileTournamentHistory from './components/ProfileTournamentHistory.vue';
 import ProfilePerGameStats from './components/ProfilePerGameStats.vue';
 import ProfilePersonalBests from './components/ProfilePersonalBests.vue';
+import { useToastStore } from '@/stores/toastStore';
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -20,9 +21,8 @@ const fetchUserProfile = async (userId: string) => {
   isLoading.value = user !== null ? false : true;
   try {
     await userStore.fetchUserById(userId);
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Simuler un délai pour le chargement
-  } catch (error) {
-    console.error('Erreur lors du chargement du profil:', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors du chargement du profil:', error.message || error);
   } finally {
     isLoading.value = false;
   }

@@ -28,8 +28,8 @@ const useProposalStore = defineStore('proposalStore', {
         if (index !== -1) {
           this.proposals[index] = updatedProposal;
         }
-      } catch (error) {
-        console.error('Error voting on proposal:', error);
+      } catch (error: any) {
+        useToastStore().error('Error voting on proposal:', error.message || error);
       }
     },
     async sortProposals(criteria: 'recent' | 'old' | 'popular') {
@@ -47,8 +47,8 @@ const useProposalStore = defineStore('proposalStore', {
           params: { q: query }
         });
         this.rawgGames = response.data.data;
-      } catch (error) {
-        console.error('Error fetching RAWG games:', error);
+      } catch (error: any) {
+        useToastStore().error('Error fetching RAWG games:', error.message || error);
       }
     },
     async submitProposal(game: RawgGame, description: string) {

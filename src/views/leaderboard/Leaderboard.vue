@@ -3,6 +3,7 @@ import LoaderACS from '@/components/global/LoaderACS.vue';
 import PageHeader from '@/components/global/PageHeader.vue';
 import { Select } from '@/components/ui';
 import useSeasonStore from '@/stores/seasonStore';
+import { useToastStore } from '@/stores/toastStore';
 import { type ApiResponse, type LeaderboardEntry } from '@/types/models';
 import api from '@/utils/api';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
@@ -21,8 +22,8 @@ onMounted((async () => {
     leaderboard.value = response.data.data;
 
     seasonStore.fetchSeasons();
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error);
+  } catch (error: any) {
+    useToastStore().error('Error fetching leaderboard:', error.message || error);
   }
 }))
 
@@ -30,8 +31,8 @@ whenever(seasonFilter, async () => {
   try {
     const response = await api.get<ApiResponse<LeaderboardEntry[]>>(`/leaderboard?season=${seasonFilter.value}`);
     leaderboard.value = response.data.data;
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error);
+  } catch (error: any) {
+    useToastStore().error('Error fetching leaderboard:', error.message || error);
   }
 });
 

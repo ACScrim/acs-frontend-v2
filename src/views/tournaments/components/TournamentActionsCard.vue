@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Button, Card } from '@/components/ui';
+import type { Tournament } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 
 interface Props {
-  playerCap: number;
+  tournament: Tournament;
   currentPlayerCount: number;
-  isFinished: boolean;
   isRegistered: boolean;
 }
 
@@ -17,7 +17,7 @@ const emit = defineEmits<{
   unregister: [];
 }>();
 
-const canRegister = () => props.playerCap <= 0 || props.currentPlayerCount < props.playerCap;
+const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayerCount < props.tournament.playerCap;
 </script>
 
 <template>
@@ -69,7 +69,7 @@ const canRegister = () => props.playerCap <= 0 || props.currentPlayerCount < pro
       </Button>
     </template>
 
-    <Button v-if="isFinished" class="w-full mt-3" color="christmas-green">
+    <Button v-if="tournament.finished" class="w-full mt-3" color="christmas-green">
       <template #icon>
         <VueIcon name="bs:check2-circle" class="text-xl" />
       </template>

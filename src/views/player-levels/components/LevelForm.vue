@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Button, Card } from '@/components/ui';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
+import { useToastStore } from '@/stores/toastStore';
 import useTournamentStore from '@/stores/tournamentStore';
 import type { PlayerGameLevel } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
@@ -96,8 +97,8 @@ const handleSubmit = async () => {
     await playerLevelStore.fetchPlayerGameLevels();
     resetForm();
     emit('save');
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error);
+  } catch (error: any) {
+    useToastStore().error('Erreur lors de la sauvegarde:', error.message || error);
   } finally {
     isLoading.value = false;
   }
