@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  modelValue: string,
+  modelValue?: string,
   options: Array<{ label: string, value: string }>
   defaultOptionLabel?: string
 }>();

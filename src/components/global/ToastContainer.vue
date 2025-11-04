@@ -12,6 +12,7 @@ const toastStore = useToastStore();
       :key="toast.id"
       :id="toast.id"
       :message="toast.message"
+      :details="toast.details"
       :type="toast.type"
       :duration="toast.duration"
       @remove="toastStore.removeToast"

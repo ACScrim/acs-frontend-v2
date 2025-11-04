@@ -162,3 +162,10 @@ export interface PlayerGameLevel {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface RawgGame {
+  id: number;
+  name: string;
+  background_image: string | null;
+  release_date: string | null;
+}

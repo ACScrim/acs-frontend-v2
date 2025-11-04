@@ -4,6 +4,7 @@ import { ref } from 'vue';
 interface Toast {
   id: string;
   message: string;
+  details?: string;
   type: 'success' | 'error' | 'info' | 'warning';
   duration?: number;
 }
@@ -11,11 +12,12 @@ interface Toast {
 export const useToastStore = defineStore('toast', () => {
   const toasts = ref<Toast[]>([]);
 
-  const addToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', duration = 3000) => {
+  const addToast = ({message, details}: {message: string, details?: string}, type: 'success' | 'error' | 'info' | 'warning' = 'info', duration = 3000) => {
     const id = Date.now().toString();
     toasts.value.push({
       id,
       message,
+      details,
       type,
       duration,
     });
@@ -25,10 +27,10 @@ export const useToastStore = defineStore('toast', () => {
     toasts.value = toasts.value.filter(toast => toast.id !== id);
   };
 
-  const success = (message: string, duration?: number) => addToast(message, 'success', duration);
-  const error = (message: string, duration?: number) => addToast(message, 'error', duration);
-  const info = (message: string, duration?: number) => addToast(message, 'info', duration);
-  const warning = (message: string, duration?: number) => addToast(message, 'warning', duration);
+  const success = (message: string, details?: string, duration?: number) => addToast({ message, details }, 'success', duration);
+  const error = (message: string, details?: string, duration?: number) => addToast({ message, details }, 'error', duration);
+  const info = (message: string, details?: string, duration?: number) => addToast({ message, details }, 'info', duration);
+  const warning = (message: string, details?: string, duration?: number) => addToast({ message, details }, 'warning', duration);
 
   return {
     toasts,

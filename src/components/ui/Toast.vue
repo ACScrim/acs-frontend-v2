@@ -5,6 +5,7 @@ import { computed } from 'vue';
 interface Props {
   id: string;
   message: string;
+  details?: string;
   type?: 'success' | 'error' | 'info' | 'warning';
   duration?: number;
 }
@@ -57,7 +58,10 @@ setTimeout(() => {
     ]"
   >
     <VueIcon :name="iconName" class="text-xl flex-shrink-0" />
-    <p class="text-sm font-medium flex-1">{{ message }}</p>
+    <div>
+      <p class="text-sm font-medium flex-1">{{ message }}</p>
+      <p v-if="details" class="text-xs flex-1">{{ details }}</p>
+    </div>
     <button
       @click="$emit('remove', id)"
       class="flex-shrink-0 hover:opacity-70 transition-opacity"

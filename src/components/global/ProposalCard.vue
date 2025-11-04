@@ -88,7 +88,7 @@ const handleVoteClick = (value: boolean) => {
             <div class="inline-flex gap-3 items-center text-christmas-gold-light">
               <p class="line-clamp-2" :id="`proposal-description-${proposal.id}`" :title="proposal.description">
                 <VueIcon name="bx:user" class="text-christmas-gold text-xl inline-block mr-2" />
-                Proposé par {{ proposal.proposedBy.username || 'Utilisateur inconnu.' }}
+                Proposé par <RouterLink :to="`/profile/${proposal.proposedBy.id}`" class="text-christmas-gold font-medium">{{ proposal.proposedBy.username || 'Utilisateur inconnu.' }}</RouterLink>
               </p>
             </div>
           </div>

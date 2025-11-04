@@ -1,11 +1,14 @@
-import type { ApiResponse, GameProposal } from "@/types/models";
+import type { ApiResponse, GameProposal, RawgGame } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
+import { useToastStore } from "./toastStore";
+import type { AxiosError } from "axios";
 
 const useProposalStore = defineStore('proposalStore', {
   state: () => ({
     isLoading: false,
     proposals: [] as GameProposal[],
+    rawgGames: [] as { id: number; name: string; background_image: string | null, release_date: string | null }[],
   }),
   actions: {
     async fetchProposals() {
@@ -19,7 +22,7 @@ const useProposalStore = defineStore('proposalStore', {
     },
     async voteOnProposal(id: string, vote: boolean) {
       try {
-        const response = await api.post<ApiResponse<GameProposal>>('/proposals', { id, vote });
+        const response = await api.post<ApiResponse<GameProposal>>('/proposals/vote', { id, vote });
         const updatedProposal = response.data.data;
         const index = this.proposals.findIndex(p => p.id === id);
         if (index !== -1) {
@@ -36,6 +39,28 @@ const useProposalStore = defineStore('proposalStore', {
         this.proposals.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       } else if (criteria === 'popular') {
         this.proposals.sort((a, b) => b.totalVotes - a.totalVotes);
+      }
+    },
+    async fetchRawgGames(query: string) {
+      try {
+        const response = await api.get<ApiResponse<{ id: number; name: string; background_image: string | null, release_date: string | null }[]>>('/proposals/rawg-games', {
+          params: { q: query }
+        });
+        this.rawgGames = response.data.data;
+      } catch (error) {
+        console.error('Error fetching RAWG games:', error);
+      }
+    },
+    async submitProposal(game: RawgGame, description: string) {
+      try {
+        const response = await api.post<ApiResponse<GameProposal>>('/proposals', {
+          game,
+          description
+        });
+        this.proposals.unshift(response.data.data);
+        useToastStore().success('Proposition soumise avec succès !');
+      } catch (error: AxiosError | any) {
+        useToastStore().error('Erreur lors de la soumission de la proposition.', `${error.response?.data?.error || error.message} (${error.response?.status || ''})`);
       }
     }
   }
