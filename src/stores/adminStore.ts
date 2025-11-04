@@ -1,4 +1,4 @@
-import type { ApiResponse, Report, UserAdmin } from "@/types/models";
+import type { ApiResponse, LogEntry, Report, UserAdmin } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 import { useToastStore } from "./toastStore";
@@ -6,6 +6,7 @@ import { useToastStore } from "./toastStore";
 const useAdminStore = defineStore('admin', {
   state: () => ({
     users: [] as Array<UserAdmin>,
+    logs: [] as Array<LogEntry>,
   }),
   actions: {
     async fetchUsers() {
@@ -25,6 +26,7 @@ const useAdminStore = defineStore('admin', {
         if (user) {
           user.reports.push(newReport);
         }
+        this.users = this.users.map(u => u.id === userId ? user! : u);
       } catch (error: any) {
         useToastStore().error("Error adding report to user:", error.message || error);
       }
@@ -36,8 +38,20 @@ const useAdminStore = defineStore('admin', {
         if (user) {
           user.reports = user.reports.filter(report => report.id !== reportId);
         }
+        this.users = this.users.map(u => u.id === userId ? user! : u);
       } catch (error: any) {
         useToastStore().error("Error removing report from user:", error.message || error);
+      }
+    },
+    addLog(logLine: string) {
+      const log = JSON.parse(logLine) as LogEntry;
+      if (this.logs.length <= 50) {
+        if (!this.logs.find(l => l.reqId === log.reqId && l.time === log.time))
+          this.logs.push(log);
+      } else {
+        this.logs.shift();
+        if (!this.logs.find(l => l.reqId === log.reqId && l.time === log.time))
+          this.logs.push(log);
       }
     }
   }

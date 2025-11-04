@@ -19,7 +19,7 @@ defineProps<{
     </thead>
     <tbody>
       <tr v-for="row in table.getRowModel().rows" :key="row.id" class="h-20 bg-christmas-navy/50 odd:bg-christmas-midnight/50 backdrop-blur-md">
-        <td v-for="cell in row.getVisibleCells()" :key="cell.id">
+        <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="[&>*]:place-self-center">
           <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
         </td>
       </tr>

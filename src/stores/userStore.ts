@@ -39,5 +39,9 @@ export const useUserStore = defineStore('acs-user', {
         useToastStore().error("Error logging out:", error.message || error);
       }
     },
+  },
+  persist: {
+    storage: localStorage,
+    pick: ['user']
   }
 });

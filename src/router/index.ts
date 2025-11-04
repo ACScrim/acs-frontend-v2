@@ -19,9 +19,9 @@ const routes: RouterOptions['routes'] = [
 ]
 
 const adminRoutes: RouterOptions['routes'] = [
-  { path: '/admin', component: () => import('@/views/notfound/NotFound.vue'), name: 'Admin', meta: { title: 'Admin', icon: 'bx:shield-quarter', showInAside: (user: User) => user.role === "superadmin", showInMobileFooter: false, showInAdminBar: false }},
-  { path: '/admin/users', component: () => import('@/views/admin/users/Users.vue'), name: 'Gestion des utilisateurs', meta: { title: 'Users', icon: 'bx:user', showInAside: false, showInMobileFooter: false, showInAdminBar: true } },
-  { path: '/admin/tournaments', component: () => import('@/views/notfound/NotFound.vue'), name: 'Gestion des tournois', meta: { title: 'Tournois', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: true } },
+  { path: '/admin', component: () => import('@/views/admin/Admin.vue'), name: 'Admin', meta: { title: 'Admin', icon: 'bs:shield-lock', showInAside: (user: User) => user.role === "superadmin", showInMobileFooter: false, showInAdminBar: true, order: 0 } },
+  { path: '/admin/users', component: () => import('@/views/admin/users/Users.vue'), name: 'Gestion des utilisateurs', meta: { title: 'Users', icon: 'bx:user', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 1 } },
+  { path: '/admin/tournaments', component: () => import('@/views/notfound/NotFound.vue'), name: 'Gestion des tournois', meta: { title: 'Tournois', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 2 } },
 ]
 
 const router = createRouter({

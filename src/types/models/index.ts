@@ -169,3 +169,17 @@ export interface RawgGame {
   background_image: string | null;
   release_date: string | null;
 }
+
+export interface LogEntry {
+  level: number,
+  time: number,
+  pid: number,
+  hostname: string,
+  reqId: string,
+  msg: string,
+  method: string,
+  url: string,
+  body: any,
+  statusCode: number,
+  user: string
+}
