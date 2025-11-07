@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Modal from '@/components/global/Modal.vue';
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Avatar, Badge } from '@/components/ui';
+import { Avatar } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table';
@@ -35,8 +35,9 @@ const table = useVueTable({
           h(Avatar, {
             src: cell.getValue(),
             alt: 'Avatar',
-            class: 'overflow-hidden w-12 h-12 border-2 border-christmas-gold/50 hover:border-christmas-gold transition-all duration-300 hover:scale-110',
-            fallback: row.original.username[0]
+            class: 'overflow-hidden border-2 border-christmas-gold/50 hover:border-christmas-gold transition-all duration-300 hover:scale-110',
+            fallback: row.original.username[0],
+            size: 12
           })
         );
       }
@@ -56,7 +57,7 @@ const table = useVueTable({
     {
       header: 'Rôle',
       accessorKey: 'role',
-      cell: ({ cell }) => {
+      cell: ({ cell, row }) => {
         const role = cell.getValue() as string;
         const roleConfig: Record<string, { color: string; icon: string }> = {
           'admin': { color: 'bg-christmas-red/20 border-christmas-red text-christmas-red', icon: 'bs:shield-fill' },
@@ -67,9 +68,21 @@ const table = useVueTable({
         
         return h('div', { class: 'flex items-center gap-2' }, [
           h(VueIcon, { name: config.icon, class: 'text-lg' }),
-          h(Badge, {
-            class: `border-2 font-semibold ${config.color}`
-          }, { default: () => role.toUpperCase() })
+          h('select', {
+            value: role,
+            onChange: (e: Event) => {
+              const newRole = (e.target as HTMLSelectElement).value;
+              adminStore.updateUserRole(row.original.id, newRole);
+            },
+            class: `px-3 py-1 rounded-full border-2 font-semibold cursor-pointer transition-all duration-300 
+              ${config.color}
+              [&>option]:text-white
+              bg-christmas-navy hover:bg-christmas-navy/80 focus:outline-none focus:ring-2 focus:ring-christmas-gold/30`
+          }, [
+            h('option', { value: 'user' }, 'User'),
+            h('option', { value: 'admin' }, 'Admin'),
+            h('option', { value: 'superadmin' }, 'Superadmin')
+          ])
         ]);
       }
     },

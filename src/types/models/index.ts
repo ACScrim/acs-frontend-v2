@@ -63,16 +63,7 @@ export interface Tournament {
   game: Game;
   date: string;
   discordChannelName: string;
-  players: {
-    id: string;
-    user: User;
-    inWaitlist: boolean;
-    registrationDate: string;
-    hasCheckin: boolean;
-    isCaster: boolean;
-    isMvp: boolean;
-    mvpVotes: string[];
-  }[];
+  players: TournamentPlayer[];
   playerCap: number;
   teamsPublished: boolean;
   finished: boolean;
@@ -83,19 +74,33 @@ export interface Tournament {
   reminderSentPlayers: boolean;
   messageId: string;
   mvpVoteOpen: boolean;
-  teams:{
-    name: string;
-    users: User[];
-    score: number;
-    ranking: number;
-    id: string;
-  }[];
+  teams: Team[];
   clips: {
     url: string;
     addedBy?: User;
     addedAt: string;
     id: string;
   }[];
+}
+
+export interface TournamentPlayer {
+  id: string;
+  user: User;
+  inWaitlist: boolean;
+  registrationDate: string;
+  hasCheckin: boolean;
+  isCaster: boolean;
+  isMvp: boolean;
+  mvpVotes: string[];
+  tier: string;
+  description?: string;
+}
+
+export interface Team {
+  name: string;
+  users: User[];
+  score: number;
+  ranking: number;
 }
 
 export interface Game {
@@ -182,4 +187,15 @@ export interface LogEntry {
   body: any,
   statusCode: number,
   user: string
+}
+
+export interface TournamentFormData {
+  name: string;
+  gameId: string;
+  date: string;
+  playerCap: number;
+  description: string;
+  discordChannelName: string;
+  discordReminderDate: string;
+  privateReminderDate: string;
 }
