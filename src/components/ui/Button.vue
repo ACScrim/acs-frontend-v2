@@ -5,7 +5,7 @@ interface Props {
   loading?: boolean
   iconPosition?: "r" | "l" | "lr"
   to?: string
-  class?: string
+  class?: string | string[]
   disabled?: boolean
   color?: keyof typeof bgColorClasses
   shadowColor?: string

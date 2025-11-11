@@ -3,6 +3,15 @@ import api from "@/utils/api";
 import { defineStore } from "pinia";
 import { useToastStore } from "./toastStore";
 
+const updateOneElementInArray = <T extends { id: string }>(array: T[], element: T) => {
+  const index = array.findIndex(t => t.id === element.id);
+  if (index !== -1) {
+    array[index] = element;
+  } else {
+    array.push(element);
+  }
+}
+
 const useAdminStore = defineStore('admin', {
   state: () => ({
     users: [] as Array<UserAdmin>,
@@ -11,6 +20,14 @@ const useAdminStore = defineStore('admin', {
     playerLevels: [] as Array<PlayerGameLevel>,
     games: [] as Array<Game>
   }),
+  getters: {
+    getTournaments: (state) => {
+      return state.tournaments;
+    },
+    getTournamentById: (state) => {
+      return (id: string) => state.tournaments.find(t => t.id === id);
+    }
+  },
   actions: {
     // FETCH ACTIONS
     async fetchUsers() {
@@ -35,12 +52,7 @@ const useAdminStore = defineStore('admin', {
       try {
         const response = await api.get<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}`);
         const tournament = response.data.data;
-        const index = this.tournaments.findIndex(t => t.id === tournamentId);
-        if (index !== -1) {
-          this.tournaments[index] = tournament;
-        } else {
-          this.tournaments.push(tournament);
-        }
+        updateOneElementInArray(this.tournaments, tournament);
       } catch (error: any) {
         useToastStore().error("Error fetching tournament details:", error.message || error);
       }
@@ -97,7 +109,6 @@ const useAdminStore = defineStore('admin', {
           this.users.find(u => u.id === userId)!.role = newRole;
           this.users = [...this.users];
         }
-        useToastStore().success(`Rôle mis à jour avec succès`);
       } catch (error: any) {
         useToastStore().error("Error updating user role:", error.message || error);
       }
@@ -106,35 +117,43 @@ const useAdminStore = defineStore('admin', {
       try {
         const response = await api.post<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/teams`, { teams: teamsData });
         const tournament = response.data.data;
-        const index = this.tournaments.findIndex(t => t.id === tournamentId);
-        if (index !== -1) {
-          this.tournaments[index] = tournament;
-        } else {
-          this.tournaments.push(tournament);
-        }
-        useToastStore().success("Équipes sauvegardées avec succès");
+        updateOneElementInArray(this.tournaments, tournament);
       } catch (error: any) {
         useToastStore().error("Error saving tournament teams:", error.message || error);
       }
     },
-    async updateTournamentPlayer(tournamentId: string, playerId: string, data: { tier?: string; description?: string }) {
+    async updateTournamentPlayer(tournamentId: string, playerId: string, data: { tier?: string; description?: string, hasCheckin?: boolean }) {
       try {
-        await api.patch(`/admin/tournaments/${tournamentId}/players/${playerId}`, data);
-        useToastStore().success("Informations du joueur mises à jour avec succès");
+        const response = await api.patch(`/admin/tournaments/${tournamentId}/players/${playerId}`, data);
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
       } catch (error: any) {
         useToastStore().error("Error updating tournament player:", error.message || error);
+      }
+    },
+    async addTournamentPlayer(tournamentId: string, userId: string) {
+      try {
+        const response = await api.post(`/admin/tournaments/${tournamentId}/players`, { userId });
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+      } catch (error: any) {
+        useToastStore().error("Error adding tournament player:", error.message || error);
+      }
+    },
+    async removeTournamentPlayer(tournamentId: string, playerId: string) {
+      try {
+        const response = await api.delete(`/admin/tournaments/${tournamentId}/players/${playerId}`);
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+      } catch (error: any) {
+        useToastStore().error("Error removing tournament player:", error.message || error);
       }
     },
     async publishTournamentTeams(tournamentId: string, teamsPublished: boolean) {
       try {
         const response = await api.post<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/publish-teams`, { teamsPublished });
         const tournament = response.data.data;
-        const index = this.tournaments.findIndex(t => t.id === tournamentId);
-        if (index !== -1) {
-          this.tournaments[index] = tournament;
-        } else {
-          this.tournaments.push(tournament);
-        }
+        updateOneElementInArray(this.tournaments, tournament);
       } catch (error: any) {
         useToastStore().error("Error publishing tournament teams:", error.message || error);
       }
@@ -142,27 +161,35 @@ const useAdminStore = defineStore('admin', {
     async updateTeamDetails(tournamentId: string, teamId: string, data: { score?: number; ranking?: number, name?: string }) {
       const response = await api.patch<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/teams`, { oldName: teamId, ...data });
       const tournament = response.data.data;
-      const index = this.tournaments.findIndex(t => t.id === tournamentId);
-      if (index !== -1) {
-        this.tournaments[index] = tournament;
-      } else {
-        this.tournaments.push(tournament);
-      }
+      updateOneElementInArray(this.tournaments, tournament);
     },
     async updateTournament(tournamentId: string, data: TournamentFormData) {
       try {
         const response = await api.patch<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}`, data);
         const updatedTournament = response.data.data;
-        const index = this.tournaments.findIndex(t => t.id === tournamentId);
-        if (index !== -1) {
-          this.tournaments[index] = updatedTournament;
-        } else {
-          this.tournaments.push(updatedTournament);
-        }
+        updateOneElementInArray(this.tournaments, updatedTournament);
       } catch (error: any) {
         useToastStore().error("Error updating tournament:", error.message || error);
       }
     },
+    async createTournament(data: TournamentFormData) {
+      try {
+        const response = await api.post<ApiResponse<Tournament>>(`/admin/tournaments`, data);
+        const newTournament = response.data.data;
+        updateOneElementInArray(this.tournaments, newTournament);
+      } catch (error: any) {
+        useToastStore().error("Error creating tournament:", error.message || error);
+      }
+    },
+    async deleteTournament(tournamentId: string) {
+      try {
+        await api.delete(`/admin/tournaments/${tournamentId}`);
+        this.tournaments = this.tournaments.filter(t => t.id !== tournamentId);
+      } catch (error: any) {
+        useToastStore().error("Error deleting tournament:", error.message || error);
+      }
+    },
+    // LOGS ACTIONS
     addLog(logLine: string) {
       const log = JSON.parse(logLine) as LogEntry;
       if (this.logs.length <= 50) {

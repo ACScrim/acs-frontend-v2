@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button, Card } from '@/components/ui';
+import { Button, Card, Avatar } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import { useToastStore } from '@/stores/toastStore';
 import type { Tournament } from '@/types/models';
@@ -24,28 +24,30 @@ const editingScore = ref<number>(0);
 const editingRanking = ref<number>(0);
 const isSaving = ref(false);
 
-const toggleTeam = (teamId: string) => {
-  if (expandedTeams.value.has(teamId)) {
-    expandedTeams.value.delete(teamId);
+const toggleTeam = (teamName: string) => {
+  if (expandedTeams.value.has(teamName)) {
+    expandedTeams.value.delete(teamName);
   } else {
-    expandedTeams.value.add(teamId);
+    expandedTeams.value.add(teamName);
   }
 };
 
-const getTeamTierAverage = (teamId: string): number => {
-  const team = props.tournament.teams.find(t => t.name === teamId);
-  if (!team || team.users.length === 0) return 0;
-  const totalTier = team.users.reduce((sum, user) => {
+const getTeamTierInfo = (team: Tournament['teams'][number]) => {
+  if (team.users.length === 0) return { avg: 0, total: 0 };
+  const tiers = team.users.map(user => {
     const player = props.tournament.players.find(p => p.user.id === user.id);
-    return sum + (player ? parseInt(player.tier) : 0);
-  }, 0);
-  return totalTier / team.users.length;
+    return player ? parseInt(player.tier) : 0;
+  });
+  return {
+    avg: (tiers.reduce((a, b) => a + b, 0) / tiers.length).toFixed(2),
+    total: tiers.reduce((a, b) => a + b, 0)
+  };
 };
 
-const startEditing = (teamId: string) => {
-  const team = props.tournament.teams.find(t => t.name === teamId);
+const startEditing = (teamName: string) => {
+  const team = props.tournament.teams.find(t => t.name === teamName);
   if (team) {
-    editingTeamId.value = teamId;
+    editingTeamId.value = teamName;
     editingName.value = team.name;
     editingScore.value = team.score;
     editingRanking.value = team.ranking;
@@ -56,10 +58,10 @@ const cancelEditing = () => {
   editingTeamId.value = null;
 };
 
-const saveTeamDetails = async (teamId: string) => {
+const saveTeamDetails = async (teamName: string) => {
   try {
     isSaving.value = true;
-    await adminStore.updateTeamDetails(route.params.id as string, teamId, {
+    await adminStore.updateTeamDetails(route.params.id as string, teamName, {
       name: editingName.value,
       score: editingScore.value,
       ranking: editingRanking.value
@@ -67,7 +69,7 @@ const saveTeamDetails = async (teamId: string) => {
     useToastStore().success('Équipe mise à jour avec succès.');
     editingTeamId.value = null;
   } catch (error) {
-    useToastStore().error('Erreur lors de la mise à jour de l\'équipe.');
+    useToastStore().error('Erreur lors de la mise à jour.');
   } finally {
     isSaving.value = false;
   }
@@ -75,156 +77,143 @@ const saveTeamDetails = async (teamId: string) => {
 </script>
 
 <template>
-  <div class="space-y-3">
+  <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-2xl font-bold text-christmas-gold flex items-center gap-2">
-        <VueIcon name="bs:diagram-3" />
+        <VueIcon name="bs:trophy-fill" />
         Équipes publiées
       </h2>
-      <Button @click="emit('edit')" class="flex items-center gap-1 text-sm">
+      <Button @click="emit('edit')" class="flex items-center gap-2 text-sm">
         <VueIcon name="bs:pencil" />
-        Modifier composition
+        Modifier
       </Button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <Card 
-        v-for="team in tournament.teams"
-        :key="team.name"
-        class="p-3 cursor-pointer hover:border-christmas-gold transition-all"
-        @click="!editingTeamId ? toggleTeam(team.name) : null"
-      >
-        <!-- Mode affichage -->
-        <div v-if="editingTeamId !== team.name">
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-lg font-bold text-christmas-gold">{{ team.name }}</h3>
-            <div class="flex items-center gap-3">
-              <div class="text-right">
-                <p class="text-xs text-christmas-gold-light/70">Rang</p>
-                <p class="text-lg font-bold text-christmas-gold">{{ team.ranking }}</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div v-for="team in tournament.teams" :key="team.name">
+        <Card 
+          :class="[
+            'p-4 cursor-pointer transition-all border border-christmas-gold bg-christmas-navy',
+            editingTeamId === team.name ? '' : 'hover:border-christmas-gold-light hover:shadow-lg hover:shadow-christmas-gold/20'
+          ]"
+          @click="!editingTeamId ? toggleTeam(team.name) : null"
+        >
+          <!-- Display Mode -->
+          <div v-if="editingTeamId !== team.name" class="space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-christmas-gold mb-1">{{ team.name }}</h3>
+                <p class="text-sm text-christmas-gold-light/70">{{ team.users.length }} joueurs</p>
               </div>
-              <div class="text-right">
-                <p class="text-xs text-christmas-gold-light/70">Score</p>
-                <p class="text-lg font-bold text-christmas-gold">{{ team.score }}</p>
+              <div class="text-right space-y-1">
+                <div class="flex items-center gap-1 justify-end">
+                  <VueIcon name="bs:medal-fill" class="text-christmas-gold" />
+                  <span class="text-2xl font-bold text-christmas-gold">{{ team.ranking }}</span>
+                </div>
+                <p class="text-xs text-christmas-gold-light/70">Place</p>
               </div>
-              <VueIcon 
-                :name="expandedTeams.has(team.name) ? 'bs:chevron-up' : 'bs:chevron-down'" 
-                class="text-christmas-gold"
-              />
             </div>
-          </div>
 
-          <!-- Info tier -->
-          <div class="mb-2 p-2 bg-christmas-gold/10 border border-christmas-gold/30 rounded text-xs">
-            <p class="text-christmas-gold-light">
-              Joueurs: <span class="font-bold text-christmas-gold">{{ team.users.length }}</span> | 
-              Tier moyen: <span class="font-bold text-christmas-gold">{{ getTeamTierAverage(team.name).toFixed(2) }}</span>
-            </p>
-          </div>
+            <!-- Stats Row -->
+            <div class="grid grid-cols-3 gap-2 p-3 bg-gradient-to-r from-christmas-gold/10 to-christmas-red/5 rounded-lg">
+              <div>
+                <p class="text-xs text-christmas-gold-light/70">Score</p>
+                <p class="font-bold text-christmas-gold text-lg">{{ team.score }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-christmas-gold-light/70">Tier moyen</p>
+                <p class="font-bold text-christmas-gold text-lg">{{ getTeamTierInfo(team).avg }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-christmas-gold-light/70">Tier total</p>
+                <p class="font-bold text-christmas-gold text-lg">{{ getTeamTierInfo(team).total }}</p>
+              </div>
+            </div>
 
-          <!-- Bouton édition -->
-          <button 
-            @click.stop="startEditing(team.name)"
-            class="mb-2 text-xs text-christmas-gold hover:text-christmas-gold-light flex items-center gap-1 transition-colors"
-          >
-            <VueIcon name="bs:pencil" />
-            Éditer détails
-          </button>
+            <!-- Edit Button -->
+            <button 
+              @click.stop="startEditing(team.name)"
+              class="w-full py-2 px-3 text-sm font-bold text-christmas-gold hover:bg-christmas-gold/20 rounded-lg transition-colors flex items-center justify-center gap-1"
+            >
+              <VueIcon name="bs:pencil" />
+              Éditer détails
+            </button>
 
-          <!-- Liste des joueurs (dépliable) -->
-          <transition name="expand">
-            <div v-if="expandedTeams.has(team.name)" class="space-y-1 mt-2 pt-2 border-t border-christmas-gold/20">
+            <!-- Players List -->
+            <div class="space-y-2 pt-3 border-t border-christmas-gold/20">
               <div 
                 v-for="player in team.users"
                 :key="player.id"
-                class="p-2 bg-christmas-navy/30 rounded flex items-center justify-between text-xs"
+                class="p-2 bg-christmas-midnight/50 rounded-lg flex items-center justify-between text-sm"
               >
-                <span class="text-christmas-snow font-medium">{{ player.username }}</span>
-                <span class="text-christmas-gold bg-christmas-gold/20 px-2 py-0.5 rounded">
+                <div class="flex items-center gap-2">
+                  <Avatar :src="player.avatarUrl" :alt="player.username" :size="10" class="rounded-full" />
+                  <p class="font-bold text-christmas-snow">{{ player.username }}</p>
+                </div>
+                <span class="text-xs bg-christmas-gold/20 text-christmas-gold px-2 py-1 rounded font-bold">
                   {{ tournament.players.find(p => p.user.id === player.id)?.tier ?? '-' }}
                 </span>
               </div>
             </div>
-          </transition>
-        </div>
-
-        <!-- Mode édition -->
-        <div v-else class="space-y-3">
-          <div class="flex items-center justify-between mb-2">
-            <VueIcon name="bs:pencil" class="text-christmas-gold" />
           </div>
 
-          <div class="space-y-2">
-            <div>
-              <label class="block text-christmas-gold-light text-xs font-bold mb-1">Nom de l'équipe</label>
-              <input 
-                v-model="editingName"
-                type="text"
-                placeholder="Nom de l'équipe..."
-                class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1.5 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-              />
+          <!-- Edit Mode -->
+          <div v-else class="space-y-4">
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-christmas-gold-light mb-1">Nom de l'équipe</label>
+                <input 
+                  v-model="editingName"
+                  type="text"
+                  class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg px-3 py-2 focus:border-christmas-gold outline-none font-bold"
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-christmas-gold-light mb-1">Classement</label>
+                  <input 
+                    v-model.number="editingRanking"
+                    type="number"
+                    min="1"
+                    class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg px-3 py-2 focus:border-christmas-gold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-christmas-gold-light mb-1">Score</label>
+                  <input 
+                    v-model.number="editingScore"
+                    type="number"
+                    min="0"
+                    class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg px-3 py-2 focus:border-christmas-gold outline-none"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label class="block text-christmas-gold-light text-xs font-bold mb-1">Classement</label>
-              <input 
-                v-model.number="editingRanking"
-                type="number"
-                min="1"
-                class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1.5 text-sm focus:border-christmas-gold outline-none"
-              />
-            </div>
-
-            <div>
-              <label class="block text-christmas-gold-light text-xs font-bold mb-1">Score</label>
-              <input 
-                v-model.number="editingScore"
-                type="number"
-                min="0"
-                class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1.5 text-sm focus:border-christmas-gold outline-none"
-              />
+            <div class="flex gap-2">
+              <Button 
+                @click.stop="saveTeamDetails(team.name)"
+                :disabled="isSaving"
+                color="christmas-gold"
+                class="flex-1 flex items-center justify-center gap-1"
+              >
+                <VueIcon name="bs:check-circle" />
+                Sauvegarder
+              </Button>
+              <Button 
+                @click.stop="cancelEditing"
+                :disabled="isSaving"
+                class="flex-1 flex items-center justify-center gap-1 bg-christmas-red/20 text-christmas-red hover:bg-christmas-red/30"
+              >
+                <VueIcon name="bs:x-circle" />
+                Annuler
+              </Button>
             </div>
           </div>
-
-          <div class="flex gap-2">
-            <Button 
-              @click.stop="saveTeamDetails(team.name)"
-              :disabled="isSaving"
-              class="flex-1 flex items-center justify-center gap-1 text-sm"
-            >
-              <VueIcon name="bs:check-circle" />
-              Sauvegarder
-            </Button>
-            <Button 
-              @click.stop="cancelEditing"
-              :disabled="isSaving"
-              class="flex-1 flex items-center justify-center gap-1 text-sm bg-christmas-red/20 text-christmas-red hover:bg-christmas-red/30"
-            >
-              <VueIcon name="bs:x-circle" />
-              Annuler
-            </Button>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease;
-}
-
-.expand-enter-from,
-.expand-leave-to {
-  opacity: 0;
-  max-height: 0;
-}
-
-.expand-enter-to,
-.expand-leave-from {
-  opacity: 1;
-  max-height: 500px;
-}
-</style>
