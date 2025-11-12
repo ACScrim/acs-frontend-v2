@@ -2,17 +2,41 @@
 import { Button, Card } from '@/components/ui';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import useTournamentStore from '@/stores/tournamentStore';
+import { useToastStore } from '@/stores/toastStore';
 import type { Tournament } from '@/types/models';
 import { ref } from 'vue';
+import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 
 const props = defineProps<{
   tournament: Tournament;
 }>();
 
 const playerLevelStore = usePlayerLevelStore();
+const toastStore = useToastStore();
 
 const showLevelForm = ref(false);
 const isRanked = ref(false);
+const gameProfileLink = ref('');
+const profileLinkError = ref('');
+
+const validateProfileLink = (gameProfileLink: string, gameProfileLinkRegex: string): boolean => {
+  if (!gameProfileLinkRegex) return true;
+  if (!gameProfileLink) return false;
+  try {
+    new URL(gameProfileLink);
+    const regex = new RegExp(gameProfileLinkRegex);
+    return regex.test(gameProfileLink);
+  } catch {
+    return false;
+  }
+};
+
+const onProfileLinkChange = () => {
+  profileLinkError.value = '';
+  if (gameProfileLink.value && !validateProfileLink(gameProfileLink.value, props.tournament.game.gameProfileLinkRegex || '')) {
+    profileLinkError.value = `Format regex: ${props.tournament.game.gameProfileLinkRegex}`;
+  }
+};
 
 const onSubmitHandler = async (e: Event) => {
   e.preventDefault();
@@ -25,19 +49,33 @@ const onSubmitHandler = async (e: Event) => {
   const rank = isRankedValue ? (formData.get('rank') as string) : undefined;
   const comment = formData.get('comment') as string | undefined;
 
+  // Valider le lien profil si le jeu en demande un
+  if (props.tournament.game.gameProfileLinkRegex) {
+    if (!gameProfileLink.value) {
+      toastStore.error('Le lien profil est requis pour ce jeu.');
+      return;
+    }
+    if (!validateProfileLink(gameProfileLink.value, props.tournament.game.gameProfileLinkRegex)) {
+      toastStore.error(`Lien invalide. Format regex: ${props.tournament.game.gameProfileLinkRegex}`);
+      return;
+    }
+  }
+
   await playerLevelStore.setGameLevel(props.tournament.game, {
     level,
     selectedRoles,
     gameUsername,
     isRanked: isRankedValue,
     rank,
-    comment
+    comment,
+    gameProfileLink: gameProfileLink.value || undefined
   });
 
   await useTournamentStore().fetchTournaments();
-  
 
   showLevelForm.value = false;
+  gameProfileLink.value = '';
+  profileLinkError.value = '';
 };
 </script>
 
@@ -65,7 +103,7 @@ const onSubmitHandler = async (e: Event) => {
             <option value="expert">Expert</option>
           </select>
         </div>
-        <div v-if="tournament.game.roles.length">
+        <div v-if="tournament.game.roles?.length">
           <label for="role" class="block mb-2 text-sm font-medium text-christmas-gold">Sélectionnez votre rôle préféré :</label>
           <select id="role" name="role" class="bg-christmas-navy border border-christmas-gold text-christmas-gold text-sm rounded-lg focus:ring-christmas-gold focus:border-christmas-gold block w-full p-2.5">
             <option v-for="role in tournament.game.roles" :value="role.name" :key="role.id" :style="{ color: role.color }">{{ role.name }}</option>
@@ -74,6 +112,22 @@ const onSubmitHandler = async (e: Event) => {
         <div>
           <label for="gameUsername" class="block mb-2 text-sm font-medium text-christmas-gold">Votre nom d'utilisateur dans le jeu :</label>
           <input type="text" name="gameUsername" class="bg-christmas-navy border border-christmas-gold text-christmas-gold text-sm rounded-lg focus:ring-christmas-gold focus:border-christmas-gold block w-full p-2.5" placeholder="Votre nom d'utilisateur" :required="isRanked" />
+        </div>
+        <div v-if="tournament.game.gameProfileLinkRegex" class="border-t border-christmas-gold/20 pt-4">
+          <label for="gameProfileLink" class="block mb-2 text-sm font-medium text-christmas-gold">Lien vers votre profil :</label>
+          <input
+            v-model="gameProfileLink"
+            type="url"
+            name="gameProfileLink"
+            class="bg-christmas-navy border text-christmas-gold text-sm rounded-lg focus:ring-christmas-gold focus:border-christmas-gold block w-full p-2.5"
+            :class="{ 'border-christmas-red': profileLinkError, 'border-christmas-gold': !profileLinkError }"
+            @input="onProfileLinkChange"
+            :required="!!tournament.game.gameProfileLinkRegex"
+          />
+          <p v-if="profileLinkError" class="text-xs text-christmas-red mt-1 flex items-center gap-1">
+            <VueIcon name="bs:exclamation-circle" />
+            {{ profileLinkError }}
+          </p>
         </div>
         <div class="flex items-center gap-2">
           <input v-model="isRanked" type="checkbox" id="isranked" name="isranked" class="w-4 h-4">

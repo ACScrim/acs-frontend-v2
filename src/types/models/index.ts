@@ -112,6 +112,7 @@ export interface Game {
   roles: { name: string; color: string; id: string; }[];
   updatedAt: string;
   currentPlayerLevel: string | null;
+  gameProfileLinkRegex?: string;
 }
 
 export interface HomeStats {
@@ -164,6 +165,7 @@ export interface PlayerGameLevel {
   rank: string;
   selectedRoles: string[];
   comment: string;
+  gameProfileLink?: string;
   createdAt: string;
   updatedAt: string;
 }

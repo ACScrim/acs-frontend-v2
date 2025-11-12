@@ -19,6 +19,7 @@ const emit = defineEmits<{
 
 const playerLevelStore = usePlayerLevelStore();
 const tournamentStore = useTournamentStore();
+const toastStore = useToastStore();
 const isLoading = ref(false);
 
 const selectedGameId = ref(props.level?.game.id || '');
@@ -37,7 +38,8 @@ const form = ref({
   gameUsername: props.level?.gameUsername || '',
   isRanked: props.level?.isRanked || false,
   rank: props.level?.rank || '',
-  comment: props.level?.comment || ''
+  comment: props.level?.comment || '',
+  gameProfileLink: props.level?.gameProfileLink || ''
 });
 
 const games = computed(() => {
@@ -70,6 +72,29 @@ const toggleRole = (role: string) => {
   }
 };
 
+const validateProfileLink = (): boolean => {
+  if (!selectedGame.value?.gameProfileLinkRegex) {
+    // Si pas de regex, le lien n'est pas obligatoire
+    return true;
+  }
+
+  // Si regex existe, le lien devient obligatoire
+  if (!form.value.gameProfileLink.trim()) {
+    toastStore.error(`Un lien profil est requis pour ${selectedGame.value.name}.`);
+    return false;
+  }
+
+  // Valider que le lien est une URL valide
+  try {
+    new URL(form.value.gameProfileLink);
+  } catch {
+    toastStore.error('Le lien profil doit être une URL valide.');
+    return false;
+  }
+
+  return true;
+};
+
 const resetForm = () => {
   form.value = {
     level: 'débutant',
@@ -77,12 +102,17 @@ const resetForm = () => {
     gameUsername: '',
     isRanked: false,
     rank: '',
-    comment: ''
+    comment: '',
+    gameProfileLink: ''
   };
 };
 
 const handleSubmit = async () => {
   if (!selectedGame.value) return;
+
+  if (!validateProfileLink()) {
+    return;
+  }
   
   isLoading.value = true;
   try {
@@ -92,7 +122,8 @@ const handleSubmit = async () => {
       gameUsername: form.value.gameUsername,
       isRanked: form.value.isRanked,
       rank: form.value.rank,
-      comment: form.value.comment
+      comment: form.value.comment,
+      gameProfileLink: form.value.gameProfileLink || undefined
     });
     await playerLevelStore.fetchPlayerGameLevels();
     resetForm();
@@ -242,6 +273,27 @@ const handleSubmit = async () => {
               <label for="isRanked" class="text-sm font-medium text-christmas-gold cursor-pointer">
                 Je joue en mode classé
               </label>
+            </div>
+
+            <!-- Lien profil (si regex existe pour le jeu) -->
+            <div v-if="selectedGame.gameProfileLinkRegex" class="border-t border-christmas-gold/20 pt-4">
+              <div class="flex items-center gap-2 text-sm font-medium text-christmas-gold mb-2">
+                <VueIcon name="bs:link-45deg" />
+                <label for="gameProfileLink">Lien profil *</label>
+              </div>
+              <div class="space-y-2">
+                <input 
+                  v-model="form.gameProfileLink"
+                  type="url"
+                  id="gameProfileLink"
+                  placeholder="Ex: https://op.gg/summoners/..."
+                  class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold placeholder-christmas-gold-light/50 rounded-lg p-2 focus:border-christmas-gold focus:outline-none focus:ring-2 focus:ring-christmas-gold/20 transition-all"
+                />
+                <p class="text-xs text-christmas-gold-light/70 flex items-center gap-2">
+                  <VueIcon name="bs:info-circle" />
+                  Lien obligatoire pour ce jeu. Format regex: {{ selectedGame.gameProfileLinkRegex }}
+                </p>
+              </div>
             </div>
 
             <!-- Commentaire -->

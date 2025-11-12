@@ -13,8 +13,11 @@ defineProps<{
     <table class="w-full text-center text-christmas-ice">
       <thead>
         <tr v-for="hg in table.getHeaderGroups()" :key="hg.id" class="h-20 bg-christmas-navy/50 backdrop-blur-md">
-          <th v-for="header in hg.headers" :key="header.id">
+          <th v-for="header in hg.headers" :key="header.id" :colspan="header.colSpan" :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''" @click="header.column.getToggleSortingHandler()?.($event)">
             <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
+            {{ 
+              { asc: '↑', desc: '↓' }[header.column.getIsSorted() as string] || ''
+            }}
           </th>
         </tr>
       </thead>

@@ -23,6 +23,7 @@ const adminRoutes: RouterOptions['routes'] = [
   { path: '/admin/users', component: () => import('@/views/admin/users/Users.vue'), name: 'Gestion des utilisateurs', meta: { title: 'Users', icon: 'bx:user', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 1 } },
   { path: '/admin/tournaments', component: () => import('@/views/admin/tournaments/Tournaments.vue'), name: 'Gestion des tournois', meta: { title: 'Tournois', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 2 } },
   { path: '/admin/tournaments/:id', component: () => import('@/views/admin/tournaments/TournamentDetails.vue'), name: 'tournament-details', meta: { title: 'Détails Tournoi', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: false, order: -1 } },
+  { path: '/admin/games', component: () => import('@/views/admin/games/Games.vue'), name: 'Gestion des jeux', meta: { title: 'Jeux', icon: 'bx:game', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 3 } },
 ]
 
 const router = createRouter({

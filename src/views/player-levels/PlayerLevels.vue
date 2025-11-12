@@ -127,6 +127,23 @@ const handleEditSave = () => {
                   </div>
                 </div>
 
+                <!-- Lien profil si disponible -->
+                <div v-if="level.gameProfileLink" class="border-t border-christmas-gold/20 pt-4">
+                  <p class="text-xs text-christmas-gold-light/70 mb-2 flex items-center gap-2">
+                    <VueIcon name="bs:link-45deg" />
+                    Lien profil
+                  </p>
+                  <a 
+                    :href="level.gameProfileLink" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 text-christmas-gold hover:text-christmas-gold-light transition-colors break-all"
+                  >
+                    <VueIcon name="bs:box-arrow-up-right" class="text-sm flex-shrink-0" />
+                    <span class="text-sm underline">Voir le profil</span>
+                  </a>
+                </div>
+
                 <!-- Commentaire si disponible -->
                 <div class="border-t border-christmas-gold/20 pt-4">
                   <p class="text-xs text-christmas-gold-light/70 mb-1">Commentaire</p>

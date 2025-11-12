@@ -189,6 +189,36 @@ const useAdminStore = defineStore('admin', {
         useToastStore().error("Error deleting tournament:", error.message || error);
       }
     },
+    // GAME ACTIONS
+    async createGame(data: { name: string; rawgId?: number; imageUrl: string; description?: string; roles?: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string }) {
+      try {
+        const response = await api.post<ApiResponse<Game>>(`/admin/games`, data);
+        const newGame = response.data.data;
+        updateOneElementInArray(this.games, newGame);
+      } catch (error: any) {
+        useToastStore().error("Error creating game:", error.message || error);
+        throw error;
+      }
+    },
+    async updateGame(gameId: string, data: { roles?: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string }) {
+      try {
+        const response = await api.patch<ApiResponse<Game>>(`/admin/games/${gameId}`, data);
+        const updatedGame = response.data.data;
+        updateOneElementInArray(this.games, updatedGame);
+      } catch (error: any) {
+        useToastStore().error("Error updating game:", error.message || error);
+        throw error;
+      }
+    },
+    async deleteGame(gameId: string) {
+      try {
+        await api.delete(`/admin/games/${gameId}`);
+        this.games = this.games.filter(g => g.id !== gameId);
+      } catch (error: any) {
+        useToastStore().error("Error deleting game:", error.message || error);
+        throw error;
+      }
+    },
     // LOGS ACTIONS
     addLog(logLine: string) {
       const log = JSON.parse(logLine) as LogEntry;

@@ -14,7 +14,7 @@ const usePlayerLevelStore = defineStore('acs-playerLevels', {
       this.levels = response.data.data;
       this.isLoading = false;
     },
-    async setGameLevel(game: Game, data: { level: string, selectedRoles: string[], gameUsername: string, isRanked: boolean, rank?: string, comment?: string }) {
+    async setGameLevel(game: Game, data: { level: string, selectedRoles: string[], gameUsername: string, isRanked: boolean, rank?: string, comment?: string, gameProfileLink?: string }) {
       this.isLoading = true;
       await api.post<ApiResponse<any>>(`/playergamelevels/set-level`, {
         gameId: game.id,
@@ -23,7 +23,8 @@ const usePlayerLevelStore = defineStore('acs-playerLevels', {
         gameUsername: data.gameUsername,
         isRanked: data.isRanked,
         rank: data.rank,
-        comment: data.comment
+        comment: data.comment,
+        gameProfileLink: data.gameProfileLink
       });
       this.isLoading = false;
     }
