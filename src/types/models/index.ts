@@ -158,6 +158,7 @@ export interface PlayerGameLevel {
   id: string;
   userId: string;
   gameId: string;
+  user: User;
   game: Game;
   level: string;
   gameUsername: string;
