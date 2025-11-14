@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { useFps } from '@vueuse/core';
 import { ref, onMounted } from 'vue';
 import MobileMenu from './MobileMenu.vue';
-
-const fps = useFps()
 
 interface Snowflake {
   id: number;
@@ -32,7 +29,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <span class="absolute text-christmas-gold font-bold z-20">{{ fps }} FPS</span>
   <main class="maincontainer bg-gradient-to-br from-christmas-navy via-christmas-midnight to-christmas-navy">
     <!-- Arrière-plan avec flocons de neige -->
     <div class="snowflakes-container">

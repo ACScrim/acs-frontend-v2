@@ -1,4 +1,4 @@
-import type { ApiResponse, Game, LogEntry, PlayerGameLevel, Report, Tournament, TournamentFormData, UserAdmin } from "@/types/models";
+import type { ApiResponse, Game, LogEntry, PlayerGameLevel, Report, Season, Tournament, TournamentFormData, UserAdmin } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 import { useToastStore } from "./toastStore";
@@ -18,7 +18,8 @@ const useAdminStore = defineStore('admin', {
     logs: [] as Array<LogEntry>,
     tournaments: [] as Array<Tournament>,
     playerLevels: [] as Array<PlayerGameLevel>,
-    games: [] as Array<Game>
+    games: [] as Array<Game>,
+    seasons: [] as Array<Season>
   }),
   getters: {
     getTournaments: (state) => {
@@ -73,6 +74,15 @@ const useAdminStore = defineStore('admin', {
         this.games = gamesArray;
       } catch (error: any) {
         useToastStore().error("Error fetching all games:", error.message || error);
+      }
+    },
+    async fetchSeasons() {
+      try {
+        const response = await api.get<ApiResponse<Season[]>>("/admin/seasons");
+        const seasonsArray = response.data.data;
+        this.seasons = seasonsArray;
+      } catch (error: any) {
+        useToastStore().error("Error fetching all seasons:", error.message || error);
       }
     },
     // MODIFY ACTIONS
@@ -216,6 +226,36 @@ const useAdminStore = defineStore('admin', {
         this.games = this.games.filter(g => g.id !== gameId);
       } catch (error: any) {
         useToastStore().error("Error deleting game:", error.message || error);
+        throw error;
+      }
+    },
+    // SEASON ACTIONS
+    async createSeason(data: { number: number; tournamentIds: string[] }) {
+      try {
+        const response = await api.post<ApiResponse<Season>>(`/admin/seasons`, data);
+        const newSeason = response.data.data;
+        updateOneElementInArray(this.seasons, newSeason);
+      } catch (error: any) {
+        useToastStore().error("Error creating season:", error.message || error);
+        throw error;
+      }
+    },
+    async updateSeason(seasonId: string, data: { number: number; tournamentIds: string[] }) {
+      try {
+        const response = await api.patch<ApiResponse<Season>>(`/admin/seasons/${seasonId}`, data);
+        const updatedSeason = response.data.data;
+        updateOneElementInArray(this.seasons, updatedSeason);
+      } catch (error: any) {
+        useToastStore().error("Error updating season:", error.message || error);
+        throw error;
+      }
+    },
+    async deleteSeason(seasonId: string) {
+      try {
+        await api.delete(`/admin/seasons/${seasonId}`);
+        this.seasons = this.seasons.filter(s => s.id !== seasonId);
+      } catch (error: any) {
+        useToastStore().error("Error deleting season:", error.message || error);
         throw error;
       }
     },
