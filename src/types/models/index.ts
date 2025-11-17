@@ -111,7 +111,7 @@ export interface Game {
   name: string;
   roles: { name: string; color: string; id: string; }[];
   updatedAt: string;
-  currentPlayerLevel: string | null;
+  currentPlayerLevel: PlayerGameLevel | null;
   gameProfileLinkRegex?: string;
 }
 

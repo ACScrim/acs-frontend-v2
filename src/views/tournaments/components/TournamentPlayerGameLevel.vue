@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button, Card } from '@/components/ui';
+import PlayerGameLevelDisplay from '@/components/tournaments/PlayerGameLevelDisplay.vue';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import useTournamentStore from '@/stores/tournamentStore';
 import { useToastStore } from '@/stores/toastStore';
@@ -86,7 +87,7 @@ const onSubmitHandler = async (e: Event) => {
     </template>
 
     <div v-if="tournament.game.currentPlayerLevel">
-      <p class="text-2xl uppercase text-center text-christmas-gold font-bold">{{ tournament.game.currentPlayerLevel }}</p>
+      <PlayerGameLevelDisplay :playerLevel="tournament.game.currentPlayerLevel" />
     </div>
     <Button v-else-if="!showLevelForm" class="w-full" @click="showLevelForm = true">
       Définir mon niveau

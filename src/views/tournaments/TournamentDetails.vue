@@ -85,6 +85,7 @@ const handleRegister = () => {
     }
 
     tournamentStore.registerToTournament(tournament.value!.id);
+    useToastStore().success('Vous être inscrit au tournoi avec succès ! Pensez à mettre à jour votre niveau de jeu !');
   } catch (error: any) {
     useToastStore().error('Erreur lors de l\'inscription au tournoi :', error.message || error);
   }
