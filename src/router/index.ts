@@ -13,7 +13,7 @@ const routes: RouterOptions['routes'] = [
   { path: '/members', component: () => import('@/views/notfound/NotFound.vue'), name: 'Membres', meta: { title: 'Membres', icon: "cl:users-group", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/games', component: () => import('@/views/notfound/NotFound.vue'), name: 'Jeux', meta: { title: 'Jeux', icon: "ca:game-console", showInAside: true, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/profile/:userId?', component: () => import('@/views/profile/Profile.vue'), name: 'Profil', meta: { title: 'Profil', icon: "cd:account", showInAside: false, showInMobileFooter: true, showInAdminBar: false } },
-  { path: '/player-levels', component: () => import('@/views/player-levels/PlayerLevels.vue'), name: 'Niveaux de jeu', meta: { title: 'Niveaux de jeu', icon: "mdi:gamepad-level", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
+  { path: '/player-levels', component: () => import('@/views/player-levels/PlayerLevels.vue'), name: 'Niveaux de jeu', meta: { title: 'Niveaux de jeu', icon: "lu:gamepad-2", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/settings', component: () => import('@/views/notfound/NotFound.vue'), name: 'Paramètres', meta: { title: 'Paramètres', icon: "ic:baseline-settings", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false, showInAdminBar: false } }
 ]
@@ -24,7 +24,7 @@ const adminRoutes: RouterOptions['routes'] = [
   { path: '/admin/tournaments', component: () => import('@/views/admin/tournaments/Tournaments.vue'), name: 'Gestion des tournois', meta: { title: 'Tournois', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 2 } },
   { path: '/admin/tournaments/:id', component: () => import('@/views/admin/tournaments/TournamentDetails.vue'), name: 'tournament-details', meta: { title: 'Détails Tournoi', icon: 'bx:trophy', showInAside: false, showInMobileFooter: false, showInAdminBar: false, order: -1 } },
   { path: '/admin/games', component: () => import('@/views/admin/games/Games.vue'), name: 'Gestion des jeux', meta: { title: 'Jeux', icon: 'bx:game', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 3 } },
-  { path: '/admin/player-levels', component: () => import('@/views/admin/player-levels/PlayerLevels.vue'), name: 'Gestion des niveaux', meta: { title: 'Niveaux de jeu', icon: 'mdi:gamepad-level', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 4 } },
+  { path: '/admin/player-levels', component: () => import('@/views/admin/player-levels/PlayerLevels.vue'), name: 'Gestion des niveaux', meta: { title: 'Niveaux de jeu', icon: 'lu:gamepad-2', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 4 } },
   { path: '/admin/seasons', component: () => import('@/views/admin/seasons/Seasons.vue'), name: 'Gestion des saisons', meta: { title: 'Saisons', icon: 'bx:medal', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 5 } },
 ]
 
