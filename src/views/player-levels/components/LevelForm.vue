@@ -95,6 +95,33 @@ const validateProfileLink = (): boolean => {
   return true;
 };
 
+const validateUsername = (): boolean => {
+  if (!selectedGame.value?.gameUsernameRegex) {
+    // Si pas de regex, le pseudo n'est pas obligatoire (au delà du required)
+    return true;
+  }
+
+  // Si regex existe, le pseudo devient obligatoire
+  if (!form.value.gameUsername.trim()) {
+    toastStore.error(`Un pseudo est requis pour ${selectedGame.value.name}.`);
+    return false;
+  }
+
+  // Valider le pseudo selon la regex
+  try {
+    const regex = new RegExp(selectedGame.value.gameUsernameRegex);
+    if (!regex.test(form.value.gameUsername)) {
+      toastStore.error(`Le pseudo ne respecte pas le format requis: ${selectedGame.value.gameUsernameRegex}`);
+      return false;
+    }
+  } catch {
+    toastStore.error('Format regex invalide.');
+    return false;
+  }
+
+  return true;
+};
+
 const resetForm = () => {
   form.value = {
     level: 'débutant',
@@ -113,7 +140,11 @@ const handleSubmit = async () => {
   if (!validateProfileLink()) {
     return;
   }
-  
+
+  if (!validateUsername()) {
+    return;
+  }
+
   isLoading.value = true;
   try {
     await playerLevelStore.setGameLevel(selectedGame.value, {
@@ -211,6 +242,7 @@ const handleSubmit = async () => {
                 <label for="gameUsername" class="block text-sm font-medium text-christmas-gold mb-2">
                   <VueIcon name="ca:user-filled" class="inline mr-2" />
                   Pseudo
+                  <span v-if="selectedGame?.gameUsernameRegex" class="text-christmas-red">*</span>
                 </label>
                 <input 
                   v-model="form.gameUsername"
@@ -220,6 +252,10 @@ const handleSubmit = async () => {
                   required
                   class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold placeholder-christmas-gold-light/50 rounded-lg p-2 focus:border-christmas-gold focus:outline-none focus:ring-2 focus:ring-christmas-gold/20 transition-all"
                 />
+                <p v-if="selectedGame?.gameUsernameRegex" class="text-xs text-christmas-gold-light/70 flex items-center gap-2 mt-2">
+                  <VueIcon name="bs:info-circle" />
+                  Format regex: {{ selectedGame.gameUsernameRegex }}
+                </p>
               </div>
 
               <div v-if="form.isRanked">

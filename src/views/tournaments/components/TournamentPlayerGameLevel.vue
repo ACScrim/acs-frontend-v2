@@ -19,6 +19,8 @@ const showLevelForm = ref(false);
 const isRanked = ref(false);
 const gameProfileLink = ref('');
 const profileLinkError = ref('');
+const gameUsername = ref('');
+const usernameError = ref('');
 
 const validateProfileLink = (gameProfileLink: string, gameProfileLinkRegex: string): boolean => {
   if (!gameProfileLinkRegex) return true;
@@ -32,10 +34,28 @@ const validateProfileLink = (gameProfileLink: string, gameProfileLinkRegex: stri
   }
 };
 
+const validateUsername = (username: string, gameUsernameRegex: string): boolean => {
+  if (!gameUsernameRegex) return true;
+  if (!username) return false;
+  try {
+    const regex = new RegExp(gameUsernameRegex);
+    return regex.test(username);
+  } catch {
+    return false;
+  }
+};
+
 const onProfileLinkChange = () => {
   profileLinkError.value = '';
   if (gameProfileLink.value && !validateProfileLink(gameProfileLink.value, props.tournament.game.gameProfileLinkRegex || '')) {
     profileLinkError.value = `Format regex: ${props.tournament.game.gameProfileLinkRegex}`;
+  }
+};
+
+const onUsernameChange = () => {
+  usernameError.value = '';
+  if (gameUsername.value && !validateUsername(gameUsername.value, props.tournament.game.gameUsernameRegex || '')) {
+    usernameError.value = `Format regex: ${props.tournament.game.gameUsernameRegex}`;
   }
 };
 
@@ -45,7 +65,6 @@ const onSubmitHandler = async (e: Event) => {
   const formData = new FormData(form);
   const level = formData.get('level') as string;
   const selectedRoles = formData.getAll('role') as string[];
-  const gameUsername = formData.get('gameUsername') as string;
   const isRankedValue = formData.get('isranked') === 'on';
   const rank = isRankedValue ? (formData.get('rank') as string) : undefined;
   const comment = formData.get('comment') as string | undefined;
@@ -62,10 +81,22 @@ const onSubmitHandler = async (e: Event) => {
     }
   }
 
+  // Valider le username si le jeu en demande un
+  if (props.tournament.game.gameUsernameRegex) {
+    if (!gameUsername.value) {
+      toastStore.error('Le nom d\'utilisateur est requis pour ce jeu.');
+      return;
+    }
+    if (!validateUsername(gameUsername.value, props.tournament.game.gameUsernameRegex)) {
+      toastStore.error(`Pseudo invalide. Format regex: ${props.tournament.game.gameUsernameRegex}`);
+      return;
+    }
+  }
+
   await playerLevelStore.setGameLevel(props.tournament.game, {
     level,
     selectedRoles,
-    gameUsername,
+    gameUsername: gameUsername.value,
     isRanked: isRankedValue,
     rank,
     comment,
@@ -76,7 +107,9 @@ const onSubmitHandler = async (e: Event) => {
 
   showLevelForm.value = false;
   gameProfileLink.value = '';
+  gameUsername.value = '';
   profileLinkError.value = '';
+  usernameError.value = '';
 };
 </script>
 
@@ -112,7 +145,20 @@ const onSubmitHandler = async (e: Event) => {
         </div>
         <div>
           <label for="gameUsername" class="block mb-2 text-sm font-medium text-christmas-gold">Votre nom d'utilisateur dans le jeu :</label>
-          <input type="text" name="gameUsername" class="bg-christmas-navy border border-christmas-gold text-christmas-gold text-sm rounded-lg focus:ring-christmas-gold focus:border-christmas-gold block w-full p-2.5" placeholder="Votre nom d'utilisateur" :required="isRanked" />
+          <input
+            v-model="gameUsername"
+            type="text"
+            name="gameUsername"
+            class="bg-christmas-navy border text-christmas-gold text-sm rounded-lg focus:ring-christmas-gold focus:border-christmas-gold block w-full p-2.5"
+            :class="{ 'border-christmas-red': usernameError, 'border-christmas-gold': !usernameError }"
+            placeholder="Votre nom d'utilisateur"
+            @input="onUsernameChange"
+            :required="!!tournament.game.gameUsernameRegex"
+          />
+          <p v-if="usernameError" class="text-xs text-christmas-red mt-1 flex items-center gap-1">
+            <VueIcon name="bs:exclamation-circle" />
+            {{ usernameError }}
+          </p>
         </div>
         <div v-if="tournament.game.gameProfileLinkRegex" class="border-t border-christmas-gold/20 pt-4">
           <label for="gameProfileLink" class="block mb-2 text-sm font-medium text-christmas-gold">Lien vers votre profil :</label>

@@ -210,7 +210,7 @@ const useAdminStore = defineStore('admin', {
         throw error;
       }
     },
-    async updateGame(gameId: string, data: { roles?: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string }) {
+    async updateGame(gameId: string, data: { roles?: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string, gameUsernameRegex?: string; }) {
       try {
         const response = await api.patch<ApiResponse<Game>>(`/admin/games/${gameId}`, data);
         const updatedGame = response.data.data;

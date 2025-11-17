@@ -113,6 +113,7 @@ export interface Game {
   updatedAt: string;
   currentPlayerLevel: PlayerGameLevel | null;
   gameProfileLinkRegex?: string;
+  gameUsernameRegex?: string;
 }
 
 export interface HomeStats {

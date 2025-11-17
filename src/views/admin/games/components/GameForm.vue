@@ -8,7 +8,7 @@ import { computed, ref, watch } from 'vue';
 interface Props {
   isLoading?: boolean;
   isEditing?: boolean;
-  editingGame?: { id: string; name: string; roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string };
+  editingGame?: { id: string; name: string; roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string; gameUsernameRegex?: string };
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  submit: [data: { name: string; rawgId?: number; imageUrl: string; description?: string; roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string }];
+  submit: [data: { name: string; rawgId?: number; imageUrl: string; description?: string; roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string; gameUsernameRegex?: string }];
   cancel: [];
 }>();
 
@@ -32,6 +32,7 @@ const newRoleName = ref('');
 const newRoleColor = ref('#FF0000');
 const roles = ref<Array<{ name: string; color: string; tempId?: string }>>([]);
 const gameProfileLinkRegex = ref('');
+const gameUsernameRegex = ref('');
 let searchTimer: number | null = null;
 
 // Initialiser avec les données si en édition
@@ -39,6 +40,7 @@ watch(() => props.editingGame, (game) => {
   if (game && props.isEditing) {
     roles.value = [...game.roles];
     gameProfileLinkRegex.value = game.gameProfileLinkRegex || '';
+    gameUsernameRegex.value = game.gameUsernameRegex || '';
   }
 }, { immediate: true });
 
@@ -114,6 +116,11 @@ const handleSubmit = async () => {
     return;
   }
 
+  if (gameUsernameRegex.value && !validateRegex(gameUsernameRegex.value)) {
+    toastStore.error('La regex de pseudo fournie est invalide.');
+    return;
+  }
+
   const rolesData = roles.value.map(r => ({
     name: r.name,
     color: r.color
@@ -125,7 +132,8 @@ const handleSubmit = async () => {
     imageUrl: props.isEditing ? '' : selectedGame.value?.background_image || '',
     description: description.value || undefined,
     roles: rolesData,
-    gameProfileLinkRegex: gameProfileLinkRegex.value || undefined
+    gameProfileLinkRegex: gameProfileLinkRegex.value || undefined,
+    gameUsernameRegex: gameUsernameRegex.value || undefined
   });
 
   // Reset form
@@ -145,6 +153,7 @@ const handleCancel = () => {
   newRoleName.value = '';
   newRoleColor.value = '#FF0000';
   gameProfileLinkRegex.value = '';
+  gameUsernameRegex.value = '';
   proposalStore.rawgGames = [];
   emit('cancel');
 };
@@ -317,6 +326,31 @@ const handleCancel = () => {
             <div>• League of Legends: <code class="bg-black/30 px-1 rounded">^https://op\.gg/summoners/.*</code></div>
             <div>• Valorant: <code class="bg-black/30 px-1 rounded">^https://tracker\.gg/valorant/profile/.*</code></div>
             <div>• Dota 2: <code class="bg-black/30 px-1 rounded">^https://www\.dotabuff\.com/players/.*</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regex de pseudo -->
+      <div class="border-t border-christmas-gold/20 pt-4">
+        <div class="flex items-center gap-2 text-christmas-gold font-bold text-sm mb-2">
+          <VueIcon name="bs:person-badge" />
+          <label>Regex de pseudo (optionnel)</label>
+        </div>
+        <div class="space-y-2">
+          <input
+            v-model="gameUsernameRegex"
+            type="text"
+            placeholder="Ex: ^[a-zA-Z0-9_]{3,16}$"
+            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
+          />
+          <p class="text-xs text-christmas-gold-light/70 flex items-center gap-2">
+            <VueIcon name="bs:info-circle" />
+            Format regex pour valider les pseudos des joueurs. Exemples:
+          </p>
+          <div class="bg-christmas-navy/20 border border-christmas-gold/20 rounded p-2 text-xs text-christmas-gold-light space-y-1">
+            <div>• Alphanumérique simple: <code class="bg-black/30 px-1 rounded">^[a-zA-Z0-9]{3,20}$</code></div>
+            <div>• Avec underscores: <code class="bg-black/30 px-1 rounded">^[a-zA-Z0-9_]{3,16}$</code></div>
+            <div>• Avec tirets: <code class="bg-black/30 px-1 rounded">^[a-zA-Z0-9_-]{3,20}$</code></div>
           </div>
         </div>
       </div>

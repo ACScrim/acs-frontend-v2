@@ -77,6 +77,19 @@ const table = useVueTable({
       }
     },
     {
+      header: 'Name Regex',
+      accessorKey: 'gameUsernameRegex',
+      cell: ({ row }) => {
+        const regex = row.original.gameUsernameRegex;
+        return h('span', { class: 'text-christmas-gold-light text-sm' }, regex ? '✓ Configuré' : '—');
+      },
+      sortingFn: (rowA, rowB) => {
+        const a = rowA.original.gameUsernameRegex ? 1 : 0;
+        const b = rowB.original.gameUsernameRegex ? 1 : 0;
+        return a - b;
+      }
+    },
+    {
       header: 'Créé le',
       accessorKey: 'createdAt',
       cell: ({ row }) => {
@@ -111,8 +124,7 @@ const table = useVueTable({
             disabled: deletingId.value === row.original.id || editingGameId.value === row.original.id
           }, {
             default: () => [
-              h(VueIcon, { name: deletingId.value === row.original.id ? 'bs:hourglass-split' : 'bs:trash' }),
-              deletingId.value === row.original.id ? 'Suppression...' : 'Supprimer'
+              h(VueIcon, { name: deletingId.value === row.original.id ? 'bs:hourglass-split' : 'bs:trash' })
             ]
           })
         ]);
@@ -155,14 +167,15 @@ const handleEditGame = (game: Game) => {
   showEditForm.value = true;
 };
 
-const handleUpdateGame = async (gameData: { name: string; rawgId?: number; imageUrl: string; description?: string; roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string }) => {
+const handleUpdateGame = async (gameData: { roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string, gameUsernameRegex?: string }) => {
   if (!editingGameId.value) return;
 
   try {
     isSubmitting.value = true;
     await adminStore.updateGame(editingGameId.value, {
       roles: gameData.roles,
-      gameProfileLinkRegex: gameData.gameProfileLinkRegex
+      gameProfileLinkRegex: gameData.gameProfileLinkRegex,
+      gameUsernameRegex: gameData.gameUsernameRegex
     });
     toastStore.success('Jeu modifié avec succès.');
     showEditForm.value = false;
