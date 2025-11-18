@@ -58,11 +58,6 @@ if (params.has("invite")) {
 
 // Fetch user
 useUserStore().fetchUser()
-
-// Fetch tournaments
-useTournamentStore().fetchTournaments();
-
-useStatsStore().fetchHomeStats();
 </script>
 
 <template>

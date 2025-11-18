@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Button, Card } from '@/components/ui';
+import {Button} from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
-import { useToastStore } from '@/stores/toastStore';
-import useTournamentStore from '@/stores/tournamentStore';
-import type { Season } from '@/types/models';
+import {useToastStore} from '@/stores/toastStore';
+import type {Season} from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table';
-import { computed, h, onMounted, ref } from 'vue';
+import {getCoreRowModel, getPaginationRowModel, useVueTable} from '@tanstack/vue-table';
+import {computed, h, onMounted, ref} from 'vue';
 import SeasonForm from './components/SeasonForm.vue';
 
 const adminStore = useAdminStore();
-const tournamentStore = useTournamentStore();
 const toastStore = useToastStore();
 
 const seasons = computed(() => adminStore.seasons);
@@ -108,7 +106,7 @@ const table = useVueTable({
 
 onMounted(() => {
   adminStore.fetchSeasons();
-  tournamentStore.fetchTournaments();
+  adminStore.fetchTournaments();
 });
 
 const handleCreateSeason = async (data: { number: number; tournamentIds: string[] }) => {
@@ -178,16 +176,28 @@ const handleDeleteSeason = async (seasonId: string, seasonNumber: number) => {
   <div class="space-y-8">
     <!-- Header -->
     <div class="space-y-3 animate-fade-in">
-      <h1 class="text-3xl font-bold text-christmas-ice">Gestion des saisons</h1>
-      <p class="text-christmas-gold-light">Gérez les saisons, assignez des tournois et suivez les gagnants</p>
-      <div class="flex gap-3 pt-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="p-4 bg-gradient-to-br from-christmas-gold to-christmas-gold-light rounded-xl shadow-lg shadow-christmas-gold/20">
+            <VueIcon name="bx:game" class="text-2xl text-christmas-navy" />
+          </div>
+          <div>
+            <h1 class="text-4xl font-black bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-crimson bg-clip-text text-transparent uppercase tracking-wider">
+              Gestion des saisons
+            </h1>
+            <p class="text-christmas-gold-light flex items-center gap-2 mt-1">
+              <span class="w-2 h-2 bg-christmas-gold rounded-full animate-pulse"></span>
+              {{ seasons.length }} saisons
+            </p>
+          </div>
+        </div>
         <Button
-          v-if="!showCreateForm"
-          @click="showCreateForm = true"
-          class="flex items-center gap-2"
+            @click="showCreateForm = !showCreateForm"
+            color="christmas-gold"
+            class="flex items-center gap-2 h-fit"
         >
-          <VueIcon name="bs:plus-circle" />
-          Créer une saison
+          <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
+          {{ showCreateForm ? 'Annuler' : 'Créer une saison' }}
         </Button>
       </div>
     </div>

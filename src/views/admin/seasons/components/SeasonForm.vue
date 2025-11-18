@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Button, Card } from '@/components/ui';
-import useTournamentStore from '@/stores/tournamentStore';
-import { useToastStore } from '@/stores/toastStore';
-import type { Season, Tournament } from '@/types/models';
+import {Button, Card} from '@/components/ui';
+import {useToastStore} from '@/stores/toastStore';
+import type {Season} from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { computed, ref, watch } from 'vue';
+import {computed, ref, watch} from 'vue';
+import useAdminStore from "@/stores/adminStore.ts";
 
 interface Props {
   isLoading?: boolean;
@@ -22,7 +22,7 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-const tournamentStore = useTournamentStore();
+const adminStore = useAdminStore();
 const toastStore = useToastStore();
 
 const seasonNumber = ref('');
@@ -33,14 +33,16 @@ watch(() => props.editingSeason, (season) => {
   if (season && props.isEditing) {
     seasonNumber.value = String(season.number);
     selectedTournaments.value = season.tournaments.map(t => {
-      if (typeof t === 'string') return t;
       return (t as any).id || '';
     });
   }
 }, { immediate: true });
 
 const availableTournaments = computed(() => {
-  return tournamentStore.tournaments;
+  return adminStore.tournaments
+      .filter(tournament => {
+        return !adminStore.seasons.find(s => s.tournaments.map(t => t.id).includes(tournament.id));
+      });
 });
 
 const toggleTournament = (tournamentId: string) => {
@@ -53,7 +55,8 @@ const toggleTournament = (tournamentId: string) => {
 };
 
 const handleSubmit = async () => {
-  if (!seasonNumber.value || seasonNumber.value.trim() === '') {
+  console.log(seasonNumber.value)
+  if (!seasonNumber.value) {
     toastStore.error('Le numéro de saison est requis.');
     return;
   }
@@ -103,9 +106,6 @@ const handleCancel = () => {
           class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
           :disabled="isEditing"
         />
-        <p class="text-xs text-christmas-gold-light/70 mt-1">
-          Le numéro de saison est {{ isEditing ? 'non modifiable' : 'unique et immuable' }}
-        </p>
       </div>
 
       <!-- Sélection des tournois -->
