@@ -1,6 +1,7 @@
-import type { ApiResponse, Game, PlayerGameLevel } from "@/types/models";
+import type {ApiResponse, Game, PlayerGameLevel} from "@/types/models";
 import api from "@/utils/api";
-import { defineStore } from "pinia";
+import {defineStore} from "pinia";
+import {useToastStore} from "@/stores/toastStore.ts";
 
 const usePlayerLevelStore = defineStore('acs-playerLevels', {
   state: () => ({
@@ -27,6 +28,14 @@ const usePlayerLevelStore = defineStore('acs-playerLevels', {
         gameProfileLink: data.gameProfileLink
       });
       this.isLoading = false;
+    },
+    async deletePlayerGameLevel(levelId: string) {
+      try {
+        await api.delete(`/playergamelevels/${levelId}`);
+        this.levels = this.levels.filter(level => level.id !== levelId);
+      } catch (error: any) {
+        useToastStore().error("Erreur pendant la suppression de votre niveau de jeu:", error);
+      }
     }
   }
 })

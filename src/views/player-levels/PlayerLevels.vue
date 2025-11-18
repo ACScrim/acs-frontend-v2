@@ -25,7 +25,7 @@ const getLevelConfig = (level: string) => {
 
 const handleDelete = async (levelId: string) => {
   if (confirm('Êtes-vous sûr de vouloir supprimer ce niveau ?')) {
-    console.log('Supprimer:', levelId);
+    await playerLevelStore.deletePlayerGameLevel(levelId);
   }
 };
 

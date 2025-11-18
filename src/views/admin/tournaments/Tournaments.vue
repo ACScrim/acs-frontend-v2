@@ -91,15 +91,15 @@ const table = useVueTable({
               ]
             })
           }),
-          h('Button',
+          h('button',
             {
               onClick: () => handleDeleteTournament(row.original.id),
               disabled: deletingId.value === row.original.id,
-              class: 'p-2 rounded-lg bg-christmas-red/20 text-christmas-red hover:bg-christmas-red/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative'
+              class: 'p-2 rounded-lg cursor-pointer text-christmas-red hover:bg-christmas-red/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative'
             },
             [
               h(VueIcon, { 
-                name: deletingId.value === row.original.id ? 'bs:hourglass' : 'bs:trash3',
+                name: deletingId.value === row.original.id ? 'bs:hourglass' : 'bs:trash',
                 class: deletingId.value === row.original.id ? 'animate-spin' : ''
               })
             ]
