@@ -1,6 +1,7 @@
 import tournamentService from "@/services/tournamentService";
-import { type Game, type Tournament } from "@/types/models";
+import {type ApiResponse, type Game, type Tournament} from "@/types/models";
 import { defineStore } from "pinia";
+import api from "@/utils/api.ts";
 
 const useTournamentStore = defineStore('tournament', {
   state: () => ({
@@ -35,6 +36,16 @@ const useTournamentStore = defineStore('tournament', {
       this.tournaments = await tournamentService.getTournaments();
       this.isLoading = false;
     },
+    async fetchTournament(tournamentId: string) {
+      this.isLoading = true;
+      const response = await api.get<ApiResponse<Tournament>>(`tournaments/${tournamentId}`);
+      const tournament = response.data.data as Tournament;
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = tournament;
+      }
+      this.isLoading = false;
+    },
     async registerToTournament(tournamentId: string, registrationType: "caster" | "player" = "player") {
       this.isLoading = true;
       const updatedTournament = await tournamentService.registerToTournament(tournamentId, registrationType);
@@ -65,6 +76,26 @@ const useTournamentStore = defineStore('tournament', {
     async voteMvpInTournament(tournamentId: string, playerId: string) {
       this.isLoading = true;
       const updatedTournament = await tournamentService.voteMvpInTournament(tournamentId, playerId);
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
+      this.isLoading = false;
+    },
+    async checkinToTournament(tournamentId: string) {
+      this.isLoading = true;
+      const response = await api.post<ApiResponse<Tournament>>(`tournaments/${tournamentId}/checkin`);
+      const updatedTournament = response.data.data as Tournament;
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
+      this.isLoading = false;
+    },
+    async checkoutFromTournament(tournamentId: string) {
+      this.isLoading = true;
+      const response = await api.post<ApiResponse<Tournament>>(`tournaments/${tournamentId}/checkout`);
+      const updatedTournament = response.data.data as Tournament;
       const index = this.tournaments.findIndex(t => t.id === tournamentId);
       if (index !== -1) {
         this.tournaments[index] = updatedTournament;

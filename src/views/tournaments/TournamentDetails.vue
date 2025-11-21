@@ -123,11 +123,31 @@ const handleVoteMvp = (playerId: string) => {
   }
 };
 
-onMounted(() => {
+const handleCheckIn = () => {
+  try {
+    tournamentStore.checkinToTournament(tournament.value!.id);
+    useToastStore().success('Check-in effectué avec succès !');
+  } catch (error: any) {
+    useToastStore().error('Erreur lors du check-in :', error.message || error);
+  }
+}
+
+const handleCheckOut = () => {
+  try {
+    tournamentStore.checkoutFromTournament(tournament.value!.id);
+    useToastStore().success('Check-out effectué avec succès !');
+  } catch (error: any) {
+    useToastStore().error('Erreur lors du check-out :', error.message || error);
+  }
+}
+
+onMounted(async () => {
   const view = document.getElementsByClassName('view')[0] as HTMLDivElement;
   if (view && tournament.value?.game.imageUrl) {
     view.style.setProperty('background', `linear-gradient(135deg, rgba(10, 27, 61, 0.85), rgba(26, 41, 66, 0.85)), url(${tournament.value.game.imageUrl}) no-repeat center/cover`);
   }
+
+  await tournamentStore.fetchTournament(route.params.tournamentId as string);
 });
 
 onUnmounted(() => {
@@ -158,10 +178,13 @@ onUnmounted(() => {
           :tournament="tournament"
           :current-player-count="playerCount"
           :is-registered="!!tournament.players.find(p => p.user.id === currentUserId)"
+          :has-checked-in="!!tournament.players.find(p => p.user.id === currentUserId)?.hasCheckin"
           class="lg:hidden"
           @register="handleRegister"
           @register-as-caster="handleRegisterAsCaster"
           @unregister="handleUnregister"
+          @check-in="handleCheckIn"
+          @check-out="handleCheckOut"
         />
 
         <!-- Leaderboard -->
@@ -192,15 +215,18 @@ onUnmounted(() => {
       <!-- Colonne latérale -->
       <div class="space-y-6">
         <!-- Actions -->
-        <TournamentActionsCard 
+        <TournamentActionsCard
           v-if="!tournament.finished"
           :current-player-count="playerCount"
           :tournament="tournament"
           :is-registered="!!tournament.players.find(p => p.user.id === currentUserId)"
+          :has-checked-in="!!tournament.players.find(p => p.user.id === currentUserId)?.hasCheckin"
           class="hidden lg:block"
           @register="handleRegister"
           @register-as-caster="handleRegisterAsCaster"
           @unregister="handleUnregister"
+          @check-in="handleCheckIn"
+          @check-out="handleCheckOut"
         />
         
         <TournamentPlayerGameLevel :tournament="tournament" />

@@ -7,6 +7,7 @@ interface Props {
   tournament: Tournament;
   currentPlayerCount: number;
   isRegistered: boolean;
+  hasCheckedIn: boolean;
 }
 
 const props = defineProps<Props>();
@@ -15,6 +16,8 @@ const emit = defineEmits<{
   register: [];
   registerAsCaster: [];
   unregister: [];
+  checkIn: [];
+  checkOut: [];
 }>();
 
 const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayerCount < props.tournament.playerCap;
@@ -68,6 +71,22 @@ const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayer
         Rejoindre le cast
       </Button>
     </template>
+
+    <Button
+      class="w-full"
+      @click="emit('checkIn')"
+      v-if="tournament.reminderSent && !hasCheckedIn && isRegistered"
+    >
+      Check-in
+    </Button>
+    <Button
+      class="w-full"
+      @click="emit('checkOut')"
+      color="christmas-red"
+      v-else-if="tournament.reminderSent && hasCheckedIn && isRegistered"
+    >
+      Check-out
+    </Button>
 
     <Button v-if="tournament.finished" class="w-full mt-3" color="christmas-green">
       <template #icon>

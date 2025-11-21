@@ -82,11 +82,11 @@ const onSubmitHandler = async (e: Event) => {
   }
 
   // Valider le username si le jeu en demande un
+  if (!gameUsername.value || gameUsername.value.trim() === '') {
+    toastStore.error('Le nom d\'utilisateur est requis pour ce jeu.');
+    return;
+  }
   if (props.tournament.game.gameUsernameRegex) {
-    if (!gameUsername.value) {
-      toastStore.error('Le nom d\'utilisateur est requis pour ce jeu.');
-      return;
-    }
     if (!validateUsername(gameUsername.value, props.tournament.game.gameUsernameRegex)) {
       toastStore.error(`Pseudo invalide. Format regex: ${props.tournament.game.gameUsernameRegex}`);
       return;
