@@ -1,4 +1,4 @@
-import type { ApiResponse, Game, LogEntry, PlayerGameLevel, Report, Season, Tournament, TournamentFormData, UserAdmin } from "@/types/models";
+import type { ApiResponse, Game, LogEntry, PlayerGameLevel, Report, Season, Tournament, TournamentFormData, UserAdmin, GameProposal } from "@/types/models";
 import api from "@/utils/api";
 import { defineStore } from "pinia";
 import { useToastStore } from "./toastStore";
@@ -19,7 +19,8 @@ const useAdminStore = defineStore('admin', {
     tournaments: [] as Array<Tournament>,
     playerLevels: [] as Array<PlayerGameLevel>,
     games: [] as Array<Game>,
-    seasons: [] as Array<Season>
+    seasons: [] as Array<Season>,
+    proposals: [] as Array<GameProposal>
   }),
   getters: {
     getTournaments: (state) => {
@@ -83,6 +84,15 @@ const useAdminStore = defineStore('admin', {
         this.seasons = seasonsArray;
       } catch (error: any) {
         useToastStore().error("Error fetching all seasons:", error.message || error);
+      }
+    },
+    async fetchProposals() {
+      try {
+        const response = await api.get<ApiResponse<GameProposal[]>>("/admin/proposals");
+        const proposalsArray = response.data.data;
+        this.proposals = proposalsArray;
+      } catch (error: any) {
+        useToastStore().error("Error fetching all proposals:", error.message || error);
       }
     },
     // MODIFY ACTIONS
@@ -269,6 +279,16 @@ const useAdminStore = defineStore('admin', {
         this.logs.shift();
         if (!this.logs.find(l => l.reqId === log.reqId && l.time === log.time))
           this.logs.push(log);
+      }
+    },
+    // PROPOSAL ACTIONS
+    async rejectProposal(proposalId: string) {
+      try {
+        await api.delete(`/admin/proposals/${proposalId}`);
+        this.proposals = this.proposals.filter(p => p.id !== proposalId);
+      } catch (error: any) {
+        useToastStore().error("Error rejecting proposal:", error.message || error);
+        throw error;
       }
     }
   }

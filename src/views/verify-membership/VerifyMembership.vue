@@ -61,6 +61,10 @@ const handleRetry = () => {
 const handleGoHome = () => {
   window.location.href = "/";
 }
+
+const handleReconnect = () => {
+  window.location.href = "/";
+}
 </script>
 
 <template>
@@ -163,7 +167,7 @@ const handleGoHome = () => {
             <button @click="handleGoHome" class="px-6 py-2 bg-christmas-navy dark:bg-christmas-snow text-white dark:text-christmas-navy rounded-lg font-semibold hover:opacity-90 transition-opacity">
               Retourner à l'accueil
             </button>
-            <button @click="() => window.location.href = '/auth'" class="px-6 py-2 bg-christmas-red hover:bg-christmas-red/90 text-white rounded-lg font-semibold transition-colors">
+            <button @click="handleReconnect" class="px-6 py-2 bg-christmas-red hover:bg-christmas-red/90 text-white rounded-lg font-semibold transition-colors">
               Se reconnecter
             </button>
           </div>

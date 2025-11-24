@@ -38,7 +38,7 @@ const useProposalStore = defineStore('proposalStore', {
       } else if (criteria === 'old') {
         this.proposals.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       } else if (criteria === 'popular') {
-        this.proposals.sort((a, b) => b.totalVotes - a.totalVotes);
+        this.proposals.sort((a, b) => b.votes.length - a.votes.length);
       }
     },
     async fetchRawgGames(query: string) {

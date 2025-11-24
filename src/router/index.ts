@@ -27,6 +27,7 @@ const adminRoutes: RouterOptions['routes'] = [
   { path: '/admin/games', component: () => import('@/views/admin/games/Games.vue'), name: 'Gestion des jeux', meta: { title: 'Jeux', icon: 'bx:game', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 3 } },
   { path: '/admin/player-levels', component: () => import('@/views/admin/player-levels/PlayerLevels.vue'), name: 'Gestion des niveaux', meta: { title: 'Niveaux de jeu', icon: 'lu:gamepad-2', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 4 } },
   { path: '/admin/seasons', component: () => import('@/views/admin/seasons/Seasons.vue'), name: 'Gestion des saisons', meta: { title: 'Saisons', icon: 'bx:medal', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 5 } },
+  { path: '/admin/proposals', component: () => import('@/views/admin/proposals/Proposal.vue'), name: 'Gestion des propositions', meta: { title: 'Propositions de jeux', icon: 'bx:upvote', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 6 } },
 ]
 
 const router = createRouter({
