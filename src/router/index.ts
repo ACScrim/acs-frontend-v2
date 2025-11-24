@@ -15,6 +15,7 @@ const routes: RouterOptions['routes'] = [
   { path: '/profile/:userId?', component: () => import('@/views/profile/Profile.vue'), name: 'Profil', meta: { title: 'Profil', icon: "cd:account", showInAside: false, showInMobileFooter: true, showInAdminBar: false } },
   { path: '/player-levels', component: () => import('@/views/player-levels/PlayerLevels.vue'), name: 'Niveaux de jeu', meta: { title: 'Niveaux de jeu', icon: "lu:gamepad-2", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/settings', component: () => import('@/views/notfound/NotFound.vue'), name: 'Paramètres', meta: { title: 'Paramètres', icon: "ic:baseline-settings", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
+  { path: '/verify-membership', component: () => import('@/views/verify-membership/VerifyMembership.vue'), name: 'VerifyMembership', meta: { title: "Vérification Discord", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false, showInAdminBar: false } }
 ]
 
@@ -46,7 +47,7 @@ router.beforeEach((to, _) => {
       return { path: '/not-found' };
     }
   }
-  if (to.path !== '/') {
+  if (to.path !== '/' && to.path !== '/verify-membership') {
     if (!userStore.isLoggedIn) {
       toastStore.error("Vous devez être connecté pour accéder à cette page.");
       return { path: '/' };
