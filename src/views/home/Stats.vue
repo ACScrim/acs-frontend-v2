@@ -52,33 +52,17 @@ useIntersectionObserver(
 </script>
 
 <template>
-  <div ref="statsContainer" class="grid grid-cols lg:grid-cols-3 gap-6">
-    <Card variant="gaming" hoverable class="py-6!">
-      <p class="text-6xl place-self-center font-bold">{{ tournaments }}</p>
-      <p class="text-3xl place-self-center font-bold mt-5">Tournois joués</p>
+  <section ref="statsContainer" class="grid gap-6 md:grid-cols-3">
+    <Card v-for="stat in [
+      { value: tournaments, label: 'Tournois joués' },
+      { value: members, label: 'Membres' },
+      { value: games, label: 'Jeux' }
+    ]" :key="stat.label" class="glass-panel border-white/5 bg-white/5 p-6 text-center">
+      <p class="hero-title text-5xl">{{ stat.value }}</p>
+      <p class="mt-3 text-sm uppercase tracking-[0.4em] text-foam-300/70">{{ stat.label }}</p>
     </Card>
-    <Card variant="gaming" hoverable class="py-6!">
-      <p class="text-6xl place-self-center font-bold">{{ members }}</p>
-      <p class="text-3xl place-self-center font-bold mt-5">Membres</p>
-    </Card>
-    <Card variant="gaming" hoverable class="py-6!">
-      <p class="text-6xl place-self-center font-bold">{{ games }}</p>
-      <p class="text-3xl place-self-center font-bold mt-5">Jeux</p>
-    </Card>
-  </div>
+  </section>
 </template>
 
-
 <style scoped>
-  .grid {
-    & div {
-      &:first-child {
-        background: var(--color-vibrant-orange-500);
-      }
-      &:last-child {
-        background: var(--color-vibrant-purple-500);
-      }
-      background: var(--color-gradient-vibrant-sunset);
-    }
-  }
 </style>

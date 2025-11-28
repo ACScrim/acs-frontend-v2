@@ -11,7 +11,7 @@ useStatsStore().fetchHomeStats();
 </script>
 
 <template>
-  <div class="2k:h-full flex flex-col justify-center gap-8 py-5">
+  <div class="space-y-12 py-8">
     <Hero />
     <NextTournaments />
   </div>

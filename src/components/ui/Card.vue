@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="text-white rounded-xl border-christmas-lights" 
+    class="glass-panel text-foam-50 rounded-[var(--radius-xl)] shadow-[var(--shadow-soft)] border border-white/5"
     v-tw-merge
   >
     <!-- Header slot -->

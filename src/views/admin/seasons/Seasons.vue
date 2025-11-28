@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import {Button} from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import {useToastStore} from '@/stores/toastStore';
 import type {Season} from '@/types/models';
@@ -173,96 +173,49 @@ const handleDeleteSeason = async (seasonId: string, seasonNumber: number) => {
 </script>
 
 <template>
-  <div class="space-y-8">
-    <!-- Header -->
-    <div class="space-y-3 animate-fade-in">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="p-4 bg-gradient-to-br from-christmas-gold to-christmas-gold-light rounded-xl shadow-lg shadow-christmas-gold/20">
-            <VueIcon name="bx:game" class="text-2xl text-christmas-navy" />
-          </div>
-          <div>
-            <h1 class="text-4xl font-black bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-crimson bg-clip-text text-transparent uppercase tracking-wider">
-              Gestion des saisons
-            </h1>
-            <p class="text-christmas-gold-light flex items-center gap-2 mt-1">
-              <span class="w-2 h-2 bg-christmas-gold rounded-full animate-pulse"></span>
-              {{ seasons.length }} saisons
-            </p>
-          </div>
-        </div>
-        <Button
-            @click="showCreateForm = !showCreateForm"
-            color="christmas-gold"
-            class="flex items-center gap-2 h-fit"
-        >
-          <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
-          {{ showCreateForm ? 'Annuler' : 'Créer une saison' }}
-        </Button>
+  <section class="space-y-8">
+    <header class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Administration</p>
+        <h1 class="hero-title flex items-center gap-3">
+          <span class="rounded-2xl bg-white/5 p-3"><VueIcon name="bx:game" class="text-accent-300" /></span>
+          Gestion des saisons
+        </h1>
+        <p class="muted flex items-center gap-2">{{ seasons.length }} saisons</p>
       </div>
-    </div>
+      <Button @click="showCreateForm = !showCreateForm" class="gap-2">
+        <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
+        {{ showCreateForm ? 'Annuler' : 'Créer une saison' }}
+      </Button>
+    </header>
 
-    <!-- Create Form Section -->
     <transition name="slide">
-      <div v-if="showCreateForm" class="animate-fade-in">
-        <SeasonForm
-          :is-loading="isSubmitting"
-          @submit="handleCreateSeason"
-          @cancel="handleCancelCreate"
-        />
-      </div>
+      <Card v-if="showCreateForm" class="glass-panel p-6">
+        <SeasonForm :is-loading="isSubmitting" @submit="handleCreateSeason" @cancel="handleCancelCreate" />
+      </Card>
+    </transition>
+    <transition name="slide">
+      <Card v-if="showEditForm && editingSeason" class="glass-panel p-6">
+        <SeasonForm :is-loading="isSubmitting" :is-editing="true" :editing-season="editingSeason" @submit="handleUpdateSeason" @cancel="handleCancelEdit" />
+      </Card>
     </transition>
 
-    <!-- Edit Form Section -->
-    <transition name="slide">
-      <div v-if="showEditForm && editingSeason" class="animate-fade-in">
-        <SeasonForm
-          :is-loading="isSubmitting"
-          :is-editing="true"
-          :editing-season="editingSeason"
-          @submit="handleUpdateSeason"
-          @cancel="handleCancelEdit"
-        />
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
+        <p class="text-sm uppercase tracking-[0.4em] text-foam-300/70">Liste des saisons</p>
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
       </div>
-    </transition>
-
-    <!-- Table Container -->
-    <div class="space-y-4 animate-fade-in">
-      <TableTanstack :table="table" :paginated="true" />
+      <Card class="glass-panel p-0">
+        <TableTanstack :table="table" :paginated="true" />
+      </Card>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out;
-}
-
 .slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-
+.slide-leave-active { transition: all 0.2s ease; }
 .slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.slide-enter-to,
-.slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
+.slide-leave-to { opacity: 0; transform: translateY(-10px); }
 </style>

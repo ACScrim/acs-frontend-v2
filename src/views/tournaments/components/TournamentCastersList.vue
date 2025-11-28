@@ -14,11 +14,10 @@ defineProps<Props>();
 </script>
 
 <template>
-  <Card class="p-6 bg-christmas-navy/50" style="border: 2px solid #D4AF37;">
+  <Card class="glass-panel p-6">
     <template #header>
-      <h2 class="text-2xl font-bold text-christmas-gold flex items-center gap-2">
-        <VueIcon name="bs:info-circle" />
-        Liste des casters
+      <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+        <VueIcon name="bs:info-circle" /> Liste des casters
       </h2>
     </template>
 

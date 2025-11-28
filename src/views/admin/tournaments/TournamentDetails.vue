@@ -79,7 +79,7 @@ const handleSubmit = async (formData: TournamentFormData) => {
             <VueIcon name="cl:users" />
             Joueurs
           </p>
-          <p class="text-2xl font-bold text-christmas-gold">{{ tournament.players.length }}<span class="text-lg text-christmas-gold-light">/{{ tournament.playerCap }}</span></p>
+          <p class="text-2xl font-bold text-christmas-gold">{{ tournament.players.length }}<span class="text-lg text-christmas-gold-light">/{{ tournament.playerCap === 0 ? '∞' : tournament.playerCap }}</span></p>
         </Card>
         <Card class="p-4 bg-christmas-navy border-2 border-christmas-gold">
           <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">

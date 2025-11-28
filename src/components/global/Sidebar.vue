@@ -4,7 +4,6 @@ import { useUserStore } from '@/stores/userStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
-import Separator from '../ui/Separator.vue';
 import { Button } from '../ui';
 import { API_URL } from '@/utils';
 
@@ -43,101 +42,59 @@ const logout = async () => {
 </script>
 
 <template>
-  <aside
-    class="hidden lg:flex flex-1 flex-col items-center p-8 before:p-8 gap-4 rounded-xl before:rounded-xl m-4 before:m-4 before:shadow-lg before:shadow-christmas-gold/20">
-    <RouterLink to="/" class="p-4">
-      <img src="/acs.avif" width="200" style="filter: drop-shadow(5px 5px 10px rgba(212, 175, 55, 0.3))" />
+  <aside class="hidden lg:flex flex-col gap-8 px-6 py-8">
+    <RouterLink to="/" class="flex items-center justify-center">
+      <img src="/acs.avif" alt="ACS" class="h-16 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)]" />
     </RouterLink>
-    <Separator />
-    <div class="my-auto space-y-4 w-full">
-      <RouterLink v-for="route in asideRoutes" :key="route.path" :to="route.path"
-        class="font-bold px-6 py-4 border-2 border-transparent hover:text-christmas-snow hover:bg-christmas-red/20 hover:border-christmas-gold hover:shadow-lg hover:shadow-christmas-gold/30 rounded-md flex flex-row gap-4 w-full p-2 text-christmas-gold-light transition-all duration-300"
-        active-class="bg-christmas-red/30 border-christmas-gold text-christmas-snow shadow-lg shadow-christmas-gold/40">
-        <VueIcon v-if="route.meta.icon" :name="route.meta.icon" class="size-6" />
-        <span>{{ route.name }}</span>
-      </RouterLink>
-    </div>
 
-    <div class="mt-auto w-full">
-      <div v-if="userStore.isLoggedIn && userStore.user" class="relative" @mouseleave="isMenuOpen = false">
-        <!-- Bouton utilisateur -->
-        <button 
+    <nav class="flex flex-col gap-2">
+      <RouterLink
+        v-for="route in asideRoutes"
+        :key="route.path"
+        :to="route.path"
+        class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-foam-200 transition"
+        active-class="bg-white/5 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)]"
+      >
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-accent-300 transition group-hover:bg-white/10">
+          <VueIcon v-if="route.meta.icon" :name="route.meta.icon" class="size-5" />
+        </div>
+        <div class="flex flex-col">
+          <span class="font-semibold">{{ route.name }}</span>
+          <span class="text-xs uppercase tracking-widest text-foam-300/60" v-if="route.meta.title">{{ route.meta.title }}</span>
+        </div>
+      </RouterLink>
+    </nav>
+
+    <div class="mt-auto space-y-4">
+      <div v-if="userStore.isLoggedIn && userStore.user" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4">
+        <button
+          class="flex w-full items-center gap-3 text-left"
           @click="isMenuOpen = !isMenuOpen"
-          @mouseover="isMenuOpen = true"
-          class="w-full gap-4 bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl px-4 py-3 rounded-lg font-bold flex items-center"
         >
-          <Avatar :src="userStore.user.avatarUrl" class="size-10" />
-          <div class="flex flex-col text-left flex-1">
-            <span class="text-lg uppercase">{{ userStore.user.username }}</span>
-            <span class="text-xs italic">Menu</span>
+          <Avatar :src="userStore.user.avatarUrl" class="size-12" />
+          <div class="flex flex-col">
+            <span class="font-semibold text-white">{{ userStore.user.username }}</span>
+            <span class="text-xs uppercase tracking-[0.3em] text-foam-200/70">Dashboard</span>
           </div>
-          <VueIcon name="bs:chevron-up" :class="['transition-transform', isMenuOpen ? 'rotate-180' : '']" />
+          <VueIcon name="bs:chevron-down" :class="['ml-auto transition-all', isMenuOpen ? 'rotate-180' : '']" />
         </button>
 
-        <!-- Menu déroulant -->
-        <div 
-          v-show="isMenuOpen"
-          class="absolute bottom-full left-0 right-0 bg-christmas-navy border-2 border-christmas-gold border-b-0 rounded-t-lg shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
-        >
-          <RouterLink 
-            to="/profile"
-            @click="isMenuOpen = false"
-            class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
-          >
-            <VueIcon name="cd:account" class="text-lg" />
-            <span>Profil</span>
-          </RouterLink>
-
-          <RouterLink 
-            to="/player-levels"
-            @click="isMenuOpen = false"
-            class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
-          >
-            <VueIcon name="bs:joystick" class="text-lg" />
-            <span>Mes niveaux de jeu</span>
-          </RouterLink>
-
-          <RouterLink 
-            to="/settings"
-            @click="isMenuOpen = false"
-            class="flex items-center gap-3 w-full px-4 py-3 text-christmas-gold-light hover:bg-christmas-gold/10 hover:text-christmas-snow border-b border-christmas-gold/20 transition-colors"
-          >
-            <VueIcon name="bs:gear" class="text-lg" />
-            <span>Paramètres</span>
-          </RouterLink>
-
-          <button 
-            @click="logout"
-            class="flex items-center gap-3 w-full px-4 py-3 text-red-300 hover:bg-red-500/10 hover:text-red-200 transition-colors font-bold"
-          >
-            <VueIcon name="bs:box-arrow-right" class="text-lg" />
-            <span>Déconnexion</span>
-          </button>
+        <div v-if="isMenuOpen" class="mt-4 space-y-2 text-sm text-foam-200">
+          <RouterLink to="/profile" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Profil</RouterLink>
+          <RouterLink to="/player-levels" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Mes niveaux</RouterLink>
+          <RouterLink to="/settings" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Paramètres</RouterLink>
+          <button class="w-full rounded-xl px-3 py-2 text-left text-blush-300 hover:bg-blush-500/10" @click="logout">Déconnexion</button>
         </div>
       </div>
 
-      <Button v-else class="w-full bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy hover:from-christmas-red hover:to-christmas-crimson hover:text-christmas-snow transition-all duration-300 shadow-lg hover:shadow-xl" :to="`${API_URL}/auth/discord`">
-        <VueIcon name="ak:discord-fill" class="text-3xl" />
-        <span class="font-bold text-lg uppercase">Connexion</span>
+      <Button v-else color="accent" class="w-full justify-center" :to="`${API_URL}/auth/discord`">
+        <VueIcon name="ak:discord-fill" class="text-2xl" />
+        <span>Connexion Discord</span>
       </Button>
     </div>
   </aside>
 </template>
 
 <style scoped>
-aside::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.85;
-  z-index: 0;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(196, 30, 58, 0.1) 50%, rgba(15, 76, 58, 0.1) 100%);
-  border: 2px solid rgba(212, 175, 55, 0.3);
-  border-radius: inherit;
-  backdrop-filter: blur(10px);
-}
-
-aside > * {
-  z-index: 1;
-}
+/* No additional scoped styles needed; global theme handles visuals. */
 </style>

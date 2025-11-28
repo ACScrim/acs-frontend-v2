@@ -16,12 +16,15 @@ const API_URL = import.meta.env.VITE_API_URL
 </script>
 
 <template>
-  <footer class="z-50 lg:hidden fixed bottom-0 left-0 right-0 flex flex-row items-center w-screen h-14 bg-gradient-to-r from-christmas-navy/95 via-christmas-midnight/95 to-christmas-navy/95 backdrop-blur-md border-t-2 border-christmas-gold/40 shadow-lg shadow-christmas-gold/20">
-    <RouterLink v-for="route in mobileFooterRoutes" :key="route.path" :to="route.path"
-      class="font-bold flex-1 h-full border-l border-christmas-gold/20 hover:bg-christmas-red/20 hover:text-christmas-gold transition-all duration-300 flex flex-col items-center justify-center gap-1 text-christmas-gold-light text-xs"
-      active-class="bg-christmas-red/30 text-christmas-snow shadow-inner shadow-christmas-gold/30 border-l-2 border-christmas-gold">
-      <VueIcon v-if="route.meta.icon" :name="route.meta.icon" class="size-6" />
-      <!-- <span class="text-xs">{{ route.name }}</span> -->
+  <footer class="fixed bottom-5 left-1/2 z-50 flex w-[calc(100%-2.5rem)] max-w-3xl -translate-x-1/2 items-center rounded-[var(--radius-xl)] border border-white/10 bg-surface-900/80 px-4 py-3 shadow-[0_25px_55px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
+    <RouterLink
+      v-for="route in mobileFooterRoutes"
+      :key="route.path"
+      :to="route.path"
+      class="flex flex-1 flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-foam-300/60 transition"
+      active-class="text-white bg-white/5 shadow-inner shadow-accent-500/40"
+    >
+      <VueIcon v-if="route.meta.icon" :name="route.meta.icon" class="size-5" />
     </RouterLink>
   </footer>
 </template>

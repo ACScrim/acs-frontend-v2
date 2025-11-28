@@ -61,24 +61,14 @@ const resetForm = () => {
 </script>
 
 <template>
-  <Card
-    class="p-6 bg-christmas-navy/50"
-    style="border: 2px solid #D4AF37;"
-  >
+  <Card class="glass-panel p-6">
     <template #header>
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent flex items-center gap-2">
-          <VueIcon name="bs:play-circle" class="text-christmas-gold" />
-          Clips du tournoi
+        <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+          <VueIcon name="bs:play-circle" /> Clips du tournoi
         </h2>
-        <Button 
-          v-if="!showFormToAddClip"
-          @click="showFormToAddClip = true"
-          color="christmas-gold"
-        >
-          <template #icon>
-            <VueIcon name="bs:plus-circle" />
-          </template>
+        <Button v-if="!showFormToAddClip" @click="showFormToAddClip = true">
+          <template #icon><VueIcon name="bs:plus-circle" /></template>
           Ajouter un clip
         </Button>
       </div>
@@ -88,15 +78,9 @@ const resetForm = () => {
     <template v-if="showFormToAddClip">
       <form @submit.prevent="handleAddClip" class="space-y-6 mb-6">
         <!-- Titre -->
-        <h3 class="text-lg font-bold text-christmas-gold">Ajouter un nouveau clip</h3>
-
-        <!-- Informations importantes -->
-        <div class="bg-gradient-to-br from-christmas-gold/10 to-christmas-red/10 border-l-4 border-christmas-gold rounded-lg p-4 space-y-3">
-          <h4 class="font-bold text-christmas-gold flex items-center gap-2">
-            <VueIcon name="bs:info-circle" />
-            Formats acceptés
-          </h4>
-          
+        <h3 class="text-lg font-semibold text-white">Ajouter un nouveau clip</h3>
+        <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 text-sm text-foam-200 space-y-2">
+          <p class="font-semibold">Formats acceptés</p>
           <div class="space-y-2 text-sm">
             <div class="text-christmas-snow">
               <p class="font-semibold text-christmas-gold-light mb-1">YouTube :</p>
@@ -124,50 +108,37 @@ const resetForm = () => {
             </p>
           </div>
         </div>
-
         <!-- Champ URL -->
         <div class="space-y-2">
-          <label for="clip-url" class="block font-bold text-christmas-gold">
-            <span class="flex items-center gap-2">
-              <VueIcon name="bs:link-45deg" />
-              URL du clip
-            </span>
+          <label for="clip-url" class="text-sm font-semibold text-white flex items-center gap-2">
+            <VueIcon name="bs:link-45deg" /> URL du clip
           </label>
           <input
             id="clip-url"
             v-model="clipUrl"
             type="text"
+            class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-white"
             placeholder="Collez l'URL de votre clip..."
-            class="w-full p-3 border-2 border-christmas-gold/30 rounded-lg bg-christmas-navy/30 text-christmas-snow placeholder-christmas-gold-light/50 focus:border-christmas-gold focus:outline-none focus:ring-2 focus:ring-christmas-gold/20 transition-all"
           />
-          <p v-if="urlError" class="text-christmas-red text-sm font-semibold flex items-center gap-1">
-            <VueIcon name="bs:exclamation-circle" />
-            {{ urlError }}
+          <p v-if="urlError" class="text-sm text-blush-400 flex items-center gap-2">
+            <VueIcon name="bs:exclamation-circle" /> {{ urlError }}
           </p>
         </div>
-
         <!-- Boutons d'action -->
         <div class="flex gap-3">
           <Button 
             type="button"
-            @click="resetForm"
-            color="christmas-red"
+            variant="ghost"
             class="flex-1"
+            @click="resetForm"
           >
-            <template #icon>
-              <VueIcon name="bs:x-circle" />
-            </template>
             Annuler
           </Button>
           <Button 
             type="submit"
-            :disabled="!isValidUrl"
-            :color="isValidUrl ? 'christmas-green' : 'christmas-gold'"
             class="flex-1"
+            :disabled="!isValidUrl"
           >
-            <template #icon>
-              <VueIcon name="bs:check-circle" />
-            </template>
             Ajouter le clip
           </Button>
         </div>
@@ -182,35 +153,23 @@ const resetForm = () => {
       :max-cols="2"
     >
       <template #item="{ item: clip }">
-        <Card class="bg-christmas-navy/30 rounded-lg border border-christmas-gold/20 space-y-4 overflow-hidden">
+        <Card class="glass-panel bg-white/5 p-0 overflow-hidden">
           <iframe
             class="w-full h-60"
             :src="clip.url"
-            :title="`Clip ajouté par ${clip.addedBy?.username} pour le tournoi ${tournament.name}`"
+            :title="`Clip ajouté par ${clip.addedBy?.username}`"
             frameborder="0"
             allow="clipboard-write; encrypted-media; picture-in-picture"
             allowfullscreen
-          ></iframe>
-          <div
-            class="flex flex-row justify-between items-center text-color-text-muted px-4 pb-4 space-y-1"
-          >
-            <p>
-              Par <b>{{ clip.addedBy?.username }}</b>
-            </p>
-            <!-- <button
-              @click="clipToDelete = clip"
-              v-if="user?.role === 'admin' || user?.role === 'superadmin'"
-              class="text-red-400 hover:underline"
-            >
-              Supprimer le clip
-            </button> -->
-            <p>{{ useDateFormat(clip.addedAt, '[Le] DD/MM/YYYY [à] HH:mm') }}</p>
+          />
+          <div class="flex items-center justify-between px-4 py-3 text-sm text-foam-200/80">
+            <span>Par <strong>{{ clip.addedBy?.username }}</strong></span>
+            <span>{{ useDateFormat(clip.addedAt, '[Le] DD/MM/YYYY [à] HH:mm') }}</span>
           </div>
         </Card>
       </template>
-
       <template #emptyIcon>
-        <VueIcon name="bs:film" class="text-6xl text-christmas-gold/50 mx-auto mb-4" />
+        <VueIcon name="bs:film" class="mx-auto mb-4 text-4xl text-foam-300/60" />
       </template>
     </ListView>
   </Card>

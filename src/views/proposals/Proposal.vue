@@ -11,6 +11,7 @@ import type { RawgGame } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { whenever } from '@vueuse/core';
 import { computed, onMounted, ref, watch } from 'vue';
+import { RouterLink } from 'vue-router';
 
 const toastStore = useToastStore();
 const proposalStore = useProposalStore();
@@ -68,88 +69,85 @@ const resetForm = () => {
 </script>
 
 <template>
-  <PageHeader title="Propositions de jeux">
-    <template #icon>
-      <VueIcon name="bx:upvote" class="text-christmas-gold text-4xl" />
-    </template>
-    <form class="flex flex-col md:flex-row gap-4 items-center">
-      <label for="proposalFilter" class="text-christmas-gold-light font-semibold flex items-center gap-2">
-        <VueIcon name="bs:funnel" class="text-christmas-gold" />
-        Ordre de tri :
-      </label>
-      <Select 
-        id="proposalFilter"
-        v-model="filter"
-        :options="[{ value: 'recent', label: 'Plus récents' }, { value: 'old', label: 'Plus anciens' }, { value: 'popular', label: 'Le plus de votes' }]"
-      />
-    </form>
-    <Button class="place-self-end mt-4" @click="showAddProposalForm = true" v-if="!showAddProposalForm">Ajouter une proposition</Button>
-    <form v-if="showAddProposalForm" @reset.prevent="" @submit.prevent="handleSubmit" class="mt-6 p-4 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20">
-      <div class="space-y-4">
-        <div>
-          <label for="gameSelect" class="block text-sm font-medium text-christmas-gold mb-2">
-            Rechercher un jeu
-          </label>
-          <SelectSearch
-            id="gameSelect"
-            v-model="selectedGameId"
-            :options="proposalStore.rawgGames.map(game => ({ 
-              value: String(game.id), 
-              label: game.name,
-              background_image: game.background_image,
-              release_date: game.release_date
-            }))"
-            :is-loading="proposalStore.isLoading"
-            placeholder="Tapez au moins 3 caractères..."
-            @search="form.gameQuery = $event"
-            :searchable="true"
-          >
-            <!-- Personnalisation des items du select -->
-            <template #item="{ option, isSelected, onSelect }">
-              <button
-                type="button"
-                @click="onSelect(option.value)"
-                :class="[
-                  'w-full text-left px-4 py-3 hover:bg-christmas-gold/10 transition-colors flex items-center justify-between border-b border-christmas-gold/10 last:border-b-0',
-                  isSelected ? 'bg-christmas-gold/20 text-christmas-gold font-bold' : 'text-christmas-gold-light hover:text-christmas-snow'
-                ]"
-              >
-                <div class="flex-1 flex items-center">
-                  <img v-if="option.background_image" :src="option.background_image" alt="" class="w-12 h-12 object-cover rounded-lg" />
-                  <div class="ml-4">
-                    <p>{{ option.label }}</p>
-                    <p v-if="option.release_date" class="text-christmas-gold-light text-sm">Date de sortie : {{ option.release_date }}</p>
-                  </div>
-                </div>
-                <VueIcon v-if="isSelected" name="bs:check-circle-fill" class="text-christmas-gold text-lg" />
-              </button>
-            </template>
-          </SelectSearch>
-        </div>
-        <textarea 
-          rows="4" 
-          placeholder="Expliquez pourquoi vous proposez ce jeu..." 
-          class="w-full px-3 py-2 bg-christmas-navy/50 border border-christmas-gold/30 text-christmas-gold placeholder-christmas-gold-light/50 rounded focus:border-christmas-gold focus:outline-none focus:ring-1 focus:ring-christmas-gold/20 transition-all"
-          v-model="form.description"
+  <section class="space-y-10">
+    <PageHeader title="Propositions de jeux" subtitle="Idées de la communauté">
+      <template #icon>
+        <VueIcon name="bx:upvote" class="text-3xl text-accent-300" />
+      </template>
+      <template #actions>
+        <Select
+          id="proposalFilter"
+          v-model="filter"
+          :options="[{ value: 'recent', label: 'Plus récents' }, { value: 'old', label: 'Plus anciens' }, { value: 'popular', label: 'Le plus de votes' }]"
+          class="min-w-[220px]"
         />
-        <div class="flex gap-4 justify-end items-center">
-          <Button type="reset" class="mt-2 place-self-end" @click.stop.prevent="resetForm" color="christmas-red">Annuler</Button>
-          <Button type="submit" class="mt-2 place-self-end">Soumettre la proposition</Button>
-        </div>
-      </div>
-    </form>
-  </PageHeader>
+      </template>
 
-  <LoaderACS v-if="proposalStore.isLoading" />
-  <ListView 
-    v-else
-    :data="proposals"
-    empty-title="Aucune proposition de jeu pour le moment"
-    empty-message="Il n'y a actuellement aucune proposition de jeu. Revenez plus tard pour découvrir les nouvelles propositions !"
-    title="Propositions de jeux"
-  >
-    <template #item="{ item: proposal }">
-      <ProposalCard :proposal="proposal" />
-    </template>
-  </ListView>
+      <div class="mt-6 flex flex-col gap-4">
+        <Button class="w-fit" @click="showAddProposalForm = true" v-if="!showAddProposalForm">Ajouter une proposition</Button>
+        <form v-if="showAddProposalForm" @reset.prevent="resetForm" @submit.prevent="handleSubmit" class="glass-panel space-y-4 p-5">
+          <div>
+            <label for="gameSelect" class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Rechercher un jeu</label>
+            <SelectSearch
+              id="gameSelect"
+              v-model="selectedGameId"
+              :options="proposalStore.rawgGames.map(game => ({
+                value: String(game.id),
+                label: game.name,
+                background_image: game.background_image,
+                release_date: game.release_date
+              }))"
+              :is-loading="proposalStore.isLoading"
+              placeholder="Tapez au moins 3 caractères..."
+              @search="form.gameQuery = $event"
+              :searchable="true"
+            >
+              <template #item="{ option, isSelected, onSelect }">
+                <button
+                  type="button"
+                  @click="onSelect(option.value)"
+                  :class="[
+                    'w-full px-4 py-3 text-left transition-colors flex items-center justify-between border-b border-white/5 last:border-b-0',
+                    isSelected ? 'bg-white/10 text-white' : 'text-foam-200/80 hover:bg-white/5'
+                  ]"
+                >
+                  <div class="flex items-center gap-4">
+                    <img v-if="option.background_image" :src="option.background_image" alt="" class="size-12 rounded-lg object-cover" />
+                    <div>
+                      <p class="font-semibold">{{ option.label }}</p>
+                      <p v-if="option.release_date" class="text-xs text-foam-300/70">Sortie : {{ option.release_date }}</p>
+                    </div>
+                  </div>
+                  <VueIcon v-if="isSelected" name="bs:check-circle-fill" class="text-accent-300" />
+                </button>
+              </template>
+            </SelectSearch>
+          </div>
+          <textarea
+            rows="4"
+            placeholder="Expliquez pourquoi vous proposez ce jeu..."
+            class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-white placeholder:text-foam-300/60"
+            v-model="form.description"
+          />
+          <div class="flex gap-3 justify-end">
+            <Button type="reset" variant="ghost" @click="resetForm">Annuler</Button>
+            <Button type="submit">Soumettre la proposition</Button>
+          </div>
+        </form>
+      </div>
+    </PageHeader>
+
+    <LoaderACS v-if="proposalStore.isLoading" />
+    <ListView
+      v-else
+      :data="proposals"
+      empty-title="Aucune proposition pour le moment"
+      empty-message="Revenez plus tard pour découvrir les nouvelles idées."
+      title="Propositions de jeux"
+    >
+      <template #item="{ item: proposal }">
+        <ProposalCard :proposal="proposal" />
+      </template>
+    </ListView>
+  </section>
 </template>

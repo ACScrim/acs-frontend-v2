@@ -26,18 +26,17 @@ const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tou
 </script>
 
 <template>
-  <Card class="p-6 space-y-6 bg-christmas-navy/50" style="border: 2px solid #D4AF37;">
+  <Card class="glass-panel p-6 space-y-6">
     <template #header>
-      <h2 class="text-2xl font-bold text-christmas-gold flex items-center gap-2">
-        <VueIcon name="bs:info-circle" />
-        Liste des équipes
+      <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+        <VueIcon name="bs:info-circle" /> Liste des équipes
       </h2>
     </template>
 
     <ListView :data="teams" empty-title="Aucune équipe créée pour le moment" :max-cols="1">
       <template #item="{ item }">
-        <div class="p-4 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20">
-          <h3 class="text-christmas-gold font-bold text-xl mb-2">{{ item.name }}</h3>
+        <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 space-y-4">
+          <h3 class="text-white font-semibold text-xl">{{ item.name }}</h3>
           <ListView :data="item.users" empty-title="Aucun joueur dans cette équipe" :max-cols="maxCols">
             <template #item="{ item: player }">
               <TournamentUserCard 

@@ -36,77 +36,75 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageHeader title="Liste des tournois">
-    <template #icon>
-      <VueIcon name="bs:trophy" class="text-christmas-gold text-4xl" />
-    </template>
-    
-    <form class="flex flex-col md:flex-row gap-4 items-center">
-      <label for="gameFilter" class="text-christmas-gold-light font-semibold flex items-center gap-2">
-        <VueIcon name="bs:funnel" class="text-christmas-gold" />
-        Filtrer par jeu :
-      </label>
-      <Select 
-        id="gameFilter"
-        v-model="gameFilter"
-        :options="games.map(game => ({ label: game.name, value: game.name })).concat([{ label: 'Tous les jeux', value: '' }])"
-        default-option-label="Tous les jeux"
-      />
-    </form>
-  </PageHeader>
+  <div class="space-y-12">
+    <PageHeader title="Tournois hebdo" subtitle="Calendrier ACS">
+      <template #icon>
+        <VueIcon name="bs:trophy" class="text-3xl text-accent-300" />
+      </template>
+      <template #actions>
+        <Button variant="ghost" class="gap-2" @click="showFinishedTournaments = !showFinishedTournaments">
+          <VueIcon :name="showFinishedTournaments ? 'bs:eye-slash' : 'bs:archive'" />
+          {{ showFinishedTournaments ? 'Masquer les terminés' : 'Voir les terminés' }}
+        </Button>
+      </template>
 
-  <!-- Tournois à venir -->
-  <ListView 
-    v-if="!tournamentStore.isLoading" 
-    :title="'Tournois à venir'" 
-    :data="upcomingTournaments" 
-    empty-title="Aucun tournoi à venir" 
-    empty-message="Il n'y a actuellement aucun tournoi prévu. Revenez plus tard pour découvrir les prochains événements !"
-    :to="getTournamentLink"
-  >
-    <template #emptyIcon>
-      <VueIcon name="bs:calendar-x" class="text-6xl text-christmas-gold/50 mx-auto mb-4" />
-    </template>
-    <template #item="{ item }">
-      <TournamentCard 
-        class="h-full transition-all duration-300 group-hover:-translate-y-2" 
-        :tournament="item" 
-      />
-    </template>
-  </ListView>
+      <form class="mt-6 rounded-[var(--radius-xl)] border border-white/10 bg-white/5 p-4">
+        <label for="gameFilter" class="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.3em] text-foam-300/70">
+          <VueIcon name="bs:funnel" class="text-accent-300" /> Filtrer par jeu
+        </label>
+        <div class="mt-3 max-w-sm">
+          <Select
+            id="gameFilter"
+            v-model="gameFilter"
+            :options="games.map(game => ({ label: game.name, value: game.name })).concat([{ label: 'Tous les jeux', value: '' }])"
+            default-option-label="Tous les jeux"
+          />
+        </div>
+      </form>
+    </PageHeader>
 
-  <!-- Loader -->
-  <LoaderACS v-else class="place-self-center" />
+    <section class="space-y-8">
+      <ListView
+        v-if="!tournamentStore.isLoading"
+        title="Tournois à venir"
+        :data="upcomingTournaments"
+        empty-title="Aucun tournoi à venir"
+        empty-message="Revenez bientôt pour découvrir les prochains rendez-vous."
+        :to="getTournamentLink"
+      >
+        <template #emptyIcon>
+          <VueIcon name="bs:calendar-x" class="mx-auto mb-4 text-4xl text-foam-300/60" />
+        </template>
+        <template #item="{ item }">
+          <TournamentCard
+            class="h-full"
+            :tournament="item"
+          />
+        </template>
+      </ListView>
+      <LoaderACS v-else class="place-self-center" />
+    </section>
 
-  <!-- Tournois terminés -->
-  <ListView 
-    v-if="showFinishedTournaments"
-    :title="'Tournois terminés'"
-    :data="finishedTournaments"
-    empty-title="Aucun tournoi terminé"
-    empty-message="Il n'y a actuellement aucun tournoi terminé. Revenez plus tard pour découvrir les résultats des événements en cours !"
-    :to="getTournamentLink"
-    :paginate="true"
-    :items-per-page="6"
-  >
-    <template #emptyIcon>
-      <VueIcon name="bs:calendar-x" class="text-6xl text-christmas-gold/50 mx-auto mb-4" />
-    </template>
-    <template #item="{ item }">
-      <TournamentCard 
-        class="h-full transition-all duration-300 group-hover:-translate-y-2" 
-        :tournament="item" 
-      />
-    </template>
-  </ListView>
-
-  <!-- Bouton voir tournois terminés -->
-  <Button 
-    v-else 
-    @click="showFinishedTournaments = true"
-    class="place-self-center mt-8"
-  >
-    <VueIcon name="bs:archive" class="text-2xl" />
-    Voir les tournois terminés ({{ finishedTournaments.length }})
-  </Button>
+    <section v-if="showFinishedTournaments" class="space-y-8">
+      <ListView
+        title="Tournois terminés"
+        :data="finishedTournaments"
+        empty-title="Aucun tournoi terminé"
+        empty-message="Encore aucun récap disponible ici."
+        :to="getTournamentLink"
+        :paginate="true"
+        :items-per-page="6"
+      >
+        <template #emptyIcon>
+          <VueIcon name="bs:calendar-x" class="mx-auto mb-4 text-4xl text-foam-300/60" />
+        </template>
+        <template #item="{ item }">
+          <TournamentCard
+            class="h-full"
+            :tournament="item"
+          />
+        </template>
+      </ListView>
+    </section>
+  </div>
 </template>

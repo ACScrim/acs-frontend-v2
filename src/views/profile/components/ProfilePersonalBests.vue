@@ -36,30 +36,30 @@ const statsBlocks = [
 </script>
 
 <template>
-  <Card class="p-6 bg-christmas-navy/80" style="--tw-border-color: var(--color-christmas-ice)">
+  <Card class="glass-panel p-8 space-y-6">
     <template #header>
       <div class="flex items-center gap-3">
-        <div class="h-1 w-12 bg-gradient-to-r from-christmas-gold to-christmas-gold-light rounded-full"></div>
-        <h2 class="text-4xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent uppercase">Records personnels</h2>
+        <div class="h-px w-16 bg-gradient-to-r from-accent-400 to-transparent" />
+        <h2 class="hero-title text-3xl">Records personnels</h2>
       </div>
     </template>
-    <div class="flex flex-row gap-2 flex-wrap">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <Card
         v-for="stat in statsBlocks"
         :key="stat.label"
-        class="flex-1 min-w-[250px] flex flex-col items-center justify-center p-4 border-christmas-gold border-1"
+        class="glass-panel bg-white/5 border-white/5 p-5 text-center"
       >
         <template #header>
-          <div class="flex items-center gap-2">
-            <VueIcon :name="stat.icon" class="text-2xl text-christmas-gold" />
-            <h3 class="text-2xl font-semibold">{{ stat.label }}</h3>
+          <div class="flex items-center justify-center gap-2 text-sm font-semibold text-accent-200">
+            <VueIcon :name="stat.icon" class="text-xl" />
+            <span>{{ stat.label }}</span>
           </div>
         </template>
-        <p class="text-4xl font-bold text-christmas-gold">
-          {{ stat.value.toFixed(0) }}<span v-if="stat.label !== 'Série'" class="text-2xl">%</span>
+        <p class="text-3xl font-semibold text-white">
+          {{ stat.value.toFixed(0) }}<span v-if="stat.label !== 'Série'" class="text-lg">%</span>
         </p>
         <template #footer>
-          <p class="text-sm text-gray-400">{{ stat.text }}</p>
+          <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70">{{ stat.text }}</p>
         </template>
       </Card>
     </div>

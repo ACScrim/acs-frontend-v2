@@ -24,15 +24,15 @@ const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayer
 </script>
 
 <template>
-  <Card class="p-6 bg-christmas-navy/50 space-y-4" style="border: 2px solid #D4AF37;">
+  <Card class="glass-panel space-y-4 p-6">
     <template #header>
-      <h2 class="text-xl font-bold text-christmas-gold">Actions</h2>
+      <h2 class="text-xl font-semibold text-white">Actions</h2>
     </template>
 
     <Button 
       class="w-full"
       @click="emit('unregister')"
-      color="christmas-red"
+      variant="danger"
       v-if="props.isRegistered"
     >
       <template #icon>
@@ -47,7 +47,7 @@ const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayer
       <Button 
         class="w-full"
         @click="emit('register')"
-        :color="!canRegister() ? 'christmas-red' : 'christmas-gold'"
+        :variant="!canRegister() ? 'outline' : 'primary'"
       >
         <template #icon>
           <VueIcon
@@ -60,7 +60,7 @@ const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayer
       <Button 
         class="w-full"
         @click="emit('registerAsCaster')"
-        color="christmas-green"
+        variant="secondary"
       >
         <template #icon>
           <VueIcon
@@ -81,14 +81,14 @@ const canRegister = () => props.tournament.playerCap <= 0 || props.currentPlayer
     </Button>
     <Button
       class="w-full"
+      variant="danger"
       @click="emit('checkOut')"
-      color="christmas-red"
       v-else-if="tournament.reminderSent && hasCheckedIn && isRegistered"
     >
       Check-out
     </Button>
 
-    <Button v-if="tournament.finished" class="w-full mt-3" color="christmas-green">
+    <Button v-if="tournament.finished" class="w-full mt-3" variant="secondary">
       <template #icon>
         <VueIcon name="bs:check2-circle" class="text-xl" />
       </template>

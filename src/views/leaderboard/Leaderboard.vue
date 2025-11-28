@@ -9,6 +9,7 @@ import api from '@/utils/api';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { whenever } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
 
 const seasonFilter = ref('');
 
@@ -40,129 +41,71 @@ whenever(seasons, () => {
   seasonFilter.value = seasonStore.seasons[0]?.number ? String(seasonStore.seasons[0].number) : '';
 });
 
-const getMedalIcon = (index: number) => {
-  if (index === 0) return 'bs:award';
-  if (index === 1) return 'bs:award';
-  if (index === 2) return 'bs:award';
-  return '';
-};
+const medalColors = ['text-amber-400', 'text-foam-300', 'text-blush-400'];
+const rowTones = ['from-emerald-500/5 to-transparent', 'from-accent-500/5 to-transparent'];
 
-const getMedalColor = (index: number) => {
-  if (index === 0) return 'text-christmas-gold';
-  if (index === 1) return 'text-christmas-silver';
-  if (index === 2) return 'text-christmas-crimson';
-  return '';
-};
+const getRowTone = (index: number) => rowTones[index % rowTones.length];
 </script>
 
 <template>
-  <PageHeader title="classement">
-    <template #icon>
-      <VueIcon name="ic:leaderboard-star" class="text-christmas-gold text-4xl" />
-    </template>
-    <form class="flex flex-col md:flex-row gap-4 items-center">
-      <label for="leaderboardFilter" class="text-christmas-gold-light font-semibold flex items-center gap-2">
-        <VueIcon name="bs:funnel" class="text-christmas-gold" />
-        Filtrer par saison :
-      </label>
-      <Select v-model="seasonFilter"
-        id="leaderboardFilter"
-        :options="seasons.map(season => ({ label: `${season.number === 0 ? 'Alors ça chill' : `Saison ${season.number}`}`, value: String(season.number) }))"
-        default-option-label="Toutes les saisons" />
-    </form>
-  </PageHeader>
+  <div class="space-y-10">
+    <PageHeader title="Classement global" subtitle="Performance cumulée">
+      <template #icon>
+        <VueIcon name="ic:leaderboard-star" class="text-3xl text-accent-300" />
+      </template>
+      <template #actions>
+        <Select v-model="seasonFilter"
+          class="min-w-[220px]"
+          :options="seasons.map(season => ({ label: `${season.number === 0 ? 'Alors ça chill' : `Saison ${season.number}`}`, value: String(season.number) }))"
+          default-option-label="Toutes les saisons" />
+      </template>
+    </PageHeader>
 
-  <LoaderACS v-if="seasonStore.isLoading" class="place-self-center" />
+    <LoaderACS v-if="seasonStore.isLoading" class="place-self-center" />
 
-  <div v-else class="overflow-x-auto">
-    <table class="min-w-full shadow-lg rounded-lg overflow-hidden border-2 border-christmas-gold/30">
-      <thead>
-        <tr class="bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold">
-          <th
-            class="px-6 py-4 border-b-2 border-christmas-gold/50 text-left text-sm font-bold text-christmas-navy uppercase tracking-wide">
-            <span class="inline-flex items-center gap-2">
-              <VueIcon name="bs:trophy" />
-              Position
-            </span>
-          </th>
-          <th
-            class="px-6 py-4 border-b-2 border-christmas-gold/50 text-left text-sm font-bold text-christmas-navy uppercase tracking-wide">
-            <span class="inline-flex items-center gap-2">
-              <VueIcon name="bs:person-circle" />
-              Utilisateur
-            </span>
-          </th>
-          <th
-            class="px-6 py-4 border-b-2 border-christmas-gold/50 text-left text-sm font-bold text-christmas-navy uppercase tracking-wide">
-            <span class="inline-flex items-center gap-2">
-              <VueIcon name="bs:calendar-event" />
-              Tournois
-            </span>
-          </th>
-          <th
-            class="px-6 py-4 border-b-2 border-christmas-gold/50 text-left text-sm font-bold text-christmas-navy uppercase tracking-wide">
-            <span class="inline-flex items-center gap-2">
-              <VueIcon name="bs:star" />
-              Points
-            </span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(entry, index) in leaderboard" :key="entry.user.id" :class="[
-          'transition-all duration-300 hover:scale-105 hover:shadow-lg',
-          index === 0 ? 'bg-gradient-to-r from-christmas-gold/20 to-christmas-gold-light/10 border-l-4 border-christmas-gold shadow-md hover:shadow-xl hover:shadow-christmas-gold/40' :
-          index === 1 ? 'bg-gradient-to-r from-christmas-silver/20 to-christmas-gold/10 border-l-4 border-christmas-silver' :
-          index === 2 ? 'bg-gradient-to-r from-christmas-red/20 to-christmas-crimson/10 border-l-4 border-christmas-red' :
-          index % 2 === 0 ? 'bg-christmas-navy/30 border-l-4 border-christmas-navy/50' : 'bg-christmas-midnight/30 border-l-4 border-christmas-midnight/50'
-        ]">
-          <td class="px-6 py-4 border-b border-christmas-gold/20 text-sm font-bold">
-            <div class="flex items-center gap-3">
-              <VueIcon v-if="getMedalIcon(index)" :name="getMedalIcon(index)" :class="[
-                'text-2xl',
-                getMedalColor(index)
-              ]" />
-              <span
-                class="bg-gradient-to-r from-christmas-gold to-christmas-gold-light bg-clip-text text-transparent font-black text-lg">
-                #{{ index + 1 }}
-              </span>
+    <div v-else class="glass-panel overflow-hidden">
+      <div class="hidden md:grid grid-cols-[80px_2fr_2fr_1fr] gap-4 px-6 py-4 text-xs uppercase tracking-[0.4em] text-foam-300/60">
+        <span class="flex items-center gap-2"><VueIcon name="bs:trophy" />Position</span>
+        <span class="flex items-center gap-2"><VueIcon name="bs:person-circle" />Utilisateur</span>
+        <span class="flex items-center gap-2"><VueIcon name="bs:calendar-event" />Tournois</span>
+        <span class="flex items-center gap-2"><VueIcon name="bs:star" />Points</span>
+      </div>
+
+      <div class="divide-y divide-white/5">
+        <div v-for="(entry, index) in leaderboard" :key="entry.user.id" class="flex flex-col gap-4 px-4 py-5 md:grid md:grid-cols-[80px_2fr_2fr_1fr] md:items-center md:gap-6">
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5">
+              <VueIcon v-if="index < 3" name="bs:award" :class="['text-xl', medalColors[index]]" />
+              <span v-else class="text-lg font-semibold text-white/70">#{{ index + 1 }}</span>
             </div>
-          </td>
-          <td
-            class="px-6 py-4 border-b border-christmas-gold/20">
-            <RouterLink :to="`/profile/${entry.user.id}`" class="text-sm text-christmas-snow font-semibold flex items-center gap-4">
-              <img :src="entry.user.avatarUrl" alt="Avatar"
-              class="w-12 h-12 rounded-full border-2 border-christmas-gold shadow-lg hover:shadow-xl hover:shadow-christmas-gold/50 transition-all" />
-              <span class="hover:text-christmas-gold-light transition-colors">{{ entry.user.username }}</span>
-            </RouterLink>
-          </td>
-          <td class="px-6 py-4 border-b border-christmas-gold/20 text-sm text-christmas-gold-light font-semibold">
-            <div class="flex gap-4">
-              <span
-                class="inline-flex items-center gap-1 bg-christmas-red/20 px-3 py-1 rounded-lg border border-christmas-red/50">
-                <VueIcon name="bs:trophy" class="text-christmas-red" />
-                {{ entry.tournamentsCount }}
-              </span>
-              <span
-                class="inline-flex items-center gap-1 bg-christmas-green/20 px-3 py-1 rounded-lg border border-christmas-green/50">
-                <VueIcon name="bs:check2-circle" class="text-christmas-green" />
-                {{ entry.victoriesCount }}W
-              </span>
-              <span
-                class="inline-flex items-center gap-1 bg-christmas-gold/20 px-3 py-1 rounded-lg border border-christmas-gold/50">
-                <VueIcon name="io:podium" class="text-christmas-gold" />
-                {{ entry.top25Count }}
-              </span>
+            <div class="hidden md:block text-sm text-white/70">#{{ index + 1 }}</div>
+          </div>
+
+          <RouterLink :to="`/profile/${entry.user.id}`" class="flex items-center gap-4 text-left">
+            <img :src="entry.user.avatarUrl" alt="Avatar" class="size-14 rounded-2xl border border-white/10 object-cover" />
+            <div>
+              <p class="text-white font-semibold">{{ entry.user.username }}</p>
+              <p class="text-xs uppercase tracking-[0.3em] text-foam-300/60">{{ entry.user.role }}</p>
             </div>
-          </td>
-          <td class="px-6 py-4 border-b border-christmas-gold/20 text-sm font-black">
-            <span
-              class="bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent text-lg">
-              {{ entry.points }}
+          </RouterLink>
+
+          <div class="flex flex-wrap gap-3 text-sm text-foam-200/90">
+            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+              <VueIcon name="bs:trophy" class="text-emerald-300" /> {{ entry.tournamentsCount }} tournois
             </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+              <VueIcon name="bs:check2-circle" class="text-accent-300" /> {{ entry.victoriesCount }} victoires
+            </span>
+            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+              <VueIcon name="io:podium" class="text-blush-400" /> {{ entry.top25Count }} top 25
+            </span>
+          </div>
+
+          <div class="text-right text-2xl font-semibold text-white/90 md:text-left">
+            {{ entry.points }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

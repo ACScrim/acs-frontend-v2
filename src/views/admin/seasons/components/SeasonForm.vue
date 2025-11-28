@@ -86,92 +86,48 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <Card class="bg-christmas-navy/50 border-2 border-christmas-gold/30 p-6">
+  <Card class="glass-panel p-6 space-y-6">
     <template #header>
-      <h2 class="text-2xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent flex items-center gap-2">
-        <VueIcon :name="isEditing ? 'bs:pencil-square' : 'bs:plus-circle'" class="text-christmas-gold" />
-        {{ isEditing ? 'Modifier la saison' : 'Ajouter une saison' }}
-      </h2>
+      <div class="flex items-center gap-3">
+        <span class="rounded-2xl bg-white/5 p-3">
+          <VueIcon :name="isEditing ? 'bs:pencil-square' : 'bs:plus-circle'" class="text-accent-300" />
+        </span>
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">{{ isEditing ? 'Modification' : 'Création' }}</p>
+          <h2 class="hero-title text-2xl">{{ isEditing ? 'Modifier la saison' : 'Ajouter une saison' }}</h2>
+        </div>
+      </div>
     </template>
 
     <form @submit.prevent="handleSubmit" class="space-y-6">
-      <!-- Numéro de saison -->
       <div>
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Numéro de saison *</label>
-        <input
-          v-model="seasonNumber"
-          type="number"
-          placeholder="Ex: 1, 2, 3..."
-          min="0"
-          class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-          :disabled="isEditing"
-        />
+        <label class="form-label">Numéro de saison *</label>
+        <input v-model="seasonNumber" type="number" min="0" placeholder="Ex: 1" class="form-input" :disabled="isEditing" />
       </div>
 
-      <!-- Sélection des tournois -->
-      <div class="border-t border-christmas-gold/20 pt-4">
-        <h3 class="text-christmas-gold font-bold text-sm mb-3 flex items-center gap-2">
-          <VueIcon name="bs:trophy-fill" />
-          Tournois de la saison
-        </h3>
-
-        <div v-if="availableTournaments.length === 0" class="text-christmas-gold-light/50 text-sm italic p-4 bg-christmas-navy/30 rounded">
+      <div class="space-y-3">
+        <div class="flex items-center gap-2 text-sm text-foam-300/80">
+          <VueIcon name="bs:trophy-fill" /> Tournois de la saison
+        </div>
+        <div v-if="availableTournaments.length === 0" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 text-sm text-foam-300/70">
           Aucun tournoi disponible. Créez d'abord des tournois.
         </div>
-
-        <div v-else class="space-y-2 max-h-64 overflow-y-auto">
-          <div
-            v-for="tournament in availableTournaments"
-            :key="tournament.id"
-            class="flex items-center gap-3 p-3 bg-christmas-navy/30 rounded-lg border border-christmas-gold/20 hover:border-christmas-gold/50 transition-colors cursor-pointer"
-            @click="toggleTournament(tournament.id)"
-          >
-            <input
-              type="checkbox"
-              :checked="selectedTournaments.includes(tournament.id)"
-              class="w-4 h-4 cursor-pointer"
-              @change="toggleTournament(tournament.id)"
-            />
+        <div v-else class="max-h-64 space-y-2 overflow-y-auto">
+          <label v-for="tournament in availableTournaments" :key="tournament.id" class="flex cursor-pointer items-center gap-3 rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3">
+            <input type="checkbox" class="form-checkbox" :checked="selectedTournaments.includes(tournament.id)" @change="toggleTournament(tournament.id)" />
             <div class="flex-1">
-              <p class="text-christmas-gold font-medium">{{ tournament.name }}</p>
-              <p class="text-xs text-christmas-gold-light/70">
-                {{ new Date(tournament.date).toLocaleDateString('fr-FR') }} • {{ tournament.playerCap }} joueurs
-              </p>
+              <p class="text-white font-semibold">{{ tournament.name }}</p>
+              <p class="text-xs text-foam-300/70">{{ new Date(tournament.date).toLocaleDateString('fr-FR') }} • {{ tournament.playerCap }} joueurs</p>
             </div>
-            <span
-              v-if="selectedTournaments.includes(tournament.id)"
-              class="text-christmas-gold"
-            >
-              <VueIcon name="bs:check-circle-fill" />
-            </span>
-          </div>
+            <VueIcon v-if="selectedTournaments.includes(tournament.id)" name="bs:check-circle" class="text-accent-300" />
+          </label>
         </div>
-
-        <p class="text-xs text-christmas-gold-light/70 mt-2 flex items-center gap-2">
-          <VueIcon name="bs:info-circle" />
-          {{ selectedTournaments.length }} tournoi(s) sélectionné(s)
-        </p>
+        <p class="text-xs text-foam-300/70">{{ selectedTournaments.length }} tournoi(s) sélectionné(s)</p>
       </div>
 
-      <!-- Actions -->
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-christmas-gold/20">
-        <Button
-          type="button"
-          @click="handleCancel"
-          color="christmas-red"
-          class="flex items-center gap-2"
-        >
-          <VueIcon name="bs:x-circle" />
-          Annuler
-        </Button>
-        <Button
-          type="submit"
-          :disabled="isLoading || !seasonNumber"
-          class="flex items-center gap-2"
-        >
-          <VueIcon :name="isLoading ? 'bs:hourglass-split' : (isEditing ? 'bs:check-circle' : 'bs:plus-circle')" :class="{ 'animate-spin': isLoading }" />
-          {{ isLoading ? 'En cours...' : (isEditing ? 'Modifier' : 'Ajouter') }}
-        </Button>
+      <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
+        <Button type="button" variant="ghost" @click="handleCancel">Annuler</Button>
+        <Button type="submit" :disabled="isLoading || !seasonNumber">{{ isLoading ? 'En cours…' : isEditing ? 'Modifier' : 'Ajouter' }}</Button>
       </div>
     </form>
   </Card>

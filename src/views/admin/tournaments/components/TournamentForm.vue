@@ -149,160 +149,101 @@ const autoFillReminders = () => {
 };</script>
 
 <template>
-  <Card class="p-6 bg-christmas-midnight border-2 border-christmas-gold/30">
-    <h2 class="text-2xl font-bold text-christmas-gold mb-6 flex items-center gap-2">
-      <VueIcon :name="isEditMode ? 'bs:pencil' : 'bs:plus-circle'" />
-      {{ isEditMode ? 'Éditer le tournoi' : 'Créer un tournoi' }}
-    </h2>
+  <Card class="glass-panel p-6 space-y-6">
+    <div class="flex items-center gap-3">
+      <span class="rounded-2xl bg-white/5 p-3">
+        <VueIcon :name="isEditMode ? 'bs:pencil' : 'bs:plus-circle'" class="text-accent-300" />
+      </span>
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">{{ isEditMode ? 'Mise à jour' : 'Création' }}</p>
+        <h2 class="hero-title text-2xl">{{ isEditMode ? 'Éditer le tournoi' : 'Créer un tournoi' }}</h2>
+      </div>
+    </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-4">
+    <form @submit.prevent="handleSubmit" class="space-y-5">
       <!-- Nom -->
       <div>
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Nom du tournoi *</label>
+        <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Nom du tournoi *</label>
         <input
           v-model="formData.name"
           type="text"
           placeholder="Ex: Tournament S1 - CS2"
-          class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
+          class="form-input"
         />
       </div>
 
       <!-- Jeu -->
       <div>
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Jeu *</label>
-        <select
-          v-model="formData.gameId"
-          class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-        >
+        <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Jeu *</label>
+        <select v-model="formData.gameId" class="form-input">
           <option value="">-- Sélectionner un jeu --</option>
-          <option v-for="game in availableGames" :key="game.id" :value="game.id">
-            {{ game.name }}
-          </option>
+          <option v-for="game in availableGames" :key="game.id" :value="game.id">{{ game.name }}</option>
         </select>
       </div>
 
-      <!-- Grille 2 colonnes -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Date -->
+      <div class="grid gap-4 md:grid-cols-2">
         <div>
-          <label class="block text-christmas-gold font-bold text-sm mb-2">Date du tournoi *</label>
-          <input
-            v-model="formData.date"
-            type="datetime-local"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-          />
+          <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Date du tournoi *</label>
+          <input v-model="formData.date" type="datetime-local" class="form-input" />
         </div>
-
-        <!-- Capacité joueurs -->
         <div>
-          <label class="block text-christmas-gold font-bold text-sm mb-2">Nombre de joueurs *</label>
-          <input
-            v-model.number="formData.playerCap"
-            type="number"
-            min="0"
-            placeholder="Ex: 32"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-          />
+          <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Nombre de joueurs *</label>
+          <input v-model.number="formData.playerCap" type="number" min="0" class="form-input" />
         </div>
       </div>
 
-      <!-- Discord Channel Name -->
       <div>
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Salon Discord *</label>
-        <input
-          v-model="formData.discordChannelName"
-          type="text"
-          placeholder="Ex: tournament-s1"
-          required
-          class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-        />
+        <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Salon Discord *</label>
+        <input v-model="formData.discordChannelName" type="text" class="form-input" placeholder="Ex: tournament-s1" />
       </div>
 
-      <!-- Description -->
       <div>
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Description</label>
-        <textarea
-          v-model="formData.description"
-          rows="4"
-          placeholder="Détails du tournoi..."
-          class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30 resize-none"
-        />
+        <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Description</label>
+        <textarea v-model="formData.description" rows="4" class="form-input" placeholder="Détails du tournoi..."></textarea>
       </div>
 
-      <!-- Grille 2 colonnes pour les dates de rappel -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-christmas-gold">Dates de rappel</h3>
-          <button
-            type="button"
-            @click="autoFillReminders"
-            class="text-xs px-2 py-1 bg-christmas-gold/20 text-christmas-gold hover:bg-christmas-gold/30 rounded transition-colors flex items-center gap-1"
-          >
-            <VueIcon name="bs:lightning-fill" />
-            Remplir auto
-          </button>
+          <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Dates de rappel</p>
+          <Button type="button" size="sm" variant="ghost" class="gap-2" @click="autoFillReminders">
+            <VueIcon name="bs:lightning-fill" /> Remplir auto
+          </Button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Discord Reminder Date -->
+        <div class="grid gap-4 md:grid-cols-2">
           <div>
-            <label class="block text-christmas-gold font-bold text-sm mb-2">Rappel Discord</label>
-            <input
-              v-model="formData.discordReminderDate"
-              type="datetime-local"
-              class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-            />
-            <p class="text-xs text-christmas-gold-light/70 mt-1">Rappel à envoyer sur Discord</p>
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Rappel Discord</label>
+            <input v-model="formData.discordReminderDate" type="datetime-local" class="form-input" />
+            <p class="mt-1 text-xs text-foam-300/60">Rappel à envoyer sur Discord</p>
           </div>
-
-          <!-- Private Reminder Date -->
           <div>
-            <label class="block text-christmas-gold font-bold text-sm mb-2">Rappel privé</label>
-            <input
-              v-model="formData.privateReminderDate"
-              type="datetime-local"
-              class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-            />
-            <p class="text-xs text-christmas-gold-light/70 mt-1">Rappel privé aux joueurs</p>
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Rappel privé</label>
+            <input v-model="formData.privateReminderDate" type="datetime-local" class="form-input" />
+            <p class="mt-1 text-xs text-foam-300/60">Rappel privé aux joueurs</p>
           </div>
         </div>
       </div>
 
-      <!-- Boutons -->
-      <div class="flex gap-3 pt-4 border-t border-christmas-gold/20">
-        <Button
-          type="submit"
-          :disabled="isSubmitting || props.isLoading"
-          color="christmas-gold"
-          class="flex-1 flex items-center justify-center gap-2"
-        >
+      <div class="flex gap-3 border-t border-white/5 pt-4">
+        <Button type="submit" :disabled="isSubmitting || props.isLoading" class="flex-1 gap-2">
           <VueIcon :name="isEditMode ? 'bs:check-circle' : 'bs:plus-circle'" />
           {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
         </Button>
-        <Button
-          v-if="!isEditMode"
-          type="reset"
-          @click="handleCancel"
-          :disabled="isSubmitting || props.isLoading"
-          class="flex-1 flex items-center justify-center gap-2 bg-christmas-red/20 text-christmas-red hover:bg-christmas-red/30"
-        >
-          <VueIcon name="bs:x-circle" />
+        <Button v-if="!isEditMode" type="reset" variant="ghost" class="flex-1" :disabled="isSubmitting || props.isLoading" @click="handleCancel">
           Annuler
         </Button>
       </div>
 
-      <p class="text-xs text-christmas-gold-light/70 text-center">
-        * Champs obligatoires
-      </p>
+      <p class="text-center text-xs text-foam-300/60">* Champs obligatoires</p>
     </form>
   </Card>
 </template>
 
 <style scoped>
-select {
+select.form-input {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D4AF37' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5f5' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.5rem center;
+  background-position: right 0.75rem center;
   padding-right: 2rem;
 }
 </style>

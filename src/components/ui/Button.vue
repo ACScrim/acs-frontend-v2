@@ -7,8 +7,9 @@ interface Props {
   to?: string
   class?: string | string[]
   disabled?: boolean
-  color?: keyof typeof bgColorClasses
-  shadowColor?: string
+  variant?: keyof typeof variantClasses
+  color?: string
+  size?: keyof typeof sizeClasses
 }
 
 
@@ -24,7 +25,6 @@ const component = computed(() => {
 
 const componentProps = computed(() => {
   const baseProps: any = {
-    class: props.class,
     disabled: props.disabled || props.loading,
   };
 
@@ -45,40 +45,51 @@ const props = withDefaults(defineProps<Props>(), {
   to: undefined,
   class: "",
   disabled: false,
-  color: "christmas-gold"
+  variant: undefined,
+  color: undefined,
+  size: "md"
 });
 
-const bgColorClasses: Record<string, string> = {
-  'christmas-gold': "bg-gradient-to-r from-christmas-gold to-christmas-gold-light not-disabled:hover:from-christmas-pine not-disabled:hover:to-christmas-forest",
-  'christmas-red': "bg-gradient-to-r from-christmas-red to-christmas-crimson not-disabled:hover:from-christmas-crimson not-disabled:hover:to-christmas-red",
-  'christmas-green': "bg-gradient-to-r from-christmas-pine to-christmas-forest not-disabled:hover:from-christmas-forest not-disabled:hover:to-christmas-pine",
-  'christmas-navy': "bg-gradient-to-r from-christmas-navy to-christmas-midnight not-disabled:hover:from-christmas-gold not-disabled:hover:to-christmas-gold-light",
-  'christmas-ice': "bg-gradient-to-r from-christmas-ice to-christmas-snow not-disabled:hover:from-christmas-gold not-disabled:hover:to-christmas-gold-light",
-}
+const variantClasses = {
+  primary: "bg-gradient-to-r from-accent-500 to-blush-500 text-ink-900 shadow-[var(--shadow-glow)] hover:brightness-110",
+  emerald: "bg-gradient-to-r from-emerald-600 to-emerald-400 text-ink-900 shadow-[var(--shadow-soft)] hover:brightness-110",
+  danger: "bg-gradient-to-r from-blush-500 to-blush-300 text-white shadow-[0_25px_45px_rgba(255,95,143,0.35)]",
+  secondary: "bg-white/5 text-white border border-white/10 hover:bg-white/10",
+  outline: "border border-white/20 text-white hover:border-accent-400 hover:text-accent-200",
+  ghost: "text-foam-200 hover:text-white hover:bg-white/5"
+} as const;
 
-const borderColorClasses: Record<string, string> = {
-  'christmas-gold': "border-christmas-gold not-disabled:hover:border-christmas-forest",
-  'christmas-red': "border-christmas-red not-disabled:hover:border-christmas-crimson",
-  'christmas-green': "border-christmas-pine not-disabled:hover:border-christmas-forest",
-  'christmas-navy': "border-christmas-navy not-disabled:hover:border-christmas-gold",
-  'christmas-ice': "border-christmas-ice not-disabled:hover:border-christmas-gold",
-}
+const sizeClasses = {
+  sm: "px-4 py-2 text-sm",
+  md: "px-6 py-3",
+  lg: "px-8 py-4 text-lg"
+} as const;
 
-const textColorClasses: Record<string, string> = {
-  'christmas-gold': "text-christmas-navy not-disabled:hover:text-christmas-snow",
-  'christmas-red': "text-christmas-snow",
-  'christmas-green': "text-christmas-snow",
-  'christmas-navy': "text-christmas-gold-light not-disabled:hover:text-christmas-gold",
-  'christmas-ice': "text-christmas-navy not-disabled:hover:text-christmas-navy",
-}
+const legacyColorToVariant: Record<string, keyof typeof variantClasses> = {
+  'christmas-gold': 'primary',
+  'christmas-red': 'danger',
+  'christmas-green': 'emerald',
+  'christmas-navy': 'secondary',
+  'christmas-ice': 'outline'
+};
+
+const appliedVariant = computed<keyof typeof variantClasses>(() => {
+  if (props.variant && variantClasses[props.variant]) {
+    return props.variant;
+  }
+  if (props.color && legacyColorToVariant[props.color]) {
+    return legacyColorToVariant[props.color];
+  }
+  return 'primary';
+});
 </script>
 
 <template>
   <component 
     :is="component"
     v-bind="componentProps"
-    class="cursor-pointer flex flex-row rounded-xl py-4 px-8 items-center justify-center shadow-lg not-disabled:hover:shadow-xl transition-all w-fit border-2 gap-2 font-bold uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
-    :class="`${bgColorClasses[props.color]} ${borderColorClasses[props.color]} ${textColorClasses[props.color]} ${props.class}`"
+    class="cursor-pointer inline-flex items-center justify-center gap-2 rounded-[var(--radius-lg)] font-semibold tracking-wide transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+    :class="`${variantClasses[appliedVariant]} ${sizeClasses[props.size]} ${props.class}`"
     v-tw-merge
   >
     <!-- Loading spinner -->

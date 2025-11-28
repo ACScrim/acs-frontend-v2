@@ -1,149 +1,69 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import MobileMenu from './MobileMenu.vue';
 
-interface Snowflake {
+interface Orb {
   id: number;
-  left: number;
-  delay: number;
-  duration: number;
+  x: number;
+  y: number;
   size: number;
-  opacity: number;
+  hue: number;
+  delay: number;
 }
 
-const snowflakes = ref<Snowflake[]>([]);
-
-onMounted(() => {
-  // Générer les flocons de neige
-  for (let i = 0; i < 50; i++) {
-    snowflakes.value.push({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 5,
-      duration: 8 + Math.random() * 4,
-      size: 10 + Math.random() * 15,
-      opacity: 0.3 + Math.random() * 0.5
-    });
-  }
-});
+const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
+  id: idx,
+  x: Math.random() * 90,
+  y: Math.random() * 90,
+  size: 24 + Math.random() * 28,
+  hue: 210 + Math.random() * 80,
+  delay: Math.random() * 4,
+})));
 </script>
 
 <template>
-  <main class="maincontainer bg-gradient-to-br from-christmas-navy via-christmas-midnight to-christmas-navy">
-    <!-- Arrière-plan avec flocons de neige -->
-    <div class="snowflakes-container">
+  <main class="relative grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] bg-ink-950 place-items-stretch">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div
-        v-for="snowflake in snowflakes"
-        :key="snowflake.id"
-        class="snowflake"
+        v-for="orb in orbs"
+        :key="orb.id"
+        class="absolute rounded-[999px] blur-[120px] opacity-60 mix-blend-screen"
         :style="{
-          left: `${snowflake.left}%`,
-          '--delay': `${snowflake.delay}s`,
-          '--duration': `${snowflake.duration}s`,
-          '--size': `${snowflake.size}px`,
-          '--opacity': snowflake.opacity,
+          left: `${orb.x}%`,
+          top: `${orb.y}%`,
+          width: `${orb.size}rem`,
+          height: `${orb.size}rem`,
+          background: `radial-gradient(circle, hsl(${orb.hue}deg 90% 65% / 0.8), transparent)` ,
+          animation: `float-orb ${16 + orb.id * 2}s ease-in-out ${orb.delay}s infinite alternate`
         }"
-      >
-        ❄
-      </div>
+      />
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_55%)]" />
     </div>
 
-    <div class="aside z-10 bg-gradient-to-b from-christmas-navy/95 to-christmas-midnight/90">
-      <slot name="aside"></slot>
-    </div>
-    <div class="view z-10">
-      <div class="w-full mb-16 lg:mb-0 max-w-7xl mx-auto p-5 space-y-8">
-        <slot name="view"></slot>
+    <aside class="relative hidden lg:flex flex-col border-r border-white/5 bg-surface-900/80 backdrop-blur-2xl">
+      <slot name="aside" />
+    </aside>
+
+    <section class="relative z-10 flex flex-col">
+      <div class="grow overflow-y-auto overflow-x-hidden" data-acs-scroll-region>
+        <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-10 lg:px-10">
+          <slot name="view" />
+        </div>
       </div>
-    </div>
-    <MobileMenu />
+      <MobileMenu />
+    </section>
   </main>
 </template>
 
 <style scoped>
-.maincontainer {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  height: 100dvh;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-.snowflakes-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}
-
-.snowflake {
-  position: absolute;
-  top: -20px;
-  font-size: var(--size);
-  color: var(--color-christmas-ice);
-  opacity: var(--opacity);
-  text-shadow: 0 0 10px rgba(232, 244, 248, 0.6),
-               0 0 20px rgba(212, 175, 55, 0.2);
-  animation: snowfall var(--duration) linear var(--delay) infinite;
-  user-select: none;
-  filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.3));
-}
-
-@keyframes snowfall {
+@keyframes float-orb {
   0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-    opacity: var(--opacity);
-  }
-  50% {
-    transform: translateY(50vh) translateX(100px) rotate(180deg);
-    opacity: var(--opacity);
+    transform: translate3d(0, 0, 0) scale(0.9);
+    opacity: 0.6;
   }
   100% {
-    transform: translateY(100vh) translateX(-50px) rotate(360deg);
-    opacity: 0;
+    transform: translate3d(8%, -10%, 0) scale(1.1);
+    opacity: 0.9;
   }
-}
-
-.aside {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  backdrop-filter: blur(10px);
-}
-
-.aside>* {
-  z-index: 1;
-}
-
-.view {
-  height: 100%;
-  scrollbar-color: var(--color-christmas-gold) transparent;
-  scrollbar-width: thin;
-  overflow-y: overlay;
-  overflow-x: hidden;
-}
-
-/* Scrollbar personnalisée pour les navigateurs WebKit */
-.view::-webkit-scrollbar {
-  width: 8px;
-}
-
-.view::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.view::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--color-christmas-gold), var(--color-christmas-red));
-  border-radius: 4px;
-}
-
-.view::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--color-christmas-gold-light), var(--color-christmas-crimson));
 }
 </style>

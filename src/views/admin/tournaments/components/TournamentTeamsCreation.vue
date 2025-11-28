@@ -186,241 +186,121 @@ const autoBalanceTeams = () => {
 
 <template>
   <div class="space-y-6">
-    <!-- Configuration Panel -->
-    <Card class="p-6 bg-gradient-to-r from-christmas-gold/10 to-christmas-red/5 border-christmas-gold/30">
+    <Card class="glass-panel p-6">
       <template #header>
-        <h3 class="text-lg font-bold text-christmas-gold flex items-center gap-2">
-          <VueIcon name="bs:sliders" />
-          Configuration des équipes
-        </h3>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Configuration</p>
+            <h3 class="hero-title text-2xl">Gestion des équipes</h3>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-foam-300/80">
+            <VueIcon name="bs:arrow-right" /> {{ teamCount }} équipe(s)
+          </div>
+        </div>
       </template>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="grid gap-4 md:grid-cols-3">
         <div>
-          <label class="block text-christmas-gold font-bold text-sm mb-2">Joueurs par équipe</label>
-          <input 
-            v-model.number="playersPerTeam"
-            @change="recalculateTeamCount"
-            type="number"
-            min="1"
-            class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg px-3 py-2 focus:border-christmas-gold outline-none font-bold text-lg"
-          />
-          <p class="text-xs text-christmas-gold-light/70 mt-2">
-            <VueIcon name="bs:arrow-right" class="inline" />
-            {{ teamCount }} équipe(s)
-          </p>
+          <label class="form-label">Joueurs par équipe</label>
+          <input v-model.number="playersPerTeam" @change="recalculateTeamCount" type="number" min="1" class="form-input font-semibold" />
         </div>
-
         <div>
-          <label class="block text-christmas-gold font-bold text-sm mb-2">Joueurs restants</label>
-          <div class="text-3xl font-bold text-christmas-gold">{{ availablePlayers.length }}</div>
-          <p class="text-xs text-christmas-gold-light/70 mt-2">à assigner</p>
+          <label class="form-label">Joueurs restants</label>
+          <p class="text-3xl font-semibold text-white">{{ availablePlayers.length }}</p>
+          <p class="text-xs text-foam-300/70">à assigner</p>
         </div>
-
         <div>
-          <label class="block text-christmas-gold font-bold text-sm mb-2">Tier moyen/équipe</label>
-          <div class="text-3xl font-bold text-christmas-gold">{{ averageTierPerTeam }}</div>
-          <p class="text-xs text-christmas-gold-light/70 mt-2">pour équilibre</p>
+          <label class="form-label">Tier moyen/équipe</label>
+          <p class="text-3xl font-semibold text-white">{{ averageTierPerTeam }}</p>
+          <p class="text-xs text-foam-300/70">pour équilibre</p>
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-2">
-        <Button v-if="teams.length === 0" @click="generateTeams" color="christmas-gold" class="flex items-center gap-2">
-          <VueIcon name="bs:plus-circle" />
-          Générer équipes
+      <div class="mt-4 flex flex-wrap gap-2">
+        <Button v-if="teams.length === 0" class="gap-2" @click="generateTeams">
+          <VueIcon name="bs:plus-circle" /> Générer équipes
         </Button>
-        <Button v-if="teams.length > 0" @click="autoBalanceTeams" class="flex items-center gap-2 bg-christmas-pine/20 text-christmas-pine hover:bg-christmas-pine/30">
-          <VueIcon name="bs:arrow-left-right" />
-          Équilibrage auto
+        <Button v-if="teams.length > 0" class="gap-2" variant="secondary" @click="autoBalanceTeams">
+          <VueIcon name="bs:arrow-left-right" /> Équilibrage auto
         </Button>
-        <Button v-if="teams.length > 0" @click="saveTournamentTeams" class="flex items-center gap-2">
-          <VueIcon name="bs:check-circle" />
-          Sauvegarder
+        <Button v-if="teams.length > 0" class="gap-2" variant="outline" @click="saveTournamentTeams">
+          <VueIcon name="bs:check-circle" /> Sauvegarder
         </Button>
-        <Button v-if="availablePlayers.length === 0 && teams.length > 0" @click="publishTournamentTeams" color="christmas-gold" class="flex items-center gap-2">
-          <VueIcon name="bs:rocket" />
-          Publier
+        <Button v-if="availablePlayers.length === 0 && teams.length > 0" class="gap-2" @click="publishTournamentTeams">
+          <VueIcon name="bs:rocket" /> Publier
         </Button>
       </div>
     </Card>
 
-    <!-- Main Grid Layout -->
-    <div v-if="teams.length > 0" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <!-- Players Available - Left Sidebar -->
-      <div class="lg:col-span-1">
-        <Card class="p-4 sticky top-6 max-h-[70vh] overflow-hidden flex flex-col">
+    <div v-if="teams.length > 0" class="grid gap-6 lg:grid-cols-4">
+      <Card class="glass-panel sticky top-6 max-h-[70vh] overflow-hidden p-4">
+        <template #header>
+          <h3 class="text-sm uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+            <VueIcon name="cl:users" /> Disponibles
+            <span class="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white">{{ availablePlayers.length }}</span>
+          </h3>
+        </template>
+        <div class="flex-1 space-y-2 overflow-y-auto">
+          <div v-for="player in availablePlayers" :key="player.id" draggable="true" @dragstart="onDragStart(player)" @dragover="onDragOver" @drop="onDropToAvailable" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold text-white">{{ player.user.username }}</p>
+                <p class="text-xs text-foam-300/70">{{ getPlayerLevel(player) }}</p>
+              </div>
+              <span class="rounded bg-white/10 px-2 py-1 text-xs text-white font-semibold">{{ player.tier }}</span>
+            </div>
+            <div class="mt-2 space-y-2">
+              <input :value="player.tier" @input.stop="(e) => updatePlayerTier(player, (e.target as HTMLInputElement).value)" type="number" min="1" max="10" class="form-input text-xs" />
+              <input :value="player.description ?? ''" @input.stop="(e) => updatePlayerDescription(player, (e.target as HTMLInputElement).value)" type="text" placeholder="Notes..." class="form-input text-xs" />
+            </div>
+          </div>
+          <p v-if="availablePlayers.length === 0" class="py-6 text-center text-xs text-foam-300/60">Tous assignés 🎯</p>
+        </div>
+      </Card>
+
+      <div class="lg:col-span-3 grid gap-4 md:grid-cols-2">
+        <Card v-for="(team, index) in teams" :key="index" @dragover="onDragOver" @drop="onDropToTeam(team, index)" @dragenter="dragOverTeamIndex = index" @dragleave="dragOverTeamIndex = null" :class="['glass-panel p-4 min-h-[480px] transition', dragOverTeamIndex === index ? 'border-accent-300' : 'border-white/5']">
           <template #header>
-            <h3 class="font-bold text-christmas-gold flex items-center gap-2">
-              <VueIcon name="cl:users" />
-              Disponibles
-              <span class="ml-auto bg-christmas-gold text-christmas-navy rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                {{ availablePlayers.length }}
-              </span>
-            </h3>
+            <div class="flex items-center justify-between gap-3">
+              <input v-model="team.name" class="form-input bg-transparent text-lg font-semibold" />
+              <div class="text-right">
+                <p class="text-xs text-foam-300/70">Joueurs</p>
+                <p class="text-lg font-semibold text-white">{{ team.players.length }}/{{ playersPerTeam }}</p>
+              </div>
+            </div>
           </template>
 
-          <div class="flex-1 overflow-y-auto space-y-2">
-            <div 
-              v-for="player in availablePlayers"
-              :key="player.id"
-              draggable="true"
-              @dragstart="onDragStart(player)"
-              @dragover="onDragOver"
-              @drop="onDropToAvailable"
-              class="p-3 bg-christmas-navy/50 border-2 border-christmas-gold/30 rounded-lg cursor-grab hover:border-christmas-gold hover:bg-christmas-navy/70 hover:shadow-lg hover:shadow-christmas-gold/20 transition-all active:cursor-grabbing"
-            >
-              <div class="flex items-start justify-between gap-2 mb-2">
-                <div class="flex-1 min-w-0">
-                  <p class="font-bold text-christmas-snow text-sm truncate">{{ player.user.username }}</p>
-                  <p class="text-xs text-christmas-gold-light/70">{{ getPlayerLevel(player) }}</p>
-                </div>
-                <span class="flex-shrink-0 text-xs bg-christmas-gold/20 text-christmas-gold px-2 py-1 rounded font-bold">
-                  {{ player.tier }}
-                </span>
-              </div>
-              
-              <div class="space-y-2 text-xs">
-                <div>
-                  <input 
-                    :value="player.tier"
-                    @input.stop="(e) => updatePlayerTier(player, (e.target as HTMLInputElement).value)"
-                    type="number"
-                    min="1"
-                    max="10"
-                    class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1 focus:border-christmas-gold outline-none"
-                  />
-                </div>
-                
-                <input 
-                  :value="player.description ?? ''"
-                  @input.stop="(e) => updatePlayerDescription(player, (e.target as HTMLInputElement).value)"
-                  type="text"
-                  placeholder="Notes..."
-                  class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1 text-xs focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-                />
-              </div>
+          <div v-if="team.players.length > 0" class="mb-3 grid grid-cols-2 gap-2 rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm text-white">
+            <div>
+              <p class="text-xs text-foam-300/70">Tier moyen</p>
+              <p class="font-semibold">{{ getTeamAverageTier(team) }}</p>
             </div>
+            <div>
+              <p class="text-xs text-foam-300/70">Tier total</p>
+              <p class="font-semibold">{{ getTeamTotalTier(team) }}</p>
+            </div>
+          </div>
 
-            <div v-if="availablePlayers.length === 0" class="flex items-center justify-center h-32 text-christmas-gold-light/50 text-center">
-              <div>
-                <VueIcon name="bs:check-circle" class="text-3xl mb-2 mx-auto" />
-                <p class="text-sm font-medium">Tous assignés!</p>
+          <div class="flex-1 space-y-2 overflow-y-auto">
+            <div v-for="player in team.players" :key="player.id" draggable="true" @dragstart="onDragStart(player)" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <p class="font-semibold text-white">{{ player.user.username }}</p>
+                  <p class="text-xs text-foam-300/70">{{ getPlayerLevel(player) }}</p>
+                </div>
+                <button class="text-foam-300/70 hover:text-white" @click="removePlayerFromTeam(team, player.id)">
+                  <VueIcon name="bs:x-circle" />
+                </button>
+              </div>
+              <div class="mt-2 flex gap-2 text-xs">
+                <input :value="player.tier" @input.stop="(e) => updatePlayerTier(player, (e.target as HTMLInputElement).value)" type="number" min="1" max="10" class="form-input" />
+                <input :value="player.description ?? ''" @input.stop="(e) => updatePlayerDescription(player, (e.target as HTMLInputElement).value)" type="text" placeholder="Notes..." class="form-input" />
               </div>
             </div>
+            <p v-if="team.players.length === 0" class="py-4 text-center text-xs text-foam-300/60">Glissez un joueur ici</p>
           </div>
         </Card>
       </div>
-
-      <!-- Teams Grid - Main Content -->
-      <div class="lg:col-span-3">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card 
-            v-for="(team, index) in teams"
-            :key="index"
-            @dragover="onDragOver"
-            @drop="onDropToTeam(team, index)"
-            @dragenter="dragOverTeamIndex = index"
-            @dragleave="dragOverTeamIndex = null"
-            :class="[
-              'p-4 flex flex-col min-h-[500px] transition-all',
-              dragOverTeamIndex === index ? 'border-christmas-gold bg-christmas-gold/5 shadow-lg shadow-christmas-gold/30' : 'border-dashed'
-            ]"
-          >
-            <template #header>
-              <div class="flex items-center justify-between w-full gap-3 mb-3">
-                <input 
-                  v-model="team.name" 
-                  class="text-lg font-bold bg-transparent text-christmas-gold border-0 border-b-2 border-christmas-gold/30 focus:border-christmas-gold outline-none flex-1"
-                />
-                <div class="text-right">
-                  <p class="text-xs text-christmas-gold-light/70">Joueurs</p>
-                  <p class="text-2xl font-bold text-christmas-gold">{{ team.players.length }}/{{ playersPerTeam }}</p>
-                </div>
-              </div>
-            </template>
-
-            <!-- Stats -->
-            <div v-if="team.players.length > 0" class="mb-4 p-3 bg-gradient-to-r from-christmas-gold/10 to-christmas-red/5 border border-christmas-gold/20 rounded-lg">
-              <div class="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p class="text-christmas-gold-light/70 text-xs">Tier moyen</p>
-                  <p class="font-bold text-christmas-gold text-lg">{{ getTeamAverageTier(team) }}</p>
-                </div>
-                <div>
-                  <p class="text-christmas-gold-light/70 text-xs">Total tiers</p>
-                  <p class="font-bold text-christmas-gold text-lg">{{ getTeamTotalTier(team) }}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Players List -->
-            <div class="flex-1 space-y-2 overflow-y-auto">
-              <div 
-                v-for="player in team.players"
-                :key="player.id"
-                draggable="true"
-                @dragstart="onDragStart(player)"
-                class="group p-3 bg-gradient-to-r from-christmas-gold/15 to-christmas-red/10 border border-christmas-gold/30 rounded-lg cursor-grab hover:border-christmas-gold hover:from-christmas-gold/25 hover:to-christmas-red/20 hover:shadow-lg hover:shadow-christmas-gold/20 transition-all active:cursor-grabbing"
-              >
-                <div class="flex items-start justify-between gap-2 mb-2">
-                  <div class="flex-1 min-w-0">
-                    <p class="font-bold text-christmas-snow text-sm truncate">{{ player.user.username }}</p>
-                    <p class="text-xs text-christmas-gold-light/70">{{ getPlayerLevel(player) }}</p>
-                  </div>
-                  <button
-                    @click="removePlayerFromTeam(team, player.id)"
-                    class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-christmas-red/30 rounded text-christmas-red"
-                  >
-                    <VueIcon name="bs:x-circle" class="text-lg" />
-                  </button>
-                </div>
-                
-                <div class="space-y-1.5 text-xs">
-                  <div class="flex gap-2">
-                    <input 
-                      :value="player.tier"
-                      @input.stop="(e) => updatePlayerTier(player, (e.target as HTMLInputElement).value)"
-                      type="number"
-                      min="1"
-                      max="10"
-                      class="flex-1 bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1 focus:border-christmas-gold outline-none"
-                      title="Tier"
-                    />
-                    <div class="px-2 py-1 bg-christmas-gold/20 text-christmas-gold rounded font-bold">
-                      {{ player.tier }}
-                    </div>
-                  </div>
-                  
-                  <input 
-                    :value="player.description ?? ''"
-                    @input.stop="(e) => updatePlayerDescription(player, (e.target as HTMLInputElement).value)"
-                    type="text"
-                    placeholder="Notes..."
-                    class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-2 py-1 focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-                  />
-                </div>
-              </div>
-
-              <div v-if="team.players.length === 0" class="flex items-center justify-center h-32 text-christmas-gold-light/50">
-                <div class="text-center">
-                  <VueIcon name="bs:inbox" class="text-3xl mb-2 mx-auto" />
-                  <p class="text-sm font-medium">Glissez des joueurs ici</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-    </div>
-
-    <!-- Empty State -->
-    <div v-else class="flex items-center justify-center py-16">
-      <Card class="p-8 text-center max-w-md">
-        <VueIcon name="bs:diagram-3" class="text-6xl text-christmas-gold/30 mx-auto mb-4" />
-        <h3 class="text-xl font-bold text-christmas-gold mb-2">Aucune équipe générée</h3>
-        <p class="text-christmas-gold-light mb-4">Configurez les paramètres et générez les équipes pour commencer.</p>
-        <Button @click="generateTeams" color="christmas-gold" class="w-full">Générer équipes</Button>
-      </Card>
     </div>
   </div>
 </template>

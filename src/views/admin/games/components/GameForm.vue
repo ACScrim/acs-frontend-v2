@@ -160,219 +160,73 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <Card class="bg-christmas-navy/50 border-2 border-christmas-gold/30 p-6">
+  <Card class="glass-panel p-6 space-y-6">
     <template #header>
-      <h2 class="text-2xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent flex items-center gap-2">
-        <VueIcon :name="isEditing ? 'bs:pencil-square' : 'bs:plus-circle'" class="text-christmas-gold" />
-        {{ isEditing ? `Modifier le jeu - ${editingGame?.name}` : 'Ajouter un jeu' }}
-      </h2>
+      <div class="flex items-center gap-3">
+        <span class="rounded-2xl bg-white/5 p-3">
+          <VueIcon :name="isEditing ? 'bs:pencil-square' : 'bs:plus-circle'" class="text-accent-300" />
+        </span>
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">{{ isEditing ? 'Modification' : 'Ajout' }}</p>
+          <h2 class="hero-title text-2xl">{{ isEditing ? `Modifier ${editingGame?.name}` : 'Ajouter un jeu' }}</h2>
+        </div>
+      </div>
     </template>
 
     <form @submit.prevent="handleSubmit" class="space-y-6">
-      <!-- Recherche de jeu (uniquement en création) -->
-      <div v-if="!isEditing">
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Rechercher un jeu RAWG *</label>
-        <div class="space-y-3">
-          <input
-            v-model="gameQuery"
-            type="text"
-            placeholder="Ex: Counter-Strike, Valorant..."
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-          />
-          
-          <!-- Résultats de recherche -->
-          <div v-if="gameQuery.length >= 3" class="space-y-2">
-            <div v-if="isSearching" class="text-christmas-gold-light text-sm italic flex items-center gap-2">
-              <VueIcon name="bs:hourglass-split" class="animate-spin" />
-              Recherche en cours...
-            </div>
-            <div v-else-if="proposalStore.rawgGames.length === 0" class="text-christmas-gold-light/50 text-sm italic">
-              Aucun jeu trouvé pour cette recherche.
-            </div>
-            <select
-              v-else
-              v-model="selectedGameId"
-              class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg p-2 focus:border-christmas-gold focus:outline-none focus:ring-2 focus:ring-christmas-gold/20 transition-all"
-            >
-              <option value="">-- Sélectionner un jeu --</option>
-              <option v-for="game in proposalStore.rawgGames" :key="game.id" :value="String(game.id)">
-                {{ game.name }}
-              </option>
-            </select>
-          </div>
-          <p class="text-xs text-christmas-gold-light/70 flex items-center gap-2">
-            <VueIcon name="bs:info-circle" />
-            Commencez à taper au moins 3 caractères pour rechercher
-          </p>
+      <div v-if="!isEditing" class="space-y-3">
+        <label class="form-label">Rechercher un jeu RAWG *</label>
+        <input v-model="gameQuery" type="text" placeholder="Ex: Valorant" class="form-input" />
+        <div v-if="gameQuery.length >= 3" class="space-y-2">
+          <p v-if="isSearching" class="text-xs text-foam-300/70">Recherche…</p>
+          <select v-else v-model="selectedGameId" class="form-input">
+            <option value="">-- Sélectionner un jeu --</option>
+            <option v-for="game in proposalStore.rawgGames" :key="game.id" :value="String(game.id)">{{ game.name }}</option>
+          </select>
         </div>
       </div>
 
-      <!-- Aperçu du jeu sélectionné (uniquement en création) -->
-      <div v-if="!isEditing && selectedGame" class="p-4 bg-christmas-navy/30 border border-christmas-gold/30 rounded-lg space-y-3">
-        <div class="flex items-start gap-4">
-          <img
-            v-if="selectedGame.background_image"
-            :src="selectedGame.background_image"
-            :alt="selectedGame.name"
-            class="w-24 h-24 rounded-lg object-cover"
-          />
-          <div class="flex-1">
-            <p class="text-lg font-bold text-christmas-ice">{{ selectedGame.name }}</p>
-            <p class="text-sm text-christmas-gold-light/70">RAWG ID: {{ selectedGame.id }}</p>
-            <p v-if="selectedGame.release_date" class="text-sm text-christmas-gold-light/70">
-              Sortie: {{ new Date(selectedGame.release_date).toLocaleDateString('fr-FR') }}
-            </p>
-          </div>
+      <div v-if="!isEditing && selectedGame" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 flex gap-4">
+        <img :src="selectedGame.background_image" class="h-24 w-24 rounded-2xl object-cover" />
+        <div>
+          <p class="text-lg font-semibold text-white">{{ selectedGame.name }}</p>
+          <p class="text-sm text-foam-300/70">RAWG ID: {{ selectedGame.id }}</p>
         </div>
       </div>
 
-      <!-- Description (optionnel) -->
-      <div v-if="!isEditing">
-        <label class="block text-christmas-gold font-bold text-sm mb-2">Description (optionnel)</label>
-        <textarea
-          v-model="description"
-          placeholder="Ajoutez une description pour ce jeu..."
-          class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30 resize-none"
-          rows="3"
-        />
-      </div>
-
-      <!-- Rôles -->
-      <div class="border-t border-christmas-gold/20 pt-4">
-        <h3 class="text-christmas-gold font-bold text-sm mb-3 flex items-center gap-2">
-          <VueIcon name="bs:shield-fill" />
-          Rôles du jeu
-        </h3>
-
-        <!-- Ajouter un rôle -->
-        <div class="bg-christmas-navy/30 p-4 rounded-lg mb-3 space-y-3 border border-christmas-gold/20">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input
-              v-model="newRoleName"
-              type="text"
-              placeholder="Nom du rôle (ex: Assassin, Support...)"
-              class="bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-              @keyup.enter="addRole"
-            />
-            <div class="flex items-center gap-2">
-              <input
-                v-model="newRoleColor"
-                type="color"
-                class="w-full h-10 rounded cursor-pointer border border-christmas-gold/30"
-              />
-              <span class="text-christmas-gold-light text-sm whitespace-nowrap">Couleur</span>
-            </div>
-            <Button
-              type="button"
-              @click="addRole"
-              color="christmas-gold"
-              class="flex items-center justify-center gap-2 h-fit"
-            >
-              <VueIcon name="bs:plus-circle" />
-              Ajouter
-            </Button>
-          </div>
+      <div class="space-y-3">
+        <label class="form-label">Rôles</label>
+        <div class="grid gap-3 md:grid-cols-[2fr_1fr_auto]">
+          <input v-model="newRoleName" type="text" placeholder="Nom du rôle" class="form-input" />
+          <input v-model="newRoleColor" type="color" class="h-12 w-full rounded-[var(--radius-lg)] border border-white/10" />
+          <Button type="button" class="gap-2" @click="addRole"><VueIcon name="bs:plus-circle" />Ajouter</Button>
         </div>
-
-        <!-- Liste des rôles -->
-        <div v-if="roles.length > 0" class="space-y-2">
-          <div
-            v-for="(role, index) in roles"
-            :key="role.tempId || role.name"
-            class="flex items-center justify-between p-3 bg-christmas-navy/30 rounded-lg border-l-4"
-            :style="{ borderLeftColor: role.color }"
-          >
+        <div v-if="roles.length" class="space-y-2">
+          <div v-for="(role, index) in roles" :key="role.tempId || role.name" class="flex items-center justify-between rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3">
             <div class="flex items-center gap-3">
-              <div
-                class="w-4 h-4 rounded"
-                :style="{ backgroundColor: role.color }"
-              />
-              <span class="text-christmas-gold">{{ role.name }}</span>
+              <span class="h-4 w-4 rounded" :style="{ backgroundColor: role.color }" />
+              <p class="text-white">{{ role.name }}</p>
             </div>
-            <Button
-              type="button"
-              @click="removeRole(index)"
-              color="christmas-red"
-              class="flex items-center gap-1 h-fit px-2 py-1"
-            >
-              <VueIcon name="bs:trash" class="text-sm" />
-              Retirer
-            </Button>
-          </div>
-        </div>
-        <div v-else class="text-christmas-gold-light/50 text-sm italic">
-          Aucun rôle ajouté. (Optionnel)
-        </div>
-      </div>
-
-      <!-- Regex de lien profil -->
-      <div class="border-t border-christmas-gold/20 pt-4">
-        <div class="flex items-center gap-2 text-christmas-gold font-bold text-sm mb-2">
-          <VueIcon name="bs:link-45deg" />
-          <label>Regex de lien profil (optionnel)</label>
-        </div>
-        <div class="space-y-2">
-          <input
-            v-model="gameProfileLinkRegex"
-            type="text"
-            placeholder="Ex: ^https://op\\.gg/summoners/.*"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-          />
-          <p class="text-xs text-christmas-gold-light/70 flex items-center gap-2">
-            <VueIcon name="bs:info-circle" />
-            Format regex pour valider les liens profils des joueurs. Exemples:
-          </p>
-          <div class="bg-christmas-navy/20 border border-christmas-gold/20 rounded p-2 text-xs text-christmas-gold-light space-y-1">
-            <div>• League of Legends: <code class="bg-black/30 px-1 rounded">^https://op\.gg/summoners/.*</code></div>
-            <div>• Valorant: <code class="bg-black/30 px-1 rounded">^https://tracker\.gg/valorant/profile/.*</code></div>
-            <div>• Dota 2: <code class="bg-black/30 px-1 rounded">^https://www\.dotabuff\.com/players/.*</code></div>
+            <Button type="button" variant="ghost" size="sm" @click="removeRole(index)">Supprimer</Button>
           </div>
         </div>
       </div>
 
-      <!-- Regex de pseudo -->
-      <div class="border-t border-christmas-gold/20 pt-4">
-        <div class="flex items-center gap-2 text-christmas-gold font-bold text-sm mb-2">
-          <VueIcon name="bs:person-badge" />
-          <label>Regex de pseudo (optionnel)</label>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="form-label">Regex lien profil</label>
+          <input v-model="gameProfileLinkRegex" type="text" class="form-input" placeholder="^https://…" />
         </div>
-        <div class="space-y-2">
-          <input
-            v-model="gameUsernameRegex"
-            type="text"
-            placeholder="Ex: ^[a-zA-Z0-9_]{3,16}$"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-          />
-          <p class="text-xs text-christmas-gold-light/70 flex items-center gap-2">
-            <VueIcon name="bs:info-circle" />
-            Format regex pour valider les pseudos des joueurs. Exemples:
-          </p>
-          <div class="bg-christmas-navy/20 border border-christmas-gold/20 rounded p-2 text-xs text-christmas-gold-light space-y-1">
-            <div>• Alphanumérique simple: <code class="bg-black/30 px-1 rounded">^[a-zA-Z0-9]{3,20}$</code></div>
-            <div>• Avec underscores: <code class="bg-black/30 px-1 rounded">^[a-zA-Z0-9_]{3,16}$</code></div>
-            <div>• Avec tirets: <code class="bg-black/30 px-1 rounded">^[a-zA-Z0-9_-]{3,20}$</code></div>
-          </div>
+        <div>
+          <label class="form-label">Regex pseudo</label>
+          <input v-model="gameUsernameRegex" type="text" class="form-input" placeholder="^[a-zA-Z0-9_]{3,16}$" />
         </div>
       </div>
 
-      <!-- Actions -->
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-christmas-gold/20">
-        <Button
-          type="button"
-          @click="handleCancel"
-          color="christmas-red"
-          class="flex items-center gap-2"
-        >
-          <VueIcon name="bs:x-circle" />
-          Annuler
-        </Button>
-        <Button
-          type="submit"
-          :disabled="isLoading || (!isEditing && !selectedGame)"
-          class="flex items-center gap-2"
-        >
-          <VueIcon :name="isLoading ? 'bs:hourglass-split' : (isEditing ? 'bs:check-circle' : 'bs:plus-circle')" :class="{ 'animate-spin': isLoading }" />
-          {{ isLoading ? 'En cours...' : (isEditing ? 'Modifier' : 'Ajouter') }}
+      <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
+        <Button type="button" variant="ghost" @click="handleCancel">Annuler</Button>
+        <Button type="submit" :disabled="isLoading || (!isEditing && !selectedGame)">
+          {{ isLoading ? 'En cours…' : isEditing ? 'Modifier' : 'Ajouter' }}
         </Button>
       </div>
     </form>

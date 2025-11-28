@@ -1,3 +1,58 @@
+<template>
+  <div class="min-h-[70vh] py-10">
+    <Card class="glass-panel mx-auto max-w-3xl space-y-8 p-8">
+      <template v-if="verificationState === 'verifying'">
+        <div class="flex flex-col items-center gap-4 text-center">
+          <div class="h-14 w-14 rounded-full border border-white/20 flex items-center justify-center">
+            <div class="size-8 border-2 border-transparent border-t-accent-300 border-r-emerald-400 rounded-full animate-spin" />
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Connexion Discord</p>
+            <h1 class="hero-title">Vérification en cours</h1>
+            <p class="muted mt-2">Nous vérifions votre appartenance au serveur Discord.</p>
+          </div>
+        </div>
+
+        <div class="space-y-5">
+          <div v-for="(step, idx) in steps" :key="idx" class="flex items-start gap-4">
+            <div class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-white/80">
+              {{ idx + 1 }}
+            </div>
+            <div>
+              <h3 class="text-white font-semibold">{{ step.title }}</h3>
+              <p class="muted text-sm" v-html="step.description" />
+            </div>
+          </div>
+          <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4">
+            <p class="text-sm text-white/80 mb-3">💡 Vous ne voyez pas la fenêtre d'invitation ?</p>
+            <Button :to="$route.query['invite'] as string" variant="outline" class="gap-2" size="sm">
+              <VueIcon name="bs:box-arrow-up-right" /> Ouvrir l'invitation
+            </Button>
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="flex flex-col items-center gap-4 text-center">
+          <div class="text-5xl" v-if="verificationState === 'failed'">⚠️</div>
+          <div class="text-5xl" v-else>⏱️</div>
+          <h1 class="hero-title">
+            {{ verificationState === 'failed' ? 'Session expirée' : "Délai d'attente dépassé" }}
+          </h1>
+          <p class="muted max-w-md">
+            {{ verificationState === 'failed' ? 'Votre session d\'authentification a expiré. Veuillez recommencer.' : 'La vérification a pris trop de temps. Rafraîchissez si vous avez rejoint le serveur.' }}
+          </p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <Button variant="ghost" @click="handleGoHome">Retourner à l'accueil</Button>
+            <Button v-if="verificationState === 'failed'" @click="handleReconnect">Se reconnecter</Button>
+            <Button v-else variant="primary" @click="handleRetry">Réessayer</Button>
+          </div>
+        </div>
+      </template>
+    </Card>
+  </div>
+</template>
+
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
@@ -65,143 +120,19 @@ const handleGoHome = () => {
 const handleReconnect = () => {
   window.location.href = "/";
 }
+
+const steps = [
+  {
+    title: "Acceptez l'invitation Discord",
+    description: "Une fenêtre s\'est ouverte. Cliquez sur <span class='font-semibold'>\"Accepter l'invitation\"</span> pour rejoindre le serveur."
+  },
+  {
+    title: "Attendez la vérification",
+    description: "Cette page vérifie automatiquement votre appartenance toutes les 3 secondes."
+  },
+  {
+    title: "Rafraîchissez si nécessaire",
+    description: "Si la vérification bloque, rafraîchissez la page (<kbd class='px-1 py-0.5 bg-white/10 rounded'>F5</kbd>)."
+  }
+];
 </script>
-
-<template>
-  <div class="h-[calc(100dvh_-_7rem)] lg:h-[calc(100dvh_-_2.5rem)] flex items-center justify-center p-4">
-    <Card class="w-full max-w-2xl p-6 bg-christmas-navy">
-      <!-- État : Vérification en cours -->
-      <template v-if="verificationState === 'verifying'">
-        <div class="flex flex-col items-center gap-4 mb-6">
-          <div class="relative w-16 h-16 animate-spin" style="animation-duration: 3s;">
-            <div class="absolute inset-0 rounded-full border-4 border-christmas-gold/30"></div>
-            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-christmas-red border-r-christmas-gold"></div>
-          </div>
-          <div>
-            <h1 class="text-3xl font-bold text-center text-christmas-navy dark:text-christmas-snow">
-              Vérification en cours
-            </h1>
-            <p class="text-center text-christmas-navy/70 dark:text-christmas-snow/70 mt-2">
-              Nous vérifions votre appartenance au serveur Discord
-            </p>
-          </div>
-        </div>
-
-        <div class="space-y-6">
-          <!-- Étapes -->
-          <div class="space-y-4">
-            <div class="flex gap-4 items-start">
-              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-christmas-red text-white flex items-center justify-center font-bold text-lg">
-                1
-              </div>
-              <div>
-                <h3 class="font-semibold text-christmas-navy dark:text-christmas-snow mb-1">
-                  Acceptez l'invitation Discord
-                </h3>
-                <p class="text-sm text-christmas-navy/70 dark:text-christmas-snow/70">
-                  Une fenêtre Discord s'est ouverte. Cliquez sur <span class="font-semibold">"Accepter l'invitation"</span> pour rejoindre le serveur.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-4 items-start">
-              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-christmas-gold text-christmas-navy flex items-center justify-center font-bold text-lg">
-                2
-              </div>
-              <div>
-                <h3 class="font-semibold text-christmas-navy dark:text-christmas-snow mb-1">
-                  Attendez la vérification
-                </h3>
-                <p class="text-sm text-christmas-navy/70 dark:text-christmas-snow/70">
-                  Cette page vérifiera automatiquement votre appartenance toutes les 3 secondes.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex gap-4 items-start">
-              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-christmas-pine text-white flex items-center justify-center font-bold text-lg">
-                3
-              </div>
-              <div>
-                <h3 class="font-semibold text-christmas-navy dark:text-christmas-snow mb-1">
-                  Rafraîchissez si nécessaire
-                </h3>
-                <p class="text-sm text-christmas-navy/70 dark:text-christmas-snow/70">
-                  Si vous avez <span class="font-semibold">rejoint le serveur mais que la vérification ne se fait pas</span>, essayez de <span class="font-semibold">rafraîchir cette page</span> (appuyez sur <kbd class="px-2 py-1 bg-christmas-navy/10 dark:bg-christmas-snow/10 rounded text-xs font-mono">F5</kbd> ou <kbd class="px-2 py-1 bg-christmas-navy/10 dark:bg-christmas-snow/10 rounded text-xs font-mono">Ctrl+R</kbd>).
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section d'aide -->
-          <div class="bg-christmas-gold/10 dark:bg-christmas-gold/5 rounded-lg p-4 border border-christmas-gold/20">
-            <p class="text-sm text-christmas-navy dark:text-christmas-snow mb-3">
-              <span class="font-semibold">💡 Vous ne voyez pas la fenêtre d'invitation ?</span>
-            </p>
-            <a :href="$route.query['invite'] as string" target="_blank" class="inline-block px-4 py-2 bg-christmas-red hover:bg-christmas-red/90 text-white rounded-lg font-semibold transition-colors">
-              Ouvrir l'invitation
-            </a>
-          </div>
-        </div>
-      </template>
-
-      <!-- État : Session expirée -->
-      <template v-if="verificationState === 'failed'">
-        <div class="flex flex-col items-center gap-4 mb-6">
-          <div class="text-5xl">⚠️</div>
-          <div>
-            <h1 class="text-3xl font-bold text-center text-christmas-navy dark:text-christmas-snow">
-              Session expirée
-            </h1>
-            <p class="text-center text-christmas-navy/70 dark:text-christmas-snow/70 mt-2">
-              Votre session d'authentification a expiré
-            </p>
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <p class="text-center text-christmas-navy/70 dark:text-christmas-snow/70">
-            Veuillez recommencer le processus d'authentification.
-          </p>
-          <div class="flex gap-3 justify-center">
-            <button @click="handleGoHome" class="px-6 py-2 bg-christmas-navy dark:bg-christmas-snow text-white dark:text-christmas-navy rounded-lg font-semibold hover:opacity-90 transition-opacity">
-              Retourner à l'accueil
-            </button>
-            <button @click="handleReconnect" class="px-6 py-2 bg-christmas-red hover:bg-christmas-red/90 text-white rounded-lg font-semibold transition-colors">
-              Se reconnecter
-            </button>
-          </div>
-        </div>
-      </template>
-
-      <!-- État : Délai dépassé -->
-      <template v-if="verificationState === 'timeout'">
-        <div class="flex flex-col items-center gap-4 mb-6">
-          <div class="text-5xl">⏱️</div>
-          <div>
-            <h1 class="text-3xl font-bold text-center text-christmas-navy dark:text-christmas-snow">
-              Délai d'attente dépassé
-            </h1>
-            <p class="text-center text-christmas-navy/70 dark:text-christmas-snow/70 mt-2">
-              La vérification a pris trop de temps
-            </p>
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <p class="text-center text-christmas-navy/70 dark:text-christmas-snow/70">
-            Si vous avez rejoins le serveur Discord, vous pouvez réessayer en rafraîchissant la page.
-          </p>
-          <div class="flex gap-3 justify-center">
-            <button @click="handleRetry" class="px-6 py-2 bg-christmas-gold hover:bg-christmas-gold/90 text-christmas-navy rounded-lg font-semibold transition-colors">
-              Réessayer
-            </button>
-            <button @click="handleGoHome" class="px-6 py-2 bg-christmas-navy dark:bg-christmas-snow text-white dark:text-christmas-navy rounded-lg font-semibold hover:opacity-90 transition-opacity">
-              Retourner à l'accueil
-            </button>
-          </div>
-        </div>
-      </template>
-    </Card>
-  </div>
-</template>

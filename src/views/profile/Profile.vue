@@ -43,9 +43,11 @@ watch(
 <template>
   <LoaderACS v-if="isLoading" />
   <template v-else-if="user">
-    <ProfileHeader :user="user" />
-    <ProfilePersonalBests :user="user" />
-    <ProfileTournamentHistory :user="user" />
-    <ProfilePerGameStats :user="user" />
+    <div class="space-y-10">
+      <ProfileHeader :user="user" />
+      <ProfilePersonalBests :user="user" />
+      <ProfileTournamentHistory :user="user" />
+      <ProfilePerGameStats :user="user" />
+    </div>
   </template>
 </template>

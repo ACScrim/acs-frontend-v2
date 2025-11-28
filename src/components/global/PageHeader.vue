@@ -3,25 +3,26 @@ import { Card } from '../ui';
 
 withDefaults(defineProps<{
   title?: string,
-  showHeader?: boolean
+  showHeader?: boolean,
+  subtitle?: string
 }>(), {
-  showHeader: true
+  showHeader: true,
+  subtitle: 'Plateforme tournois'
 });
 </script>
 
 <template>
-  <Card
-    :class="`${!$slots?.default ? '[&>header]:mb-0' : ''} p-6`"
-    style="background: linear-gradient(135deg, #0A1B3D 0%, #1a2942 100%); border: 2px solid #D4AF37;"
-  >
+  <Card :class="`p-6 glass-panel ${!$slots?.default ? '[&>header]:mb-0' : ''}`">
     <template #header v-if="showHeader">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <h2 class="uppercase text-4xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent">
-          <span class="inline-flex gap-2 items-center">
-            <slot name="icon" />
-            {{ title }}
-          </span>
-        </h2>
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">{{ subtitle }}</p>
+          <h2 class="hero-title mt-2 flex items-center gap-3">
+            <span class="text-accent-300"><slot name="icon" /></span>
+            <span>{{ title }}</span>
+          </h2>
+        </div>
+        <slot name="actions" />
       </div>
     </template>
 

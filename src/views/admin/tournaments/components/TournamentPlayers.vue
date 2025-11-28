@@ -113,181 +113,101 @@ const waitlistCount = computed(() => props.tournament.players.filter(p => p.inWa
 <template>
   <div class="space-y-6">
     <!-- Stats Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <Card class="p-4 bg-christmas-navy/30 border-2 border-christmas-gold/20">
-        <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
-          <VueIcon name="cl:users" />
-          Total
-        </p>
-        <p class="text-2xl font-bold text-christmas-gold">{{ tournament.players.length }}</p>
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <Card class="glass-panel p-4 text-white">
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Total</p>
+        <p class="text-2xl font-semibold">{{ tournament.players.length }}</p>
       </Card>
-      <Card class="p-4 bg-christmas-navy/30 border-2 border-christmas-gold/20">
-        <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
-          <VueIcon name="bs:check-circle" />
-          Check-in
-        </p>
-        <p class="text-2xl font-bold text-christmas-gold">{{ checkinCount }}</p>
+      <Card class="glass-panel p-4 text-white">
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Check-in</p>
+        <p class="text-2xl font-semibold">{{ checkinCount }}</p>
       </Card>
-      <Card class="p-4 bg-christmas-navy/30 border-2 border-christmas-gold/20">
-        <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
-          <VueIcon name="bs:hourglass-split" />
-          Liste d'attente
-        </p>
-        <p class="text-2xl font-bold text-christmas-gold">{{ waitlistCount }}</p>
+      <Card class="glass-panel p-4 text-white">
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Liste d'attente</p>
+        <p class="text-2xl font-semibold">{{ waitlistCount }}</p>
       </Card>
-      <Card class="p-4 bg-christmas-navy/30 border-2 border-christmas-gold/20">
-        <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
-          <VueIcon name="bs:person-plus" />
-          Places libres
-        </p>
-        <p class="text-2xl font-bold text-christmas-gold">{{ tournament.playerCap - tournament.players.length }}</p>
+      <Card class="glass-panel p-4 text-white">
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Places libres</p>
+        <p class="text-2xl font-semibold">{{ tournament.playerCap === 0 ? '∞' : tournament.playerCap - tournament.players.length }}</p>
       </Card>
     </div>
 
     <!-- Filters & Actions -->
-    <Card class="p-4 bg-gradient-to-r from-christmas-gold/10 to-christmas-red/5 border-2 border-christmas-gold/30">
-      <div class="space-y-3">
-        <div class="flex flex-col md:flex-row gap-3 items-start md:items-end">
-          <!-- Search -->
-          <div class="flex-1 w-full">
-            <label class="block text-christmas-gold font-bold text-sm mb-2">Rechercher</label>
+    <Card class="glass-panel p-5">
+      <div class="space-y-4">
+        <div class="flex flex-col gap-4 md:flex-row md:items-end">
+          <div class="flex-1">
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Rechercher</label>
             <div class="relative">
-              <VueIcon name="bs:search" class="absolute left-3 top-2.5 text-christmas-gold-light/50" />
-              <input 
-                v-model="searchQuery"
-                type="text"
-                placeholder="Nom du joueur..."
-                class="w-full bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg pl-9 pr-3 py-2 focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-              />
+              <VueIcon name="bs:search" class="absolute left-3 top-3 text-foam-300/50" />
+              <input v-model="searchQuery" type="text" placeholder="Nom du joueur..." class="form-input pl-10" />
             </div>
           </div>
-
-          <!-- Filter -->
           <div>
-            <label class="block text-christmas-gold font-bold text-sm mb-2">Filtre</label>
-            <select
-              v-model="filterCheckin"
-              class="bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg px-3 py-2 focus:border-christmas-gold outline-none"
-            >
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Filtre</label>
+            <select v-model="filterCheckin" class="form-input">
               <option value="all">Tous les joueurs</option>
               <option value="checkin">Check-in effectué</option>
               <option value="no-checkin">Pas de check-in</option>
             </select>
           </div>
-
-          <!-- Add Player Button -->
-          <Button 
-            @click="showAddPlayer = !showAddPlayer"
-            :class="['flex items-center gap-2', showAddPlayer ? 'bg-christmas-red/20 text-christmas-red' : '']"
-          >
-            <VueIcon name="bs:person-plus" />
-            Ajouter joueur
+          <Button @click="showAddPlayer = !showAddPlayer" class="gap-2">
+            <VueIcon name="bs:person-plus" /> Ajouter joueur
           </Button>
         </div>
 
-        <!-- Add Player Form -->
         <transition name="expand">
-          <div v-if="showAddPlayer" class="p-4 bg-christmas-navy/30 border border-christmas-gold/30 rounded-lg space-y-3">
+          <div v-if="showAddPlayer" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 space-y-3">
             <div class="flex gap-2">
-              <select
-                v-model="selectedUserToAdd"
-                :disabled="availableUsersToAdd.length === 0"
-                class="flex-1 bg-christmas-navy border-2 border-christmas-gold/30 text-christmas-gold rounded-lg px-3 py-2 focus:border-christmas-gold outline-none"
-              >
+              <select v-model="selectedUserToAdd" :disabled="availableUsersToAdd.length === 0" class="form-input flex-1">
                 <option value="">-- Sélectionnez un joueur --</option>
-                <option v-for="user in availableUsersToAdd" :key="user.id" :value="user.id">
-                  {{ user.username }}
-                </option>
+                <option v-for="user in availableUsersToAdd" :key="user.id" :value="user.id">{{ user.username }}</option>
               </select>
-              <Button 
-                @click="addPlayer"
-                :disabled="!selectedUserToAdd || isLoading"
-                color="christmas-gold"
-                class="flex items-center gap-2"
-              >
-                <VueIcon name="bs:check-circle" />
-                Ajouter
+              <Button @click="addPlayer" :disabled="!selectedUserToAdd || isLoading" class="gap-2">
+                <VueIcon name="bs:check-circle" /> Ajouter
               </Button>
-              <Button 
-                @click="showAddPlayer = false"
-                :disabled="isLoading"
-                class="bg-christmas-red/20 text-christmas-red hover:bg-christmas-red/30"
-              >
+              <Button variant="ghost" @click="showAddPlayer = false" :disabled="isLoading">
                 <VueIcon name="bs:x-circle" />
               </Button>
             </div>
-            <p v-if="availableUsersToAdd.length === 0" class="text-xs text-christmas-gold-light/70">
-              Aucun joueur disponible à ajouter.
-            </p>
+            <p v-if="availableUsersToAdd.length === 0" class="text-xs text-foam-300/70">Aucun joueur disponible à ajouter.</p>
           </div>
         </transition>
       </div>
     </Card>
 
     <!-- Players List -->
-    <div class="space-y-2">
-      <h3 class="text-lg font-bold text-christmas-gold flex items-center gap-2">
-        <VueIcon name="cl:users" />
-        Joueurs ({{ filteredPlayers.length }})
+    <div class="space-y-3">
+      <h3 class="text-sm uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+        <VueIcon name="cl:users" /> Joueurs ({{ filteredPlayers.length }})
       </h3>
-
-      <div v-if="filteredPlayers.length === 0" class="flex items-center justify-center py-16">
-        <Card class="p-8 text-center max-w-md border-2 border-christmas-gold/30">
-          <VueIcon name="bs:inbox" class="text-6xl text-christmas-gold/30 mx-auto mb-4" />
-          <h3 class="text-xl font-bold text-christmas-gold mb-2">Aucun joueur trouvé</h3>
-          <p class="text-christmas-gold-light">Aucun joueur ne correspond à votre recherche.</p>
+      <div v-if="filteredPlayers.length === 0" class="text-center text-foam-300/70">
+        <Card class="glass-panel p-8">
+          <VueIcon name="bs:inbox" class="mx-auto mb-4 text-4xl" /> Aucun joueur ne correspond à votre recherche.
         </Card>
       </div>
-
-      <div class="grid grid-cols-1 gap-2">
-        <Card 
-          v-for="player in filteredPlayers"
-          :key="player.id"
-          class="p-4 border-2 border-christmas-gold/30 hover:border-christmas-gold hover:shadow-lg hover:shadow-christmas-gold/20 transition-all bg-christmas-navy"
-        >
-          <div class="flex items-start justify-between gap-4">
-            <!-- Player Info -->
+      <div v-else class="space-y-3">
+        <Card v-for="player in filteredPlayers" :key="player.id" class="glass-panel border-white/10 bg-white/5 p-5">
+          <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-2">
-                <h4 class="text-lg font-bold text-christmas-gold truncate">{{ player.user.username }}</h4>
-                <span v-if="player.inWaitlist" class="text-xs bg-christmas-gold/20 text-christmas-gold px-2 py-1 rounded font-bold whitespace-nowrap">
-                  Liste d'attente
-                </span>
+              <div class="flex items-center gap-2">
+                <h4 class="text-lg font-semibold text-white truncate">{{ player.user.username }}</h4>
+                <Badge v-if="player.inWaitlist" tone="accent" size="sm">Liste d'attente</Badge>
               </div>
-              <p class="text-sm text-christmas-gold-light/70 mb-2">
-                Niveau: <span class="font-bold text-christmas-gold">{{ getPlayerLevel(player.user.id) }}</span>
-                • Tier: <span class="font-bold text-christmas-gold">{{ player.tier }}</span>
+              <p class="text-sm text-foam-300/80 mt-2">
+                Niveau <span class="text-white font-semibold">{{ getPlayerLevel(player.user.id) }}</span>
+                · Tier <span class="text-white font-semibold">{{ player.tier }}</span>
               </p>
-              <p v-if="player.description" class="text-sm text-christmas-gold-light/70 italic mb-2">
-                📝 {{ player.description }}
-              </p>
-              <p class="text-xs text-christmas-gold-light/50">
-                Inscrit le {{ formatDate(player.registrationDate) }}
-              </p>
+              <p v-if="player.description" class="text-xs text-foam-300/60 mt-1">📝 {{ player.description }}</p>
+              <p class="text-xs text-foam-300/50 mt-2">Inscrit le {{ formatDate(player.registrationDate) }}</p>
             </div>
-
-            <!-- Actions -->
-            <div class="flex flex-col gap-2 flex-shrink-0">
-              <Button 
-                @click="toggleCheckin(player.id, player.hasCheckin)"
-                :disabled="isLoading"
-                :class="[
-                  'flex items-center gap-1 text-sm px-3 py-2 rounded-lg transition-all',
-                  player.hasCheckin
-                    ? 'bg-christmas-pine/20 hover:bg-christmas-pine/30'
-                    : 'bg-christmas-gold/20 hover:bg-christmas-gold/30'
-                ]"
-              >
+            <div class="flex flex-shrink-0 flex-col gap-2">
+              <Button @click="toggleCheckin(player.id, player.hasCheckin)" :disabled="isLoading" :variant="player.hasCheckin ? 'secondary' : 'outline'" size="sm" class="gap-2">
                 <VueIcon :name="player.hasCheckin ? 'bs:check-circle-fill' : 'bs:circle'" />
                 {{ player.hasCheckin ? 'Check-in' : 'Pas check-in' }}
               </Button>
-              <Button 
-                @click="removePlayer(player.id, player.user.username)"
-                :disabled="isLoading"
-                class="flex items-center gap-1 text-sm px-3 py-2 bg-christmas-red/20 text-christmas-red hover:bg-christmas-red/30"
-              >
-                <VueIcon name="bs:trash" />
-                Retirer
+              <Button @click="removePlayer(player.id, player.user.username)" :disabled="isLoading" variant="danger" size="sm" class="gap-2">
+                <VueIcon name="bs:trash" /> Retirer
               </Button>
             </div>
           </div>

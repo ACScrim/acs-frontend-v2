@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import {Button} from '@/components/ui';
+import {Button, Card } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import {useToastStore} from '@/stores/toastStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
@@ -140,21 +140,24 @@ const handleRejectProposal = async (proposalId: string) => {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-3xl font-bold text-christmas-ice">Gestion des propositions de jeux</h1>
-      <p class="text-christmas-gold-light/70 text-sm">{{ proposals.length }} proposition(s)</p>
-    </div>
+  <section class="space-y-6">
+    <header class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Administration</p>
+        <h1 class="hero-title flex items-center gap-3">
+          <span class="rounded-2xl bg-white/5 p-3"><VueIcon name="bs:chat-left-quote" class="text-accent-300" /></span>
+          Gestion des propositions de jeux
+        </h1>
+        <p class="muted">{{ proposals.length }} proposition(s)</p>
+      </div>
+    </header>
 
-    <TableTanstack
-      v-if="proposals.length > 0"
-      :table="table"
-      paginated
-    />
-    <div v-else class="text-center py-12 text-christmas-gold-light/70">
-      <VueIcon name="bs:inbox" class="mx-auto text-4xl mb-4 opacity-50" />
-      <p>Aucune proposition de jeu pour le moment.</p>
-    </div>
-  </div>
+    <Card class="glass-panel p-0" v-if="proposals.length > 0">
+      <TableTanstack :table="table" :paginated="true" />
+    </Card>
+    <Card v-else class="glass-panel p-8 text-center text-foam-300/70">
+      <VueIcon name="bs:inbox" class="mx-auto mb-4 text-4xl" />
+      Aucune proposition pour le moment.
+    </Card>
+  </section>
 </template>
-

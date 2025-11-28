@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Button } from '@/components/ui';
+import { Badge, Button, Card } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import { useToastStore } from '@/stores/toastStore';
 import type { Game } from '@/types/models';
@@ -36,32 +36,18 @@ const table = useVueTable({
     {
       header: 'Jeu',
       accessorKey: 'name',
-      cell: ({ row }) => {
-        return h('div', { class: 'flex items-center gap-3' }, [
-          h('img', {
-            src: row.original.imageUrl,
-            alt: row.original.name,
-            class: 'w-12 h-12 rounded-lg object-cover'
-          }),
-          h('div', [
-            h('p', { class: 'font-semibold text-christmas-ice' }, row.original.name),
-            h('p', { class: 'text-xs text-christmas-gold-light/70' }, `ID: ${row.original.id}`)
-          ])
-        ]);
-      },
+      cell: ({ row }) => h('div', { class: 'flex items-center gap-3' }, [
+        h('img', { src: row.original.imageUrl, alt: row.original.name, class: 'size-12 rounded-2xl object-cover' }),
+        h('div', [
+          h('p', { class: 'font-semibold text-white' }, row.original.name),
+          h('p', { class: 'text-xs text-foam-300/70' }, `ID: ${row.original.id}`)
+        ])
+      ]),
       sortingFn: 'alphanumeric'
     },
     {
       header: 'Rôles',
-      accessorKey: 'roles.length',
-      cell: ({ row }) => {
-        return h('div', { class: 'flex items-center gap-2' }, [
-          h('span', { class: 'text-christmas-ice' }, `${row.original.roles?.length || 0} rôle(s)`)
-        ]);
-      },
-      sortingFn: (rowA, rowB) => {
-        return (rowA.original.roles?.length || 0) - (rowB.original.roles?.length || 0);
-      }
+      cell: ({ row }) => h('span', { class: 'text-sm text-white' }, `${row.original.roles?.length || 0}`)
     },
     {
       header: 'Link Regex',
@@ -216,101 +202,48 @@ const handleDeleteGame = async (gameId: string, gameName: string) => {
 </script>
 
 <template>
-  <div class="space-y-8">
-    <!-- Header -->
-    <div class="space-y-3 animate-fade-in">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="p-4 bg-gradient-to-br from-christmas-gold to-christmas-gold-light rounded-xl shadow-lg shadow-christmas-gold/20">
-            <VueIcon name="bx:game" class="text-2xl text-christmas-navy" />
-          </div>
-          <div>
-            <h1 class="text-4xl font-black bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-crimson bg-clip-text text-transparent uppercase tracking-wider">
-              Gestion des jeux
-            </h1>
-            <p class="text-christmas-gold-light flex items-center gap-2 mt-1">
-              <span class="w-2 h-2 bg-christmas-gold rounded-full animate-pulse"></span>
-              {{ games.length }} jeu(x) disponible(s)
-            </p>
-          </div>
-        </div>
-        <Button 
-          @click="showCreateForm = !showCreateForm"
-          color="christmas-gold"
-          class="flex items-center gap-2 h-fit"
-        >
-          <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
-          {{ showCreateForm ? 'Annuler' : 'Ajouter un jeu' }}
-        </Button>
+  <section class="space-y-8">
+    <header class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Administration</p>
+        <h1 class="hero-title flex items-center gap-3">
+          <span class="rounded-2xl bg-white/5 p-3"><VueIcon name="bx:game" class="text-accent-300" /></span>
+          Gestion des jeux
+        </h1>
+        <p class="muted flex items-center gap-2">{{ games.length }} jeu(x) disponible(s)</p>
       </div>
-    </div>
+      <Button @click="showCreateForm = !showCreateForm" class="gap-2">
+        <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
+        {{ showCreateForm ? 'Annuler' : 'Ajouter un jeu' }}
+      </Button>
+    </header>
 
-    <!-- Create Form Section -->
     <transition name="slide">
-      <div v-if="showCreateForm" class="animate-fade-in">
-        <GameForm 
-          :is-loading="isSubmitting"
-          @submit="handleCreateGame"
-          @cancel="handleCancelCreate"
-        />
-      </div>
+      <Card v-if="showCreateForm" class="glass-panel p-6">
+        <GameForm :is-loading="isSubmitting" @submit="handleCreateGame" @cancel="handleCancelCreate" />
+      </Card>
     </transition>
 
-    <!-- Edit Form Section -->
     <transition name="slide">
-      <div v-if="showEditForm && editingGame" class="animate-fade-in">
-        <GameForm 
-          :is-loading="isSubmitting"
-          :is-editing="true"
-          :editing-game="editingGame"
-          @submit="handleUpdateGame"
-          @cancel="handleCancelEdit"
-        />
-      </div>
+      <Card v-if="showEditForm && editingGame" class="glass-panel p-6">
+        <GameForm :is-loading="isSubmitting" :is-editing="true" :editing-game="editingGame" @submit="handleUpdateGame" @cancel="handleCancelEdit" />
+      </Card>
     </transition>
 
-    <!-- Table Container -->
-    <div class="space-y-4 animate-fade-in">
-      <div class="flex items-center gap-2">
-        <div class="w-1 h-6 bg-gradient-to-b from-christmas-gold to-christmas-crimson rounded-full"></div>
-        <h2 class="text-xl font-bold text-christmas-ice uppercase tracking-wide">Liste des jeux</h2>
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
+        <p class="text-sm uppercase tracking-[0.4em] text-foam-300/70">Liste des jeux</p>
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
       </div>
-      
       <TableTanstack :table="table" :paginated="true" />
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.1s ease-out;
-}
-
 .slide-enter-active,
-.slide-leave-active {
-  transition: all 0.1s ease;
-}
-
+.slide-leave-active { transition: all 0.2s ease; }
 .slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.slide-enter-to,
-.slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
+.slide-leave-to { opacity: 0; transform: translateY(-10px); }
 </style>

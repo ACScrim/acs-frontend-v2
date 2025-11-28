@@ -1,145 +1,170 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap");
 
 @theme {
-  /* Palette de Noël */
-  --color-christmas-navy: #0A1B3D;        /* Bleu nuit profond */
-  --color-christmas-midnight: #1a2942;     /* Bleu minuit */
-  --color-christmas-gold: #D4AF37;         /* Or royal */
-  --color-christmas-gold-light: #F4E4C1;   /* Or champagne */
-  --color-christmas-crimson: #8B0000;      /* Rouge profond */
-  --color-christmas-red: #C41E3A;          /* Rouge de Noël */
-  --color-christmas-pine: #0F4C3A;         /* Vert sapin foncé */
-  --color-christmas-forest: #2D5C4E;       /* Vert forêt */
-  --color-christmas-snow: #FAFAFA;         /* Blanc neige */
-  --color-christmas-silver: #C0C0C0;       /* Argent */
-  --color-christmas-ice: #E8F4F8;          /* Bleu glacé */
-  --color-christmas-bronze: #CD7F32;       /* Bronze */
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Plus Jakarta Sans", sans-serif;
 
-  /* Ombres améliorées */
-  --shadow-christmas-glow: 0 0 20px var(--tw-shadow-color);
+  /* Ink surfaces */
+  --color-ink-950: #03050b;
+  --color-ink-900: #070b16;
+  --color-ink-800: #0e1424;
+  --color-ink-700: #151c32;
+  --color-ink-600: #1e2742;
 
-  /* Guirlande lumineuse - effet multi-couleurs */
-  --shadow-christmas-lights: 
-    0 0 10px var(--color-christmas-red),
-    5px 5px 15px var(--color-christmas-gold),
-    -5px 5px 15px var(--color-christmas-pine),
-    10px -5px 15px var(--color-christmas-crimson),
-    -10px -5px 15px var(--color-christmas-ice);
-  
-  /* Guirlande classique - alternance rouge/or/vert */
-  --shadow-christmas-garland:
-    2px 2px 8px var(--color-christmas-red),
-    6px 6px 8px var(--color-christmas-gold),
-    10px 10px 8px var(--color-christmas-pine),
-    14px 14px 8px var(--color-christmas-red),
-    18px 18px 8px var(--color-christmas-gold);
+  --color-surface-900: #070a12;
+  --color-surface-800: #0c121f;
+  --color-surface-700: #111a2c;
+  --color-surface-600: #192338;
 
-  --breakpoint-2k: 1921px;
+  /* Accent & highlight */
+  --color-accent-500: #7b6dff;
+  --color-accent-400: #a48cff;
+  --color-accent-300: #c8b5ff;
+  --color-accent-200: #e7ddff;
+
+  --color-blush-500: #ff5f8f;
+  --color-blush-400: #ff7fa7;
+  --color-blush-300: #ffc8d8;
+
+  --color-emerald-600: #00c6a0;
+  --color-emerald-500: #14dcb4;
+  --color-emerald-400: #47f0ca;
+
+  --color-azure-300: #7fd1ff;
+  --color-azure-200: #b7e5ff;
+
+  --color-foam-300: #b7c2d7;
+  --color-foam-200: #d3d9e8;
+  --color-foam-100: #edf1fb;
+  --color-foam-50: #f8f9ff;
+
+  --color-amber-500: #f0ab49;
+  --color-amber-400: #f6c571;
+
+  /* Legacy aliases (deprecated) */
+  --color-christmas-navy: #070b16;
+  --color-christmas-midnight: #0c121f;
+  --color-christmas-gold: #f0ab49;
+  --color-christmas-gold-light: #f6c571;
+  --color-christmas-crimson: #ff5f8f;
+  --color-christmas-red: #ff7fa7;
+  --color-christmas-pine: #00c6a0;
+  --color-christmas-forest: #14dcb4;
+  --color-christmas-snow: #f8f9ff;
+  --color-christmas-silver: #b7c2d7;
+  --color-christmas-ice: #b7e5ff;
+  --color-christmas-bronze: #c79a63;
+
+  --shadow-lift: 0 40px 120px rgba(3, 5, 11, 0.85);
+  --shadow-glow: 0 0 65px rgba(164, 140, 255, 0.35);
+  --shadow-soft: 0 25px 80px rgba(6, 9, 20, 0.65);
+
+  --radius-xl: 1.5rem;
+  --radius-lg: 1rem;
+
+  --animate-orb: orb 14s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 3.5s linear infinite;
 }
 
-/* Animations pour les guirlandes */
-@keyframes twinkle-1 {
-  0%, 100% { opacity: 1; filter: brightness(1.2) drop-shadow(0 0 8px currentColor); }
-  50% { opacity: 0.5; filter: brightness(0.8) drop-shadow(0 0 4px currentColor); }
+@keyframes orb {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.6; }
+  50% { transform: translate3d(6%, -8%, 0) scale(1.1); opacity: 0.75; }
+  100% { transform: translate3d(-8%, 10%, 0) scale(0.95); opacity: 0.55; }
 }
 
-@keyframes twinkle-2 {
-  0%, 100% { opacity: 0.5; filter: brightness(0.8) drop-shadow(0 0 4px currentColor); }
-  50% { opacity: 1; filter: brightness(1.2) drop-shadow(0 0 8px currentColor); }
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
-@keyframes twinkle-3 {
-  0%, 100% { opacity: 0.7; filter: brightness(0.9); }
-  33% { opacity: 1; filter: brightness(1.2); }
-  66% { opacity: 0.5; filter: brightness(0.8); }
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink-950 text-foam-50 font-sans antialiased min-h-dvh;
+  }
+
+  #app {
+    @apply min-h-dvh bg-surface-900 text-foam-50;
+  }
+
+  ::selection {
+    @apply bg-accent-400/40 text-foam-50;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--color-ink-900) 80%, transparent);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-image: linear-gradient(120deg, var(--color-accent-500), var(--color-emerald-400));
+  }
 }
 
-/* Bordure avec guirlande lumineuse */
-.border-christmas-lights {
-  position: relative;
-  border: 1px solid var(--tw-border-color, #fff1);
+@utility glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: color-mix(in srgb, var(--color-surface-800) 80%, transparent);
+  backdrop-filter: blur(32px);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-xl);
 }
 
-.border-christmas-lights::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border-radius: inherit;
-  background: 
-    /* Haut */
-    radial-gradient(circle 6px at 5% 6px, var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 6px at 20% 6px, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 6px at 35% 6px, var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 6px at 50% 6px, var(--color-christmas-crimson) 70%, transparent 70%),
-    radial-gradient(circle 6px at 65% 6px, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 6px at 80% 6px, var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 6px at 95% 6px, var(--color-christmas-pine) 70%, transparent 70%),
-    
-    /* Droite */
-    radial-gradient(circle 6px at calc(100% - 6px) 20%, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 6px at calc(100% - 6px) 40%, var(--color-christmas-crimson) 70%, transparent 70%),
-    radial-gradient(circle 6px at calc(100% - 6px) 60%, var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 6px at calc(100% - 6px) 80%, var(--color-christmas-red) 70%, transparent 70%),
-    
-    /* Bas */
-    radial-gradient(circle 6px at 95% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 6px at 80% calc(100% - 6px), var(--color-christmas-crimson) 70%, transparent 70%),
-    radial-gradient(circle 6px at 65% calc(100% - 6px), var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 6px at 50% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 6px at 35% calc(100% - 6px), var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 6px at 20% calc(100% - 6px), var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 6px at 5% calc(100% - 6px), var(--color-christmas-crimson) 70%, transparent 70%),
-    
-    /* Gauche */
-    radial-gradient(circle 6px at 6px 80%, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 6px at 6px 60%, var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 6px at 6px 40%, var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 6px at 6px 20%, var(--color-christmas-crimson) 70%, transparent 70%);
-  
-  pointer-events: none;
-  animation: twinkle-1 2s ease-in-out infinite;
-  z-index: 1;
+@utility hero-title {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: var(--color-foam-50);
+  font-size: clamp(2.5rem, 3vw, 3.75rem);
 }
 
-.border-christmas-lights::after {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border-radius: inherit;
-  background: 
-    /* Haut - entre les premières lumières */
-    radial-gradient(circle 5px at 12.5% 6px, var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 5px at 27.5% 6px, var(--color-christmas-crimson) 70%, transparent 70%),
-    radial-gradient(circle 5px at 42.5% 6px, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 5px at 57.5% 6px, var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 5px at 72.5% 6px, var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 5px at 87.5% 6px, var(--color-christmas-gold) 70%, transparent 70%),
-    
-    /* Droite */
-    radial-gradient(circle 5px at calc(100% - 6px) 30%, var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 5px at calc(100% - 6px) 50%, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 5px at calc(100% - 6px) 70%, var(--color-christmas-crimson) 70%, transparent 70%),
-    
-    /* Bas */
-    radial-gradient(circle 5px at 87.5% calc(100% - 6px), var(--color-christmas-red) 70%, transparent 70%),
-    radial-gradient(circle 5px at 72.5% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 5px at 57.5% calc(100% - 6px), var(--color-christmas-crimson) 70%, transparent 70%),
-    radial-gradient(circle 5px at 42.5% calc(100% - 6px), var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 5px at 27.5% calc(100% - 6px), var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 5px at 12.5% calc(100% - 6px), var(--color-christmas-red) 70%, transparent 70%),
-    
-    /* Gauche */
-    radial-gradient(circle 5px at 6px 70%, var(--color-christmas-pine) 70%, transparent 70%),
-    radial-gradient(circle 5px at 6px 50%, var(--color-christmas-gold) 70%, transparent 70%),
-    radial-gradient(circle 5px at 6px 30%, var(--color-christmas-red) 70%, transparent 70%);
-  
-  pointer-events: none;
-  animation: twinkle-2 2s ease-in-out infinite;
-  z-index: 1;
+@utility muted {
+  color: color-mix(in srgb, var(--color-foam-200) 80%, transparent);
+}
+
+@utility form-input {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: color-mix(in srgb, var(--color-surface-700) 60%, transparent);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-foam-50);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+@utility form-input::placeholder {
+  color: color-mix(in srgb, var(--color-foam-300) 60%, transparent);
+}
+
+@utility form-input:focus {
+  border-color: var(--color-accent-300);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-300) 25%, transparent);
+}
+
+@utility form-label {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading, var(--text-xs--line-height));
+  text-transform: uppercase;
+  --tw-tracking: 0.3em;
+  letter-spacing: 0.3em;
+  color: color-mix(in oklab, var(--color-foam-300) /* #b7c2d7 */ 70%, transparent);
+}
+
+@utility form-checkbox {
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 4);
+  border-radius: 0.25rem;
+  border-color: color-mix(in oklab, var(--color-white) /* #fff = #ffffff */ 20%, transparent);
+  background-color: transparent;
+  color: var(--color-accent-300) /* #c8b5ff */;
+  @apply focus:ring-accent-300;
 }

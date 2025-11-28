@@ -6,21 +6,15 @@ defineProps<{ tournament: Tournament }>();
 </script>
 
 <template>
-  <Card 
-    v-if="tournament.finished"
-    class="p-6 bg-christmas-navy/50"
-    style="border: 2px solid #D4AF37;"
-  >
+  <Card v-if="tournament.finished" class="glass-panel p-6">
     <template #header>
-      <h2 class="text-2xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent flex items-center gap-2">
-        <VueIcon name="bs:trophy-fill" class="text-christmas-gold" />
-        Résultats du tournoi
+      <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+        <VueIcon name="bs:trophy-fill" /> Résultats du tournoi
       </h2>
     </template>
 
     <div class="space-y-8">
-      <!-- Podium -->
-      <div class="flex items-end justify-center gap-2 md:gap-4 mb-8 px-4">
+      <div class="flex items-end justify-center gap-4 mb-8 px-4">
         <!-- 2ème place -->
         <div class="flex flex-col items-center flex-1 max-w-xs">
           <div class="bg-gradient-to-b from-christmas-silver/80 to-christmas-silver/40 rounded-t-2xl p-4 md:p-6 w-full text-center border-4 border-christmas-silver shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
@@ -66,35 +60,32 @@ defineProps<{ tournament: Tournament }>();
 
       <!-- Décoration entre podium et classement -->
       <div class="flex items-center gap-4 px-4" v-if="tournament.teams.length > 3">
-        <div class="flex-1 h-1 bg-gradient-to-r from-christmas-gold/0 via-christmas-gold to-christmas-gold/0 rounded-full"></div>
-        <VueIcon name="bs:stars" class="text-christmas-gold text-2xl" />
-        <div class="flex-1 h-1 bg-gradient-to-r from-christmas-gold/0 via-christmas-gold to-christmas-gold/0 rounded-full"></div>
+        <div class="flex-1 h-px bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
+        <VueIcon name="bs:stars" class="text-accent-300 text-2xl" />
+        <div class="flex-1 h-px bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
       </div>
 
       <!-- Autres équipes (4+) -->
       <div v-if="tournament.teams.length > 3" class="space-y-4">
-        <h3 class="text-lg font-bold bg-gradient-to-r from-christmas-gold to-christmas-gold-light bg-clip-text text-transparent flex items-center gap-2 px-4">
-          <VueIcon name="bs:list-ul" class="text-christmas-gold" />
-          Classement complet
+        <h3 class="text-lg font-semibold text-white flex items-center gap-2 px-4">
+          <VueIcon name="bs:list-ul" /> Classement complet
         </h3>
         <div class="space-y-2 px-4">
           <div 
             v-for="(team, index) in tournament.teams.sort((a, b) => (a.ranking || 999) - (b.ranking || 999)).slice(3)"
             :key="team.id"
-            class="flex items-center justify-between p-4 bg-gradient-to-r from-christmas-navy/40 to-christmas-midnight/40 rounded-lg border-l-4 border-christmas-gold/60 hover:border-christmas-gold hover:bg-gradient-to-r hover:from-christmas-gold/20 hover:to-christmas-red/20 transition-all shadow-md hover:shadow-lg"
+            class="flex items-center justify-between p-4 rounded-[var(--radius-lg)] border border-white/10 bg-white/5"
           >
             <div class="flex items-center gap-4 flex-1">
-              <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-christmas-gold to-christmas-gold-light text-christmas-navy font-bold text-lg shadow-md">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 font-semibold text-white">
                 #{{ index + 4 }}
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-semibold text-christmas-snow truncate">{{ team.name }}</p>
-                <p class="text-xs text-christmas-gold-light">Classement : {{ team.ranking || '-' }}</p>
+                <p class="font-semibold text-white truncate">{{ team.name }}</p>
+                <p class="text-xs text-foam-300/70">Classement : {{ team.ranking || '-' }}</p>
               </div>
             </div>
-            <div class="ml-4 text-right">
-              <span class="text-sm font-bold text-christmas-gold">Rang {{ team.ranking }}</span>
-            </div>
+            <span class="text-sm font-semibold text-accent-200">Rang {{ team.ranking }}</span>
           </div>
         </div>
       </div>

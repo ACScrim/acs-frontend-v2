@@ -79,19 +79,13 @@ const table = useVueTable({
     {
       header: 'Joueur',
       accessorKey: 'user.username',
-      cell: ({ row }) => {
-        const user = row.original.user;
-        return h('div', { class: 'flex items-center gap-3' }, [
-          h('img', {
-            src: user?.avatarUrl || '',
-            alt: user?.username,
-            class: 'w-10 h-10 rounded-full border border-christmas-gold/30'
-          }),
-          h('div', [
-            h('p', { class: 'font-semibold text-christmas-ice' }, user?.username || 'N/A'),
-          ])
-        ]);
-      }
+      cell: ({ row }) => h('div', { class: 'flex items-center gap-3' }, [
+        h('img', { src: row.original.user?.avatarUrl || '', alt: row.original.user?.username, class: 'size-10 rounded-full border border-white/10 object-cover' }),
+        h('div', [
+          h('p', { class: 'font-semibold text-white' }, row.original.user?.username || 'N/A'),
+          h('p', { class: 'text-xs text-foam-300/70' }, row.original.gameUsername || '—')
+        ])
+      ])
     },
     {
       header: 'Jeu',
@@ -223,131 +217,63 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-8">
-    <!-- Header -->
-    <div class="space-y-3 animate-fade-in">
-      <h1 class="text-4xl font-bold bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-gold bg-clip-text text-transparent flex items-center gap-3">
-        <VueIcon name="bs:bar-chart-fill" class="text-christmas-gold" />
+  <section class="space-y-8">
+    <header class="space-y-3">
+      <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Administration</p>
+      <h1 class="hero-title flex items-center gap-3">
+        <span class="rounded-2xl bg-white/5 p-3"><VueIcon name="bs:bar-chart-fill" class="text-accent-300" /></span>
         Niveaux de jeu des joueurs
       </h1>
-      <p class="text-christmas-gold-light">
-        Gérez et consultez les niveaux de jeu de tous les joueurs
-      </p>
-    </div>
+      <p class="muted">Gérez et consultez les niveaux déclarés</p>
+    </header>
 
-    <!-- Filtres -->
-    <Card class="bg-christmas-navy/50 border-2 border-christmas-gold/30 p-6 space-y-4">
-      <h2 class="text-lg font-bold text-christmas-gold flex items-center gap-2">
-        <VueIcon name="bs:funnel-fill" />
-        Filtres
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Filtre nom joueur -->
-        <div>
-          <label class="block text-sm font-medium text-christmas-gold mb-2">
-            <VueIcon name="bs:search" class="inline mr-1" />
-            Nom du joueur
-          </label>
-          <input
-            v-model="playerNameFilter"
-            type="text"
-            placeholder="Chercher un joueur..."
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none placeholder-christmas-gold-light/30"
-          />
-        </div>
-
-        <!-- Filtre jeu -->
-        <div>
-          <label class="block text-sm font-medium text-christmas-gold mb-2">
-            <VueIcon name="bs:controller" class="inline mr-1" />
-            Jeu
-          </label>
-          <select
-            v-model="selectedGameFilter"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-          >
-            <option value="">-- Tous les jeux --</option>
-            <option v-for="game in games" :key="game.id" :value="game.id">
-              {{ game.name }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Filtre niveau -->
-        <div>
-          <label class="block text-sm font-medium text-christmas-gold mb-2">
-            <VueIcon name="bs:star-fill" class="inline mr-1" />
-            Niveau
-          </label>
-          <select
-            v-model="selectedLevelFilter"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-          >
-            <option value="">-- Tous les niveaux --</option>
-            <option v-for="level in levels" :key="level" :value="level">
-              {{ level.charAt(0).toUpperCase() + level.slice(1) }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Filtre tournoi (visible si jeu sélectionné) -->
-        <div v-if="selectedGameFilter">
-          <label class="block text-sm font-medium text-christmas-gold mb-2">
-            <VueIcon name="bs:calendar-event-fill" class="inline mr-1" />
-            Tournoi
-          </label>
-          <select
-            v-model="selectedTournamentFilter"
-            class="w-full bg-christmas-navy border border-christmas-gold/30 text-christmas-gold rounded px-3 py-2 text-sm focus:border-christmas-gold outline-none"
-          >
-            <option value="">-- Tous les tournois --</option>
-            <option v-for="tournament in tournaments" :key="tournament.id" :value="tournament.id">
-              {{ tournament.name }} ({{ formatDate(new Date(tournament.date), 'DD/MM/YYYY') }})
-            </option>
-          </select>
-        </div>
+    <Card class="glass-panel space-y-4 p-6">
+      <div class="flex items-center gap-2 text-sm text-foam-300/80">
+        <VueIcon name="bs:funnel" /> Filtres
       </div>
-
-      <!-- Bouton réinitialiser filtres -->
-      <div class="flex justify-end pt-2">
-        <Button
-          type="button"
-          @click="clearFilters"
-          color="christmas-red"
-          class="flex items-center gap-2"
-        >
-          <VueIcon name="bs:x-circle" />
-          Réinitialiser les filtres
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <label class="space-y-2 text-sm text-foam-300/70">
+          Nom du joueur
+          <input v-model="playerNameFilter" type="text" class="form-input" placeholder="Chercher un joueur..." />
+        </label>
+        <label class="space-y-2 text-sm text-foam-300/70">
+          Jeu
+          <select v-model="selectedGameFilter" class="form-input">
+            <option value="">Tous</option>
+            <option v-for="game in games" :key="game.id" :value="game.id">{{ game.name }}</option>
+          </select>
+        </label>
+        <label class="space-y-2 text-sm text-foam-300/70">
+          Niveau
+          <select v-model="selectedLevelFilter" class="form-input">
+            <option value="">Tous</option>
+            <option v-for="level in levels" :key="level" :value="level">{{ level }}</option>
+          </select>
+        </label>
+        <label v-if="selectedGameFilter" class="space-y-2 text-sm text-foam-300/70">
+          Tournoi
+          <select v-model="selectedTournamentFilter" class="form-input">
+            <option value="">Tous</option>
+            <option v-for="tournament in tournaments" :key="tournament.id" :value="tournament.id">{{ tournament.name }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="flex justify-end">
+        <Button variant="ghost" class="gap-2" @click="clearFilters">
+          <VueIcon name="bs:x-circle" /> Réinitialiser
         </Button>
       </div>
     </Card>
 
-    <!-- Table Container -->
-    <div class="space-y-4 animate-fade-in">
-      <div class="flex items-center justify-between">
-        <p class="text-christmas-gold-light">
-          {{ filteredPlayerLevels.length }} niveau(x) trouvé(s)
-        </p>
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
+        <p class="text-sm uppercase tracking-[0.4em] text-foam-300/70">{{ filteredPlayerLevels.length }} niveau(x)</p>
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
       </div>
-      <TableTanstack :table="table" paginated />
+      <Card class="glass-panel p-0">
+        <TableTanstack :table="table" :paginated="true" />
+      </Card>
     </div>
-  </div>
+  </section>
 </template>
-
-<style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out;
-}
-</style>

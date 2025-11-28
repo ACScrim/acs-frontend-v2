@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, Badge } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import { useToastStore } from '@/stores/toastStore';
 import type { TournamentFormData } from '@/types/models';
@@ -10,6 +10,9 @@ import { formatDate } from '@vueuse/core';
 import { computed, h, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import TournamentForm from './components/TournamentForm.vue';
+import { useHead } from '@vueuse/head';
+
+useHead({ title: 'Admin · Tournois' });
 
 const adminStore = useAdminStore();
 const toastStore = useToastStore();
@@ -23,91 +26,55 @@ const pagination = ref({
   pageSize: 10
 });
 
+const columns = [
+  {
+    header: 'Tournoi',
+    accessorKey: 'name',
+    cell: ({ row }) => h('div', { class: 'space-y-1' }, [
+      h('p', { class: 'font-semibold text-white' }, row.original.name),
+      h('p', { class: 'text-xs text-foam-300/70' }, `ID: ${row.original.id}`)
+    ])
+  },
+  {
+    header: 'Joueurs',
+    cell: ({ row }) => {
+      const count = row.original.players?.length || 0;
+      const cap = row.original.playerCap;
+      return h('span', { class: 'text-white font-semibold' }, cap > 0 ? `${count} / ${cap}` : count);
+    }
+  },
+  {
+    header: 'Équipes publiées ?',
+    cell: ({ row }) => {
+      const published = row.original.teamsPublished;
+      return h(Badge, { tone: published ? 'emerald' : 'blush', size: 'md' }, () => published ? 'Oui' : 'Non');
+    }
+  },
+  {
+    header: 'Date',
+    cell: ({ row }) => formatDate(new Date(row.original.date), 'DD/MM/YYYY HH:mm')
+  },
+  {
+    header: 'Actions',
+    cell: ({ row }) => h('div', { class: 'flex gap-2' }, [
+      h(RouterLink, { to: { name: 'tournament-details', params: { id: row.original.id } } }, () =>
+        h(Button, { variant: 'outline', size: 'sm', class: 'gap-2' }, () => [h(VueIcon, { name: 'bs:pencil-square' }), 'Modifier'])
+      ),
+      h(Button, {
+        variant: 'ghost',
+        size: 'sm',
+        disabled: deletingId.value === row.original.id,
+        onClick: () => handleDeleteTournament(row.original.id)
+      }, () => h(VueIcon, { name: deletingId.value === row.original.id ? 'bs:hourglass' : 'bs:trash', class: deletingId.value === row.original.id ? 'animate-spin' : '' }))
+    ])
+  }
+];
+
 const table = useVueTable({
   get data() {
     return tournaments.value;
   },
-  columns: [
-    { 
-      header: 'Tournoi', 
-      accessorKey: 'name',
-      cell: ({ row }) => {
-        return h('div', { class: 'flex items-center gap-2' }, [
-          h('div', [
-            h('p', { class: 'font-semibold text-christmas-ice' }, row.original.name),
-            h('p', { class: 'text-xs text-christmas-gold-light/70' }, `ID: ${row.original.id}`)
-          ])
-        ]);
-      }
-    },
-    { 
-      header: 'Joueurs', 
-      accessorKey: 'players.length',
-      cell: ({ row }) => {
-        const count = row.original.players?.length || 0;
-        const cap = row.original.playerCap;
-        return h('div', { class: 'flex items-center gap-2' }, [
-          h('span', { class: 'font-semibold text-christmas-gold' }, cap > 0 ? `${count} / ${cap}` : count)
-        ]);
-      }
-    },
-    {
-      header: 'Équipes publiées ?',
-      accessorKey: 'teamsPublished',
-      cell: ({ row }) => {
-        const published = row.original.teamsPublished;
-        return h('div', { class: 'flex items-center gap-2' }, [
-          published 
-            ? h(VueIcon, { name: 'bs:check-circle-fill', class: 'text-green-500' }) 
-            : h(VueIcon, { name: 'bs:x-circle-fill', class: 'text-red-500' }),
-          h('span', { class: published ? 'text-green-500 font-semibold' : 'text-red-500 font-semibold' }, published ? 'Oui' : 'Non')
-        ]);
-      }
-    },
-    { 
-      header: 'Date', 
-      accessorKey: 'date',
-      cell: ({ row }) => {
-        return h('div', { class: 'flex items-center gap-2 text-christmas-gold-light' }, [
-          h(VueIcon, { name: 'bs:calendar2-event', class: 'text-christmas-gold' }),
-          formatDate(new Date(row.original.date), 'DD/MM/YYYY HH:mm')
-        ]);
-      }
-    },
-    { 
-      header: 'Actions', 
-      cell: ({ row }) => {
-        return h('div', { class: 'flex gap-2' }, [
-          h(RouterLink, { 
-            to: { name: 'tournament-details', params: { id: row.original.id } },
-            class: 'inline-block'
-          }, {
-            default: () => h(Button, {
-              class: 'bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy font-bold hover:shadow-lg hover:shadow-christmas-gold/40 transition-all duration-300 hover:scale-105'
-            }, {
-              default: () => [
-                h(VueIcon, { name: 'bs:pencil-square', class: 'mr-2' }),
-                'Modifier'
-              ]
-            })
-          }),
-          h('button',
-            {
-              onClick: () => handleDeleteTournament(row.original.id),
-              disabled: deletingId.value === row.original.id,
-              class: 'p-2 rounded-lg cursor-pointer text-christmas-red hover:bg-christmas-red/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group relative'
-            },
-            [
-              h(VueIcon, { 
-                name: deletingId.value === row.original.id ? 'bs:hourglass' : 'bs:trash',
-                class: deletingId.value === row.original.id ? 'animate-spin' : ''
-              })
-            ]
-          )
-        ]);
-      }
-    }
-  ],
+  columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   state: {
@@ -164,97 +131,47 @@ const handleDeleteTournament = async (tournamentId: string) => {
 </script>
 
 <template>
-  <div class="space-y-8">
-    <!-- Header -->
-    <div class="space-y-3 animate-fade-in">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="p-4 bg-gradient-to-br from-christmas-gold to-christmas-gold-light rounded-xl shadow-lg shadow-christmas-gold/20">
-            <VueIcon name="bs:trophy-fill" class="text-2xl text-christmas-navy" />
-          </div>
-          <div>
-            <h1 class="text-4xl font-black bg-gradient-to-r from-christmas-gold via-christmas-gold-light to-christmas-crimson bg-clip-text text-transparent uppercase tracking-wider">
-              Gestion des tournois
-            </h1>
-            <p class="text-christmas-gold-light flex items-center gap-2 mt-1">
-              <span class="w-2 h-2 bg-christmas-gold rounded-full animate-pulse"></span>
-              {{ tournaments.length }} tournoi(s) actif(s)
-            </p>
-          </div>
-        </div>
-        <Button 
-          @click="showCreateForm = !showCreateForm"
-          color="christmas-gold"
-          class="flex items-center gap-2 h-fit"
-        >
-          <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
-          {{ showCreateForm ? 'Annuler' : 'Créer tournoi' }}
-        </Button>
+  <section class="space-y-8">
+    <header class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/70">Administration</p>
+        <h1 class="hero-title flex items-center gap-3">
+          <span class="rounded-2xl bg-white/5 p-3"><VueIcon name="bs:trophy-fill" class="text-accent-300" /></span>
+          Gestion des tournois
+        </h1>
+        <p class="muted flex items-center gap-2">{{ tournaments.length }} tournoi(s) actif(s)</p>
       </div>
-    </div>
+      <Button @click="showCreateForm = !showCreateForm" class="gap-2">
+        <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
+        {{ showCreateForm ? 'Annuler' : 'Créer tournoi' }}
+      </Button>
+    </header>
 
-    <!-- Create Form Section -->
     <transition name="slide">
-      <div v-if="showCreateForm" class="animate-in slide-in-from-top duration-300">
-        <Card class="p-6 border-2 border-christmas-gold">
-          <template #header>
-            <h2 class="text-2xl font-bold text-christmas-gold flex items-center gap-2">
-              <VueIcon name="bs:plus-circle" />
-              Créer un nouveau tournoi
-            </h2>
-          </template>
-          <div class="p-6">
-            <TournamentForm 
-              @submit="handleCreateTournament"
-              @cancel="handleCancelCreate"
-            />
-          </div>
-        </Card>
-      </div>
+      <Card v-if="showCreateForm" class="glass-panel p-6">
+        <template #header>
+          <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+            <VueIcon name="bs:plus-circle" /> Nouveau tournoi
+          </h2>
+        </template>
+        <TournamentForm @submit="handleCreateTournament" @cancel="handleCancelCreate" :loading="isSubmitting" />
+      </Card>
     </transition>
 
-    <!-- Table -->
-    <div class="space-y-4">
-      <div class="flex items-center gap-2">
-        <div class="w-1 h-6 bg-gradient-to-b from-christmas-gold to-christmas-crimson rounded-full"></div>
-        <h2 class="text-xl font-bold text-christmas-ice uppercase tracking-wide">Liste des tournois</h2>
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
+        <p class="text-sm uppercase tracking-[0.4em] text-foam-300/70">Liste des tournois</p>
+        <div class="h-px flex-1 bg-gradient-to-r from-white/0 via-white/30 to-white/0" />
       </div>
-      
       <TableTanstack :table="table" :paginated="true" />
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out;
-}
-
 .slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-
+.slide-leave-active { transition: all 0.25s ease; }
 .slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.slide-enter-to,
-.slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
+.slide-leave-to { opacity: 0; transform: translateY(-10px); }
 </style>

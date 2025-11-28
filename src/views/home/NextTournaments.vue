@@ -14,13 +14,10 @@ const tournaments = computed(() => tournamentStore.nextTournaments);
 
 <template>
   <div class="space-y-8">
-    <TextSvg
-      text="Les prochains tournois ?"
-      class="uppercase text-4xl lg:text-6xl"
-      strokeColor="#D4AF37"
-      fillColor="url(#christmasGold)"
-      :fontSize="100"
-    />
+    <div>
+      <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Planning</p>
+      <h2 class="hero-title">Les prochains tournois ?</h2>
+    </div>
 
     <ListView 
       v-if="!tournamentStore.isLoading" 
@@ -30,12 +27,12 @@ const tournaments = computed(() => tournamentStore.nextTournaments);
       :to="getTournamentLink"
     >
       <template #emptyIcon>
-        <VueIcon name="bs:calendar-x" class="text-6xl text-christmas-gold/50 mx-auto mb-4" />
+        <VueIcon name="bs:calendar-x" class="mx-auto mb-4 text-4xl text-foam-300/60" />
       </template>
       <template #item="{ item }">
         <TournamentCard 
-          class="h-full transition-all duration-300 group-hover:-translate-y-2" 
-          :tournament="item" 
+          class="h-full"
+          :tournament="item"
         />
       </template>
     </ListView>
