@@ -57,12 +57,11 @@ const getRankBadge = computed(() => {
     <div
       v-if="levelConfig"
       class="relative overflow-hidden rounded-lg border-2 p-6 bg-gradient-to-br transition-all duration-300 hover:scale-105 hover:shadow-lg"
-      :class="`${levelConfig.bgColor} border-christmas-gold/50 hover:border-christmas-gold`"
-    >
+      :class="`${levelConfig.bgColor} border-white/15 hover:border-accent-300/70`">
       <!-- Effet de fond animé -->
       <div class="absolute inset-0 opacity-30 pointer-events-none">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-christmas-gold/20 rounded-full blur-2xl"></div>
-        <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-christmas-crimson/20 rounded-full blur-2xl"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-accent-300/20 rounded-full blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blush-500/20 rounded-full blur-2xl"></div>
       </div>
 
       <!-- Contenu -->
@@ -83,31 +82,31 @@ const getRankBadge = computed(() => {
         </div>
 
         <!-- Séparateur -->
-        <div class="h-px bg-gradient-to-r from-christmas-gold/0 via-christmas-gold/50 to-christmas-gold/0"></div>
+        <div class="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
         <!-- Informations du joueur -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Pseudo du jeu -->
           <div class="space-y-1">
-            <p class="text-xs text-christmas-gold-light/70 uppercase tracking-wider">
+            <p class="text-xs text-foam-300/70 uppercase tracking-wider">
               <VueIcon name="bs:person-circle" class="inline mr-1" />
               Pseudo
             </p>
-            <p class="text-lg font-bold text-christmas-ice">{{ playerLevel.gameUsername }}</p>
+            <p class="text-lg font-bold text-foam-50">{{ playerLevel.gameUsername }}</p>
           </div>
 
           <!-- Rang si classé -->
           <div v-if="playerLevel.isRanked && getRankBadge" class="space-y-1">
-            <p class="text-xs text-christmas-gold-light/70 uppercase tracking-wider">
+            <p class="text-xs text-foam-300/70 uppercase tracking-wider">
               <VueIcon name="bs:trophy-fill" class="inline mr-1 text-yellow-400" />
               Rang
             </p>
-            <p class="text-lg font-bold text-yellow-400">{{ getRankBadge.text }}</p>
+            <p class="text-lg font-bold text-amber-300">{{ getRankBadge.text }}</p>
           </div>
 
           <!-- Rôles sélectionnés -->
           <div v-if="playerLevel.selectedRoles.length > 0" class="md:col-span-2 space-y-1">
-            <p class="text-xs text-christmas-gold-light/70 uppercase tracking-wider">
+            <p class="text-xs text-foam-300/70 uppercase tracking-wider">
               <VueIcon name="bs:suit-heart-fill" class="inline mr-1" />
               Rôles préférés
             </p>
@@ -115,7 +114,7 @@ const getRankBadge = computed(() => {
               <span
                 v-for="role in playerLevel.selectedRoles"
                 :key="role"
-                class="px-3 py-1 rounded-full text-sm font-bold bg-christmas-gold/20 text-christmas-gold border border-christmas-gold/50"
+                class="px-3 py-1 rounded-full text-sm font-bold bg-white/10 text-foam-50 border border-white/20"
               >
                 {{ role }}
               </span>
@@ -124,16 +123,16 @@ const getRankBadge = computed(() => {
 
           <!-- Commentaire -->
           <div v-if="playerLevel.comment" class="md:col-span-2 space-y-1">
-            <p class="text-xs text-christmas-gold-light/70 uppercase tracking-wider">
+            <p class="text-xs text-foam-300/70 uppercase tracking-wider">
               <VueIcon name="bs:chat-dots-fill" class="inline mr-1" />
               Commentaire
             </p>
-            <p class="text-sm text-christmas-gold-light italic">{{ playerLevel.comment }}</p>
+            <p class="text-sm text-foam-200/80 italic">{{ playerLevel.comment }}</p>
           </div>
 
           <!-- Lien profil -->
           <div v-if="playerLevel.gameProfileLink" class="md:col-span-2 space-y-1">
-            <p class="text-xs text-christmas-gold-light/70 uppercase tracking-wider">
+            <p class="text-xs text-foam-300/70 uppercase tracking-wider">
               <VueIcon name="bs:link-45deg" class="inline mr-1" />
               Profil
             </p>
@@ -141,7 +140,7 @@ const getRankBadge = computed(() => {
               :href="playerLevel.gameProfileLink"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 text-sm text-christmas-gold hover:text-christmas-gold-light transition-colors"
+              class="inline-flex items-center gap-2 text-sm text-accent-200 hover:text-foam-50 transition-colors"
             >
               <VueIcon name="bs:box-arrow-up-right" class="text-xs" />
               Voir le profil
@@ -154,14 +153,14 @@ const getRankBadge = computed(() => {
           <!-- Badge classé -->
           <div
             v-if="playerLevel.isRanked"
-            class="px-2 py-1 rounded text-xs font-bold text-christmas-gold bg-christmas-gold/20 border border-christmas-gold/50 flex items-center gap-1"
+            class="px-2 py-1 rounded text-xs font-bold text-foam-50 bg-white/10 border border-white/20 flex items-center gap-1"
           >
             <VueIcon name="bs:shield-check" />
             Mode classé
           </div>
 
           <!-- Badge date -->
-          <div class="px-2 py-1 rounded text-xs font-bold text-christmas-gold-light/70 bg-black/20 border border-christmas-gold/20 flex items-center gap-1">
+          <div class="px-2 py-1 rounded text-xs font-bold text-foam-300/80 bg-black/20 border border-white/15 flex items-center gap-1">
             <VueIcon name="bs:calendar-event" />
             {{ new Date(playerLevel.updatedAt).toLocaleDateString('fr-FR') }}
           </div>

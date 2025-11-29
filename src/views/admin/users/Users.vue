@@ -4,7 +4,7 @@ import TableTanstack from '@/components/global/TableTanstack.vue';
 import { Avatar, Badge, Button, Card } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table';
+import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
 import { formatDate } from '@vueuse/core';
 import { computed, h, onMounted, ref } from 'vue';
 
@@ -42,7 +42,10 @@ const table = useVueTable({
           h('p', { class: 'font-semibold text-white' }, row.original.username),
           h('p', { class: 'text-xs text-foam-300/70 font-mono' }, `#${row.original.discordId || 'N/A'}`)
         ])
-      ])
+      ]),
+      sortingFn: (rowA, rowB) => {
+        return rowA.original.username.localeCompare(rowB.original.username);
+      }
     },
     {
       header: 'Rôle',
@@ -75,6 +78,7 @@ const table = useVueTable({
   ],
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  getSortedRowModel: getSortedRowModel(),
   state: {
     get pagination() {
       return pagination.value;
@@ -134,7 +138,7 @@ onMounted(() => {
         <Card v-for="report in users.find(user => user.id === reportModalUserId)?.reports || []" :key="report.id" class="glass-panel p-4">
           <p class="text-sm text-white">{{ report.reason }}</p>
           <p class="text-xs text-foam-300/70">{{ formatDate(new Date(report.createdAt), 'DD/MM/YYYY [à] HH:mm') }}</p>
-          <Button variant="ghost" size="sm" class="self-end" @click="adminStore.removeReport(report.id, reportModalUserId)">Supprimer</Button>
+          <Button variant="ghost" size="sm" class="self-end" @click="adminStore.removeReport(report.id, reportModalUserId || '')">Supprimer</Button>
         </Card>
         <p v-if="!(users.find(user => user.id === reportModalUserId)?.reports?.length)" class="text-center text-foam-300/70">Aucun report.</p>
       </div>

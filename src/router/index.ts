@@ -38,7 +38,7 @@ const router = createRouter({
 router.beforeEach((to, _) => {
   document.title = `ACSV2 - ${to.meta.title}`;
 
-  document.getElementsByClassName('view')[0]?.scrollTo(0, 0);
+  document.querySelector('section[data-acs-scroll-region]')?.scrollTo(0, 0);
 
   const userStore = useUserStore();
   const toastStore = useToastStore();

@@ -65,46 +65,46 @@ const handleSubmit = async (formData: TournamentFormData) => {
     <!-- Header -->
     <div class="space-y-4">
       <div class="flex items-center gap-4">
-        <div class="p-3 bg-gradient-to-br from-christmas-gold to-christmas-gold-light rounded-lg">
-          <VueIcon name="bs:trophy-fill" class="text-2xl text-christmas-navy" />
+        <div class="p-3 bg-gradient-to-br from-accent-500 to-emerald-400 rounded-lg">
+          <VueIcon name="bs:trophy-fill" class="text-2xl text-ink-900" />
         </div>
         <div class="flex-1">
-          <h1 class="text-4xl font-bold text-christmas-gold mb-2">{{ tournament.name }}</h1>
-          <p class="text-christmas-gold-light text-sm">{{ tournament.game.name }} • {{ new Date(tournament.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+          <h1 class="text-4xl font-bold text-white mb-2">{{ tournament.name }}</h1>
+          <p class="text-foam-200 text-sm">{{ tournament.game.name }} • {{ new Date(tournament.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
         </div>
       </div>
 
       <!-- Stats Grid -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card class="p-4 bg-christmas-navy border-2 border-christmas-gold">
-          <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
+        <Card class="p-4 bg-ink-900/70 border border-white/10">
+          <p class="text-xs text-foam-300/70 mb-1 flex items-center gap-1">
             <VueIcon name="cl:users" />
             Joueurs
           </p>
-          <p class="text-2xl font-bold text-christmas-gold">{{ tournament.players.length }}<span class="text-lg text-christmas-gold-light">/{{ tournament.playerCap === 0 ? '∞' : tournament.playerCap }}</span></p>
+          <p class="text-2xl font-bold text-white">{{ tournament.players.length }}<span class="text-lg text-foam-300">/{{ tournament.playerCap === 0 ? '∞' : tournament.playerCap }}</span></p>
         </Card>
-        <Card class="p-4 bg-christmas-navy border-2 border-christmas-gold">
-          <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
+        <Card class="p-4 bg-ink-900/70 border border-white/10">
+          <p class="text-xs text-foam-300/70 mb-1 flex items-center gap-1">
             <VueIcon name="bs:diagram-3" />
             Équipes
           </p>
-          <p class="text-2xl font-bold text-christmas-gold">{{ tournament.teams.length }}</p>
+          <p class="text-2xl font-bold text-white">{{ tournament.teams.length }}</p>
         </Card>
-        <Card class="p-4 bg-christmas-navy border-2 border-christmas-gold">
-          <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
+        <Card class="p-4 bg-ink-900/70 border border-white/10">
+          <p class="text-xs text-foam-300/70 mb-1 flex items-center gap-1">
             <VueIcon :name="tournament.teamsPublished ? 'bs:check-circle' : 'bs:clock'" />
             État équipes
           </p>
-          <p :class="['text-sm font-bold', tournament.teamsPublished ? 'text-christmas-pine' : 'text-christmas-gold']">
+          <p :class="['text-sm font-bold', tournament.teamsPublished ? 'text-emerald-300' : 'text-amber-300']">
             {{ tournament.teamsPublished ? 'Publiées' : 'Brouillon' }}
           </p>
         </Card>
-        <Card class="p-4 bg-christmas-navy border-2 border-christmas-gold">
-          <p class="text-xs text-christmas-gold-light/70 mb-1 flex items-center gap-1">
+        <Card class="p-4 bg-ink-900/70 border border-white/10">
+          <p class="text-xs text-foam-300/70 mb-1 flex items-center gap-1">
             <VueIcon :name="tournament.finished ? 'bs:check-circle' : 'bs:hourglass-split'" />
             Status
           </p>
-          <p :class="['text-sm font-bold', tournament.finished ? 'text-christmas-crimson' : 'text-christmas-gold']">
+          <p :class="['text-sm font-bold', tournament.finished ? 'text-blush-400' : 'text-foam-100']">
             {{ tournament.finished ? 'Terminé' : 'En cours' }}
           </p>
         </Card>
@@ -112,14 +112,14 @@ const handleSubmit = async (formData: TournamentFormData) => {
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-2 border-b border-christmas-gold/20">
+    <div class="flex gap-2 border-b border-white/10">
       <button
         @click="activeTab = 'teams'"
         :class="[
           'px-4 py-3 font-bold flex items-center gap-2 transition-all',
           activeTab === 'teams'
-            ? 'text-christmas-gold border-b-2 border-christmas-gold'
-            : 'text-christmas-gold-light/70 hover:text-christmas-gold-light'
+            ? 'text-white border-b-2 border-accent-300'
+            : 'text-foam-300/70 hover:text-white'
         ]"
       >
         <VueIcon name="bs:diagram-3" />
@@ -130,8 +130,8 @@ const handleSubmit = async (formData: TournamentFormData) => {
         :class="[
           'px-4 py-3 font-bold flex items-center gap-2 transition-all',
           activeTab === 'players'
-            ? 'text-christmas-gold border-b-2 border-christmas-gold'
-            : 'text-christmas-gold-light/70 hover:text-christmas-gold-light'
+            ? 'text-white border-b-2 border-accent-300'
+            : 'text-foam-300/70 hover:text-white'
         ]"
       >
         <VueIcon name="cl:users" />
@@ -142,8 +142,8 @@ const handleSubmit = async (formData: TournamentFormData) => {
         :class="[
           'px-4 py-3 font-bold flex items-center gap-2 transition-all',
           activeTab === 'details'
-            ? 'text-christmas-gold border-b-2 border-christmas-gold'
-            : 'text-christmas-gold-light/70 hover:text-christmas-gold-light'
+            ? 'text-white border-b-2 border-accent-300'
+            : 'text-foam-300/70 hover:text-white'
         ]"
       >
         <VueIcon name="bs:pencil" />
@@ -155,8 +155,8 @@ const handleSubmit = async (formData: TournamentFormData) => {
         :class="[
           'px-4 py-3 font-bold flex items-center gap-2 transition-all',
           activeTab === 'results'
-            ? 'text-christmas-gold border-b-2 border-christmas-gold'
-            : 'text-christmas-gold-light/70 hover:text-christmas-gold-light'
+            ? 'text-white border-b-2 border-accent-300'
+            : 'text-foam-300/70 hover:text-white'
         ]"
       >
         <VueIcon name="bs:bar-chart" />

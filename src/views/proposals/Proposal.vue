@@ -11,7 +11,6 @@ import type { RawgGame } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { whenever } from '@vueuse/core';
 import { computed, onMounted, ref, watch } from 'vue';
-import { RouterLink } from 'vue-router';
 
 const toastStore = useToastStore();
 const proposalStore = useProposalStore();

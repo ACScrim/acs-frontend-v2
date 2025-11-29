@@ -25,25 +25,25 @@ const barColor = computed(() => {
     return props.forceBarColorClass;
   }
   if (percentage.value >= 90) {
-    return 'bg-gradient-to-r from-christmas-red to-christmas-crimson shadow-christmas-red/50';
+    return 'bg-gradient-to-r from-blush-500 to-blush-400 shadow-[0_5px_20px_rgba(255,95,143,0.35)]';
   } else if (percentage.value >= 70) {
-    return 'bg-gradient-to-r from-christmas-gold to-christmas-gold-light shadow-christmas-gold/50';
+    return 'bg-gradient-to-r from-accent-500 to-emerald-500 shadow-[0_5px_20px_rgba(124,58,237,0.35)]';
   }
-  return 'bg-gradient-to-r from-christmas-pine to-christmas-forest shadow-christmas-pine/50';
+  return 'bg-gradient-to-r from-emerald-500 to-emerald-300 shadow-[0_5px_20px_rgba(20,220,180,0.35)]';
 });
 </script>
 
 <template>
   <div class="space-y-2">
     <div v-if="label || showPercentage" class="flex justify-between items-center">
-      <span v-if="label" class="text-sm font-semibold text-christmas-gold-light">
+      <span v-if="label" class="text-sm font-semibold text-foam-200/80">
         {{ label }}
       </span>
-      <span v-if="showPercentage" class="text-sm font-bold text-christmas-gold">
+      <span v-if="showPercentage" class="text-sm font-bold text-foam-50">
         {{ current }} / {{ max }} ({{ percentage }}%)
       </span>
     </div>
-    <div class="w-full bg-christmas-navy/50 rounded-full h-3 overflow-hidden border-2 border-christmas-gold/30 shadow-lg">
+    <div class="w-full bg-ink-800 rounded-full h-3 overflow-hidden border border-white/10 shadow-inner">
       <div
         :class="['h-full transition-all rounded-full shadow-lg', barColor]"
         :style="{

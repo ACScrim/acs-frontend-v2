@@ -15,7 +15,7 @@ defineProps<{
         <tr v-for="hg in table.getHeaderGroups()" :key="hg.id">
           <th v-for="header in hg.headers" :key="header.id" :colspan="header.colSpan" class="px-4 py-3 text-xs uppercase tracking-[0.3em] text-foam-300/70" :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''" @click="header.column.getToggleSortingHandler()?.($event)">
             <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
-            {{ { asc: '↑', desc: '↓' }[header.column.getIsSorted() as string] || '' }}
+            <span v-if="header.column.getCanSort()">{{ { asc: '↑', desc: '↓' }[header.column.getIsSorted() as string] || '' }}</span>
           </th>
         </tr>
       </thead>

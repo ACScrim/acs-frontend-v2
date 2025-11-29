@@ -28,7 +28,7 @@ const bgClass = computed(() => {
     case 'warning':
       return 'bg-yellow-500 border-yellow-500/50 text-white';
     default:
-      return 'bg-christmas-gold border-christmas-gold/50 text-white';
+      return 'bg-gradient-to-r from-accent-500 to-emerald-500 border-white/20 text-ink-900';
   }
 });
 

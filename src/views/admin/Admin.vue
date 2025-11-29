@@ -95,7 +95,7 @@ const getLogIcon = (level?: number) => {
               <div class="flex-1 min-w-0">
                 <div v-if="log.method && log.statusCode" class="flex flex-wrap items-center gap-2">
                   <Badge :tone="getStatusVariant(log.statusCode) as any">{{ log.method }}</Badge>
-                  <span class="font-semibold" :class="statusVariants[getStatusVariant(log.statusCode)].text">
+                  <span class="font-semibold" :class="statusVariants[getStatusVariant(log.statusCode)]">
                     {{ log.statusCode }}
                   </span>
                   <span class="text-sm text-foam-300/80 truncate">
@@ -152,11 +152,11 @@ const getLogIcon = (level?: number) => {
 }
 
 #logs-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--color-christmas-gold), var(--color-christmas-red));
+  background: linear-gradient(to bottom, var(--color-accent-500), var(--color-blush-500));
   border-radius: 4px;
 }
 
 #logs-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--color-christmas-gold-light), var(--color-christmas-crimson));
+  background: linear-gradient(to bottom, var(--color-accent-300), var(--color-blush-400));
 }
 </style>

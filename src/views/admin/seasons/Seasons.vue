@@ -37,14 +37,14 @@ const table = useVueTable({
       header: 'Saison',
       accessorKey: 'number',
       cell: ({ row }) => {
-        return h('span', { class: 'font-bold text-christmas-gold' }, `Saison ${row.original.number}`);
+        return h('span', { class: 'font-bold text-foam-50' }, row.original.number === 0 ? 'Hors saison' : `Saison ${row.original.number}`);
       }
     },
     {
       header: 'Tournois',
       accessorKey: 'tournaments.length',
       cell: ({ row }) => {
-        return h('span', { class: 'text-christmas-gold-light text-sm' }, 
+        return h('span', { class: 'text-foam-200 text-sm' },
           `${row.original.tournaments.length} tournoi(s)`
         );
       }
@@ -55,10 +55,10 @@ const table = useVueTable({
       cell: ({ row }) => {
         const winner = row.original.winner;
         if (!winner) {
-          return h('span', { class: 'text-christmas-gold-light/50 text-sm' }, '—');
+          return h('span', { class: 'text-foam-300/60 text-sm' }, '—');
         }
         const winnerName = typeof winner === 'string' ? winner : (winner as any)?.username || '—';
-        return h('span', { class: 'text-christmas-gold text-sm' }, winnerName);
+        return h('span', { class: 'text-white text-sm' }, winnerName);
       }
     },
     {
@@ -68,7 +68,6 @@ const table = useVueTable({
         return h('div', { class: 'flex items-center gap-2' }, [
           h(Button, {
             onClick: () => handleEditSeason(row.original),
-            color: 'christmas-gold',
             class: 'flex items-center gap-2 h-fit',
             disabled: deletingId.value === row.original.id
           }, {
@@ -79,7 +78,7 @@ const table = useVueTable({
           }),
           h(Button, {
             onClick: () => handleDeleteSeason(row.original.id, row.original.number),
-            color: 'christmas-red',
+            variant: 'danger',
             class: 'flex items-center gap-2 h-fit',
             disabled: deletingId.value === row.original.id || editingSeasonId.value === row.original.id
           }, {

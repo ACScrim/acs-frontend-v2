@@ -95,7 +95,7 @@ const goToNext = () => {
     <button
       @click="goToPrevious"
       :disabled="!canGoPrevious"
-      class="px-3 py-2 rounded-lg border-2 border-christmas-gold/30 text-christmas-gold-light hover:text-christmas-snow hover:border-christmas-gold hover:bg-christmas-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      class="px-3 py-2 rounded-lg border border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       :title="canGoPrevious ? 'Page précédente' : 'Vous êtes à la première page'"
     >
       <VueIcon name="bs:chevron-left" class="text-xl" />
@@ -109,12 +109,12 @@ const goToNext = () => {
         @click="goToPage(page)"
         :disabled="page === '...'"
         :class="[
-          'px-3 py-2 rounded-lg border-2 transition-all duration-200',
+          'px-3 py-2 rounded-lg border transition-all duration-200',
           page === currentPageComputed
-            ? 'bg-gradient-to-r from-christmas-gold to-christmas-gold-light text-christmas-navy border-christmas-gold font-bold shadow-lg shadow-christmas-gold/40'
+            ? 'bg-gradient-to-r from-accent-500 to-emerald-500 text-ink-900 border-transparent font-bold shadow-[0_10px_30px_rgba(6,182,212,0.25)]'
             : page === '...'
-            ? 'border-transparent text-christmas-gold-light cursor-default'
-            : 'border-christmas-gold/30 text-christmas-gold-light hover:text-christmas-snow hover:border-christmas-gold hover:bg-christmas-gold/10'
+            ? 'border-transparent text-foam-400 cursor-default'
+            : 'border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10'
         ]"
       >
         {{ page }}
@@ -125,14 +125,14 @@ const goToNext = () => {
     <button
       @click="goToNext"
       :disabled="!canGoNext"
-      class="px-3 py-2 rounded-lg border-2 border-christmas-gold/30 text-christmas-gold-light hover:text-christmas-snow hover:border-christmas-gold hover:bg-christmas-gold/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      class="px-3 py-2 rounded-lg border border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       :title="canGoNext ? 'Page suivante' : 'Vous êtes à la dernière page'"
     >
       <VueIcon name="bs:chevron-right" class="text-xl" />
     </button>
 
     <!-- Informations de pagination -->
-    <div class="text-christmas-gold-light text-sm ml-4">
+    <div class="text-foam-200 text-sm ml-4">
       Page {{ currentPageComputed }} sur {{ totalPages }}
     </div>
   </div>

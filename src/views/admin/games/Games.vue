@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Badge, Button, Card } from '@/components/ui';
+import {Button, Card} from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
-import { useToastStore } from '@/stores/toastStore';
-import type { Game } from '@/types/models';
+import {useToastStore} from '@/stores/toastStore';
+import type {Game} from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table';
-import { formatDate } from '@vueuse/core';
-import { computed, h, onMounted, ref } from 'vue';
+import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
+import {formatDate} from '@vueuse/core';
+import {computed, h, onMounted, ref} from 'vue';
 import GameForm from './components/GameForm.vue';
 
 const adminStore = useAdminStore();
@@ -54,7 +54,7 @@ const table = useVueTable({
       accessorKey: 'gameProfileLinkRegex',
       cell: ({ row }) => {
         const regex = row.original.gameProfileLinkRegex;
-        return h('span', { class: 'text-christmas-gold-light text-sm' }, regex ? '✓ Configuré' : '—');
+        return h('span', { class: 'text-foam-200 text-sm' }, regex ? '✓ Configuré' : '—');
       },
       sortingFn: (rowA, rowB) => {
         const a = rowA.original.gameProfileLinkRegex ? 1 : 0;
@@ -67,7 +67,7 @@ const table = useVueTable({
       accessorKey: 'gameUsernameRegex',
       cell: ({ row }) => {
         const regex = row.original.gameUsernameRegex;
-        return h('span', { class: 'text-christmas-gold-light text-sm' }, regex ? '✓ Configuré' : '—');
+        return h('span', { class: 'text-foam-200 text-sm' }, regex ? '✓ Configuré' : '—');
       },
       sortingFn: (rowA, rowB) => {
         const a = rowA.original.gameUsernameRegex ? 1 : 0;
@@ -79,7 +79,7 @@ const table = useVueTable({
       header: 'Créé le',
       accessorKey: 'createdAt',
       cell: ({ row }) => {
-        return h('span', { class: 'text-christmas-gold-light text-sm' }, 
+        return h('span', { class: 'text-foam-300 text-sm' },
           formatDate(new Date(row.original.createdAt), 'DD/MM/YYYY HH:mm')
         );
       },
@@ -94,7 +94,6 @@ const table = useVueTable({
         return h('div', { class: 'flex items-center gap-2' }, [
           h(Button, {
             onClick: () => handleEditGame(row.original),
-            color: 'christmas-gold',
             class: 'flex items-center gap-2 h-fit',
             disabled: deletingId.value === row.original.id
           }, {
@@ -105,7 +104,7 @@ const table = useVueTable({
           }),
           h(Button, {
             onClick: () => handleDeleteGame(row.original.id, row.original.name),
-            color: 'christmas-red',
+            variant: 'danger',
             class: 'flex items-center gap-2 h-fit',
             disabled: deletingId.value === row.original.id || editingGameId.value === row.original.id
           }, {

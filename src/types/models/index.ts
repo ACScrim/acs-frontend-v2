@@ -97,6 +97,7 @@ export interface TournamentPlayer {
 }
 
 export interface Team {
+  id?: string;
   name: string;
   users: User[];
   score: number;

@@ -66,19 +66,20 @@ const sizeClasses = {
 } as const;
 
 const legacyColorToVariant: Record<string, keyof typeof variantClasses> = {
-  'christmas-gold': 'primary',
-  'christmas-red': 'danger',
-  'christmas-green': 'emerald',
-  'christmas-navy': 'secondary',
-  'christmas-ice': 'outline'
+  gold: 'primary',
+  red: 'danger',
+  green: 'emerald',
+  navy: 'secondary',
+  ice: 'outline'
 };
 
 const appliedVariant = computed<keyof typeof variantClasses>(() => {
   if (props.variant && variantClasses[props.variant]) {
     return props.variant;
   }
-  if (props.color && legacyColorToVariant[props.color]) {
-    return legacyColorToVariant[props.color];
+  const normalizedColor = props.color?.replace(/^(christmas-|holiday-)/, '');
+  if (normalizedColor && legacyColorToVariant[normalizedColor]) {
+    return legacyColorToVariant[normalizedColor];
   }
   return 'primary';
 });

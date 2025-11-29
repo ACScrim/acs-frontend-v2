@@ -34,12 +34,12 @@ const table = useVueTable({
                 alt: row.original.name,
                 class: 'w-12 h-12 rounded-lg object-cover'
               })
-            : h('div', { class: 'w-12 h-12 rounded-lg bg-christmas-navy/30 flex items-center justify-center' }, [
-                h(VueIcon, { name: 'bs:image', class: 'text-christmas-gold' })
+            : h('div', { class: 'w-12 h-12 rounded-lg bg-ink-800/60 flex items-center justify-center' }, [
+                h(VueIcon, { name: 'bs:image', class: 'text-accent-300' })
               ]),
           h('div', [
-            h('p', { class: 'font-semibold text-christmas-ice' }, row.original.name),
-            h('p', { class: 'text-xs text-christmas-gold-light/70' }, `ID: ${row.original.id}`)
+            h('p', { class: 'font-semibold text-white' }, row.original.name),
+            h('p', { class: 'text-xs text-foam-300/70' }, `ID: ${row.original.id}`)
           ])
         ]);
       },
@@ -54,9 +54,9 @@ const table = useVueTable({
           h('img', {
             src: proposedBy.avatarUrl || 'https://via.placeholder.com/32',
             alt: proposedBy.username,
-            class: 'w-8 h-8 rounded-full object-cover'
+            class: 'w-8 h-8 rounded-full object-cover border border-white/10'
           }),
-          h('span', { class: 'text-christmas-ice' }, proposedBy.username)
+          h('span', { class: 'text-white' }, proposedBy.username)
         ]);
       },
       sortingFn: 'alphanumeric'
@@ -66,8 +66,8 @@ const table = useVueTable({
       accessorKey: 'votes.length',
       cell: ({ row }) => {
         return h('div', { class: 'flex items-center gap-2' }, [
-          h(VueIcon, { name: 'bs:hand-thumbs-up-fill', class: 'text-christmas-gold' }),
-          h('span', { class: 'font-semibold text-christmas-ice' }, row.original.votes?.length || 0)
+          h(VueIcon, { name: 'bs:hand-thumbs-up-fill', class: 'text-accent-300' }),
+          h('span', { class: 'font-semibold text-white' }, row.original.votes?.length || 0)
         ]);
       },
       sortingFn: (rowA, rowB) => {
@@ -78,7 +78,7 @@ const table = useVueTable({
       header: 'Proposé le',
       accessorKey: 'createdAt',
       cell: ({ row }) => {
-        return h('span', { class: 'text-christmas-gold-light text-sm' },
+        return h('span', { class: 'text-foam-300 text-sm' },
           formatDate(new Date(row.original.createdAt), 'DD/MM/YYYY HH:mm')
         );
       },
@@ -93,7 +93,7 @@ const table = useVueTable({
         return h('div', { class: 'flex items-center gap-2' }, [
           h(Button, {
             onClick: () => handleRejectProposal(row.original.id),
-            color: 'christmas-red',
+            variant: 'danger',
             class: 'flex items-center gap-2 h-fit',
             disabled: processingId.value === row.original.id
           }, {

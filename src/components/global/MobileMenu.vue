@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/userStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { computed } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import {computed} from 'vue';
+import {RouterLink, useRouter} from 'vue-router';
 
 const router = useRouter();
 const mobileFooterRoutes = computed(() =>
@@ -10,9 +9,6 @@ const mobileFooterRoutes = computed(() =>
     (r) => r.meta.showInMobileFooter
   )
 );
-
-const userStore = useUserStore();
-const API_URL = import.meta.env.VITE_API_URL
 </script>
 
 <template>

@@ -15,7 +15,7 @@ const statsBlocks= [
     label: 'Membre',
     value: formatDate(new Date(props.user.createdAt), 'DD MMMM YYYY'),
     footer: 'Depuis',
-    colorClass: 'text-christmas-gold',
+    colorClass: 'text-accent-200',
   },
   {
     id: '2',
@@ -23,7 +23,7 @@ const statsBlocks= [
     label: 'Activité',
     value: formatDate(new Date(props.user.lastActivity), 'DD MMMM YYYY'),
     footer: 'Dernière fois',
-    colorClass: 'text-christmas-crimson',
+    colorClass: 'text-blush-300',
   },
   {
     id: '3',
@@ -31,7 +31,7 @@ const statsBlocks= [
     label: 'Participation',
     value: props.user.tournamentStats.tournamentsCount,
     footer: 'Tournois joués',
-    colorClass: 'text-christmas-forest',
+    colorClass: 'text-emerald-300',
   },
 ]
 </script>
@@ -48,7 +48,7 @@ const statsBlocks= [
     <div class="grid gap-4 md:grid-cols-3">
       <Card v-for="item in statsBlocks" :key="item.id" class="glass-panel bg-white/5 border-white/5 p-4 text-center">
         <template #header>
-          <div class="flex items-center justify-center gap-2 text-sm font-semibold text-accent-200">
+          <div class="flex items-center justify-center gap-2 text-sm font-semibold" :class="item.colorClass">
             <VueIcon :name="item.icon" />
             <span class="uppercase tracking-[0.3em] text-foam-200/70">{{ item.label }}</span>
           </div>

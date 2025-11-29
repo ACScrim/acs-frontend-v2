@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Button, Card } from '@/components/ui';
+import {Button, Card} from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import useTournamentStore from '@/stores/tournamentStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table';
-import { formatDate } from '@vueuse/core';
-import { computed, h, onMounted, ref } from 'vue';
+import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
+import {computed, h, onMounted, ref} from 'vue';
 
 const adminStore = useAdminStore();
 const tournamentStore = useTournamentStore();
@@ -97,7 +96,7 @@ const table = useVueTable({
             alt: row.original.game?.name,
             class: 'w-8 h-8 rounded object-cover'
           }),
-          h('span', { class: 'text-christmas-gold' }, row.original.game?.name || 'N/A')
+          h('span', { class: 'text-foam-50' }, row.original.game?.name || 'N/A')
         ]);
       }
     },
@@ -105,7 +104,7 @@ const table = useVueTable({
       header: 'Pseudo',
       accessorKey: 'gameUsername',
       cell: ({ cell }) => {
-        return h('span', { class: 'text-christmas-gold-light' }, cell.getValue() as string);
+        return h('span', { class: 'text-foam-200' }, cell.getValue() as string || '—');
       }
     },
     {
@@ -114,12 +113,12 @@ const table = useVueTable({
       cell: ({ cell }) => {
         const level = cell.getValue() as string;
         const levelConfig: Record<string, { color: string; icon: string }> = {
-          'débutant': { color: 'text-green-400 bg-green-500/20', icon: 'bs:mortarboard' },
-          'intermédiaire': { color: 'text-yellow-400 bg-yellow-500/20', icon: 'bs:lightning-fill' },
-          'avancé': { color: 'text-orange-400 bg-orange-500/20', icon: 'bs:fire' },
-          'expert': { color: 'text-red-400 bg-red-500/20', icon: 'bs:crown-fill' }
+          'débutant': { color: 'bg-emerald-500/15 text-emerald-200', icon: 'bs:mortarboard' },
+          'intermédiaire': { color: 'bg-amber-400/15 text-amber-200', icon: 'bs:lightning-fill' },
+          'avancé': { color: 'bg-orange-500/15 text-orange-200', icon: 'bs:fire' },
+          'expert': { color: 'bg-rose-500/20 text-rose-100', icon: 'bs:crown-fill' }
         };
-        const config = levelConfig[level] || { color: 'text-christmas-gold-light', icon: 'bs:question-circle' };
+        const config = levelConfig[level] || { color: 'bg-white/10 text-foam-200', icon: 'bs:question-circle' };
 
         return h('div', { class: `flex items-center gap-2 px-3 py-1 rounded-full w-fit ${config.color}` }, [
           h(VueIcon, { name: config.icon, class: 'text-sm' }),
@@ -131,7 +130,7 @@ const table = useVueTable({
       header: 'Rang',
       accessorKey: 'rank',
       cell: ({ row }) => {
-        return h('span', { class: row.original.isRanked ? 'text-christmas-gold font-semibold' : 'text-christmas-gold-light/50 italic' }, 
+        return h('span', { class: row.original.isRanked ? 'text-foam-50 font-semibold' : 'text-foam-300/60 italic' },
           row.original.isRanked ? (row.original.rank || 'N/A') : '—'
         );
       }
@@ -144,15 +143,15 @@ const table = useVueTable({
         const gameRoles = row.original.game?.roles || [];
         
         if (roles.length === 0) {
-          return h('span', { class: 'text-christmas-gold-light/50 italic' }, '—');
+          return h('span', { class: 'text-foam-300/60 italic' }, '—');
         }
 
         return h('div', { class: 'flex flex-wrap gap-2' }, 
           roles.map(roleName => {
             const roleConfig = gameRoles.find(r => r.name === roleName);
             return h('div', {
-              class: 'px-2 py-1 rounded-full text-xs font-semibold',
-              style: { backgroundColor: roleConfig?.color + '33', color: roleConfig?.color || '#D4AF37' }
+              class: 'px-2 py-1 rounded-full text-xs font-semibold border border-white/10',
+              style: { backgroundColor: roleConfig?.color + '26', color: roleConfig?.color || '#E0E7FF' }
             }, roleName);
           })
         );
@@ -164,14 +163,14 @@ const table = useVueTable({
       cell: ({ row }) => {
         const link = row.original.gameProfileLink;
         if (!link) {
-          return h('span', { class: 'text-christmas-gold-light/50 italic' }, '—');
+          return h('span', { class: 'text-foam-300/60 italic' }, '—');
         }
         
         return h('a', {
           href: link,
           target: '_blank',
           rel: 'noopener noreferrer',
-          class: 'text-christmas-gold hover:text-christmas-gold-light underline flex items-center gap-1 w-fit'
+          class: 'text-accent-200 hover:text-white underline flex items-center gap-1 w-fit'
         }, [
           h(VueIcon, { name: 'bs:box-arrow-up-right', class: 'text-sm' }),
           h('span', 'Voir le profil')
@@ -182,8 +181,10 @@ const table = useVueTable({
       header: 'Commentaire',
       accessorKey: 'comment',
       cell: ({ cell }) => {
-        return h('span', { class: 'text-christmas-gold-light/70 text-sm', title: cell.getValue() as string },
-          cell.getValue().substring(0, 30) + (cell.getValue().length > 30 ? '...' : '') || '—'
+        const value = cell.getValue() as string;
+        if (!value) return h('span', { class: 'text-foam-300/50' }, '—');
+        return h('span', { class: 'text-foam-200/80 text-sm', title: value },
+          value.substring(0, 30) + (value.length > 30 ? '...' : '')
         );
       }
     }

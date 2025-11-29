@@ -85,7 +85,7 @@ const onDragOver = (e: DragEvent) => {
   e.preventDefault();
 };
 
-const onDropToTeam = (team: Team, teamIndex: number) => {
+const onDropToTeam = (team: Team) => {
   dragOverTeamIndex.value = null;
   if (!draggedPlayer.value) return;
 
@@ -171,6 +171,7 @@ const autoBalanceTeams = () => {
   let teamIndex = 0;
   allPlayers.forEach((player, index) => {
     const currentTeam = teams.value[teamIndex];
+    if (!currentTeam) return;
     const found = props.tournament.players.find(p => p.id === player.id);
     if (found && currentTeam.players.length < playersPerTeam.value) {
       currentTeam.players.push(found);
@@ -259,7 +260,7 @@ const autoBalanceTeams = () => {
       </Card>
 
       <div class="lg:col-span-3 grid gap-4 md:grid-cols-2">
-        <Card v-for="(team, index) in teams" :key="index" @dragover="onDragOver" @drop="onDropToTeam(team, index)" @dragenter="dragOverTeamIndex = index" @dragleave="dragOverTeamIndex = null" :class="['glass-panel p-4 min-h-[480px] transition', dragOverTeamIndex === index ? 'border-accent-300' : 'border-white/5']">
+        <Card v-for="(team, index) in teams" :key="index" @dragover="onDragOver" @drop="onDropToTeam(team)" @dragenter="dragOverTeamIndex = index" @dragleave="dragOverTeamIndex = null" :class="['glass-panel p-4 min-h-[480px] transition', dragOverTeamIndex === index ? 'border-accent-300' : 'border-white/5']">
           <template #header>
             <div class="flex items-center justify-between gap-3">
               <input v-model="team.name" class="form-input bg-transparent text-lg font-semibold" />

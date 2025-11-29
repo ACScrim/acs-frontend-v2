@@ -33,11 +33,11 @@ const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tou
       </h2>
     </template>
 
-    <ListView :data="teams" empty-title="Aucune équipe créée pour le moment" :max-cols="1">
+    <ListView :data="teams.map((team, index) => ({ ...team, id: team.id ?? `${team.name}-${index}` }))" empty-title="Aucune équipe créée pour le moment" :max-cols="1">
       <template #item="{ item }">
         <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 space-y-4">
           <h3 class="text-white font-semibold text-xl">{{ item.name }}</h3>
-          <ListView :data="item.users" empty-title="Aucun joueur dans cette équipe" :max-cols="maxCols">
+          <ListView :data="item.users.map((user, index) => ({ ...user, id: user.id ?? `${item.name}-${index}` }))" empty-title="Aucun joueur dans cette équipe" :max-cols="maxCols">
             <template #item="{ item: player }">
               <TournamentUserCard 
                 :player="mergeUserAndTournamentPlayerData(player, tournament.players.find(p => p.user.id === player.id))" 

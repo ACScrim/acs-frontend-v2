@@ -3,9 +3,9 @@ import TableTanstack from '@/components/global/TableTanstack.vue';
 import { Button, Card, Badge } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import { useToastStore } from '@/stores/toastStore';
-import type { TournamentFormData } from '@/types/models';
+import type { Tournament, TournamentFormData } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table';
+import { getCoreRowModel, getPaginationRowModel, useVueTable, type ColumnDef } from '@tanstack/vue-table';
 import { formatDate } from '@vueuse/core';
 import { computed, h, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
@@ -26,7 +26,7 @@ const pagination = ref({
   pageSize: 10
 });
 
-const columns = [
+const columns: ColumnDef<Tournament>[] = [
   {
     header: 'Tournoi',
     accessorKey: 'name',
@@ -70,11 +70,12 @@ const columns = [
   }
 ];
 
-const table = useVueTable({
+const table = useVueTable<Tournament>({
   get data() {
     return tournaments.value;
   },
   columns,
+  enableSorting: false,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   state: {

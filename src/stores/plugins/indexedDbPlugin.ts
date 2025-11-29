@@ -2,7 +2,6 @@ import type { PiniaPluginContext } from 'pinia';
 import { db } from '@/db';
 
 const EXCLUDED_STORES = ['toast'];
-const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 
 // Configuration des champs à exclure par store
 const EXCLUDED_FIELDS: Record<string, string[]> = {
@@ -68,7 +67,7 @@ export function indexedDbPlugin({ store }: PiniaPluginContext) {
   };
 
   store.$subscribe(
-    (mutation, state) => {
+    (_, state) => {
       saveToDb(state as Record<string, any>);
     },
     { 

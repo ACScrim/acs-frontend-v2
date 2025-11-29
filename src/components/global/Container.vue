@@ -22,7 +22,7 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
 </script>
 
 <template>
-  <main class="relative grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] bg-ink-950 place-items-stretch">
+  <main class="relative grid overflow-hidden h-dvh w-full grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] bg-ink-950 place-items-stretch">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div
         v-for="orb in orbs"
@@ -44,11 +44,9 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
       <slot name="aside" />
     </aside>
 
-    <section class="relative z-10 flex flex-col">
-      <div class="grow overflow-y-auto overflow-x-hidden" data-acs-scroll-region>
-        <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-10 lg:px-10">
-          <slot name="view" />
-        </div>
+    <section class="relative z-10 flex flex-col overflow-y-auto" data-acs-scroll-region>
+      <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-10 lg:px-10">
+        <slot name="view" />
       </div>
       <MobileMenu />
     </section>

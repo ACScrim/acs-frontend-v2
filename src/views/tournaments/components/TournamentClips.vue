@@ -82,26 +82,26 @@ const resetForm = () => {
         <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 text-sm text-foam-200 space-y-2">
           <p class="font-semibold">Formats acceptés</p>
           <div class="space-y-2 text-sm">
-            <div class="text-christmas-snow">
-              <p class="font-semibold text-christmas-gold-light mb-1">YouTube :</p>
+            <div class="text-foam-100">
+              <p class="font-semibold text-accent-300 mb-1">YouTube :</p>
               <ul class="space-y-1 ml-4">
-                <li v-for="format in youtubeFormats" :key="format" class="text-christmas-snow/80 break-all text-xs md:text-sm font-mono bg-christmas-navy/50 p-2 rounded border border-christmas-gold/20">
+                <li v-for="format in youtubeFormats" :key="format" class="text-foam-100/80 break-all text-xs md:text-sm font-mono bg-ink-800/60 p-2 rounded border border-accent-300/20">
                   {{ format }}
                 </li>
               </ul>
             </div>
 
-            <div class="text-christmas-snow">
-              <p class="font-semibold text-christmas-gold-light mb-1">Twitch :</p>
-              <div class="text-christmas-snow/80 break-all text-xs md:text-sm font-mono bg-christmas-navy/50 p-2 rounded border border-christmas-gold/20">
+            <div class="text-foam-100">
+              <p class="font-semibold text-accent-300 mb-1">Twitch :</p>
+              <div class="text-foam-100/80 break-all text-xs md:text-sm font-mono bg-ink-800/60 p-2 rounded border border-accent-300/20">
                 {{ twitchFormat }}
               </div>
             </div>
           </div>
 
-          <div class="border-t border-christmas-gold/20 pt-3 text-xs text-christmas-gold-light">
+          <div class="border-t border-white/10 pt-3 text-xs text-foam-200/80">
             <p class="flex items-start gap-2">
-              <VueIcon name="bs:exclamation-triangle-fill" class="flex-shrink-0 mt-0.5" />
+              <VueIcon name="bs:exclamation-triangle-fill" class="flex-shrink-0 mt-0.5 text-amber-400" />
               <span>
                 <strong>Important :</strong> Votre clip sera refusé si le format n'est pas respecté. Les administrateurs se réservent le droit de supprimer tout clip ne correspondant pas au tournoi.
               </span>

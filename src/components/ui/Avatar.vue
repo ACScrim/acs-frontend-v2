@@ -35,8 +35,8 @@ const shouldShowFallback = computed(() => !shouldShowImage.value);
     <!-- Fallback -->
     <span v-else-if="shouldShowFallback" class="font-medium text-center size-full">
       <slot name="fallback">
-        <div class="flex items-center justify-center bg-christmas-pine size-full">
-          <span class="text-christmas-snow font-bold text-lg">
+        <div class="flex items-center justify-center bg-ink-700 text-foam-50 size-full">
+          <span class="font-bold text-lg">
             {{ fallback }}
           </span>
         </div>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
-import { Button, Card } from '@/components/ui';
+import {Button, Card} from '@/components/ui';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import LevelForm from './components/LevelForm.vue';
 
 const playerLevelStore = usePlayerLevelStore();

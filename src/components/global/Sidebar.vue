@@ -28,8 +28,8 @@ const asideRoutes = computed(() =>
       return showInAside === true;
     })
     .sort((a, b) => {
-      const orderA = a.meta.order ?? 0;
-      const orderB = b.meta.order ?? 0;
+      const orderA = (a.meta.order as number) ?? 0;
+      const orderB = (b.meta.order as number) ?? 0;
       return orderA - orderB;
     })
 );
