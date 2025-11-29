@@ -11,6 +11,7 @@ import TournamentForm from './components/TournamentForm.vue';
 import TournamentPlayers from './components/TournamentPlayers.vue';
 import TournamentTeamsCreation from './components/TournamentTeamsCreation.vue';
 import TournamentTeamsDisplay from './components/TournamentTeamsDisplay.vue';
+import TournamentResults from './components/TournamentResults.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -18,7 +19,8 @@ const adminStore = useAdminStore();
 
 const tournament = computed(() => adminStore.getTournamentById(route.params.id as string) as Tournament);
 const editingTeams = ref(!tournament.value?.teamsPublished);
-const activeTab = ref<'teams' | 'details' | 'players'>('teams');
+const activeTab = ref<'teams' | 'details' | 'players' | 'results'>('teams');
+const tournamentStarted = computed(() => new Date(tournament.value?.date ?? '').getTime() <= Date.now());
 
 whenever(tournament, () => {
   editingTeams.value = !tournament.value?.teamsPublished;
@@ -32,7 +34,7 @@ onMounted(() => {
   adminStore.fetchTournamentDetails(route.params.id as string);
 
   const queryTab = route.query.tab as string;
-  if (queryTab === 'teams' || queryTab === 'details' || queryTab === 'players') {
+  if (queryTab === 'teams' || queryTab === 'details' || queryTab === 'players' || queryTab === 'results') {
     activeTab.value = queryTab;
   }
 });
@@ -147,6 +149,19 @@ const handleSubmit = async (formData: TournamentFormData) => {
         <VueIcon name="bs:pencil" />
         Détails
       </button>
+      <button
+        v-if="tournamentStarted"
+        @click="activeTab = 'results'"
+        :class="[
+          'px-4 py-3 font-bold flex items-center gap-2 transition-all',
+          activeTab === 'results'
+            ? 'text-christmas-gold border-b-2 border-christmas-gold'
+            : 'text-christmas-gold-light/70 hover:text-christmas-gold-light'
+        ]"
+      >
+        <VueIcon name="bs:bar-chart" />
+        Résultats
+      </button>
     </div>
 
     <!-- Teams Tab -->
@@ -177,6 +192,11 @@ const handleSubmit = async (formData: TournamentFormData) => {
         :tournament="tournament"
         @submit="handleSubmit"
       />
+    </div>
+
+    <!-- Results Tab -->
+    <div v-show="activeTab === 'results'" class="animate-in fade-in duration-200" v-if="tournamentStarted">
+      <TournamentResults :tournament="tournament" @saved="handleTeamsSaved" />
     </div>
   </div>
 </template>

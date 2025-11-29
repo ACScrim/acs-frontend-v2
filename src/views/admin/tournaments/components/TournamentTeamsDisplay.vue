@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 const route = useRoute();
 const adminStore = useAdminStore();
-const editableTeams = ref<Record<string, { name: string; score: number; ranking: number }>>({});
+const editableTeams = ref<Record<string, { name: string }>>({});
 const savingTeamKey = ref<string | null>(null);
 
 const getTeamKey = (team: Tournament['teams'][number]) => {
@@ -27,13 +27,11 @@ const getTeamKey = (team: Tournament['teams'][number]) => {
 watch(
   () => props.tournament.teams,
   (teams) => {
-    const snapshot: Record<string, { name: string; score: number; ranking: number }> = {};
+    const snapshot: Record<string, { name: string }> = {};
     teams.forEach(team => {
       const key = getTeamKey(team);
       snapshot[key] = {
         name: team.name,
-        score: team.score,
-        ranking: team.ranking,
       };
     });
     editableTeams.value = snapshot;
@@ -59,8 +57,6 @@ const resetTeamFields = (team: Tournament['teams'][number]) => {
   if (team) {
     editableTeams.value[key] = {
       name: sourceTeam?.name ?? team.name,
-      score: sourceTeam?.score ?? team.score,
-      ranking: sourceTeam?.ranking ?? team.ranking,
     };
   }
 };
@@ -74,8 +70,6 @@ const saveTeamDetails = async (team: Tournament['teams'][number]) => {
     savingTeamKey.value = key;
     await adminStore.updateTeamDetails(route.params.id as string, team.name, {
       name: fields.name,
-      score: fields.score,
-      ranking: fields.ranking,
     });
     useToastStore().success('Équipe mise à jour avec succès.');
   } catch (error) {
@@ -111,32 +105,18 @@ const saveTeamDetails = async (team: Tournament['teams'][number]) => {
               <p class="text-sm text-foam-300/70">{{ team.users.length }} joueurs</p>
             </div>
             <div class="text-right">
-              <p class="text-xs text-foam-300/70">Place</p>
-               <input
-                v-model.number="editableTeams[getTeamKey(team)]!.ranking"
-                 type="number"
-                 min="1"
-                 class="form-input w-24 text-center"
-               />
+              <p class="text-xs text-foam-300/70">Classement</p>
+              <p class="text-lg font-semibold text-white">{{ team.ranking ?? '-' }}</p>
             </div>
           </div>
-          <div class="grid grid-cols-3 gap-2 rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm text-white">
+          <div class="grid grid-cols-2 gap-2 rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm text-white">
             <div>
               <p class="text-xs text-foam-300/70">Score</p>
-              <input
-                v-model.number="editableTeams[getTeamKey(team)]!.score"
-                 type="number"
-                 min="0"
-                 class="form-input"
-               />
+              <p class="text-lg font-semibold">{{ team.score ?? '-' }}</p>
             </div>
             <div>
               <p class="text-xs text-foam-300/70">Tier moyen</p>
               <p class="font-semibold">{{ getTeamTierInfo(team).avg }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-foam-300/70">Tier total</p>
-              <p class="font-semibold">{{ getTeamTierInfo(team).total }}</p>
             </div>
           </div>
           <div class="flex gap-2">
@@ -145,7 +125,7 @@ const saveTeamDetails = async (team: Tournament['teams'][number]) => {
               :disabled="savingTeamKey === getTeamKey(team)"
               @click.stop="saveTeamDetails(team)"
             >
-              <VueIcon name="bs:check-circle" /> Sauvegarder
+              <VueIcon name="bs:check-circle" /> Renommer
             </Button>
             <Button
               class="flex-1"

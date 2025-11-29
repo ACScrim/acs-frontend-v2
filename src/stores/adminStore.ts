@@ -290,8 +290,20 @@ const useAdminStore = defineStore('admin', {
         useToastStore().error("Error rejecting proposal:", error.message || error);
         throw error;
       }
-    }
+    },
+    async finalizeTournamentResults(tournamentId: string, data: { results: Array<{ teamId?: string; name?: string; score: number; ranking: number }>; openMvpVote?: boolean }) {
+      try {
+        const response = await api.post<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/results`, data);
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+        return tournament;
+      } catch (error: any) {
+        useToastStore().error("Error finalizing tournament results:", error.message || error);
+        throw error;
+      }
+    },
   }
 })
 
 export default useAdminStore;
+

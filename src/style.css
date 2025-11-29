@@ -107,6 +107,15 @@
     border-radius: 999px;
     background-image: linear-gradient(120deg, var(--color-accent-500), var(--color-emerald-400));
   }
+
+  .form-input::placeholder {
+    color: color-mix(in srgb, var(--color-foam-300) 60%, transparent);
+  }
+
+  .form-input:focus {
+    border-color: var(--color-accent-300);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-300) 25%, transparent);
+  }
 }
 
 @utility glass-panel {
@@ -141,14 +150,6 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
-@utility form-input::placeholder {
-  color: color-mix(in srgb, var(--color-foam-300) 60%, transparent);
-}
-
-@utility form-input:focus {
-  border-color: var(--color-accent-300);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent-300) 25%, transparent);
-}
 
 @utility form-label {
   font-size: var(--text-xs);
