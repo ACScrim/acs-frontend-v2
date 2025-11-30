@@ -204,3 +204,32 @@ export interface TournamentFormData {
   discordReminderDate: string;
   privateReminderDate: string;
 }
+
+export interface DailyQuestion {
+  id: string;
+  question: string;
+  options: string[];
+}
+
+export interface YesterdayDailyQuestion extends DailyQuestion {
+  correctAnswer: string;
+  userAnswer?: DailyAnswer;
+}
+
+export interface DailyAnswer {
+  questionId: string;
+  userAnswer?: string;
+  isCorrect: boolean;
+  useHint: boolean;
+  cheated: boolean;
+  discoveredAt?: Date;
+  answeredAt?: Date;
+  points?: number;
+}
+
+export interface WeeklyLeaderboardEntry {
+  userId: string;
+  username: string;
+  avatarUrl: string;
+  totalPoints: number;
+}

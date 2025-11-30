@@ -11,11 +11,12 @@ const routes: RouterOptions['routes'] = [
   { path: '/game-proposals', component: () => import('@/views/proposals/Proposal.vue'), name: 'Propositions de jeux', meta: { title: 'Propositions de jeux', icon: "bx:upvote", showInAside: true, showInMobileFooter: true, showInAdminBar: false } },
   { path: '/badges', component: () => import('@/views/notfound/NotFound.vue'), name: 'Badges', meta: { title: 'Badges', icon: "ci:medal", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/members', component: () => import('@/views/notfound/NotFound.vue'), name: 'Membres', meta: { title: 'Membres', icon: "cl:users-group", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
-  { path: '/games', component: () => import('@/views/notfound/NotFound.vue'), name: 'Jeux', meta: { title: 'Jeux', icon: "ca:game-console", showInAside: true, showInMobileFooter: false, showInAdminBar: false } },
+  { path: '/games', component: () => import('@/views/games/Games.vue'), name: 'Jeux', meta: { title: 'Jeux', icon: "ca:game-console", showInAside: true, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/profile/:userId?', component: () => import('@/views/profile/Profile.vue'), name: 'Profil', meta: { title: 'Profil', icon: "cd:account", showInAside: false, showInMobileFooter: true, showInAdminBar: false } },
   { path: '/player-levels', component: () => import('@/views/player-levels/PlayerLevels.vue'), name: 'Niveaux de jeu', meta: { title: 'Niveaux de jeu', icon: "lu:gamepad-2", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/settings', component: () => import('@/views/notfound/NotFound.vue'), name: 'Paramètres', meta: { title: 'Paramètres', icon: "ic:baseline-settings", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/verify-membership', component: () => import('@/views/verify-membership/VerifyMembership.vue'), name: 'VerifyMembership', meta: { title: "Vérification Discord", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
+  { path: '/games/dailyQuiz', component: () => import('@/views/games/daily-quiz/DailyQuiz.vue'), name: 'DailyQuiz', meta: { title: "Daily Quiz", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false, showInAdminBar: false } }
 ]
 

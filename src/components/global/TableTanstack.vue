@@ -18,6 +18,7 @@ const headerMap = computed(() => {
   const groups = table.getHeaderGroups();
   if (groups.length) {
     const first = groups[0];
+    if (!first) return map;
     for (const h of first.headers) {
       map.set(h.column.id, h);
     }
@@ -80,7 +81,7 @@ const headerMap = computed(() => {
       </tbody>
     </table>
 
-    <div class="flex items-center justify-center gap-2 border-t border-white/5 p-4" v-if="paginated">
+    <div class="flex items-center justify-center gap-2 border-t border-white/5 p-4" v-if="paginated && table.getPageCount() > 1">
       <Button variant="ghost" :disabled="!table.getCanPreviousPage()" @click="table.firstPage()">⟪</Button>
       <Button variant="ghost" :disabled="!table.getCanPreviousPage()" @click="table.previousPage()">‹</Button>
       <span class="text-sm text-foam-200/80">
