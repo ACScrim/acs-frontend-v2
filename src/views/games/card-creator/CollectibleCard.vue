@@ -41,6 +41,36 @@ const cardStyle = computed(() => {
 // Check if border uses an image
 const hasImageBorder = computed(() => !!props.border?.imageUrl);
 
+// Check if using UI Kit backgrounds (for animations)
+const isUIKitBackground = computed(() => {
+  return ['bg-nebula', 'bg-hex', 'bg-amber-liquid'].includes(props.background?.id || '');
+});
+
+// Get animation class for UI Kit backgrounds
+const backgroundAnimationClass = computed(() => {
+  switch (props.background?.id) {
+    case 'bg-nebula': return 'animate-nebula';
+    case 'bg-hex': return 'animate-hex';
+    case 'bg-amber-liquid': return 'animate-amber-liquid';
+    default: return '';
+  }
+});
+
+// Get animation class for UI Kit borders
+const borderAnimationClass = computed(() => {
+  switch (props.border?.id) {
+    case 'border-lightning': return 'animate-lightning';
+    case 'border-blue-ring': return 'animate-blue-ring';
+    case 'border-tech-frame': return 'animate-tech-frame';
+    default: return '';
+  }
+});
+
+// Check if holographic effect should be shown (for UI Kit items)
+const showHolographic = computed(() => {
+  return isUIKitBackground.value || hasImageBorder.value;
+});
+
 // Special border styles that need additional handling
 const specialBorderStyle = computed(() => {
   // Image-based borders are handled separately
@@ -140,16 +170,27 @@ onUnmounted(() => {
   <div
     ref="cardRef"
     class="collectible-card relative w-64 h-96 rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 ease-out"
-    :class="{ 'shadow-2xl scale-105': isHovered }"
+    :class="[
+      { 'shadow-2xl scale-105': isHovered },
+      backgroundAnimationClass
+    ]"
     :style="cardStyle"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- Holographic overlay effect for UI Kit items -->
+    <div 
+      v-if="showHolographic"
+      class="holographic-overlay absolute inset-0 pointer-events-none z-20 rounded-2xl"
+      :class="{ 'holographic-active': isHovered }"
+    />
+    
     <!-- Image-based border overlay (for UI Kit frames) -->
     <img 
       v-if="hasImageBorder && border?.imageUrl"
       :src="border.imageUrl"
       class="absolute inset-0 w-full h-full pointer-events-none z-10"
+      :class="borderAnimationClass"
       alt=""
     />
     
@@ -164,7 +205,7 @@ onUnmounted(() => {
     />
     
     <!-- Card inner content -->
-    <div class="relative h-full flex flex-col p-4">
+    <div class="relative h-full flex flex-col p-4 z-5">
       <!-- Image container -->
       <div class="flex-shrink-0 h-48 rounded-xl overflow-hidden bg-black/20 mb-3">
         <img 
@@ -222,6 +263,147 @@ onUnmounted(() => {
   );
   pointer-events: none;
   border-radius: inherit;
+}
+
+/* Holographic shader effect */
+.holographic-overlay {
+  background: linear-gradient(
+    125deg,
+    transparent 0%,
+    rgba(255, 0, 255, 0.1) 20%,
+    rgba(0, 255, 255, 0.1) 40%,
+    rgba(255, 255, 0, 0.1) 60%,
+    rgba(0, 255, 0, 0.1) 80%,
+    transparent 100%
+  );
+  background-size: 400% 400%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  mix-blend-mode: overlay;
+}
+
+.holographic-overlay.holographic-active {
+  opacity: 1;
+  animation: holographic-shift 3s ease infinite;
+}
+
+@keyframes holographic-shift {
+  0% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: hue-rotate(180deg);
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* Background animations */
+.animate-nebula {
+  animation: nebula-pulse 8s ease-in-out infinite;
+}
+
+@keyframes nebula-pulse {
+  0%, 100% {
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    filter: brightness(1.2) saturate(1.3);
+  }
+}
+
+.animate-hex {
+  animation: hex-glow 4s ease-in-out infinite;
+}
+
+@keyframes hex-glow {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 0px transparent);
+  }
+  50% {
+    filter: brightness(1.1) drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+  }
+}
+
+.animate-amber-liquid {
+  animation: amber-flow 6s ease-in-out infinite;
+}
+
+@keyframes amber-flow {
+  0%, 100% {
+    filter: brightness(1) hue-rotate(0deg);
+  }
+  33% {
+    filter: brightness(1.15) hue-rotate(10deg);
+  }
+  66% {
+    filter: brightness(1.1) hue-rotate(-5deg);
+  }
+}
+
+/* Border animations */
+.animate-lightning {
+  animation: lightning-flicker 0.5s ease-in-out infinite;
+}
+
+@keyframes lightning-flicker {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1) drop-shadow(0 0 5px rgba(153, 69, 255, 0.8));
+  }
+  25% {
+    opacity: 0.8;
+    filter: brightness(1.3) drop-shadow(0 0 15px rgba(20, 241, 149, 1));
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.5) drop-shadow(0 0 20px rgba(153, 69, 255, 1));
+  }
+  75% {
+    opacity: 0.9;
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(20, 241, 149, 0.9));
+  }
+}
+
+.animate-blue-ring {
+  animation: blue-ring-pulse 2s ease-in-out infinite;
+}
+
+@keyframes blue-ring-pulse {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 5px rgba(0, 212, 255, 0.5));
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 20px rgba(0, 212, 255, 1)) drop-shadow(0 0 40px rgba(0, 153, 255, 0.5));
+    transform: scale(1.02);
+  }
+}
+
+.animate-tech-frame {
+  animation: tech-scan 3s linear infinite;
+}
+
+@keyframes tech-scan {
+  0% {
+    filter: brightness(1) drop-shadow(0 0 3px rgba(0, 255, 136, 0.5));
+  }
+  25% {
+    filter: brightness(1.2) drop-shadow(0 0 8px rgba(0, 212, 255, 0.8));
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 12px rgba(255, 0, 255, 0.8));
+  }
+  75% {
+    filter: brightness(1.2) drop-shadow(0 0 8px rgba(0, 212, 255, 0.8));
+  }
+  100% {
+    filter: brightness(1) drop-shadow(0 0 3px rgba(0, 255, 136, 0.5));
+  }
 }
 
 .shine-effect {
