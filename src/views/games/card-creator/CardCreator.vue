@@ -211,12 +211,19 @@ const resetForm = () => {
             <button
               v-for="bg in CARD_BACKGROUNDS"
               :key="bg.id"
-              class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105"
+              class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
               :class="selectedBackgroundId === bg.id ? 'border-accent-400 ring-2 ring-accent-400/50' : 'border-white/10 hover:border-white/30'"
-              :style="{ background: bg.gradient }"
+              :style="bg.imageUrl ? {} : { background: bg.gradient }"
               :title="bg.name"
               @click="selectedBackgroundId = bg.id"
-            />
+            >
+              <img 
+                v-if="bg.imageUrl" 
+                :src="bg.imageUrl" 
+                :alt="bg.name"
+                class="w-full h-full object-cover"
+              />
+            </button>
           </div>
         </div>
 
@@ -227,12 +234,19 @@ const resetForm = () => {
             <button
               v-for="border in CARD_BORDERS"
               :key="border.id"
-              class="w-full aspect-square rounded-lg bg-ink-800 transition-all duration-200 hover:scale-105"
+              class="w-full aspect-square rounded-lg bg-ink-800 transition-all duration-200 hover:scale-105 overflow-hidden relative"
               :class="selectedBorderId === border.id ? 'ring-2 ring-accent-400/50' : ''"
-              :style="{ border: border.style }"
+              :style="border.imageUrl ? {} : { border: border.style }"
               :title="border.name"
               @click="selectedBorderId = border.id"
-            />
+            >
+              <img 
+                v-if="border.imageUrl" 
+                :src="border.imageUrl" 
+                :alt="border.name"
+                class="absolute inset-0 w-full h-full object-contain"
+              />
+            </button>
           </div>
         </div>
 
