@@ -15,6 +15,7 @@ const cardRef = ref<HTMLElement | null>(null);
 const rotateX = ref(0);
 const rotateY = ref(0);
 const isHovered = ref(false);
+let animationFrameId: number | null = null;
 
 const cardStyle = computed(() => {
   const bg = props.background?.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
@@ -46,8 +47,17 @@ const specialBorderStyle = computed(() => {
   return null;
 });
 
-const handleMouseMove = (event: MouseEvent) => {
-  if (!props.interactive || !cardRef.value) return;
+// Throttled mouse move handler using requestAnimationFrame
+let pendingMouseEvent: MouseEvent | null = null;
+
+const processMouseMove = () => {
+  if (!pendingMouseEvent || !cardRef.value) {
+    animationFrameId = null;
+    return;
+  }
+  
+  const event = pendingMouseEvent;
+  pendingMouseEvent = null;
   
   const rect = cardRef.value.getBoundingClientRect();
   const centerX = rect.left + rect.width / 2;
@@ -59,6 +69,18 @@ const handleMouseMove = (event: MouseEvent) => {
   // Limit rotation to ±15 degrees
   rotateY.value = (mouseX / (rect.width / 2)) * 15;
   rotateX.value = -(mouseY / (rect.height / 2)) * 15;
+  
+  animationFrameId = null;
+};
+
+const handleMouseMove = (event: MouseEvent) => {
+  if (!props.interactive || !cardRef.value) return;
+  
+  pendingMouseEvent = event;
+  
+  if (animationFrameId === null) {
+    animationFrameId = requestAnimationFrame(processMouseMove);
+  }
 };
 
 const handleMouseEnter = () => {
@@ -83,6 +105,9 @@ onUnmounted(() => {
   if (props.interactive) {
     window.removeEventListener('mousemove', handleMouseMove);
   }
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+  }
 });
 </script>
 
@@ -98,13 +123,10 @@ onUnmounted(() => {
     <!-- Special border overlay for rainbow/gradient borders -->
     <div 
       v-if="specialBorderStyle"
-      class="absolute inset-0 rounded-2xl pointer-events-none"
+      class="absolute inset-0 rounded-2xl pointer-events-none special-border-overlay"
       :style="{ 
         ...specialBorderStyle,
         padding: '4px',
-        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-        WebkitMaskComposite: 'xor',
-        maskComposite: 'exclude'
       }"
     />
     
@@ -197,6 +219,13 @@ onUnmounted(() => {
   100% {
     background-position: 400% 50%;
   }
+}
+
+.special-border-overlay {
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
 }
 
 .line-clamp-3 {

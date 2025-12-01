@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import { Button, Card } from '@/components/ui';
 import CollectibleCard from './CollectibleCard.vue';
 import useCardStore, { CARD_BACKGROUNDS, CARD_BORDERS } from '@/stores/cardStore';
@@ -32,6 +32,13 @@ const isFormValid = computed(() =>
   description.value.trim().length > 0
 );
 
+// Helper to revoke blob URL
+const revokeImageUrl = () => {
+  if (imageUrl.value && imageUrl.value.startsWith('blob:')) {
+    URL.revokeObjectURL(imageUrl.value);
+  }
+};
+
 // Methods
 const handleImageUpload = (event: Event) => {
   const input = event.target as HTMLInputElement;
@@ -50,6 +57,9 @@ const handleImageUpload = (event: Event) => {
       return;
     }
     
+    // Revoke previous blob URL if exists
+    revokeImageUrl();
+    
     // Create local URL for preview
     imageUrl.value = URL.createObjectURL(file);
   }
@@ -60,11 +70,17 @@ const triggerFileInput = () => {
 };
 
 const removeImage = () => {
+  revokeImageUrl();
   imageUrl.value = '';
   if (fileInputRef.value) {
     fileInputRef.value.value = '';
   }
 };
+
+// Cleanup on unmount
+onUnmounted(() => {
+  revokeImageUrl();
+});
 
 const saveCard = async () => {
   if (!isFormValid.value) {
@@ -81,7 +97,7 @@ const saveCard = async () => {
   });
   
   if (card) {
-    // Reset form
+    // Reset form (don't revoke URL as it's now saved in the card)
     title.value = '';
     description.value = '';
     imageUrl.value = '';
