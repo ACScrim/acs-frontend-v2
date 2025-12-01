@@ -18,18 +18,36 @@ const isHovered = ref(false);
 let animationFrameId: number | null = null;
 
 const cardStyle = computed(() => {
-  const bg = props.background?.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+  let bgStyle = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+  
+  // Use image URL if available, otherwise use gradient
+  if (props.background?.imageUrl) {
+    bgStyle = `url(${props.background.imageUrl})`;
+  } else if (props.background?.gradient) {
+    bgStyle = props.background.gradient;
+  }
+  
   const borderStyle = props.border?.style || '3px solid rgba(255, 255, 255, 0.3)';
   
   return {
-    background: bg,
-    border: borderStyle,
+    background: bgStyle,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    border: props.border?.imageUrl ? 'none' : borderStyle,
     transform: `perspective(1000px) rotateX(${rotateX.value}deg) rotateY(${rotateY.value}deg)`,
   };
 });
 
+// Check if border uses an image
+const hasImageBorder = computed(() => !!props.border?.imageUrl);
+
 // Special border styles that need additional handling
 const specialBorderStyle = computed(() => {
+  // Image-based borders are handled separately
+  if (props.border?.imageUrl) {
+    return null;
+  }
+  
   if (props.border?.id === 'border-4') {
     // Rainbow border
     return {
@@ -42,32 +60,6 @@ const specialBorderStyle = computed(() => {
     // Gradient border
     return {
       backgroundImage: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c)',
-    };
-  }
-  if (props.border?.id === 'border-lightning') {
-    // Lightning border - electric yellow with glow effect
-    return {
-      backgroundImage: 'linear-gradient(90deg, #ffd700, #ffff00, #ffd700, #ff8c00, #ffd700)',
-      backgroundSize: '200% 200%',
-      animation: 'lightning-border 0.5s linear infinite',
-      boxShadow: '0 0 15px #ffd700, 0 0 30px #ffff00',
-    };
-  }
-  if (props.border?.id === 'border-blue-ring') {
-    // BlueRing border - glowing blue ring
-    return {
-      backgroundImage: 'linear-gradient(180deg, #00d4ff, #0099ff, #0066ff, #0099ff, #00d4ff)',
-      backgroundSize: '100% 200%',
-      animation: 'blue-ring-border 2s ease-in-out infinite',
-      boxShadow: '0 0 20px #00d4ff, 0 0 40px #0099ff',
-    };
-  }
-  if (props.border?.id === 'border-tech-frame') {
-    // TechFrame border - cyberpunk style
-    return {
-      backgroundImage: 'linear-gradient(45deg, #00ff88 0%, #00d4ff 25%, #ff00ff 50%, #00d4ff 75%, #00ff88 100%)',
-      backgroundSize: '300% 300%',
-      animation: 'tech-frame-border 3s linear infinite',
     };
   }
   return null;
@@ -153,6 +145,14 @@ onUnmounted(() => {
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- Image-based border overlay (for UI Kit frames) -->
+    <img 
+      v-if="hasImageBorder && border?.imageUrl"
+      :src="border.imageUrl"
+      class="absolute inset-0 w-full h-full pointer-events-none z-10"
+      alt=""
+    />
+    
     <!-- Special border overlay for rainbow/gradient borders -->
     <div 
       v-if="specialBorderStyle"
@@ -251,39 +251,6 @@ onUnmounted(() => {
   }
   100% {
     background-position: 400% 50%;
-  }
-}
-
-@keyframes lightning-border {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes blue-ring-border {
-  0% {
-    background-position: 0% 0%;
-  }
-  50% {
-    background-position: 0% 100%;
-  }
-  100% {
-    background-position: 0% 0%;
-  }
-}
-
-@keyframes tech-frame-border {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 300% 50%;
   }
 }
 

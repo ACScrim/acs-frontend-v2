@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 384" preserveAspectRatio="none">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="lightningGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9945FF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#14F195;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9945FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main frame border -->
+  <rect x="4" y="4" width="248" height="376" rx="16" ry="16" 
+        fill="none" stroke="url(#lightningGrad)" stroke-width="3" filter="url(#glow)"/>
+  
+  <!-- Lightning bolts on corners -->
+  <!-- Top left -->
+  <path d="M20,8 L35,8 L25,25 L40,25 L15,55 L22,35 L8,35 Z" 
+        fill="#9945FF" filter="url(#glow)" opacity="0.9"/>
+  
+  <!-- Top right -->
+  <path d="M236,8 L221,8 L231,25 L216,25 L241,55 L234,35 L248,35 Z" 
+        fill="#14F195" filter="url(#glow)" opacity="0.9"/>
+  
+  <!-- Bottom left -->
+  <path d="M20,376 L35,376 L25,359 L40,359 L15,329 L22,349 L8,349 Z" 
+        fill="#14F195" filter="url(#glow)" opacity="0.9"/>
+  
+  <!-- Bottom right -->
+  <path d="M236,376 L221,376 L231,359 L216,359 L241,329 L234,349 L248,349 Z" 
+        fill="#9945FF" filter="url(#glow)" opacity="0.9"/>
+  
+  <!-- Side lightning accents -->
+  <path d="M4,100 L12,110 L4,120 L12,130 L4,140" 
+        fill="none" stroke="#9945FF" stroke-width="2" filter="url(#glow)" opacity="0.7"/>
+  <path d="M252,100 L244,110 L252,120 L244,130 L252,140" 
+        fill="none" stroke="#14F195" stroke-width="2" filter="url(#glow)" opacity="0.7"/>
+  
+  <path d="M4,244 L12,254 L4,264 L12,274 L4,284" 
+        fill="none" stroke="#14F195" stroke-width="2" filter="url(#glow)" opacity="0.7"/>
+  <path d="M252,244 L244,254 L252,264 L244,274 L252,284" 
+        fill="none" stroke="#9945FF" stroke-width="2" filter="url(#glow)" opacity="0.7"/>
+</svg>

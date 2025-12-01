@@ -12,10 +12,10 @@ export const CARD_BACKGROUNDS: CardBackground[] = [
   { id: 'bg-6', name: 'Midnight Black', gradient: 'linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)' },
   { id: 'bg-7', name: 'Golden Hour', gradient: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
   { id: 'bg-8', name: 'Aurora', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
-  // UI Kit backgrounds
-  { id: 'bg-nebula', name: 'Nebula', gradient: 'radial-gradient(ellipse at 20% 80%, #1a0a2e 0%, #16213e 30%, #0f0c29 60%, #302b63 100%)' },
-  { id: 'bg-hex', name: 'Hex', gradient: 'linear-gradient(135deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%)' },
-  { id: 'bg-amber-liquid', name: 'Amber Liquid', gradient: 'linear-gradient(180deg, #f6d365 0%, #fda085 30%, #f5576c 70%, #764ba2 100%)' },
+  // UI Kit backgrounds (image-based)
+  { id: 'bg-nebula', name: 'Nebula', imageUrl: '/card-assets/nebula_bg.svg' },
+  { id: 'bg-hex', name: 'Hex', imageUrl: '/card-assets/hex_bg.svg' },
+  { id: 'bg-amber-liquid', name: 'Amber Liquid', imageUrl: '/card-assets/amber_liquid_bg.svg' },
 ];
 
 // Mock data for borders
@@ -28,10 +28,10 @@ export const CARD_BORDERS: CardBorder[] = [
   { id: 'border-6', name: 'Neon Blue', style: '3px solid #3b82f6' },
   { id: 'border-7', name: 'Double Gold', style: '6px double #f0ab49' },
   { id: 'border-8', name: 'Gradient', style: '4px solid transparent' },
-  // UI Kit borders
-  { id: 'border-lightning', name: 'Lightning', style: '4px solid transparent' },
-  { id: 'border-blue-ring', name: 'BlueRing', style: '4px solid transparent' },
-  { id: 'border-tech-frame', name: 'TechFrame', style: '4px solid transparent' },
+  // UI Kit borders (image-based)
+  { id: 'border-lightning', name: 'Lightning', imageUrl: '/card-assets/violet_lightning_frame.svg' },
+  { id: 'border-blue-ring', name: 'BlueRing', imageUrl: '/card-assets/blue_rings_frame.svg' },
+  { id: 'border-tech-frame', name: 'TechFrame', imageUrl: '/card-assets/tech_frame.svg' },
 ];
 
 // Helper to generate unique ID
