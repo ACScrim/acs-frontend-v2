@@ -248,11 +248,13 @@ export interface CollectibleCard {
 export interface CardBackground {
   id: string;
   name: string;
-  gradient: string;
+  gradient?: string;
+  imageUrl?: string;
 }
 
 export interface CardBorder {
   id: string;
   name: string;
-  style: string;
+  style?: string;
+  imageUrl?: string;
 }

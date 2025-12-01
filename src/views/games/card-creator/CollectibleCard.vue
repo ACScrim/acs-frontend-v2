@@ -44,11 +44,40 @@ const specialBorderStyle = computed(() => {
       backgroundImage: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c)',
     };
   }
+  if (props.border?.id === 'border-lightning') {
+    // Lightning border - electric yellow with glow effect
+    return {
+      backgroundImage: 'linear-gradient(90deg, #ffd700, #ffff00, #ffd700, #ff8c00, #ffd700)',
+      backgroundSize: '200% 200%',
+      animation: 'lightning-border 0.5s linear infinite',
+      boxShadow: '0 0 15px #ffd700, 0 0 30px #ffff00',
+    };
+  }
+  if (props.border?.id === 'border-blue-ring') {
+    // BlueRing border - glowing blue ring
+    return {
+      backgroundImage: 'linear-gradient(180deg, #00d4ff, #0099ff, #0066ff, #0099ff, #00d4ff)',
+      backgroundSize: '100% 200%',
+      animation: 'blue-ring-border 2s ease-in-out infinite',
+      boxShadow: '0 0 20px #00d4ff, 0 0 40px #0099ff',
+    };
+  }
+  if (props.border?.id === 'border-tech-frame') {
+    // TechFrame border - cyberpunk style
+    return {
+      backgroundImage: 'linear-gradient(45deg, #00ff88 0%, #00d4ff 25%, #ff00ff 50%, #00d4ff 75%, #00ff88 100%)',
+      backgroundSize: '300% 300%',
+      animation: 'tech-frame-border 3s linear infinite',
+    };
+  }
   return null;
 });
 
 // Throttled mouse move handler using requestAnimationFrame
 let pendingMouseEvent: MouseEvent | null = null;
+
+// Maximum rotation angle to prevent card from flipping
+const MAX_ROTATION = 20;
 
 const processMouseMove = () => {
   if (!pendingMouseEvent || !cardRef.value) {
@@ -66,9 +95,13 @@ const processMouseMove = () => {
   const mouseX = event.clientX - centerX;
   const mouseY = event.clientY - centerY;
   
-  // Limit rotation to ±15 degrees
-  rotateY.value = (mouseX / (rect.width / 2)) * 15;
-  rotateX.value = -(mouseY / (rect.height / 2)) * 15;
+  // Calculate rotation with strict limits to prevent flipping
+  let newRotateY = (mouseX / (rect.width / 2)) * MAX_ROTATION;
+  let newRotateX = -(mouseY / (rect.height / 2)) * MAX_ROTATION;
+  
+  // Clamp rotation values to prevent excessive rotation
+  rotateY.value = Math.max(-MAX_ROTATION, Math.min(MAX_ROTATION, newRotateY));
+  rotateX.value = Math.max(-MAX_ROTATION, Math.min(MAX_ROTATION, newRotateX));
   
   animationFrameId = null;
 };
@@ -218,6 +251,39 @@ onUnmounted(() => {
   }
   100% {
     background-position: 400% 50%;
+  }
+}
+
+@keyframes lightning-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes blue-ring-border {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes tech-frame-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
   }
 }
 
