@@ -18,11 +18,13 @@ const isHovered = ref(false);
 let animationFrameId: number | null = null;
 
 const cardStyle = computed(() => {
+  // For image-based backgrounds, use a solid dark background as fallback
+  // The actual image is rendered via img element
   let bgStyle = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
   
-  // Use image URL if available, otherwise use gradient
   if (props.background?.imageUrl) {
-    bgStyle = `url(${props.background.imageUrl})`;
+    // Use dark background as base, img element will overlay
+    bgStyle = '#1a1a2e';
   } else if (props.background?.gradient) {
     bgStyle = props.background.gradient;
   }
@@ -40,6 +42,9 @@ const cardStyle = computed(() => {
 
 // Check if border uses an image
 const hasImageBorder = computed(() => !!props.border?.imageUrl);
+
+// Check if background uses an image
+const hasImageBackground = computed(() => !!props.background?.imageUrl);
 
 // Check if using UI Kit backgrounds (for animations)
 const isUIKitBackground = computed(() => {
@@ -171,13 +176,21 @@ onUnmounted(() => {
     ref="cardRef"
     class="collectible-card relative w-64 h-96 rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 ease-out"
     :class="[
-      { 'shadow-2xl scale-105': isHovered },
-      backgroundAnimationClass
+      { 'shadow-2xl scale-105': isHovered }
     ]"
     :style="cardStyle"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- Image-based background (for UI Kit backgrounds like Nebula, Hex, Amber Liquid) -->
+    <img 
+      v-if="hasImageBackground && background?.imageUrl"
+      :src="background.imageUrl"
+      class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+      :class="backgroundAnimationClass"
+      alt=""
+    />
+    
     <!-- Holographic overlay effect for UI Kit items -->
     <div 
       v-if="showHolographic"
