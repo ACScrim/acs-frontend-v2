@@ -233,3 +233,26 @@ export interface WeeklyLeaderboardEntry {
   avatarUrl: string;
   totalPoints: number;
 }
+
+export interface CollectibleCard {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  backgroundId: string;
+  borderId: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface CardBackground {
+  id: string;
+  name: string;
+  gradient: string;
+}
+
+export interface CardBorder {
+  id: string;
+  name: string;
+  style: string;
+}

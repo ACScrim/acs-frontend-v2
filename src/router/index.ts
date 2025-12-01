@@ -17,6 +17,7 @@ const routes: RouterOptions['routes'] = [
   { path: '/settings', component: () => import('@/views/notfound/NotFound.vue'), name: 'Paramètres', meta: { title: 'Paramètres', icon: "ic:baseline-settings", showInAside: false, showInMobileFooter: false, showInAdminBar: false } },
   { path: '/verify-membership', component: () => import('@/views/verify-membership/VerifyMembership.vue'), name: 'VerifyMembership', meta: { title: "Vérification Discord", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/games/dailyQuiz', component: () => import('@/views/games/daily-quiz/DailyQuiz.vue'), name: 'DailyQuiz', meta: { title: "Daily Quiz", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
+  { path: '/games/card-creator', component: () => import('@/views/games/card-creator/CardCreator.vue'), name: 'CardCreator', meta: { title: "Créateur de Cartes", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false, showInAdminBar: false } }
 ]
 
