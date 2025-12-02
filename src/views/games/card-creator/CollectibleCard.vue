@@ -40,6 +40,19 @@ const cardStyle = computed(() => {
   };
 });
 
+const backgroundLayerStyle = computed(() => {
+  if (!props.background?.imageUrl) return null;
+  const cacheBuster = props.background?.id ? `?v=${props.background.id}` : '';
+  return {
+    backgroundImage: `url(${props.background.imageUrl}${cacheBuster})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    mask: 'unset',
+    WebkitMask: 'unset',
+  };
+});
+
 // Check if border uses an image
 const hasImageBorder = computed(() => !!props.border?.imageUrl);
 
@@ -183,18 +196,18 @@ onUnmounted(() => {
     @mouseleave="handleMouseLeave"
   >
     <!-- Image-based background (for UI Kit backgrounds like Nebula, Hex, Amber Liquid) -->
-    <img 
-      v-if="hasImageBackground && background?.imageUrl"
-      :src="background.imageUrl"
-      class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+    <div
+      v-if="hasImageBackground && backgroundLayerStyle"
+      class="absolute inset-0 rounded-2xl pointer-events-none z-0"
       :class="backgroundAnimationClass"
-      alt=""
+      :style="backgroundLayerStyle"
+      aria-hidden="true"
     />
     
     <!-- Holographic overlay effect for UI Kit items -->
     <div 
       v-if="showHolographic"
-      class="holographic-overlay absolute inset-0 pointer-events-none z-20 rounded-2xl"
+      class="holographic-overlay absolute inset-0 pointer-events-none z-40 rounded-2xl"
       :class="{ 'holographic-active': isHovered }"
     />
     
@@ -202,7 +215,7 @@ onUnmounted(() => {
     <img 
       v-if="hasImageBorder && border?.imageUrl"
       :src="border.imageUrl"
-      class="absolute inset-0 w-full h-full pointer-events-none z-10"
+      class="absolute inset-0 w-full h-full pointer-events-none z-30"
       :class="borderAnimationClass"
       alt=""
     />
@@ -210,15 +223,15 @@ onUnmounted(() => {
     <!-- Special border overlay for rainbow/gradient borders -->
     <div 
       v-if="specialBorderStyle"
-      class="absolute inset-0 rounded-2xl pointer-events-none special-border-overlay"
-      :style="{ 
+      class="absolute inset-0 rounded-2xl pointer-events-none special-border-overlay z-30"
+      :style="{
         ...specialBorderStyle,
         padding: '4px',
       }"
     />
     
     <!-- Card inner content -->
-    <div class="relative h-full flex flex-col p-4 z-5">
+    <div class="relative h-full flex flex-col p-4 z-20">
       <!-- Image container -->
       <div class="flex-shrink-0 h-48 rounded-xl overflow-hidden bg-black/20 mb-3">
         <img 

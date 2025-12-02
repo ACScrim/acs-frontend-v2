@@ -12,8 +12,11 @@ const toastStore = useToastStore();
 const title = ref('');
 const description = ref('');
 const imageUrl = ref('');
-const selectedBackgroundId = ref(CARD_BACKGROUNDS[0].id);
-const selectedBorderId = ref(CARD_BORDERS[0].id);
+const initialBackgroundId = CARD_BACKGROUNDS[0]?.id ?? '';
+const initialBorderId = CARD_BORDERS[0]?.id ?? '';
+
+const selectedBackgroundId = ref(initialBackgroundId);
+const selectedBorderId = ref(initialBorderId);
 
 // File input ref
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -88,6 +91,11 @@ const saveCard = async () => {
     return;
   }
   
+  if (!selectedBackgroundId.value || !selectedBorderId.value) {
+    toastStore.error('Veuillez sélectionner un fond et une bordure.');
+    return;
+  }
+
   const card = await cardStore.createCard({
     title: title.value,
     description: description.value,
@@ -101,8 +109,8 @@ const saveCard = async () => {
     title.value = '';
     description.value = '';
     imageUrl.value = '';
-    selectedBackgroundId.value = CARD_BACKGROUNDS[0].id;
-    selectedBorderId.value = CARD_BORDERS[0].id;
+    selectedBackgroundId.value = initialBackgroundId;
+    selectedBorderId.value = initialBorderId;
   }
 };
 
@@ -110,8 +118,8 @@ const resetForm = () => {
   title.value = '';
   description.value = '';
   imageUrl.value = '';
-  selectedBackgroundId.value = CARD_BACKGROUNDS[0].id;
-  selectedBorderId.value = CARD_BORDERS[0].id;
+  selectedBackgroundId.value = initialBackgroundId;
+  selectedBorderId.value = initialBorderId;
 };
 </script>
 
