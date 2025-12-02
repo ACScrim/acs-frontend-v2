@@ -62,7 +62,7 @@ const handleVoteClick = (value: boolean) => {
             <VueIcon name="bx:upvote" class="text-emerald-400" />
             {{ proposal.votes.length }} vote{{ proposal.votes.length > 1 ? 's' : '' }}
             <div class="inline-flex -space-x-3">
-              <RouterLink :to="`/user/${vote.user.id}`" v-for="vote in proposal.votes" :key="vote.user.id">
+              <RouterLink :to="`/user/${vote.user.id}`" v-for="vote in proposal.votes" :key="vote.user.id" class="not-first:not-last:hover:mx-1 first:hover:mr-1 transition-all">
                 <Avatar
                   :src="vote.user.avatarUrl"
                   class="rounded-full border border-white/10"
