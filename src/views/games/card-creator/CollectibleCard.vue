@@ -1,14 +1,29 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import type { CardBackground, CardBorder } from '@/types/models';
 
 const props = defineProps<{
   title: string;
   description: string;
   imageUrl: string;
-  background: CardBackground | undefined;
-  border: CardBorder | undefined;
   interactive?: boolean;
+  frontAsset?: {
+    type: 'gradient' | 'solid' | 'image';
+    color1?: string;
+    color2?: string;
+    angle?: number;
+    solidColor?: string;
+    imageBase64?: string;
+    imageMimeType?: string;
+  };
+  borderAsset?: {
+    type: 'gradient' | 'solid' | 'image';
+    color1?: string;
+    color2?: string;
+    angle?: number;
+    solidColor?: string;
+    imageBase64?: string;
+    imageMimeType?: string;
+  };
 }>();
 
 const cardRef = ref<HTMLElement | null>(null);
@@ -18,46 +33,78 @@ const isHovered = ref(false);
 let animationFrameId: number | null = null;
 
 const cardStyle = computed(() => {
-  // For image-based backgrounds, use a solid dark background as fallback
-  // The actual image is rendered via img element
   let bgStyle = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
   
-  if (props.background?.imageUrl) {
-    // Use dark background as base, img element will overlay
-    bgStyle = '#1a1a2e';
-  } else if (props.background?.gradient) {
-    bgStyle = props.background.gradient;
+  // Custom asset takes precedence
+  if (props.frontAsset) {
+    if (props.frontAsset.type === 'solid' && props.frontAsset.solidColor) {
+      bgStyle = props.frontAsset.solidColor;
+    } else if (props.frontAsset.type === 'gradient') {
+      bgStyle = `linear-gradient(${props.frontAsset.angle || 135}deg, ${props.frontAsset.color1 || '#667eea'} 0%, ${props.frontAsset.color2 || '#764ba2'} 100%)`;
+    } else if (props.frontAsset.type === 'image' && props.frontAsset.imageBase64) {
+      // Use dark background as base, img element will overlay
+      bgStyle = '#1a1a2e';
+    }
   }
   
-  const borderStyle = props.border?.style || '3px solid rgba(255, 255, 255, 0.3)';
-  
+  // Build border style from borderAsset
+  let borderStyle = '3px solid rgba(255, 255, 255, 0.3)';
+  let borderImageUrl = '';
+
+  if (props.borderAsset) {
+    if (props.borderAsset.type === 'solid' && props.borderAsset.solidColor) {
+      borderStyle = `3px solid ${props.borderAsset.solidColor}`;
+    } else if (props.borderAsset.type === 'gradient') {
+      borderStyle = `3px solid transparent`;
+    } else if (props.borderAsset.type === 'image' && props.borderAsset.imageBase64) {
+      borderImageUrl = `url(data:${props.borderAsset.imageMimeType || 'image/png'};base64,${props.borderAsset.imageBase64})`;
+    }
+  }
+
   return {
     background: bgStyle,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    border: props.border?.imageUrl ? 'none' : borderStyle,
+    border: borderImageUrl ? 'none' : borderStyle,
     transform: `perspective(1000px) rotateX(${rotateX.value}deg) rotateY(${rotateY.value}deg)`,
   };
 });
 
 const backgroundLayerStyle = computed(() => {
-  if (!props.background?.imageUrl) return null;
-  const cacheBuster = props.background?.id ? `?v=${props.background.id}` : '';
-  return {
-    backgroundImage: `url(${props.background.imageUrl}${cacheBuster})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    mask: 'unset',
-    WebkitMask: 'unset',
-  };
+  // Check custom asset first
+  if (props.frontAsset?.type === 'image' && props.frontAsset.imageBase64) {
+    const mimeType = props.frontAsset.imageMimeType || 'image/png';
+    return {
+      backgroundImage: `url(data:${mimeType};base64,${props.frontAsset.imageBase64})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      mask: 'unset',
+      WebkitMask: 'unset',
+    };
+  }
+
+  return null;
 });
 
 // Check if border uses an image
-const hasImageBorder = computed(() => !!props.border?.imageUrl);
+const hasImageBorder = computed(() => {
+  return props.borderAsset?.type === 'image' && !!props.borderAsset.imageBase64;
+});
 
-// Check if background uses an image
-const hasImageBackground = computed(() => !!props.background?.imageUrl);
+// Get border image URL (base64)
+const borderImageUrl = computed(() => {
+  if (props.borderAsset?.type === 'image' && props.borderAsset.imageBase64) {
+    const mimeType = props.borderAsset.imageMimeType || 'image/png';
+    return `data:${mimeType};base64,${props.borderAsset.imageBase64}`;
+  }
+  return '';
+});
+
+// Check if background uses an image (custom base64)
+const hasImageBackground = computed(() => {
+  return props.frontAsset?.type === 'image' && !!props.frontAsset.imageBase64;
+});
 
 // Check if using UI Kit backgrounds (for animations)
 const isUIKitBackground = computed(() => {
@@ -211,12 +258,11 @@ onUnmounted(() => {
       :class="{ 'holographic-active': isHovered }"
     />
     
-    <!-- Image-based border overlay (for UI Kit frames) -->
-    <img 
-      v-if="hasImageBorder && border?.imageUrl"
-      :src="border.imageUrl"
+    <!-- Image-based border overlay (from borderAsset) -->
+    <img
+      v-if="hasImageBorder && borderImageUrl"
+      :src="borderImageUrl"
       class="absolute inset-0 w-full h-full pointer-events-none z-30"
-      :class="borderAnimationClass"
       alt=""
     />
     

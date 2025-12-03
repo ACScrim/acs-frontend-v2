@@ -234,15 +234,35 @@ export interface WeeklyLeaderboardEntry {
   totalPoints: number;
 }
 
+export interface CardAsset {
+  id: string;
+  name: string;
+  category: 'background' | 'border';
+  type: 'gradient' | 'solid' | 'image';
+  color1?: string;
+  color2?: string;
+  angle?: number;
+  solidColor?: string;
+  imageBase64?: string;
+  imageMimeType?: string;
+  createdBy?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CollectibleCard {
   id: string;
   title: string;
   description: string;
   imageUrl: string;
-  backgroundId: string;
-  borderId: string;
+  frontAssetId?: string;
+  frontAsset?: CardAsset;
+  borderAssetId?: string;
+  borderAsset?: CardAsset;
+  rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  createdBy?: User;
   createdAt: string;
-  createdBy: string;
+  updatedAt: string;
 }
 
 export interface CardBackground {
