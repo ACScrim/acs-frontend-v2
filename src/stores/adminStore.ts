@@ -291,6 +291,29 @@ const useAdminStore = defineStore('admin', {
         throw error;
       }
     },
+    // Cards ACTIONS
+    async approveCard(cardId: string) {
+      try {
+        const response = await api.post<ApiResponse<CollectibleCard>>(`/admin/cards/${cardId}/approve`, { });
+        const updatedCard = response.data.data;
+        updateOneElementInArray(this.cards, updatedCard);
+        this.fetchCards().then(_ => {})
+      } catch (error: any) {
+        useToastStore().error("Error updating card status:", error.message || error);
+        throw error;
+      }
+    },
+    async rejectCard(cardId: string) {
+      try {
+        const response = await api.post<ApiResponse<CollectibleCard>>(`/admin/cards/${cardId}/reject`, { });
+        const updatedCard = response.data.data;
+        updateOneElementInArray(this.cards, updatedCard);
+        this.fetchCards().then(_ => {})
+      } catch (error: any) {
+        useToastStore().error("Error updating card status:", error.message || error);
+        throw error;
+      }
+    },
     // LOGS ACTIONS
     addLog(logLine: string) {
       const log = JSON.parse(logLine) as LogEntry;

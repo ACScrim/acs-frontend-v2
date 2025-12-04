@@ -2,7 +2,7 @@
 
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
-import {Card} from "@/components/ui";
+import {Button, Card} from "@/components/ui";
 import useAdminStore from "@/stores/adminStore.ts";
 import {computed, h, onMounted, ref} from "vue";
 import {
@@ -38,11 +38,23 @@ const columns: ColumnDef<CollectibleCardType>[] = [
   { header: 'Preview', cell: info => {
     const { createdBy, createdAt, id, frontAssetId, borderAssetId, updatedAt, ...card} = info.row.original;
     return h(CollectibleCard, { ...card });
+  }},
+  { header: 'Actions', cell: (info) => {
+    if (info.row.original.status === "pending") {
+      return h('div', { class: 'flex flex-col justify-center gap-2' }, [
+        h(Button, { variant: "emerald", onclick: () => adminStore.approveCard(info.row.original.id)}, 'Approuver'),
+        h(Button, { variant: "danger", onclick: () => adminStore.rejectCard(info.row.original.id) }, 'Rejeter'),
+      ])
+    }
+    else if (info.row.original.status === "active") { return `Acceptée le ${formatDate(new Date(info.row.original.updatedAt), "DD/MM/YYYY")}` }
+    else if (info.row.original.status === "inactive") { return `Rejetée le ${formatDate(new Date(info.row.original.updatedAt), "DD/MM/YYYY")}` }
   }}
 ]
 
 const table = useVueTable({
-  data: cards,
+  get data() {
+    return cards.value
+  },
   columns: columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
