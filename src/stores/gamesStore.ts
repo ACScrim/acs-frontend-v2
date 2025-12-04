@@ -53,7 +53,7 @@ const useGamesStore = defineStore('games', {
         useToastStore().error("Il y a une erreur lors de la récupération du classement hebdomadaire du quiz quotidien.", e);
       }
     },
-    async updateDailyAnswer(questionId: string, answerData: { useHint?: boolean, cheated?: boolean, userAnswer?: string, discoveredAt?: string }) {
+    async updateDailyAnswer(questionId: string, answerData: { cheated?: boolean, userAnswer?: string, discoveredAt?: string }) {
       try {
         const bodyWithoutUndefined: { [key: string]: any } = {};
         for (const key in answerData) {

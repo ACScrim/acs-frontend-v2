@@ -220,7 +220,6 @@ export interface DailyAnswer {
   questionId: string;
   userAnswer?: string;
   isCorrect: boolean;
-  useHint: boolean;
   cheated: boolean;
   discoveredAt?: Date;
   answeredAt?: Date;
