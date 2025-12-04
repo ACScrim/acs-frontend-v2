@@ -1,12 +1,13 @@
-import { defineStore } from "pinia";
+import {defineStore} from "pinia";
 import type {ApiResponse, CardAsset, CollectibleCard} from "@/types/models";
-import { useToastStore } from "@/stores/toastStore.ts";
+import {useToastStore} from "@/stores/toastStore.ts";
 import api from "@/utils/api.ts";
 
 const useCardStore = defineStore('cards', {
   state: () => ({
     cards: [] as CollectibleCard[],
     cardAssets: [] as CardAsset[],
+    discordAvatars: [] as { id: string; username: string; avatarUrl: string }[],
     loading: false,
   }),
   actions: {
@@ -34,6 +35,18 @@ const useCardStore = defineStore('cards', {
       }
     },
 
+    async fetchDiscordAvatars() {
+      this.loading = true;
+      try {
+        const { data: { data: avatars }} = await api.get<ApiResponse<{ id: string; username: string; avatarUrl: string }[]>>("/games/card-creator/discord-avatars");
+        this.discordAvatars = avatars;
+      } catch {
+        useToastStore().error("Erreur lors de la récupération des avatars Discord.");
+      } finally {
+        this.loading = false;
+      }
+    },
+
     // Mock API: Create a new card asset
     async createCardAsset(assetData: Omit<CardAsset, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>): Promise<CardAsset | null> {
       this.loading = true;
@@ -50,16 +63,14 @@ const useCardStore = defineStore('cards', {
       }
     },
 
-    // Mock API: Create a new card
     async createCard(cardData: Omit<CollectibleCard, 'id' | 'createdAt'| 'updatedAt' | 'createdBy'>): Promise<CollectibleCard | null> {
       this.loading = true;
       try {
-        // In real implementation:
         const { data: { data: card }} = await api.post<ApiResponse<CollectibleCard>>("/games/card-creator/card", cardData);
         this.cards.push(card);
         useToastStore().success("Carte créée avec succès !");
         return card;
-      } catch {
+      } catch (error) {
         useToastStore().error("Erreur lors de la création de la carte.");
         return null;
       } finally {
@@ -67,18 +78,34 @@ const useCardStore = defineStore('cards', {
       }
     },
 
-    // Mock API: Delete a card
     async deleteCard(cardId: string) {
       this.loading = true;
       try {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        // In real implementation:
-        // await api.delete(`/cards/${cardId}`);
-        
-        this.cards = this.cards.filter(c => c.id !== cardId);
-        useToastStore().success("Carte supprimée avec succès !");
+        if (confirm("Êtes-vous sûr de vouloir supprimer cette carte ? Cette action est irréversible.")) {
+          await api.delete(`/games/card-creator/card/${cardId}`);
+
+          this.cards = this.cards.filter(c => c.id !== cardId);
+          useToastStore().success("Carte supprimée avec succès !");
+        }
       } catch {
         useToastStore().error("Erreur lors de la suppression de la carte.");
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async deleteAsset(assetId: string) {
+      this.loading = true;
+      try {
+        if (confirm("Êtes-vous sûr de vouloir supprimer cet asset ? Cette action est irréversible.")) {
+          await api.delete(`/games/card-creator/asset/${assetId}`);
+
+          this.cardAssets = this.cardAssets.filter(a => a.id !== assetId);
+          useToastStore().success("Asset supprimé avec succès !");
+        }
+      } catch(e: any) {
+        const message = e.response.data.message;
+        useToastStore().error("Erreur lors de la suppression de l'asset.", message ?? e.message);
       } finally {
         this.loading = false;
       }

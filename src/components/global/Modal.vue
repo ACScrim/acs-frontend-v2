@@ -30,6 +30,9 @@ onClickOutside(target, () => emit('close'));
         <div class="mt-4 max-h-[70vh] overflow-y-auto">
           <slot />
         </div>
+        <div class="mt-4 max-h-[70vh] overflow-y-auto">
+          <slot name="footer" />
+        </div>
       </div>
     </div>
   </Teleport>

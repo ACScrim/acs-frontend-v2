@@ -253,8 +253,9 @@ export interface CardAsset {
 export interface CollectibleCard {
   id: string;
   title: string;
-  description: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageBase64?: string;
+  imageMimeType?: string;
   frontAssetId?: string;
   frontAsset?: CardAsset;
   borderAssetId?: string;
@@ -263,18 +264,31 @@ export interface CollectibleCard {
   createdBy?: User;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface CardBackground {
-  id: string;
-  name: string;
-  gradient?: string;
-  imageUrl?: string;
-}
-
-export interface CardBorder {
-  id: string;
-  name: string;
-  style?: string;
-  imageUrl?: string;
+  // Personnalisation - Position du titre
+  titlePosX?: number;
+  titlePosY?: number;
+  titleAlign?: 'left' | 'center' | 'right';
+  titleWidth?: 'w-full' | 'w-auto';
+  // Personnalisation - Effets
+  removeImageBg?: boolean;
+  holographicEffect?: boolean;
+  holographicIntensity?: number;
+  // Personnalisation - Couleurs du texte
+  titleColor?: string;
+  // Personnalisation - Position et échelle de l'image
+  imagePosX?: number;
+  imagePosY?: number;
+  imageScale?: number;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageObjectFit?: 'contain' | 'cover';
+  customTexts?: Array<{
+    content: string;
+    posX: number;
+    posY: number;
+    align: 'left' | 'center' | 'right';
+    color: string;
+    width: 'w-full' | 'w-auto';
+  }>;
+  status?: 'active' | 'inactive' | 'pending';
 }

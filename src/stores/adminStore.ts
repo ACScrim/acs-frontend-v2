@@ -1,7 +1,19 @@
-import type { ApiResponse, Game, LogEntry, PlayerGameLevel, Report, Season, Tournament, TournamentFormData, UserAdmin, GameProposal } from "@/types/models";
+import type {
+  ApiResponse,
+  CollectibleCard,
+  Game,
+  GameProposal,
+  LogEntry,
+  PlayerGameLevel,
+  Report,
+  Season,
+  Tournament,
+  TournamentFormData,
+  UserAdmin
+} from "@/types/models";
 import api from "@/utils/api";
-import { defineStore } from "pinia";
-import { useToastStore } from "./toastStore";
+import {defineStore} from "pinia";
+import {useToastStore} from "./toastStore";
 
 const updateOneElementInArray = <T extends { id: string }>(array: T[], element: T) => {
   const index = array.findIndex(t => t.id === element.id);
@@ -20,7 +32,8 @@ const useAdminStore = defineStore('admin', {
     playerLevels: [] as Array<PlayerGameLevel>,
     games: [] as Array<Game>,
     seasons: [] as Array<Season>,
-    proposals: [] as Array<GameProposal>
+    proposals: [] as Array<GameProposal>,
+    cards: [] as Array<CollectibleCard>
   }),
   getters: {
     getTournaments: (state) => {
@@ -93,6 +106,15 @@ const useAdminStore = defineStore('admin', {
         this.proposals = proposalsArray;
       } catch (error: any) {
         useToastStore().error("Error fetching all proposals:", error.message || error);
+      }
+    },
+    async fetchCards() {
+      try {
+        const response = await api.get<ApiResponse<CollectibleCard[]>>("/admin/cards");
+        const cardsArray = response.data.data;
+        this.cards = cardsArray;
+      } catch (error: any) {
+        useToastStore().error("Error fetching all collectible cards:", error.message || error);
       }
     },
     // MODIFY ACTIONS
