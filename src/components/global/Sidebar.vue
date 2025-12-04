@@ -82,7 +82,6 @@ const logout = async () => {
         <div v-if="isMenuOpen" class="mt-4 space-y-2 text-sm text-foam-200">
           <RouterLink to="/profile" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Profil</RouterLink>
           <RouterLink to="/player-levels" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Mes niveaux</RouterLink>
-          <RouterLink to="/settings" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Paramètres</RouterLink>
           <button class="w-full rounded-xl px-3 py-2 text-left text-blush-300 hover:bg-blush-500/10" @click="logout">Déconnexion</button>
         </div>
       </div>

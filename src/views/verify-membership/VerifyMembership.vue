@@ -56,7 +56,8 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
-import { Card } from '@/components/ui';
+import {Button, Card} from '@/components/ui';
+import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 
 const route = useRoute();
 const verificationState = ref<'verifying' | 'failed' | 'timeout'>('verifying');
@@ -68,15 +69,15 @@ onMounted(() => {
     const interval = setInterval(async () => {
       try {
         const result = await fetch(
-            "http://localhost:5000/api/auth/discord/verify-membership",
-            {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({}),
-            }
+          "http://localhost:5000/api/auth/discord/verify-membership",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          }
         );
 
         if (result.ok) {
@@ -85,9 +86,6 @@ onMounted(() => {
           if (data.success) {
             window.location.href = "/";
           }
-        } else if (result.status === 401) {
-          clearInterval(interval);
-          verificationState.value = 'failed';
         } else if (result.status === 403) {
           console.log("Pas encore membre du serveur...");
           if (!linkOpened) {

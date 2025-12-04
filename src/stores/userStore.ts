@@ -31,9 +31,17 @@ export const useUserStore = defineStore('acs-user', {
         useToastStore().error(`Error fetching user with id ${id}:`, error.message || error);
       }
     },
+    async updateTwitchUsername(username: string) {
+      try {
+        const response = await api.patch<ApiResponse<User>>("/users/me/twitch", { twitchUsername: username });
+        this.user = response.data.data;
+      } catch (error: any) {
+        useToastStore().error("Error updating Twitch username:", error.message || error);
+      }
+    },
     async logout() {
       try {
-        await api.post("/auth/logout");
+        await cookieStore.delete('acs.sid');
         this.user = null;
       } catch (error: any) {
         useToastStore().error("Error logging out:", error.message || error);

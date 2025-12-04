@@ -38,13 +38,23 @@ watch(
   },
   { immediate: true }
 );
+
+const handleSaveTwitchUsername = async (twitchUsername: string | undefined) => {
+  if (!twitchUsername) return;
+  try {
+    await userStore.updateTwitchUsername(twitchUsername);
+    useToastStore().success('Nom Twitch mis à jour avec succès.');
+  } catch (error: any) {
+    useToastStore().error('Erreur lors de la mise à jour du nom Twitch:', error.message || error);
+  }
+};
 </script>
 
 <template>
   <LoaderACS v-if="isLoading" />
   <template v-else-if="user">
     <div class="space-y-10">
-      <ProfileHeader :user="user" />
+      <ProfileHeader :user="user" @saveTwitchUsername="handleSaveTwitchUsername" />
       <ProfilePersonalBests :user="user" />
       <ProfileTournamentHistory :user="user" />
       <ProfilePerGameStats :user="user" />

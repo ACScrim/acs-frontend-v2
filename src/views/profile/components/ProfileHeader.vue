@@ -3,9 +3,14 @@ import { Avatar, Card } from '@/components/ui';
 import type { UserWithStats } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { formatDate } from '@vueuse/core';
+import {ref} from "vue";
 
 const props = defineProps<{
   user: UserWithStats;
+}>();
+
+const emit = defineEmits<{
+  'saveTwitchUsername': [twitchUsername: string | undefined];
 }>();
 
 const statsBlocks= [
@@ -34,6 +39,9 @@ const statsBlocks= [
     colorClass: 'text-emerald-300',
   },
 ]
+
+const twitchUsername = ref<string | undefined>(props.user.twitchUsername);
+const isEditingTwitchUsername = ref<boolean>(false);
 </script>
 
 <template>
@@ -43,6 +51,11 @@ const statsBlocks= [
       <div>
         <p class="text-xs uppercase tracking-[0.4em] text-foam-300/80">Profil joueur</p>
         <h1 class="hero-title">{{ user.username }}</h1>
+        <p v-if="!isEditingTwitchUsername" class="text-xs uppercase tracking-[0.4em] text-foam-300/80">{{ twitchUsername ?? 'Pas de twitch défini' }} <VueIcon name="fa:pencil" class="inline" @click="isEditingTwitchUsername = true" /></p>
+        <div v-else class="flex flex-row items-center justify-center gap-2">
+          <input v-model="twitchUsername" class="form-input" />
+          <button @click="emit('saveTwitchUsername', twitchUsername); isEditingTwitchUsername = false"><VueIcon name="fa:check" class="cursor-pointer hover:scale-110" /></button>
+        </div>
       </div>
     </div>
     <div class="grid gap-4 md:grid-cols-3">
