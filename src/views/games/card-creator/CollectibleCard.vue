@@ -2,10 +2,32 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import type {CollectibleCard} from "@/types/models";
 
+// Taille de base de la carte (référence)
+const BASE_WIDTH = 250;
+const BASE_HEIGHT = 378;
+const ASPECT_RATIO = BASE_HEIGHT / BASE_WIDTH; // ~1.512
+
 const props = defineProps<{
   card: CollectibleCard,
-  interactive?: boolean
+  interactive?: boolean,
+  maxWidth?: number // Largeur maximale en pixels
 }>();
+
+// Calcul du scale factor basé sur maxWidth
+const scaleFactor = computed(() => {
+  const targetWidth = props.maxWidth ?? BASE_WIDTH;
+  return targetWidth / BASE_WIDTH;
+});
+
+// Dimensions calculées
+const cardWidth = computed(() => (props.maxWidth ?? BASE_WIDTH));
+const cardHeight = computed(() => cardWidth.value * ASPECT_RATIO);
+
+// Helper pour scaler une valeur en pixels
+const scale = (value: number) => value * scaleFactor.value;
+
+// Helper pour scaler une taille de police
+const scaleFontSize = (basePx: number) => `${scale(basePx)}px`;
 
 const cardRef = ref<HTMLElement | null>(null);
 const rotateX = ref(0);
@@ -118,17 +140,17 @@ const holoIntensity = computed(() => {
 const imageStyle = computed(() => {
   const x = props.card.imagePosX ?? 50;
   const y = props.card.imagePosY ?? 30;
-  const scale = props.card.imageScale ?? 1;
+  const imageScale = props.card.imageScale ?? 1;
   const width = props.card.imageWidth ?? 160;
   const height = props.card.imageHeight ?? 160;
 
   return {
     left: `${x}%`,
     top: `${y}%`,
-    transform: `translate(-50%, -50%) scale(${scale})`,
+    transform: `translate(-50%, -50%) scale(${imageScale})`,
     transformOrigin: 'center',
-    width: `${width}px`,
-    height: `${height}px`,
+    width: `${scale(width)}px`,
+    height: `${scale(height)}px`,
   };
 });
 
@@ -236,18 +258,22 @@ onUnmounted(() => {
 <template>
   <div
     ref="cardRef"
-    class="collectible-card relative w-64 h-96 rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 ease-out"
+    class="collectible-card relative rounded-md overflow-hidden cursor-pointer transition-all duration-200 ease-out"
     :class="[
       { 'shadow-2xl scale-105': isHovered }
     ]"
-    :style="cardStyle"
+    :style="{
+      ...cardStyle,
+      width: `${cardWidth}px`,
+      height: `${cardHeight}px`,
+    }"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
     <!-- Image-based background (for UI Kit backgrounds like Nebula, Hex, Amber Liquid) -->
     <div
       v-if="hasImageBackground && backgroundLayerStyle"
-      class="absolute inset-0 rounded-2xl pointer-events-none z-0"
+      class="absolute inset-0 rounded-md pointer-events-none z-0"
       :style="backgroundLayerStyle"
       aria-hidden="true"
     />
@@ -255,7 +281,7 @@ onUnmounted(() => {
     <!-- Holographic overlay effect for UI Kit items -->
     <div 
       v-if="showHolographic"
-      class="holographic-overlay absolute inset-0 pointer-events-none z-40 rounded-2xl"
+      class="holographic-overlay absolute inset-0 pointer-events-none z-40 rounded-md"
       :style="{
         opacity: holoIntensity,
         '--holo-light-x': `${holoLightX}%`,
@@ -274,12 +300,15 @@ onUnmounted(() => {
     <!-- Special border overlay for rainbow/gradient borders -->
     <div 
       v-if="specialBorderStyle !== null"
-      class="absolute inset-0 rounded-2xl pointer-events-none special-border-overlay z-30"
-      :style="{ padding: '4px' }"
+      class="absolute inset-0 rounded-md pointer-events-none special-border-overlay z-30"
+      :style="{ padding: `${scale(4)}px` }"
     />
     
     <!-- Card inner content -->
-    <div class="relative h-full flex flex-col p-4 z-20">
+    <div
+      class="relative h-full flex flex-col z-20"
+      :style="{ padding: `${scale(16)}px` }"
+    >
       <!-- Image container -->
       <div class="absolute" :style="imageStyle">
         <img
@@ -294,7 +323,13 @@ onUnmounted(() => {
           v-else 
           class="w-full h-full flex items-center justify-center text-white/40 bg-black/20 rounded-lg"
         >
-          <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="w-16 h-16"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            :style="{ width: `${scale(64)}px`, height: `${scale(64)}px` }"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
@@ -307,7 +342,7 @@ onUnmounted(() => {
           left: `95%`,
           top: `95%`,
           transform: 'translateX(-50%)',
-          fontSize: '10px',
+          fontSize: scaleFontSize(10),
           zIndex: 30,
           textShadow: '0 2px 4px rgba(0,0,0,0.8)',
         }"
@@ -325,6 +360,7 @@ onUnmounted(() => {
           textAlign: props.card.titleAlign ?? 'center',
           color: props.card.titleColor ?? '#ffffff',
           transform: 'translateX(-50%)',
+          fontSize: scaleFontSize(18),
         }"
       >
         {{ card.title || 'Titre de la carte' }}
@@ -335,7 +371,7 @@ onUnmounted(() => {
       <p
         v-for="(customText, index) in props.card.customTexts"
         :key="`custom-text-${index}`"
-        class="text-sm drop-shadow-md absolute"
+        class="drop-shadow-md absolute"
         :class="customText.width"
         :style="{
           left: `${customText.posX}%`,
@@ -343,6 +379,7 @@ onUnmounted(() => {
           textAlign: customText.align,
           color: customText.color,
           transform: 'translateX(-50%)',
+          fontSize: scaleFontSize(14),
         }"
       >
         {{ customText.content }}

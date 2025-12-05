@@ -36,8 +36,7 @@ const columns: ColumnDef<CollectibleCardType>[] = [
   { header: 'Créée le', accessorKey: 'createdAt', cell: (info) =>  formatDate(new Date(info.getValue() as string), 'DD/MM/YYYY HH:mm') },
   { header: 'Statut', accessorKey: 'status' },
   { header: 'Preview', cell: info => {
-    const { createdBy, createdAt, id, frontAssetId, borderAssetId, updatedAt, ...card} = info.row.original;
-    return h(CollectibleCard, { ...card });
+    return h(CollectibleCard, { card: info.row.original, maxWidth: 120 });
   }},
   { header: 'Actions', cell: (info) => {
     if (info.row.original.status === "pending") {

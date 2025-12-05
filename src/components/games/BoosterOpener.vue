@@ -577,6 +577,7 @@ onBeforeUnmount(() => {
             >
               <CollectibleCard
                 :card="card"
+                :maxWidth="120"
               />
             </div>
           </div>
