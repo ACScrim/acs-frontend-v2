@@ -72,7 +72,7 @@ const headerMap = computed(() => {
               </span>
 
               <!-- contenu de la cellule -->
-              <div class="mt-1 md:mt-0">
+              <div class="mt-1 md:mt-0 md:w-full">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
               </div>
             </div>

@@ -17,6 +17,7 @@ const routes: RouterOptions['routes'] = [
   { path: '/verify-membership', component: () => import('@/views/verify-membership/VerifyMembership.vue'), name: 'VerifyMembership', meta: { title: "Vérification Discord", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/games/dailyQuiz', component: () => import('@/views/games/daily-quiz/DailyQuiz.vue'), name: 'DailyQuiz', meta: { title: "Daily Quiz", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/games/card-creator', component: () => import('@/views/games/card-creator/CardCreator.vue'), name: 'CardCreator', meta: { title: "Créateur de Cartes", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
+  { path: '/games/card-collection', component: () => import('@/views/games/card-collection/CardCollection.vue'), name: 'CardCollection', meta: { title: "Collection de Cartes", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false, showInAdminBar: false } }
 ]
 
@@ -30,6 +31,7 @@ const adminRoutes: RouterOptions['routes'] = [
   { path: '/admin/seasons', component: () => import('@/views/admin/seasons/Seasons.vue'), name: 'Gestion des saisons', meta: { title: 'Saisons', icon: 'bx:medal', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 5 } },
   { path: '/admin/proposals', component: () => import('@/views/admin/proposals/Proposal.vue'), name: 'Gestion des propositions', meta: { title: 'Propositions de jeux', icon: 'bx:upvote', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 6 } },
   { path: '/admin/cards', component: () => import('@/views/admin/cards/Cards.vue'), name: 'Gestion des cartes', meta: { title: 'Cartes', icon: 'ch:cards', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 7 } },
+  { path: '/admin/scrimium', component: () => import('@/views/admin/scrimium/Scrimiums.vue'), name: 'Scrimium', meta: { title: 'Scrimium', icon: 'mc:currency-baht-fill', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 8 } },
 ]
 
 const router = createRouter({

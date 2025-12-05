@@ -68,8 +68,6 @@ const table = useVueTable({
     pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
   }
 })
-
-// TODO: Ajouter les actions (approuver, rejeter), MP discord pour valider la validation, ...
 </script>
 
 <template>

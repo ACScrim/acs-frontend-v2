@@ -6,6 +6,7 @@ import {Card} from "@/components/ui";
 const games: any[] = [
   { id: 1, name: 'DailyQuiz', route: '/games/dailyquiz' },
   { id: 2, name: 'Créateur de Cartes', route: '/games/card-creator' },
+  { id: 3, name: 'Collection de Cartes', route: '/games/card-collection' },
 ]
 
 </script>

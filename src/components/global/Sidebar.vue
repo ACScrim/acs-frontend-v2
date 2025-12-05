@@ -74,7 +74,7 @@ const logout = async () => {
           <Avatar :src="userStore.user.avatarUrl" class="size-12" />
           <div class="flex flex-col">
             <span class="font-semibold text-white">{{ userStore.user.username }}</span>
-            <span class="text-xs uppercase tracking-[0.3em] text-foam-200/70">Dashboard</span>
+            <span class="text-xs uppercase tracking-[0.3em] text-foam-200/70">{{ userStore.user.scrimium.balance }}<img src="/scrimium.svg" title="Scrimium" alt="Scrimium" class="size-6 inline"/></span>
           </div>
           <VueIcon name="bs:chevron-down" :class="['ml-auto transition-all', isMenuOpen ? 'rotate-180' : '']" />
         </button>

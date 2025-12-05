@@ -12,6 +12,19 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface Scrimium {
+  balance: number;
+  transactions: {
+    amount: number;
+    date: Date;
+    description: string;
+  }[]
+}
+
+export interface ScrimiumAdmin extends Scrimium {
+  user: User;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -23,6 +36,7 @@ export interface User {
   twitchSubscriptionId: string;
   createdAt: string;
   updatedAt: string;
+  scrimium: Scrimium
 }
 
 export interface UserWithStats extends User {
@@ -290,4 +304,11 @@ export interface CollectibleCard {
     width: 'w-full' | 'w-auto';
   }>;
   status?: 'active' | 'inactive' | 'pending';
+}
+
+export interface CardCollection {
+  id: string;
+  userId: string;
+  user: User;
+  cards: CollectibleCard[];
 }

@@ -6,6 +6,7 @@ import type {
   LogEntry,
   PlayerGameLevel,
   Report,
+  ScrimiumAdmin,
   Season,
   Tournament,
   TournamentFormData,
@@ -33,7 +34,8 @@ const useAdminStore = defineStore('admin', {
     games: [] as Array<Game>,
     seasons: [] as Array<Season>,
     proposals: [] as Array<GameProposal>,
-    cards: [] as Array<CollectibleCard>
+    cards: [] as Array<CollectibleCard>,
+    scrimiums: [] as Array<ScrimiumAdmin>
   }),
   getters: {
     getTournaments: (state) => {
@@ -115,6 +117,15 @@ const useAdminStore = defineStore('admin', {
         this.cards = cardsArray;
       } catch (error: any) {
         useToastStore().error("Error fetching all collectible cards:", error.message || error);
+      }
+    },
+    async fetchScrimiums() {
+      try {
+        const response = await api.get<ApiResponse<Array<ScrimiumAdmin>>>("/admin/scrimiums");
+        const scrimiumsArray = response.data.data;
+        this.scrimiums = scrimiumsArray;
+      } catch (error: any) {
+        useToastStore().error("Error fetching all scrimiums:", error.message || error);
       }
     },
     // MODIFY ACTIONS
@@ -347,6 +358,20 @@ const useAdminStore = defineStore('admin', {
         throw error;
       }
     },
+    // SCRIMIUM ACTIONS
+    async updateScrimiumBalance(userId: string, amount: number, action: 'add' | 'remove') {
+      try {
+        const response = await api.post<ApiResponse<ScrimiumAdmin>>(`/admin/scrimiums/${userId}`, { amount, action });
+        const updatedScrimium = response.data.data;
+        const index = this.scrimiums.findIndex(s => s.user.id === userId);
+        if (index !== -1) {
+          this.scrimiums[index] = { ...this.scrimiums[index], ...updatedScrimium };
+        }
+      } catch (error: any) {
+        useToastStore().error("Error updating scrimium balance:", error.message || error);
+        throw error;
+      }
+    }
   }
 })
 
