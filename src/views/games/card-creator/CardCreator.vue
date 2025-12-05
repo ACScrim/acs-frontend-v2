@@ -7,6 +7,7 @@ import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {useWindowSize} from "@vueuse/core";
+import type {CardAsset} from "@/types/models";
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
@@ -183,23 +184,26 @@ const selectedFrontAsset = computed(() => {
     if (backgroundAssetType.value === 'solid') {
       return {
         type: 'solid' as const,
+        category: 'background',
         solidColor: backgroundSolidColor.value
-      };
+      } as CardAsset;
     }
     if (backgroundAssetType.value === 'gradient') {
       return {
         type: 'gradient' as const,
         color1: backgroundGradientColor1.value,
         color2: backgroundGradientColor2.value,
-        angle: backgroundGradientAngle.value
-      };
+        angle: backgroundGradientAngle.value,
+        category: 'background',
+      } as CardAsset;
     }
     if (backgroundAssetType.value === 'image' && backgroundAssetImagePreview.value) {
       return {
         type: 'image' as const,
         imageBase64: backgroundAssetImageBase64.value,
-        imageMimeType: backgroundAssetImageMimeType.value
-      };
+        imageMimeType: backgroundAssetImageMimeType.value,
+        category: 'background',
+      } as CardAsset;
     }
   }
   return cardStore.getCardAssetById(selectedFrontAssetId.value || '');
@@ -211,15 +215,17 @@ const selectedBorderAsset = computed(() => {
     if (borderAssetType.value === 'solid') {
       return {
         type: 'solid' as const,
-        solidColor: borderSolidColor.value
-      };
+        solidColor: borderSolidColor.value,
+        category: 'border',
+      } as CardAsset;
     }
     if (borderAssetType.value === 'image' && borderAssetImagePreview.value) {
       return {
         type: 'image' as const,
         imageBase64: borderAssetImageBase64.value,
-        imageMimeType: borderAssetImageMimeType.value
-      };
+        imageMimeType: borderAssetImageMimeType.value,
+        category: 'border',
+      } as CardAsset;
     }
   }
   return cardStore.getCardAssetById(selectedBorderAssetId.value || '');
@@ -804,29 +810,33 @@ watch(imageSourceType, (newType) => {
             <h2 class="text-lg font-semibold text-foam-200 mb-6">Aperçu 3D</h2>
             <div class="flex items-center justify-center">
               <CollectibleCard
-                :title="title"
-                :image-url="imageUrl"
-                :image-base64="imageBase64"
-                :image-mime-type="imageMimeType"
-                :front-asset="selectedFrontAsset"
-                :border-asset="selectedBorderAsset"
+                :card="{
+                  id: 'preview',
+                  title,
+                  imageBase64,
+                  imageMimeType,
+                  frontAsset: selectedFrontAsset,
+                  borderAsset: selectedBorderAsset,
+                  titlePosX,
+                  titlePosY,
+                  titleAlign,
+                  titleWidth,
+                  removeImageBg,
+                  holographicEffect,
+                  holographicIntensity,
+                  titleColor,
+                  imagePosX,
+                  imagePosY,
+                  imageScale,
+                  imageWidth,
+                  imageHeight,
+                  imageObjectFit,
+                  rarity,
+                  customTexts,
+                  createdAt: '',
+                  updatedAt: ''
+                }"
                 :interactive="true"
-                :title-pos-x="titlePosX"
-                :title-pos-y="titlePosY"
-                :title-align="titleAlign"
-                :title-width="titleWidth"
-                :remove-image-bg="removeImageBg"
-                :holographic-effect="holographicEffect"
-                :holographic-intensity="holographicIntensity"
-                :title-color="titleColor"
-                :image-pos-x="imagePosX"
-                :image-pos-y="imagePosY"
-                :image-scale="imageScale"
-                :image-width="imageWidth"
-                :image-height="imageHeight"
-                :image-object-fit="imageObjectFit"
-                :rarity="rarity"
-                :custom-texts="customTexts"
               />
             </div>
             <p class="text-sm text-foam-300/60 mt-6 text-center">
@@ -1700,29 +1710,8 @@ watch(imageSourceType, (newType) => {
             class="flex flex-col items-center min-w-64 w-64"
           >
             <CollectibleCard
-              :title="card.title"
-              :image-url="card.imageUrl"
-              :image-base64="card.imageBase64"
-              :image-mime-type="card.imageMimeType"
-              :front-asset="card.frontAsset"
-              :border-asset="card.borderAsset"
+              :card="card"
               :interactive="true"
-              :title-pos-x="card.titlePosX ?? 50"
-              :title-pos-y="card.titlePosY ?? 10"
-              :title-align="card.titleAlign ?? 'center'"
-              :title-width="card.titleWidth ?? 'w-full'"
-              :remove-image-bg="card.removeImageBg ?? false"
-              :holographic-effect="card.holographicEffect ?? true"
-              :holographic-intensity="card.holographicIntensity ?? 0.6"
-              :title-color="card.titleColor ?? '#ffffff'"
-              :image-pos-x="card.imagePosX ?? 50"
-              :image-pos-y="card.imagePosY ?? 30"
-              :image-scale="card.imageScale ?? 1"
-              :image-width="card.imageWidth ?? 160"
-              :image-height="card.imageHeight ?? 160"
-              :image-object-fit="card.imageObjectFit ?? 'cover'"
-              :rarity="card.rarity ?? 'common'"
-              :custom-texts="card.customTexts ?? []"
             />
             <Button
               variant="danger"

@@ -94,9 +94,13 @@ const useCardStore = defineStore('cards', {
       }
     },
 
-    async deleteAsset(assetId: string) {
+    async deleteAsset(assetId?: string) {
       this.loading = true;
       try {
+        if (!assetId) {
+          useToastStore().error("ID de l'asset invalide.");
+          return;
+        }
         if (confirm("Êtes-vous sûr de vouloir supprimer cet asset ? Cette action est irréversible.")) {
           await api.delete(`/games/card-creator/asset/${assetId}`);
 

@@ -248,8 +248,8 @@ export interface WeeklyLeaderboardEntry {
 }
 
 export interface CardAsset {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   category: 'background' | 'border';
   type: 'gradient' | 'solid' | 'image';
   color1?: string;
@@ -259,8 +259,8 @@ export interface CardAsset {
   imageBase64?: string;
   imageMimeType?: string;
   createdBy?: User;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CollectibleCard {
@@ -311,4 +311,24 @@ export interface CardCollection {
   userId: string;
   user: User;
   cards: CollectibleCard[];
+}
+
+export interface BoosterShopItem {
+  id: string;
+  name: string;
+  price: number;
+  cardsCount: number;
+  description: string;
+  epicCardGuarantee: number;
+  legendaryCardGuarantee: number;
+}
+
+
+export interface Booster {
+  userId: string;
+  user: User;
+  cards: CollectibleCard[];
+  buyDate: Date;
+  boosterId: string;
+  booster: Booster;
 }

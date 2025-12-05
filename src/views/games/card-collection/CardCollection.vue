@@ -27,28 +27,7 @@ onMounted(async () => {
     >
       <template #item="{ item: card }">
         <CollectibleCard
-          :title="card.title"
-          :borderAsset="card.borderAsset"
-          :frontAsset="card.frontAsset"
-          :customTexts="card.customTexts"
-          :holographicEffect="card.holographicEffect"
-          :holographicIntensity="card.holographicIntensity"
-          :imageBase64="card.imageBase64"
-          :imageHeight="card.imageHeight"
-          :imageMimeType="card.imageMimeType"
-          :imageObjectFit="card.imageObjectFit"
-          :imagePosX="card.imagePosX"
-          :imagePosY="card.imagePosY"
-          :imageScale="card.imageScale"
-          :imageUrl="card.imageUrl"
-          :imageWidth="card.imageWidth"
-          :rarity="card.rarity"
-          :removeImageBg="card.removeImageBg"
-          :titleAlign="card.titleAlign"
-          :titleColor="card.titleAlign"
-          :titlePosX="card.titlePosX"
-          :titlePosY="card.titlePosY"
-          :titleWidth="card.titleWidth"
+          :card="card"
           interactive
         />
       </template>

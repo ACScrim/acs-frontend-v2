@@ -15,7 +15,8 @@ const useCollectionStore = defineStore('collections', {
       } catch (error) {
         useToastStore().error("Erreur lors de la récupération de la collection de cartes.");
       }
-    }
+    },
+
   }
 })
 

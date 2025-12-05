@@ -1,53 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import type {CollectibleCard} from "@/types/models";
 
 const props = defineProps<{
-  title: string;
-  imageUrl?: string;
-  imageBase64?: string;
-  imageMimeType?: string;
-  interactive?: boolean;
-  frontAsset?: {
-    type: 'gradient' | 'solid' | 'image';
-    color1?: string;
-    color2?: string;
-    angle?: number;
-    solidColor?: string;
-    imageBase64?: string;
-    imageMimeType?: string;
-  };
-  borderAsset?: {
-    type: 'gradient' | 'solid' | 'image';
-    color1?: string;
-    color2?: string;
-    angle?: number;
-    solidColor?: string;
-    imageBase64?: string;
-    imageMimeType?: string;
-  };
-  titlePosX?: number;
-  titlePosY?: number;
-  titleAlign?: 'left' | 'center' | 'right';
-  titleWidth?: 'w-full' | 'w-auto';
-  removeImageBg?: boolean;
-  holographicEffect?: boolean;
-  holographicIntensity?: number;
-  titleColor?: string;
-  imagePosX?: number;
-  imagePosY?: number;
-  imageScale?: number;
-  imageWidth?: number;
-  imageHeight?: number;
-  imageObjectFit?: 'contain' | 'cover';
-  rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-  customTexts?: Array<{
-    content: string;
-    posX: number;
-    posY: number;
-    align: 'left' | 'center' | 'right';
-    color: string;
-    width: 'w-full' | 'w-auto';
-  }>;
+  card: CollectibleCard,
+  interactive?: boolean
 }>();
 
 const cardRef = ref<HTMLElement | null>(null);
@@ -69,14 +26,14 @@ const holoLightY = computed(() => {
 
 const cardStyle = computed(() => {
   let bgStyle = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-  
+
   // Custom asset takes precedence
-  if (props.frontAsset) {
-    if (props.frontAsset.type === 'solid' && props.frontAsset.solidColor) {
-      bgStyle = props.frontAsset.solidColor;
-    } else if (props.frontAsset.type === 'gradient') {
-      bgStyle = `linear-gradient(${props.frontAsset.angle || 135}deg, ${props.frontAsset.color1 || '#667eea'} 0%, ${props.frontAsset.color2 || '#764ba2'} 100%)`;
-    } else if (props.frontAsset.type === 'image' && props.frontAsset.imageBase64) {
+  if (props.card.frontAsset) {
+    if (props.card.frontAsset.type === 'solid' && props.card.frontAsset.solidColor) {
+      bgStyle = props.card.frontAsset.solidColor;
+    } else if (props.card.frontAsset.type === 'gradient') {
+      bgStyle = `linear-gradient(${props.card.frontAsset.angle || 135}deg, ${props.card.frontAsset.color1 || '#667eea'} 0%, ${props.card.frontAsset.color2 || '#764ba2'} 100%)`;
+    } else if (props.card.frontAsset.type === 'image' && props.card.frontAsset.imageBase64) {
       // Use dark background as base, img element will overlay
       bgStyle = '#1a1a2e';
     }
@@ -86,13 +43,13 @@ const cardStyle = computed(() => {
   let borderStyle = '3px solid rgba(255, 255, 255, 0.3)';
   let borderImageUrl = '';
 
-  if (props.borderAsset) {
-    if (props.borderAsset.type === 'solid' && props.borderAsset.solidColor) {
-      borderStyle = `3px solid ${props.borderAsset.solidColor}`;
-    } else if (props.borderAsset.type === 'gradient') {
+  if (props.card.borderAsset) {
+    if (props.card.borderAsset.type === 'solid' && props.card.borderAsset.solidColor) {
+      borderStyle = `3px solid ${props.card.borderAsset.solidColor}`;
+    } else if (props.card.borderAsset.type === 'gradient') {
       borderStyle = `3px solid transparent`;
-    } else if (props.borderAsset.type === 'image' && props.borderAsset.imageBase64) {
-      borderImageUrl = `url(data:${props.borderAsset.imageMimeType || 'image/png'};base64,${props.borderAsset.imageBase64})`;
+    } else if (props.card.borderAsset.type === 'image' && props.card.borderAsset.imageBase64) {
+      borderImageUrl = `url(data:${props.card.borderAsset.imageMimeType || 'image/png'};base64,${props.card.borderAsset.imageBase64})`;
     }
   }
 
@@ -113,10 +70,10 @@ const cardStyle = computed(() => {
 
 const backgroundLayerStyle = computed(() => {
   // Check custom asset first
-  if (props.frontAsset?.type === 'image' && props.frontAsset.imageBase64) {
-    const mimeType = props.frontAsset.imageMimeType || 'image/png';
+  if (props.card.frontAsset?.type === 'image' && props.card.frontAsset.imageBase64) {
+    const mimeType = props.card.frontAsset.imageMimeType || 'image/png';
     return {
-      backgroundImage: `url(data:${mimeType};base64,${props.frontAsset.imageBase64})`,
+      backgroundImage: `url(data:${mimeType};base64,${props.card.frontAsset.imageBase64})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
@@ -130,40 +87,40 @@ const backgroundLayerStyle = computed(() => {
 
 // Check if border uses an image
 const hasImageBorder = computed(() => {
-  return props.borderAsset?.type === 'image' && !!props.borderAsset.imageBase64;
+  return props.card.borderAsset?.type === 'image' && !!props.card.borderAsset.imageBase64;
 });
 
 // Get border image URL (base64)
 const borderImageUrl = computed(() => {
-  if (props.borderAsset?.type === 'image' && props.borderAsset.imageBase64) {
-    const mimeType = props.borderAsset.imageMimeType || 'image/png';
-    return `data:${mimeType};base64,${props.borderAsset.imageBase64}`;
+  if (props.card.borderAsset?.type === 'image' && props.card.borderAsset.imageBase64) {
+    const mimeType = props.card.borderAsset.imageMimeType || 'image/png';
+    return `data:${mimeType};base64,${props.card.borderAsset.imageBase64}`;
   }
   return '';
 });
 
 // Check if background uses an image (custom base64)
 const hasImageBackground = computed(() => {
-  return props.frontAsset?.type === 'image' && !!props.frontAsset.imageBase64;
+  return props.card.frontAsset?.type === 'image' && !!props.card.frontAsset.imageBase64;
 });
 
 // Check if holographic effect should be shown
 const showHolographic = computed(() => {
-  return hasImageBorder.value || props.holographicEffect;
+  return hasImageBorder.value || props.card.holographicEffect;
 });
 
 // Holographic intensity (0 to 1)
 const holoIntensity = computed(() => {
-  return Math.max(0, Math.min(1, props.holographicIntensity ?? 0.6));
+  return Math.max(0, Math.min(1, props.card.holographicIntensity ?? 0.6));
 });
 
 // Computed styles for image positioning and scale
 const imageStyle = computed(() => {
-  const x = props.imagePosX ?? 50;
-  const y = props.imagePosY ?? 30;
-  const scale = props.imageScale ?? 1;
-  const width = props.imageWidth ?? 160;
-  const height = props.imageHeight ?? 160;
+  const x = props.card.imagePosX ?? 50;
+  const y = props.card.imagePosY ?? 30;
+  const scale = props.card.imageScale ?? 1;
+  const width = props.card.imageWidth ?? 160;
+  const height = props.card.imageHeight ?? 160;
 
   return {
     left: `${x}%`,
@@ -177,12 +134,12 @@ const imageStyle = computed(() => {
 
 // Computed object-fit for image
 const imageObjectFit = computed(() => {
-  return props.imageObjectFit ?? 'cover';
+  return props.card.imageObjectFit ?? 'cover';
 });
 
 // Computed rarity icon and color
 const rarityInfo = computed(() => {
-  const r = props.rarity ?? 'common';
+  const r = props.card.rarity ?? 'common';
   const rarityMap: Record<string, { icon: string; color: string; label: string }> = {
     common: { icon: '⚪', color: '#808080', label: 'Commun' },
     uncommon: { icon: '🟩', color: '#22C55E', label: 'Peu commun' },
@@ -196,7 +153,7 @@ const rarityInfo = computed(() => {
 // Special border styles that need additional handling
 const specialBorderStyle = computed(() => {
   // Image-based borders are handled separately
-  if (props.borderAsset?.type === 'image') {
+  if (props.card.borderAsset?.type === 'image') {
     return null;
   }
   return null;
@@ -326,12 +283,12 @@ onUnmounted(() => {
       <!-- Image container -->
       <div class="absolute" :style="imageStyle">
         <img
-          v-if="imageUrl || (props.imageBase64 && props.imageMimeType)"
-          :src="imageUrl || `data:${props.imageMimeType};base64,${props.imageBase64}`"
-          :alt="title"
+          v-if="card.imageUrl || (props.card.imageBase64 && props.card.imageMimeType)"
+          :src="card.imageUrl || `data:${props.card.imageMimeType};base64,${props.card.imageBase64}`"
+          :alt="card.title"
           class="w-full h-full rounded-lg"
           :style="{ objectFit: imageObjectFit }"
-          :class="{ 'remove-bg-image': props.removeImageBg }"
+          :class="{ 'remove-bg-image': props.card.removeImageBg }"
         />
         <div 
           v-else 
@@ -361,22 +318,22 @@ onUnmounted(() => {
       <!-- Title (positional) -->
       <h3
         class="font-bold text-white drop-shadow-lg absolute"
-        :class="props.titleWidth ?? 'w-full'"
+        :class="props.card.titleWidth ?? 'w-full'"
         :style="{
-          left: `${props.titlePosX ?? 50}%`,
-          top: `${props.titlePosY ?? 10}%`,
-          textAlign: props.titleAlign ?? 'center',
-          color: props.titleColor ?? '#ffffff',
+          left: `${props.card.titlePosX ?? 50}%`,
+          top: `${props.card.titlePosY ?? 10}%`,
+          textAlign: props.card.titleAlign ?? 'center',
+          color: props.card.titleColor ?? '#ffffff',
           transform: 'translateX(-50%)',
         }"
       >
-        {{ title || 'Titre de la carte' }}
+        {{ card.title || 'Titre de la carte' }}
       </h3>
       
 
       <!-- Custom Texts (positional) -->
       <p
-        v-for="(customText, index) in props.customTexts"
+        v-for="(customText, index) in props.card.customTexts"
         :key="`custom-text-${index}`"
         class="text-sm drop-shadow-md absolute"
         :class="customText.width"
