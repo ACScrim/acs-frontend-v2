@@ -17,7 +17,7 @@ import ListView from '@/components/global/ListView.vue';
 import TournamentCard from '@/components/global/TournamentCard.vue';
 import useTournamentStore from '@/stores/tournamentStore';
 import type { Tournament, User } from '@/types/models';
-import { getTournamentLink } from '@/utils';
+import { getTournamentLink, getErrorMessage } from '@/utils';
 import { whenever } from '@vueuse/core';
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, type NavigationGuardNext, type RouteLocationNormalizedGeneric, type RouteLocationNormalizedLoadedGeneric } from 'vue-router';
@@ -86,40 +86,40 @@ const handleRegister = () => {
 
     tournamentStore.registerToTournament(tournament.value!.id);
     useToastStore().success('Vous être inscrit au tournoi avec succès ! Pensez à mettre à jour votre niveau de jeu !');
-  } catch (error: any) {
-    useToastStore().error('Erreur lors de l\'inscription au tournoi :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de l\'inscription au tournoi : ' + getErrorMessage(error));
   }
 };
 
 const handleRegisterAsCaster = () => {
   try {
     tournamentStore.registerToTournament(tournament.value!.id, "caster");
-  } catch (error: any) {
-    useToastStore().error('Erreur lors de l\'inscription en tant que caster au tournoi :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de l\'inscription en tant que caster au tournoi : ' + getErrorMessage(error));
   }
 };
 
 const handleUnregister = () => {
   try {
     tournamentStore.unregisterFromTournament(tournament.value!.id);
-  } catch (error: any) {
-    useToastStore().error('Erreur lors de la désinscription du tournoi :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de la désinscription du tournoi : ' + getErrorMessage(error));
   }
 };
 
 const handleAddClip = (clipUrl: string) => {
   try {
     tournamentStore.addClipToTournament(tournament.value!.id, clipUrl);
-  } catch (error: any) {
-    useToastStore().error('Erreur lors de l\'ajout du clip :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de l\'ajout du clip : ' + getErrorMessage(error));
   }
 };
 
 const handleVoteMvp = (playerId: string) => {
   try {
     tournamentStore.voteMvpInTournament(tournament.value!.id, playerId);
-  } catch (error: any) {
-    useToastStore().error('Erreur lors du vote MVP :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors du vote MVP : ' + getErrorMessage(error));
   }
 };
 
@@ -127,8 +127,8 @@ const handleCheckIn = () => {
   try {
     tournamentStore.checkinToTournament(tournament.value!.id);
     useToastStore().success('Check-in effectué avec succès !');
-  } catch (error: any) {
-    useToastStore().error('Erreur lors du check-in :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors du check-in : ' + getErrorMessage(error));
   }
 }
 
@@ -136,8 +136,8 @@ const handleCheckOut = () => {
   try {
     tournamentStore.checkoutFromTournament(tournament.value!.id);
     useToastStore().success('Check-out effectué avec succès !');
-  } catch (error: any) {
-    useToastStore().error('Erreur lors du check-out :', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors du check-out : ' + getErrorMessage(error));
   }
 }
 

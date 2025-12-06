@@ -4,6 +4,19 @@ type CalendarProvider = 'google' | 'outlook';
 
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
+/**
+ * Helper function to get error message from unknown error type
+ */
+export const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'Une erreur inconnue est survenue';
+};
+
 export const getTournamentLink = (tournament: Tournament) => {
   return `/tournaments/${tournament.id}`;
 };

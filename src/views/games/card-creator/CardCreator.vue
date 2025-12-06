@@ -9,6 +9,8 @@ import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {useWindowSize} from "@vueuse/core";
 import type {CardAsset} from "@/types/models";
 import html2canvas from 'html2canvas';
+import type { CustomText, PendingCardData, TextAlign, TextWidth, ImageObjectFit, Rarity } from '@/composables/useCardCustomization';
+import type { AssetType, BorderAssetType } from '@/composables/useCardAssets';
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
@@ -17,7 +19,7 @@ const {width} = useWindowSize();
 
 // Modal state for card confirmation
 const showConfirmationModal = ref(false);
-const pendingCardData = ref<any>(null);
+const pendingCardData = ref<PendingCardData | null>(null);
 
 // Form state
 const title = ref('');
@@ -29,8 +31,8 @@ const assetCategory = ref<'background' | 'border'>('background');
 // Personnalisation - Position
 const titlePosX = ref(50);
 const titlePosY = ref(10);
-const titleAlign = ref<'left' | 'center' | 'right'>('center');
-const titleWidth = ref<'w-full' | 'w-auto'>('w-full');
+const titleAlign = ref<TextAlign>('center');
+const titleWidth = ref<TextWidth>('w-full');
 
 // Personnalisation - Effets
 const removeImageBg = ref(false);
@@ -44,15 +46,6 @@ const previewCardB64 = ref('');
 const titleColor = ref('#ffffff');
 
 // Personnalisation - Textes personnalisés (0-5)
-interface CustomText {
-  content: string;
-  posX: number;
-  posY: number;
-  align: 'left' | 'center' | 'right';
-  color: string;
-  width: 'w-full' | 'w-auto';
-}
-
 const customTexts = ref<CustomText[]>([]);
 
 // Personnalisation - Image principale
@@ -61,16 +54,13 @@ const imagePosY = ref(30);
 const imageScale = ref(1);
 const imageWidth = ref(160);
 const imageHeight = ref(160);
-const imageObjectFit = ref<'contain' | 'cover'>('cover');
+const imageObjectFit = ref<ImageObjectFit>('cover');
 
 // Personnalisation - Rareté
-const rarity = ref<'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'>('common');
+const rarity = ref<Rarity>('common');
 
 const selectedFrontAssetId = ref<string | undefined>();
 const selectedBorderAssetId = ref<string | undefined>();
-
-// Custom asset state for creation
-type AssetType = 'solid' | 'gradient' | 'image';
 
 // Background asset state
 const backgroundAssetName = ref('');
@@ -85,7 +75,7 @@ const backgroundAssetImagePreview = ref('');
 
 // Border asset state
 const borderAssetName = ref('');
-const borderAssetType = ref<'solid' | 'image'>('solid');
+const borderAssetType = ref<BorderAssetType>('solid');
 const borderSolidColor = ref('#ffffff');
 const borderAssetImageBase64 = ref('');
 const borderAssetImageMimeType = ref('');
@@ -477,9 +467,16 @@ const removeCustomText = (index: number) => {
   customTexts.value.splice(index, 1);
 };
 
-const updateCustomText = (index: number, field: 'content' | 'posX' | 'posY' | 'align' | 'color' | 'width', value: any) => {
+const updateCustomText = <K extends keyof CustomText>(
+  index: number, 
+  field: K, 
+  value: CustomText[K]
+) => {
   if (index >= 0 && index < customTexts.value.length) {
-    (customTexts.value[index] as any)[field] = value;
+    const text = customTexts.value[index];
+    if (text) {
+      text[field] = value;
+    }
   }
 };
 
