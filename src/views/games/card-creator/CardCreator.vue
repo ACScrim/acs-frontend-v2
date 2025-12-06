@@ -86,7 +86,7 @@ const backgroundAssetImagePreview = ref('');
 // Border asset state
 const borderAssetName = ref('');
 const borderAssetType = ref<'solid' | 'image'>('solid');
-const borderSolidColor = ref('#ffffff00');
+const borderSolidColor = ref('#ffffff');
 const borderAssetImageBase64 = ref('');
 const borderAssetImageMimeType = ref('');
 const borderAssetImagePreview = ref('');
@@ -181,6 +181,23 @@ const clearCurrentImageData = () => {
   }
 };
 
+// Génère un nom explicite lorsqu’un asset n’a pas été renseigné
+const generateAssetName = (category: 'background' | 'border') => {
+  const prefix = category === 'background' ? 'Fond personnalisé' : 'Bordure personnalisée';
+  const timestamp = new Date().toLocaleString('fr-FR', {hour12: false});
+  return `${prefix} ${timestamp}`;
+};
+
+const ensureAssetName = (category: 'background' | 'border') => {
+  const target = category === 'background' ? backgroundAssetName : borderAssetName;
+  if (!target.value.trim()) {
+    target.value = generateAssetName(category);
+  }
+  return target.value;
+};
+
+const hasMainImage = computed(() => Boolean(imageBase64.value));
+
 // Computed
 const selectedFrontAsset = computed(() => {
   if (!selectedFrontAssetId.value) {
@@ -237,11 +254,9 @@ const selectedBorderAsset = computed(() => {
 
 const isFormValid = computed(() => {
   const hasTitle = title.value.trim().length > 0;
+  const hasFrontAsset = selectedFrontAssetId.value !== undefined || isBackgroundAssetValid.value;
 
-  // Either has a selected front asset OR has valid new asset data
-  const hasFrontAsset = selectedFrontAssetId.value !== undefined || (backgroundAssetName.value.trim() && isBackgroundAssetValid.value);
-
-  return hasTitle && hasFrontAsset;
+  return hasTitle && hasFrontAsset && hasMainImage.value;
 });
 
 const isBackgroundAssetValid = computed(() => {
@@ -339,14 +354,35 @@ const removeAssetImage = () => {
   }
 };
 
+const applyCurrentAsset = () => {
+  if (assetCategory.value === 'background') {
+    if (!isBackgroundAssetValid.value) {
+      toastStore.error('Veuillez configurer correctement le fond avant de l\'utiliser.');
+      return;
+    }
+    ensureAssetName('background');
+    selectedFrontAssetId.value = undefined;
+    toastStore.success('Fond personnalisé appliqué.');
+    return;
+  }
+
+  if (!isBorderAssetValid.value) {
+    toastStore.error('Veuillez configurer correctement la bordure avant de l\'utiliser.');
+    return;
+  }
+  ensureAssetName('border');
+  selectedBorderAssetId.value = undefined;
+  toastStore.success('Bordure personnalisée appliquée.');
+};
+
 // Build asset data from current form
 const buildFrontAssetData = () => {
-  if (!backgroundAssetName.value.trim() || !isBackgroundAssetValid.value) {
+  if (!isBackgroundAssetValid.value) {
     return null;
   }
 
   return {
-    name: backgroundAssetName.value,
+    name: ensureAssetName('background'),
     category: 'background' as const,
     type: backgroundAssetType.value as 'solid' | 'gradient' | 'image',
     ...(backgroundAssetType.value === 'solid' && { solidColor: backgroundSolidColor.value }),
@@ -363,12 +399,12 @@ const buildFrontAssetData = () => {
 };
 
 const buildBorderAssetData = () => {
-  if (!borderAssetName.value.trim() || !isBorderAssetValid.value) {
+  if (!isBorderAssetValid.value) {
     return null;
   }
 
   return {
-    name: borderAssetName.value,
+    name: ensureAssetName('border'),
     category: 'border' as const,
     type: borderAssetType.value as 'solid' | 'image',
     ...(borderAssetType.value === 'solid' && { solidColor: borderSolidColor.value }),
@@ -463,15 +499,14 @@ const saveCard = async () => {
     return;
   }
 
+  if (!hasMainImage.value) {
+    toastStore.error('Veuillez ajouter une image principale.');
+    return;
+  }
+
   // Validate front asset
   let frontAssetData = null;
   if (!selectedFrontAssetId.value) {
-    // Check if asset name is provided
-    if (!backgroundAssetName.value.trim()) {
-      toastStore.error('Veuillez nommer le fond personnalisé ou sélectionner un fond prédéfini.');
-      return;
-    }
-
     frontAssetData = buildFrontAssetData();
 
     if (!frontAssetData) {
@@ -1151,10 +1186,10 @@ watch(imageSourceType, (newType) => {
                   size="sm"
                   @click="triggerFileInput"
                 >
-                  {{ imageUrl ? 'Changer l\'image' : 'Ajouter une image' }}
+                  {{ hasMainImage ? 'Changer l\'image' : 'Ajouter une image' }}
                 </Button>
                 <Button
-                  v-if="imageUrl"
+                  v-if="hasMainImage"
                   variant="danger"
                   size="sm"
                   @click="removeImage"
@@ -1162,6 +1197,12 @@ watch(imageSourceType, (newType) => {
                   Supprimer
                 </Button>
               </div>
+              <p
+                v-if="!hasMainImage"
+                class="text-xs text-red-400"
+              >
+                L'image principale est obligatoire pour sauvegarder la carte.
+              </p>
             </div>
 
             <!-- Image Source Selection -->
@@ -1617,6 +1658,16 @@ watch(imageSourceType, (newType) => {
                 @input="(e) => setCurrentAssetName((e.target as HTMLInputElement).value)"
               />
               <p class="text-xs text-foam-300/50">Laissez vide pour sélectionner un asset existant</p>
+              <div class="flex justify-end">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  @click="applyCurrentAsset"
+                  :disabled="assetCategory === 'background' ? !isBackgroundAssetValid : !isBorderAssetValid"
+                >
+                  Utiliser cet asset
+                </Button>
+              </div>
             </div>
           </div>
 
