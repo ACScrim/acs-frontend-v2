@@ -69,7 +69,7 @@ onMounted(() => {
     const interval = setInterval(async () => {
       try {
         const result = await fetch(
-          "http://localhost:5000/api/auth/discord/verify-membership",
+          `${import.meta.env.VITE_API_URL}/auth/discord/verify-membership`,
           {
             method: "POST",
             credentials: "include",
