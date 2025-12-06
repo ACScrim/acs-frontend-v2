@@ -32,22 +32,10 @@ const pullStartX = ref(0);
 const isPointerDown = ref(false);
 const tearThreshold = 0.72;
 
-const tiltInput = ref(0);
-const wobbleInput = ref(0);
-const tiltSpring = useTransition(tiltInput, {
-  duration: 220,
-  transition: TransitionPresets.easeOutBack,
-});
-const wobbleSpring = useTransition(wobbleInput, {
-  duration: 240,
-  transition: TransitionPresets.easeOutBack,
-});
 const tearSpring = useTransition(pullingProgress, {
   duration: 260,
   transition: TransitionPresets.easeOutExpo,
 });
-const tiltMotion = computed(() => tiltSpring.value);
-const wobbleMotion = computed(() => wobbleSpring.value);
 const tearMotion = computed(() => tearSpring.value);
 
 const cinematicFlash = ref(false);
@@ -70,13 +58,6 @@ const maxRarity = computed(() => {
 });
 
 const glowColor = computed(() => glowColorMap[maxRarity.value]);
-
-const tiltGuidance = computed(() => {
-  if (pullingProgress.value >= tearThreshold) return 'Lâche pour ouvrir !';
-  if (pullingProgress.value > 0.45) return 'Encore un peu…';
-  if (pullingProgress.value > 0.2) return 'Continue vers la gauche';
-  return 'Tire vers la gauche pour ouvrir';
-});
 
 const accessibilityStatus = computed(() => {
   if (!props.isOpen) return 'Booster fermé';
@@ -105,8 +86,6 @@ const spawnParticles = () => {
 
 const resetPointerState = () => {
   isPointerDown.value = false;
-  tiltInput.value = 0;
-  wobbleInput.value = 0;
 };
 
 const completePullIfNeeded = () => {
@@ -117,18 +96,13 @@ const completePullIfNeeded = () => {
   }
 };
 
-const updateDrag = (clientY: number, clientX?: number) => {
+const updateDrag = (clientX?: number) => {
   if (!isPointerDown.value || boosterState.value !== 'closed') return;
 
   // Déplacement vers la gauche = positif (comme arracher un booster)
   const resolvedX = clientX ?? pullStartX.value;
   const deltaX = pullStartX.value - resolvedX;
   pullingProgress.value = Math.max(0, Math.min(1, deltaX / 150));
-
-  // Wobble basé sur le mouvement vertical
-  const deltaY = clientY - pullStartY.value;
-  tiltInput.value = Math.max(-1, Math.min(1, deltaY / 100));
-  wobbleInput.value = Math.max(-1, Math.min(1, deltaX / 80));
 };
 
 const handlePointerRelease = () => {
@@ -145,7 +119,7 @@ const handleMouseDown = (event: MouseEvent) => {
   pullStartX.value = event.clientX;
 };
 
-const handleMouseMove = (event: MouseEvent) => updateDrag(event.clientY, event.clientX);
+const handleMouseMove = (event: MouseEvent) => updateDrag(event.clientX);
 const handleMouseUp = () => handlePointerRelease();
 
 const handleTouchStart = (event: TouchEvent) => {
@@ -161,7 +135,7 @@ const handleTouchMove = (event: TouchEvent) => {
   if (!isPointerDown.value) return;
   const touch = event.touches[0];
   if (!touch) return;
-  updateDrag(touch.clientY, touch.clientX);
+  updateDrag(touch.clientX);
 };
 
 const handleTouchEnd = () => handlePointerRelease();
@@ -290,227 +264,78 @@ onBeforeUnmount(() => {
           </div>
 
           <div
-            class="relative cursor-grab active:cursor-grabbing group"
+            class="relative cursor-grab active:cursor-grabbing group overflow-x-hidden"
             @mousedown="handleMouseDown"
             @mousemove="handleMouseMove"
             @touchstart.prevent="handleTouchStart"
             @touchmove.prevent="handleTouchMove"
             @touchend.prevent="handleTouchEnd"
           >
-            <div
-              class="absolute inset-0 rounded-[32px] blur-3xl opacity-80 transition-all duration-200"
-              :style="{
-                background: `radial-gradient(circle, ${glowColor} ${tearMotion * 60}%, transparent 70%)`,
-                filter: `blur(${14 + tearMotion * 10}px)`
-              }"
-            />
-
-            <svg
-              class="booster-svg"
-              viewBox="0 0 180 260"
-              role="img"
-              aria-label="Booster ACS Premium"
-              :style="{
-                transform: `perspective(800px) rotateY(${tiltMotion * 5}deg) rotateX(${wobbleMotion * 2}deg)`,
-                filter: `drop-shadow(0 20px 40px rgba(123, 109, 255, ${0.35 + tearMotion * 0.25}))`
-              }"
-            >
+            <div class="size-1 rounded-full bg-white absolute top-1/3 left-1/2 -z-10" :style="{ boxShadow: `1px 1px 60px ${60 - (60 * (1 - tearMotion))}px ${glowColorMap[maxRarity]}` }" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 340" width="200" height="340">
               <defs>
-                <!-- Gradient de fond du paquet -->
-                <linearGradient id="packBg" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#2a1f4e" />
-                  <stop offset="30%" stop-color="#1a1035" />
-                  <stop offset="70%" stop-color="#251845" />
-                  <stop offset="100%" stop-color="#1a1035" />
+                <radialGradient id="orbViolet" cx="30%" cy="30%" r="60%" fx="30%" fy="30%">
+                  <stop offset="0%" style="stop-color:#8A2BE2;stop-opacity:0.7" />
+                  <stop offset="100%" style="stop-color:#8A2BE2;stop-opacity:0" />
+                </radialGradient>
+                <radialGradient id="orbBlue" cx="80%" cy="70%" r="50%" fx="80%" fy="70%">
+                  <stop offset="0%" style="stop-color:#4169E1;stop-opacity:0.6" />
+                  <stop offset="100%" style="stop-color:#4169E1;stop-opacity:0" />
+                </radialGradient>
+                <linearGradient id="metallicSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.1" />
+                  <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0" />
+                  <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.1" />
                 </linearGradient>
 
-                <!-- Gradient holographique pour la bordure -->
-                <linearGradient id="holoBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#7b6dff" />
-                  <stop offset="33%" stop-color="#ff5f8f" />
-                  <stop offset="66%" stop-color="#14dcb4" />
-                  <stop offset="100%" stop-color="#a48cff" />
-                </linearGradient>
+                <path id="zigzagTopPath" d="M0,35 L5,5 L10,15 L15,5 L20,15 L25,5 L30,15 L35,5 L40,15 L45,5 L50,15 L55,5 L60,15 L65,5 L70,15 L75,5 L80,15 L85,5 L90,15 L95,5 L100,15 L105,5 L110,15 L115,5 L120,15 L125,5 L130,15 L135,5 L140,15 L145,5 L150,15 L155,5 L160,15 L165,5 L170,15 L175,5 L180,15 L185,5 L190,15 L195,5 L200,35" />
 
-                <!-- Effet shimmer -->
-                <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop :offset="`${Math.max(0, shimmerProgress * 100 - 30)}%`" stop-color="rgba(255,255,255,0)" />
-                  <stop :offset="`${shimmerProgress * 100}%`" stop-color="rgba(255,255,255,0.25)" />
-                  <stop :offset="`${Math.min(100, shimmerProgress * 100 + 30)}%`" stop-color="rgba(255,255,255,0)" />
-                </linearGradient>
+                <path id="zigzagBottomPath" d="M0,325 L5,335 L10,325 L15,335 L20,325 L25,335 L30,325 L35,335 L40,325 L45,335 L50,325 L55,335 L60,325 L65,335 L70,325 L75,335 L80,325 L85,335 L90,325 L95,335 L100,325 L105,335 L110,325 L115,335 L120,325 L125,335 L130,325 L135,335 L140,325 L145,335 L150,325 L155,335 L160,325 L165,335 L170,325 L175,335 L180,325 L185,335 L190,325 L195,335 L200,325" />
 
-                <!-- Gradient pour le scellé du haut -->
-                <linearGradient id="sealGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#9080cc" />
-                  <stop offset="50%" stop-color="#7b6dff" />
-                  <stop offset="100%" stop-color="#5a4ac8" />
-                </linearGradient>
+                <path id="fullBoosterOutline" d="M0,35 L200,35 L200,325 L195,335 L190,325 L185,335 L180,325 L175,335 L170,325 L165,335 L160,325 L155,335 L150,325 L145,335 L140,325 L135,335 L130,325 L125,335 L120,325 L115,335 L110,325 L105,335 L100,325 L95,335 L90,325 L85,335 L80,325 L75,335 L70,325 L65,335 L60,325 L55,335 L50,325 L45,335 L40,325 L35,335 L30,325 L25,335 L20,325 L15,335 L10,325 L5,335 L0,325 Z" />
 
-                <!-- Gradient pour la partie arrachée -->
-                <linearGradient id="tornGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                  <stop offset="0%" stop-color="#14dcb4" />
-                  <stop offset="100%" stop-color="#7b6dff" />
-                </linearGradient>
-
-                <!-- Clip du paquet -->
-                <clipPath id="packClip">
-                  <rect x="5" y="5" width="170" height="250" rx="8" />
+                <clipPath id="boosterClip">
+                  <use href="#fullBoosterOutline"/>
                 </clipPath>
-
-                <!-- Filtre ombre -->
-                <filter id="shadow">
-                  <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.5)" />
-                </filter>
+                <clipPath id="zigzagClip">
+                  <use href="#zigzagTopPath" />
+                </clipPath>
               </defs>
-
-              <!-- === CORPS DU PAQUET === -->
-              <g filter="url(#shadow)">
-                <!-- Fond principal -->
-                <rect x="5" y="5" width="170" height="250" rx="8" fill="url(#packBg)" />
-
-                <!-- Bordure holographique -->
-                <rect x="5" y="5" width="170" height="250" rx="8" fill="none" stroke="url(#holoBorder)" stroke-width="2.5" />
-              </g>
-
-              <!-- === CONTENU DU PAQUET === -->
-              <g clip-path="url(#packClip)">
-
-                <!-- Effets de fond dynamiques -->
-                <g opacity="0.12">
-                  <circle cx="90" cy="130" r="100" fill="none" stroke="#7b6dff" stroke-width="0.5" />
-                  <circle cx="90" cy="130" r="80" fill="none" stroke="#ff5f8f" stroke-width="0.5" />
-                  <circle cx="90" cy="130" r="60" fill="none" stroke="#14dcb4" stroke-width="0.5" />
+              <g>
+                <g clip-path="url(#boosterClip)">
+                  <rect x="0" y="0" width="200" height="340" fill="#03050b" />
+                  <rect x="0" y="0" width="200" height="340" fill="url(#orbViolet)"/>
+                  <rect x="0" y="0" width="200" height="340" fill="url(#orbBlue)"/>
+                  <rect x="0" y="0" width="200" height="340" fill="url(#metallicSheen)"/>
                 </g>
 
-                <!-- Rayons de lumière -->
-                <g opacity="0.08">
-                  <line x1="90" y1="0" x2="90" y2="260" stroke="#fff" stroke-width="1" />
-                  <line x1="0" y1="130" x2="180" y2="130" stroke="#fff" stroke-width="0.5" />
-                  <line x1="20" y1="40" x2="160" y2="220" stroke="#14dcb4" stroke-width="0.5" />
-                  <line x1="160" y1="40" x2="20" y2="220" stroke="#ff5f8f" stroke-width="0.5" />
-                </g>
-
-                <!-- Logo ACS -->
-                <g transform="translate(90, 50)">
-                  <text y="0" text-anchor="middle" class="logo-main">ACS</text>
-                  <text y="16" text-anchor="middle" class="logo-sub">COLLECTION</text>
-                </g>
-
-                <!-- Illustration centrale - Silhouette de carte -->
-                <g transform="translate(90, 135)">
-                  <!-- Halo -->
-                  <circle r="48" fill="rgba(123, 109, 255, 0.1)" />
-                  <circle r="40" fill="rgba(20, 220, 180, 0.08)" />
-
-                  <!-- Carte stylisée -->
-                  <g transform="translate(0, -5)">
-                    <rect x="-25" y="-38" width="50" height="72" rx="5"
-                          fill="rgba(26, 16, 53, 0.9)"
-                          stroke="rgba(20, 220, 180, 0.6)"
-                          stroke-width="1.5" />
-                    <rect x="-20" y="-33" width="40" height="50" rx="3"
-                          fill="rgba(123, 109, 255, 0.15)" />
-                    <text y="28" text-anchor="middle" class="card-question">?</text>
-                  </g>
-                </g>
-
-                <!-- Badge édition -->
-                <g transform="translate(90, 205)">
-                  <rect x="-50" y="-12" width="100" height="24" rx="12"
-                        fill="rgba(0,0,0,0.6)"
-                        stroke="#14dcb4"
-                        stroke-width="1" />
-                  <text y="4" text-anchor="middle" class="edition-text">PREMIUM</text>
-                </g>
-
-                <!-- Info bas -->
-                <text x="90" y="240" text-anchor="middle" class="info-text">5 CARTES · 1 RARE GARANTIE</text>
-
-                <!-- Étoiles déco -->
-                <text x="18" y="25" class="star">✦</text>
-                <text x="162" y="25" text-anchor="end" class="star">✦</text>
-
-                <!-- Effet shimmer qui traverse -->
-                <rect x="5" y="5" width="170" height="250" fill="url(#shimmer)" />
-              </g>
-
-              <!-- === ZONE SCELLÉE DU HAUT (qui s'arrache) === -->
-              <g class="seal-zone">
-                <!-- Partie fixe (reste sur le paquet) - dentelure -->
-                <g :style="{ opacity: tearMotion > 0.1 ? 1 : 0 }">
-                  <path
-                    d="M 5 22 L 12 18 L 20 22 L 28 18 L 36 22 L 44 18 L 52 22 L 60 18 L 68 22 L 76 18 L 84 22 L 92 18 L 100 22 L 108 18 L 116 22 L 124 18 L 132 22 L 140 18 L 148 22 L 156 18 L 164 22 L 172 18 L 175 22"
-                    fill="none"
-                    stroke="#7b6dff"
-                    stroke-width="1"
-                    :opacity="tearMotion"
-                  />
-                </g>
-
-                <!-- Partie qui s'arrache -->
-                <g
-                  class="tear-part"
-                  :style="{
-                    transform: `translateX(${-tearMotion * 60}px) translateY(${-tearMotion * 15}px) rotate(${-tearMotion * 12}deg)`,
-                    transformOrigin: '0% 100%',
-                    opacity: 1 - tearMotion * 0.4
-                  }"
-                >
-                  <!-- Fond du scellé -->
-                  <rect x="5" y="5" width="170" height="18" rx="8" ry="8" fill="url(#sealGrad)" />
-
-                  <!-- Ligne de soudure -->
-                  <line x1="15" y1="14" x2="165" y2="14" stroke="rgba(255,255,255,0.25)" stroke-width="0.5" stroke-dasharray="3 2" />
-
-                  <!-- Dentelure du bas -->
-                  <path
-                    d="M 5 23 L 12 20 L 20 23 L 28 20 L 36 23 L 44 20 L 52 23 L 60 20 L 68 23 L 76 20 L 84 23 L 92 20 L 100 23 L 108 20 L 116 23 L 124 20 L 132 23 L 140 20 L 148 23 L 156 20 L 164 23 L 172 20 L 175 23 L 175 5 L 5 5 Z"
-                    fill="url(#sealGrad)"
-                  />
-
-                  <!-- Texte scellé -->
-                  <text x="90" y="16" text-anchor="middle" class="seal-text">━━━ SEALED ━━━</text>
-                </g>
-              </g>
-
-              <!-- === EFFET DE LUMIÈRE QUI S'ÉCHAPPE === -->
-              <g v-if="tearMotion > 0.15" class="light-escape">
-                <!-- Lueur principale -->
-                <rect
-                  x="5"
-                  :y="20 - tearMotion * 8"
-                  width="170"
-                  :height="tearMotion * 20"
-                  :fill="`rgba(20, 220, 180, ${tearMotion * 0.5})`"
+                <image
+                  x="0"
+                  y="70"
+                  width="200"
+                  height="200"
+                  href="/Logo_ACS.png"
+                  opacity="0.75"
                 />
-
-                <!-- Particules -->
-                <g :opacity="tearMotion">
-                  <circle
-                    v-for="i in 6"
-                    :key="'p' + i"
-                    :cx="25 + (i - 1) * 28"
-                    :cy="18 - tearMotion * (20 + i * 3)"
-                    :r="2 + tearMotion * 2"
-                    :fill="i % 2 === 0 ? '#14dcb4' : '#ff5f8f'"
-                  />
-                </g>
-
-                <!-- Rayons qui sortent -->
-                <g :opacity="tearMotion * 0.6">
-                  <line
-                    v-for="i in 5"
-                    :key="'ray' + i"
-                    :x1="36 * i"
-                    :y1="20"
-                    :x2="36 * i + (i % 2 === 0 ? -10 : 10)"
-                    :y2="20 - tearMotion * 30"
-                    stroke="#14dcb4"
-                    stroke-width="1"
-                  />
-                </g>
               </g>
-
+              <!-- Top seal - animable indépendamment -->
+              <g
+                id="top-seal-group"
+              >
+                <!-- Rectangle du sceau clippé à la forme du zigzag et qui se réduit -->
+                <rect
+                  x="0"
+                  y="0"
+                  width="200"
+                  height="35"
+                  fill="#2a1f4e"
+                  clip-path="url(#zigzagClip)"
+                  :style="{
+                    width: 100 - tearMotion * 100 + '%',
+                    transformOrigin: 'top center',
+                  }"
+                />
+              </g>
             </svg>
           </div>
 
@@ -523,10 +348,6 @@ onBeforeUnmount(() => {
             </div>
             <div class="flex flex-col items-center text-xs text-foam-200 gap-1">
               <span>{{ Math.round(tearMotion * 100) }}%</span>
-              <span class="inline-flex items-center gap-2 text-foam-100">
-                <span class="inline-block h-[3px] w-12 rounded-full bg-gradient-to-r from-white/10 to-white/60" />
-                {{ tiltGuidance }}
-              </span>
             </div>
           </div>
 

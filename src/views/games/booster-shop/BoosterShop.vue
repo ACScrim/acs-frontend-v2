@@ -177,9 +177,9 @@ const rarityColors = {
 
   <!-- Composant d'ouverture du booster -->
   <BoosterOpener
-      :isOpen="isOpenerOpen"
-      :cards="receivedCards"
-      @close="handleOpenerClose"
+    :isOpen="isOpenerOpen"
+    :cards="receivedCards"
+    @close="handleOpenerClose"
   />
 </template>
 

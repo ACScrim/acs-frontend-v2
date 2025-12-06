@@ -53,7 +53,7 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
   </main>
 </template>
 
-<style scoped>
+<style>
 @keyframes float-orb {
   0% {
     transform: translate3d(0, 0, 0) scale(0.9);
