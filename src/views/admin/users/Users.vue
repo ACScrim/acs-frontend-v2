@@ -97,6 +97,15 @@ const openNewReportModal = (userId: string) => {
   newReportModalUserId.value = userId;
 }
 
+const handleSubmitReport = (e: Event) => {
+  const target = e.target as HTMLFormElement;
+  const reason = (target.elements.namedItem('reason') as HTMLTextAreaElement)?.value;
+  if (newReportModalUserId.value && reason) {
+    adminStore.addReportToUser(newReportModalUserId.value, reason);
+    newReportModalUserId.value = null;
+  }
+}
+
 onMounted(() => {
   adminStore.fetchUsers();
 });
@@ -150,7 +159,7 @@ onMounted(() => {
         <h2 class="hero-title text-xl">Créer un report</h2>
         <p class="muted text-sm">{{ users.find(u => u.id === newReportModalUserId)?.username }}</p>
       </template>
-      <form v-if="newReportModalUserId" class="space-y-4" @submit.prevent="(e: Event) => { const target = e.target as HTMLFormElement; const reason = (target.elements.namedItem('reason') as HTMLTextAreaElement)?.value; adminStore.addReportToUser(newReportModalUserId!, reason); newReportModalUserId = null; }">
+      <form v-if="newReportModalUserId" class="space-y-4" @submit.prevent="handleSubmitReport">
         <textarea id="reason" required class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-foam-300/60 focus:border-accent-300 focus:ring-2 focus:ring-accent-300/20 outline-none min-h-[120px]" placeholder="Décrivez la raison..."></textarea>
         <div class="flex justify-end gap-2">
           <Button type="button" variant="ghost" @click="newReportModalUserId = null">Annuler</Button>
