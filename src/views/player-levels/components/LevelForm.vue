@@ -6,6 +6,7 @@ import useTournamentStore from '@/stores/tournamentStore';
 import type { PlayerGameLevel } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed, ref } from 'vue';
+import { getErrorMessage } from '@/utils';
 
 interface Props {
   level?: PlayerGameLevel;
@@ -159,8 +160,8 @@ const handleSubmit = async () => {
     await playerLevelStore.fetchPlayerGameLevels();
     resetForm();
     emit('save');
-  } catch (error: any) {
-    useToastStore().error('Erreur lors de la sauvegarde:', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de la sauvegarde: ' + getErrorMessage(error));
   } finally {
     isLoading.value = false;
   }

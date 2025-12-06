@@ -13,4 +13,36 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  build: {
+    // Enable build optimizations
+    minify: 'esbuild',
+    target: 'es2020',
+    cssCodeSplit: true,
+    
+    // Optimize chunk splitting for better caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          'vendor-vue': ['vue', 'vue-router', 'pinia'],
+          'vendor-ui': ['@vueuse/core', '@vueuse/motion', '@vueuse/head'],
+          'vendor-utils': ['axios', 'dexie'],
+        },
+      },
+    },
+    
+    // Reduce chunk size warnings threshold
+    chunkSizeWarningLimit: 500,
+  },
+  
+  // Enable performance optimizations
+  optimizeDeps: {
+    include: [
+      'vue',
+      'vue-router',
+      'pinia',
+      'axios',
+      '@vueuse/core',
+    ],
+  },
 });

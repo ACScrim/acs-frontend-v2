@@ -24,7 +24,7 @@ const component = computed(() => {
 });
 
 const componentProps = computed(() => {
-  const baseProps: any = {
+  const baseProps: Record<string, unknown> = {
     disabled: props.disabled || props.loading,
   };
 

@@ -16,12 +16,12 @@ onMounted(async () => {
   await collectionStore.fetchCollection();
 });
 
-const handleMouseHoverPreview = async (card: any) => {
+const handleMouseHoverPreview = async (card: Card) => {
   if (isLoadingFullCard.value) return useToastStore().info('Le chargement de la carte est en cours.');
   isLoadingFullCard.value = true;
   setTimeout(() => {
     if (!collectionStore.collection) return;
-    if ((card as Card).frontAsset) return; // Déjà chargé
+    if (card.frontAsset) return; // Déjà chargé
     collectionStore.fetchFullCard(collectionStore.collection.id, card.id)
       .then(() => {
         isLoadingFullCard.value = false;

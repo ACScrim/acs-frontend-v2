@@ -55,7 +55,6 @@ const toggleTournament = (tournamentId: string) => {
 };
 
 const handleSubmit = async () => {
-  console.log(seasonNumber.value)
   if (!seasonNumber.value) {
     toastStore.error('Le numéro de saison est requis.');
     return;
