@@ -8,6 +8,7 @@ import ProfileTournamentHistory from './components/ProfileTournamentHistory.vue'
 import ProfilePerGameStats from './components/ProfilePerGameStats.vue';
 import ProfilePersonalBests from './components/ProfilePersonalBests.vue';
 import { useToastStore } from '@/stores/toastStore';
+import { getErrorMessage } from '@/utils';
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -21,8 +22,8 @@ const fetchUserProfile = async (userId: string) => {
   isLoading.value = user !== null ? false : true;
   try {
     await userStore.fetchUserById(userId);
-  } catch (error: any) {
-    useToastStore().error('Erreur lors du chargement du profil:', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors du chargement du profil: ' + getErrorMessage(error));
   } finally {
     isLoading.value = false;
   }
@@ -44,8 +45,8 @@ const handleSaveTwitchUsername = async (twitchUsername: string | undefined) => {
   try {
     await userStore.updateTwitchUsername(twitchUsername);
     useToastStore().success('Nom Twitch mis à jour avec succès.');
-  } catch (error: any) {
-    useToastStore().error('Erreur lors de la mise à jour du nom Twitch:', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de la mise à jour du nom Twitch: ' + getErrorMessage(error));
   }
 };
 </script>

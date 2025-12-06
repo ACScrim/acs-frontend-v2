@@ -6,6 +6,7 @@ import useSeasonStore from '@/stores/seasonStore';
 import {useToastStore} from '@/stores/toastStore';
 import {type ApiResponse, type LeaderboardEntry} from '@/types/models';
 import api from '@/utils/api';
+import { getErrorMessage } from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {whenever} from '@vueuse/core';
 import {computed, h, onMounted, ref} from 'vue';
@@ -33,8 +34,8 @@ onMounted((async () => {
     leaderboard.value = response.data.data;
 
     seasonStore.fetchSeasons();
-  } catch (error: any) {
-    useToastStore().error('Error fetching leaderboard:', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Error fetching leaderboard: ' + getErrorMessage(error));
   }
 }))
 
@@ -42,8 +43,8 @@ whenever(seasonFilter, async () => {
   try {
     const response = await api.get<ApiResponse<LeaderboardEntry[]>>(`/leaderboard?season=${seasonFilter.value}`);
     leaderboard.value = response.data.data;
-  } catch (error: any) {
-    useToastStore().error('Error fetching leaderboard:', error.message || error);
+  } catch (error: unknown) {
+    useToastStore().error('Error fetching leaderboard: ' + getErrorMessage(error));
   }
 });
 
