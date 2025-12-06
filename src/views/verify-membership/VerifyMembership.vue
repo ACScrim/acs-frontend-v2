@@ -87,7 +87,6 @@ onMounted(() => {
             window.location.href = "/";
           }
         } else if (result.status === 403) {
-          console.log("Pas encore membre du serveur...");
           if (!linkOpened) {
             window.open(route.query['invite'] as string, '_blank');
             linkOpened = true;
