@@ -10,7 +10,8 @@ const EXCLUDED_FIELDS: Record<string, string[]> = {
   'acs-playerLevels': ['isLoading'],
   'proposalStore': ['isLoading', 'rawgGames'],
   'cards': ['backgrounds', 'borders', 'loading'],
-  'admin': ['logs']
+  'admin': ['logs'],
+  'collection': ['collection']
 };
 
 let preloadedData: Record<string, any> = {};

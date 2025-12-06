@@ -304,13 +304,14 @@ export interface CollectibleCard {
     width: 'w-full' | 'w-auto';
   }>;
   status?: 'active' | 'inactive' | 'pending';
+  previewCardB64?: string;
 }
 
 export interface CardCollection {
   id: string;
   userId: string;
   user: User;
-  cards: CollectibleCard[];
+  cards: ({ id: string, previewCardB64: string} | CollectibleCard)[];
 }
 
 export interface BoosterShopItem {

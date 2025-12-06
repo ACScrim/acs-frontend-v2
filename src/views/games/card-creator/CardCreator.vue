@@ -8,6 +8,7 @@ import {useToastStore} from '@/stores/toastStore';
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {useWindowSize} from "@vueuse/core";
 import type {CardAsset} from "@/types/models";
+import html2canvas from 'html2canvas';
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
@@ -35,6 +36,9 @@ const titleWidth = ref<'w-full' | 'w-auto'>('w-full');
 const removeImageBg = ref(false);
 const holographicEffect = ref(true);
 const holographicIntensity = ref(0.6);
+
+const cardPreviewRef = ref<HTMLDivElement | null>(null);
+const previewCardB64 = ref('');
 
 // Personnalisation - Couleurs du texte
 const titleColor = ref('#ffffff');
@@ -82,7 +86,7 @@ const backgroundAssetImagePreview = ref('');
 // Border asset state
 const borderAssetName = ref('');
 const borderAssetType = ref<'solid' | 'image'>('solid');
-const borderSolidColor = ref('#ffffff');
+const borderSolidColor = ref('#ffffff00');
 const borderAssetImageBase64 = ref('');
 const borderAssetImageMimeType = ref('');
 const borderAssetImagePreview = ref('');
@@ -443,6 +447,16 @@ const updateCustomText = (index: number, field: 'content' | 'posX' | 'posY' | 'a
   }
 };
 
+const captureCardPreview = async () => {
+  if (!cardPreviewRef.value) return;
+  const canvas = await html2canvas(cardPreviewRef.value, {
+    backgroundColor: null,
+    useCORS: true,
+    scale: 1
+  });
+  previewCardB64.value = canvas.toDataURL('image/webp', 0.75);
+}
+
 const saveCard = async () => {
   if (!isFormValid.value) {
     toastStore.error('Veuillez remplir tous les champs requis.');
@@ -476,6 +490,7 @@ const saveCard = async () => {
     borderAssetData = buildBorderAssetData();
   }
 
+  await captureCardPreview();
   // Store card data for confirmation modal WITHOUT creating assets yet
   pendingCardData.value = {
     title: title.value,
@@ -501,6 +516,7 @@ const saveCard = async () => {
     imageObjectFit: imageObjectFit.value,
     rarity: rarity.value,
     customTexts: customTexts.value,
+    previewCardB64: previewCardB64.value
   };
 
   // Show confirmation modal
@@ -560,6 +576,7 @@ const confirmCardCreation = async () => {
     imageObjectFit: pendingCardData.value.imageObjectFit,
     rarity: pendingCardData.value.rarity,
     customTexts: pendingCardData.value.customTexts,
+    previewCardB64: pendingCardData.value.previewCardB64,
   });
 
     if (card) {
@@ -615,7 +632,7 @@ const confirmCardCreation = async () => {
       pendingCardData.value = null;
 
       // Fetch updated cards
-      await cardStore.fetchCards();
+      await cardStore.fetchCardsPreviews();
     }
   } catch (error) {
     toastStore.error('Erreur lors de la création de la carte.');
@@ -661,7 +678,7 @@ const resetForm = () => {
 
 onMounted(async () => {
   await cardStore.fetchCardAssets();
-  await cardStore.fetchCards();
+  await cardStore.fetchCardsPreviews();
   await cardStore.fetchDiscordAvatars();
 });
 
@@ -809,35 +826,37 @@ watch(imageSourceType, (newType) => {
           <Card class="p-8 flex flex-col items-center justify-center">
             <h2 class="text-lg font-semibold text-foam-200 mb-6">Aperçu 3D</h2>
             <div class="flex items-center justify-center">
-              <CollectibleCard
-                :card="{
-                  id: 'preview',
-                  title,
-                  imageBase64,
-                  imageMimeType,
-                  frontAsset: selectedFrontAsset,
-                  borderAsset: selectedBorderAsset,
-                  titlePosX,
-                  titlePosY,
-                  titleAlign,
-                  titleWidth,
-                  removeImageBg,
-                  holographicEffect,
-                  holographicIntensity,
-                  titleColor,
-                  imagePosX,
-                  imagePosY,
-                  imageScale,
-                  imageWidth,
-                  imageHeight,
-                  imageObjectFit,
-                  rarity,
-                  customTexts,
-                  createdAt: '',
-                  updatedAt: ''
-                }"
-                :interactive="true"
-              />
+              <div ref="cardPreviewRef">
+                <CollectibleCard
+                  :card="{
+                    id: 'preview',
+                    title,
+                    imageBase64,
+                    imageMimeType,
+                    frontAsset: selectedFrontAsset,
+                    borderAsset: selectedBorderAsset,
+                    titlePosX,
+                    titlePosY,
+                    titleAlign,
+                    titleWidth,
+                    removeImageBg,
+                    holographicEffect,
+                    holographicIntensity,
+                    titleColor,
+                    imagePosX,
+                    imagePosY,
+                    imageScale,
+                    imageWidth,
+                    imageHeight,
+                    imageObjectFit,
+                    rarity,
+                    customTexts,
+                    createdAt: '',
+                    updatedAt: ''
+                  }"
+                  :interactive="true"
+                />
+              </div>
             </div>
             <p class="text-sm text-foam-300/60 mt-6 text-center">
               Déplacez votre souris sur la carte pour voir l'effet 3D
@@ -1692,26 +1711,35 @@ watch(imageSourceType, (newType) => {
       </div>
 
       <!-- Saved Cards Section -->
-      <div v-if="cardStore.cards.length > 0" class="space-y-6">
+      <div v-if="cardStore.cardsPreview.length > 0" class="space-y-6">
         <div class="flex items-center gap-4">
           <div class="h-px w-16 bg-gradient-to-r from-white/0 via-white/40 to-white/0" />
           <div>
             <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Collection</p>
             <h2 class="text-xl font-semibold text-white/90">
-              Vos Cartes <span class="text-foam-200/60">({{ cardStore.cards.length }})</span>
+              Vos Cartes <span class="text-foam-200/60">({{ cardStore.cardsPreview.length }})</span>
             </h2>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <div
-            v-for="card in cardStore.cards"
+            v-for="card in cardStore.cardsPreview"
             :key="card.id"
             class="flex flex-col items-center min-w-64 w-64"
           >
             <CollectibleCard
-              :card="card"
-              :interactive="true"
+              v-if="cardStore.cards.find(c => c.id === card.id)"
+              :card="cardStore.cards.find(c => c.id === card.id)!"
+              interactive
+              @mouseleave="cardStore.clearFullCardPreview(card.id)"
+            />
+            <img
+              v-else
+              :src="card.previewCardB64"
+              alt="Aperçu de la carte"
+              class="w-62.5 object-contain"
+              @mouseover="cardStore.fetchFullCard(card.id)"
             />
             <Button
               variant="danger"
@@ -1737,60 +1765,7 @@ watch(imageSourceType, (newType) => {
             Vous allez créer une nouvelle carte avec les paramètres suivants :
           </p>
 
-          <!-- Confirmation Details -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <span class="text-xs text-foam-300/70">Titre</span>
-              <p class="text-sm font-semibold text-white truncate">{{ title }}</p>
-            </div>
-            <div>
-              <span class="text-xs text-foam-300/70">Rareté</span>
-              <p class="text-sm font-semibold text-white">{{ rarity }}</p>
-            </div>
-            <div>
-              <span class="text-xs text-foam-300/70">Image principale</span>
-              <div class="flex items-center gap-2">
-                <img
-                  v-if="imageBase64"
-                  :src="`data:${imageMimeType};base64,${imageBase64}`"
-                  alt="Aperçu de l'image"
-                  class="w-16 h-16 rounded-lg object-cover border border-white/10"
-                />
-                <span class="text-sm font-semibold text-white truncate">{{ imageUrl }}</span>
-              </div>
-            </div>
-            <div>
-              <span class="text-xs text-foam-300/70">Front Asset</span>
-              <p class="text-sm font-semibold text-white truncate">
-                {{ pendingCardData?.frontAssetId ? cardStore.getCardAssetById(pendingCardData.frontAssetId)?.name : 'Nouveau fond' }}
-              </p>
-            </div>
-            <div>
-              <span class="text-xs text-foam-300/70">Border Asset</span>
-              <p class="text-sm font-semibold text-white truncate">
-                {{ pendingCardData?.borderAssetId ? cardStore.getCardAssetById(pendingCardData.borderAssetId)?.name : 'Pas de bordure' }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Custom Texts Preview -->
-          <div v-if="pendingCardData?.customTexts.length > 0" class="mt-4">
-            <span class="text-xs text-foam-300/70">Textes personnalisés</span>
-            <div class="space-y-2 mt-1">
-              <div
-                v-for="(text, index) in pendingCardData.customTexts"
-                :key="index"
-                class="p-3 rounded-lg bg-ink-700/20 border border-white/10"
-              >
-                <p class="text-sm font-semibold text-white">{{ text.content }}</p>
-                <p class="text-xs text-foam-300/70">
-                  Position : X{{ text.posX }}%, Y{{ text.posY }}% |
-                  Alignement : {{ text.align }} |
-                  Couleur : {{ text.color }}
-                </p>
-              </div>
-            </div>
-          </div>
+          <img :src="pendingCardData?.previewCardB64"  alt="Preview de la carte" width="250" height="378" class="mx-auto"/>
 
           <!-- Warning Message -->
           <div class="text-xs text-foam-300/70">

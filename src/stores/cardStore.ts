@@ -6,21 +6,45 @@ import api from "@/utils/api.ts";
 const useCardStore = defineStore('cards', {
   state: () => ({
     cards: [] as CollectibleCard[],
+    cardsPreview: [] as Pick<CollectibleCard, 'id' | 'previewCardB64'| 'status'>[],
     cardAssets: [] as CardAsset[],
     discordAvatars: [] as { id: string; username: string; avatarUrl: string }[],
     loading: false,
   }),
   actions: {
-    async fetchCards() {
+    async fetchCardsPreviews() {
       this.loading = true;
       try {
-        const { data: { data: cards }} = await api.get<ApiResponse<CollectibleCard[]>>("/games/card-creator/cards");
-        this.cards = cards;
+        const { data: { data: cards }} = await api.get<ApiResponse<Pick<CollectibleCard, 'id' | 'previewCardB64'| 'status'>[]>>("/games/card-creator/cards");
+        this.cardsPreview = cards;
       } catch {
         useToastStore().error("Erreur lors de la récupération des cartes.");
       } finally {
         this.loading = false;
       }
+    },
+
+    async fetchFullCard(cardId: string) {
+      this.loading = true;
+      try {
+        const { data: { data: card }} = await api.get<ApiResponse<CollectibleCard>>(`/games/card-creator/cards/${cardId}`);
+        const existingIndex = this.cards.findIndex(c => c.id === cardId);
+        if (existingIndex !== -1) {
+          this.cards[existingIndex] = card;
+        } else {
+          this.cards.push(card);
+        }
+        return card;
+      } catch {
+        useToastStore().error("Erreur lors de la récupération de la carte.");
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    clearFullCardPreview(cardId: string) {
+      this.cards = this.cards.filter(c => c.id !== cardId);
     },
 
     async fetchCardAssets() {
