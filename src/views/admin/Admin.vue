@@ -9,7 +9,7 @@ const adminStore = useAdminStore();
 const filter = ref<'all' | 'info' | 'error'>('all');
 
 onMounted(() => {
-  const eventSource = new EventSource('http://localhost:5000/api/admin/logs');
+  const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/admin/logs`);
   eventSource.onmessage = (event) => {
     adminStore.addLog(event.data);
   };
