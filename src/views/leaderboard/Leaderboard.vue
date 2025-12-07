@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LoaderACS from '@/components/global/LoaderACS.vue';
 import PageHeader from '@/components/global/PageHeader.vue';
-import {Select} from '@/components/ui';
+import {Avatar, Select} from '@/components/ui';
 import useSeasonStore from '@/stores/seasonStore';
 import {useToastStore} from '@/stores/toastStore';
 import {type ApiResponse, type LeaderboardEntry} from '@/types/models';
@@ -86,14 +86,13 @@ const columns = [
         },
         {
           default: () => [
-            h('img', {
+            h(Avatar, {
               src: user.avatarUrl,
               alt: user.username,
-              class: 'size-14 rounded-2xl border border-white/10 object-cover group-hover:border-accent-300/40 transition'
+              size: 14
             }),
             h('div', null, [
               h('p', { class: 'text-white font-semibold' }, user.username),
-              h('p', { class: 'text-xs uppercase tracking-[0.3em] text-foam-300/60' }, user.role)
             ])
           ]
         }
