@@ -295,9 +295,9 @@ const handleAssetImageUpload = (event: Event) => {
       return;
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toastStore.error('L\'image ne doit pas dépasser 10MB.');
+    // Validate file size (max 3MB)
+    if (file.size > 3 * 1024 * 1024) {
+      toastStore.error('L\'image ne doit pas dépasser 3MB.');
       return;
     }
 
@@ -425,7 +425,7 @@ const handleImageUpload = async (event: Event) => {
       imageUrl.value = `data:${base64Data.mimeType};base64,${base64Data.base64}`;
 
       const sizeInMB = file.size / 1024 / 1024;
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 3 * 1024 * 1024) {
         toastStore.success(`Image redimensionnée et chargée (original: ${sizeInMB.toFixed(2)}MB)`);
       } else {
         toastStore.success(`Image chargée avec succès (${sizeInMB.toFixed(2)}MB)`);
@@ -485,7 +485,8 @@ const captureCardPreview = async () => {
   const canvas = await html2canvas(cardPreviewRef.value, {
     backgroundColor: null,
     useCORS: true,
-    scale: 1
+    width: 250,
+    height: 378
   });
   previewCardB64.value = canvas.toDataURL('image/webp', 0.75);
 }
@@ -1690,9 +1691,7 @@ watch(imageSourceType, (newType) => {
                 :title="asset.name"
                 @click="selectedFrontAssetId = asset.id"
               >
-                <button class="absolute top-1 right-1">
-                  <VueIcon name="fa:trash" class="text-red-400 cursor-pointer" @click.stop="cardStore.deleteAsset(asset.id)" />
-                </button>
+                <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
                   v-if="asset.type === 'image' && asset.imageBase64"
                   :src="`data:${asset.imageMimeType || 'image/png'};base64,${asset.imageBase64}`"
@@ -1723,9 +1722,7 @@ watch(imageSourceType, (newType) => {
                 :title="asset.name"
                 @click="selectedBorderAssetId = asset.id"
               >
-                <button class="absolute top-1 right-1">
-                  <VueIcon name="fa:trash" class="text-red-400 cursor-pointer" @click.stop="cardStore.deleteAsset(asset.id)" />
-                </button>
+                <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
                   v-if="asset.type === 'image' && asset.imageBase64"
                   :src="`data:${asset.imageMimeType || 'image/png'};base64,${asset.imageBase64}`"

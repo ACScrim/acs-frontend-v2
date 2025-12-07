@@ -12,16 +12,21 @@ const cards = computed(() => collectionStore.cards);
 
 const isLoadingFullCard = ref<boolean>(false);
 
+const fullCardFetchQueue = ref<Set<string>>(new Set());
+
 onMounted(async () => {
   await collectionStore.fetchCollection();
 });
 
 const handleMouseHoverPreview = async (card: Card) => {
   if (isLoadingFullCard.value) return useToastStore().info('Le chargement de la carte est en cours.');
+  if (fullCardFetchQueue.value.has(card.id)) return; // Déjà en cours de chargement
+  fullCardFetchQueue.value.add(card.id);
   isLoadingFullCard.value = true;
   setTimeout(() => {
     if (!collectionStore.collection) return;
     if (card.frontAsset) return; // Déjà chargé
+    if (!fullCardFetchQueue.value.has(card.id)) return;
     collectionStore.fetchFullCard(collectionStore.collection.id, card.id)
       .then(() => {
         isLoadingFullCard.value = false;
@@ -36,11 +41,14 @@ const handleMouseHoverPreview = async (card: Card) => {
   }, 1000);
 };
 
-const handleMouseLeavePreview = () => {
-  if (collectionStore.listCardLoaded.length <= 0) return;
-  const firstCardLoaded = collectionStore.listCardLoaded[0];
-  if (!firstCardLoaded) return;
-  collectionStore.unloadFullCard(firstCardLoaded);
+const handleMouseLeavePreview = (card: Card) => {
+  setTimeout(() => {
+    fullCardFetchQueue.value.delete(card.id);
+    if (collectionStore.listCardLoaded.length <= 1) return;
+    const firstCardLoaded = collectionStore.listCardLoaded[0];
+    if (!firstCardLoaded) return;
+    collectionStore.unloadFullCard(firstCardLoaded);
+  }, 500)
 };
 
 </script>
@@ -62,7 +70,7 @@ const handleMouseLeavePreview = () => {
           v-if="(card as Card).frontAsset"
           :card="card as Card"
           interactive
-          @mouseleave="handleMouseLeavePreview"
+          @mouseleave="handleMouseLeavePreview(card)"
         />
         <img
           v-else
