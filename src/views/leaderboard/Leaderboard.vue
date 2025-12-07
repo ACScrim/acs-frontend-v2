@@ -13,7 +13,7 @@ import {computed, h, onMounted, ref} from 'vue';
 import {RouterLink} from 'vue-router';
 import {
   createColumnHelper,
-  getCoreRowModel,
+  getCoreRowModel, getPaginationRowModel,
   useVueTable
 } from '@tanstack/vue-table';
 import TableTanstack from "@/components/global/TableTanstack.vue";
@@ -125,6 +125,7 @@ const table = useVueTable({
   columns,
   enableSorting: false,
   getCoreRowModel: getCoreRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
   state: {
     get pagination() {
       return pagination.value;

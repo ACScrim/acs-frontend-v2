@@ -23,6 +23,7 @@ onMounted(async () => {
   startAnswerTimer()
 
   document.addEventListener("visibilitychange", () => {
+    if (dailyQuestionAnswered) return;
     if (document.hidden) {
       document.title = "Arrête de tricher ! 🧐";
       if (gamesStore.dailyQuiz.todayAnswer?.discoveredAt) updateAnswer({ cheated: true });
