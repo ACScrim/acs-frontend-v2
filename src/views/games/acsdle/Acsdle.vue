@@ -273,14 +273,6 @@ const chartOptions: ChartOptions<'line'> = {
         <p class="text-xl">Prochain joueur dans <b>{{ formatDate(new Date(timeRemaining), "HH:mm:ss")}}</b></p>
       </div>
 
-      <div class="bg-gray-800 rounded-lg p-8 shadow-2xl">
-        <Line
-          id="my-chart-id"
-          :options="chartOptions"
-          :data="chartData"
-        />
-      </div>
-
       <!-- Loss Screen -->
       <div v-if="gameOver && !gameWon && decryptedUser" class="rounded-lg border-2 border-red-500 bg-red-900 p-8 text-center shadow-2xl">
         <h2 class="mb-4 text-4xl font-bold">😔 Game Over!</h2>
@@ -295,6 +287,14 @@ const chartOptions: ChartOptions<'line'> = {
             <li><strong>Membre depuis:</strong> {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}</li>
           </ul>
         </div>
+      </div>
+
+      <div v-if="gameWon || gameOver" class="bg-gray-800 rounded-lg p-8 shadow-2xl">
+        <Line
+          id="my-chart-id"
+          :options="chartOptions"
+          :data="chartData"
+        />
       </div>
 
       <!-- Game Container -->
