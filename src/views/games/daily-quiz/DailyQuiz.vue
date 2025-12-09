@@ -106,7 +106,8 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
     { header: 'Joueur', accessorKey: 'username', cell: ({ row }) => h('div', { class: 'flex items-center gap-3' }, [h(Avatar, { src: row.original.avatarUrl, alt: `Avatar de ${row.original.username}`, size: 8 }), row.original.username]) },
     { header: 'Points', accessorKey: 'totalPoints' },
   ],
-  getCoreRowModel: getCoreRowModel()
+  getCoreRowModel: getCoreRowModel(),
+  enableSorting: false
 });
 </script>
 
@@ -139,7 +140,7 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
       <div v-if="dailyQuestionDiscovered && !dailyQuestionAnswered" class="space-y-6 flex flex-col animate-in fade-in duration-300">
         <!-- Question -->
         <div class="space-y-4 bg-gradient-to-br from-surface-700/50 to-surface-800/30 border border-foam-200/10 rounded-xl p-6">
-          <h2 class="text-lg font-semibold text-foam-100">Quelle est ta réponse ?</h2>
+          <h2 class="text-lg font-semibold text-azure-300">{{ gamesStore.dailyQuiz.todayQuestion?.category }}</h2>
           <p class="text-white text-xl font-medium leading-relaxed">{{ gamesStore.dailyQuiz.todayQuestion?.question }}</p>
         </div>
 
@@ -181,7 +182,7 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
       <div v-else-if="dailyQuestionAnswered" class="space-y-5 flex flex-col animate-in fade-in duration-300">
         <!-- Question -->
         <div class="space-y-4 bg-gradient-to-br from-surface-700/50 to-surface-800/30 border border-foam-200/10 rounded-xl p-6">
-          <h2 class="text-lg font-semibold text-foam-100">Question du jour</h2>
+          <h2 class="text-lg font-semibold text-azure-300">{{ gamesStore.dailyQuiz.todayQuestion?.category }}</h2>
           <p class="text-white text-xl font-medium leading-relaxed">{{ gamesStore.dailyQuiz.todayQuestion?.question }}</p>
         </div>
 
@@ -218,7 +219,7 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
       <div v-if="gamesStore.dailyQuiz.yesterdayQuestion && gamesStore.dailyQuiz.yesterdayQuestion" class="space-y-5 flex flex-col">
         <!-- Question d'hier -->
         <div class="space-y-4 bg-gradient-to-br from-surface-700/50 to-surface-800/30 border border-foam-200/10 rounded-xl p-6">
-          <h3 class="text-sm font-semibold text-foam-300 uppercase tracking-wider">Question</h3>
+          <h2 class="text-lg font-semibold text-foam-100">Question du jour</h2>
           <p class="text-white text-lg font-medium leading-relaxed">{{ gamesStore.dailyQuiz.yesterdayQuestion.question }}</p>
         </div>
 

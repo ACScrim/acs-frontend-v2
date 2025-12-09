@@ -223,6 +223,7 @@ export interface DailyQuestion {
   id: string;
   question: string;
   options: string[];
+  category: string;
 }
 
 export interface YesterdayDailyQuestion extends DailyQuestion {
