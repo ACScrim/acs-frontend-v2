@@ -15,7 +15,7 @@ const tournaments = computed(() => tournamentStore.nextTournaments);
   <div class="space-y-8">
     <div>
       <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Planning</p>
-      <h2 class="hero-title">Les prochains tournois ?</h2>
+      <h2 class="hero-title font-display">Les prochains tournois ?</h2>
     </div>
 
     <ListView

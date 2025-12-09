@@ -30,17 +30,23 @@ const getPlayerPercentage = (current: number, cap: number) => {
         </div>
       </div>
 
-      <div class="flex flex-1 flex-col justify-between gap-5 bg-surface-900/60 p-6">
+      <div class="flex flex-1 flex-col justify-between gap-5 bg-gradient-to-b from-surface-700/50 to-surface-800/40 p-6">
         <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-white line-clamp-1" :title="tournament.name">{{ tournament.name }}</h2>
-            <Badge tone="neutral" size="sm">{{ tournament.game.name }}</Badge>
+          <div class="flex items-start justify-between gap-3">
+            <h2 class="text-xl font-semibold text-white line-clamp-2 font-display flex-1" :title="tournament.name">{{ tournament.name }}</h2>
           </div>
 
           <div class="space-y-3 text-sm text-foam-200/80">
             <div class="flex items-center gap-2">
               <VueIcon name="ak:calendar" class="text-accent-300" />
               <span>{{ formatDate(new Date(tournament.date), "DD/MM/YYYY HH:mm") }} · {{ useTimeAgoIntl(new Date(tournament.date), { locale: "fr" }) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <VueIcon name="bx:game" class="text-amber-400" />
+                <span>Jeu</span>
+              </div>
+              <Badge tone="neutral" size="sm">{{ tournament.game.name }}</Badge>
             </div>
             <div class="flex items-center gap-2">
               <VueIcon name="cl:users" class="text-emerald-400" />
@@ -64,11 +70,12 @@ const getPlayerPercentage = (current: number, cap: number) => {
             {{ tournament.playerCap > 0 && tournament.players.length >= tournament.playerCap ? 'Rejoindre la liste d\'attente' : 'Je veux m\'inscrire !' }}
           </span>
         </Button>
-        <Card v-else class="bg-white/5 p-4">
-          <div class="text-center text-sm text-foam-200/90">
-            Vainqueur · {{ tournament.teams.find(team => team.ranking === 1)?.name ?? 'NC' }}
+        <div v-else class="rounded-lg border-2 border-amber-400 bg-gradient-to-r from-amber-500/10 to-amber-400/10 p-4">
+          <div class="text-center">
+            <p class="text-xs uppercase tracking-[0.3em] text-amber-300/70 mb-2">Vainqueur</p>
+            <p class="text-lg font-semibold text-amber-300">{{ tournament.teams.find(team => team.ranking === 1)?.name ?? 'NC' }}</p>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   </Card>

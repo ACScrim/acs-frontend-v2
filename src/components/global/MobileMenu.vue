@@ -12,7 +12,7 @@ const mobileFooterRoutes = computed(() =>
 </script>
 
 <template>
-  <footer class="fixed bottom-5 left-1/2 z-50 flex w-[calc(100%-2.5rem)] max-w-3xl -translate-x-1/2 items-center rounded-[var(--radius-xl)] border border-white/10 bg-surface-900/80 px-4 py-3 shadow-[0_25px_55px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
+  <footer class="fixed bottom-5 left-1/2 z-50 flex w-[calc(100%-2.5rem)] max-w-3xl -translate-x-1/2 items-center rounded-[var(--radius-xl)] border border-white/10 bg-gradient-to-r from-surface-700/40 to-surface-800/40 px-4 py-3 shadow-[0_25px_55px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
     <RouterLink
       v-for="route in mobileFooterRoutes"
       :key="route.path"

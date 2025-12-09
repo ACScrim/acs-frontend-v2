@@ -41,9 +41,9 @@ const handleVoteClick = (value: boolean) => {
         </Badge>
       </div>
 
-      <div class="flex flex-1 flex-col gap-4 bg-surface-900/60 p-6">
+      <div class="flex flex-1 flex-col gap-4 bg-gradient-to-b from-surface-700/50 to-surface-800/40 p-6">
         <div class="space-y-2">
-          <h2 class="text-xl font-semibold text-white line-clamp-1" :title="proposal.name">{{ proposal.name }}</h2>
+          <h2 class="text-xl font-semibold text-white line-clamp-1 font-display" :title="proposal.name">{{ proposal.name }}</h2>
           <p class="muted line-clamp-3 flex items-start gap-2">
             <VueIcon name="bs:megaphone" class="text-accent-300" />
             {{ proposal.description || 'Aucune description fournie.' }}
