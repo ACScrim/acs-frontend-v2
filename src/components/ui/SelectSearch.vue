@@ -69,7 +69,7 @@ onClickOutside(containerRef, () => {
       type="button"
       @click="isOpen = !isOpen"
       :disabled="disabled"
-      class="w-full px-4 py-2.5 text-left bg-ink-900 border border-white/10 text-foam-50 rounded-lg focus:border-accent-300 focus:outline-none focus:ring-2 focus:ring-accent-300/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+      class="w-full px-4 py-2 text-left bg-gradient-to-r from-ink-800/70 to-ink-900/70 border border-white/10 text-foam-50 rounded-lg focus:border-accent-300 focus:outline-none focus:ring-2 focus:ring-accent-300/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
     >
       <span :class="selectedOption ? 'text-foam-50' : 'text-foam-300/60'">
         {{ selectedOption?.label || placeholder }}

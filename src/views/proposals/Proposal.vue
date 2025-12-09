@@ -122,12 +122,16 @@ const resetForm = () => {
               </template>
             </SelectSearch>
           </div>
-          <textarea
-            rows="4"
-            placeholder="Expliquez pourquoi vous proposez ce jeu..."
-            class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-white placeholder:text-foam-300/60"
-            v-model="form.description"
-          />
+          <div class="relative">
+            <textarea
+              rows="4"
+              maxlength="150"
+              placeholder="Expliquez pourquoi vous proposez ce jeu..."
+              class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-white placeholder:text-foam-300/60"
+              v-model="form.description"
+            />
+            <span class="absolute bottom-2 right-2 text-foam-300">{{ form.description.length }} / 150</span>
+          </div>
           <div class="flex gap-3 justify-end">
             <Button type="reset" variant="ghost" @click="resetForm">Annuler</Button>
             <Button type="submit">Soumettre la proposition</Button>
@@ -143,6 +147,7 @@ const resetForm = () => {
       empty-title="Aucune proposition pour le moment"
       empty-message="Revenez plus tard pour découvrir les nouvelles idées."
       title="Propositions de jeux"
+      paginate
     >
       <template #item="{ item: proposal }">
         <ProposalCard :proposal="proposal" />

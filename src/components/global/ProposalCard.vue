@@ -42,10 +42,9 @@ const handleVoteClick = (value: boolean) => {
       </div>
 
       <div class="flex flex-1 flex-col gap-4 bg-gradient-to-b from-surface-700/50 to-surface-800/40 p-6">
-        <div class="space-y-2">
+        <div class="space-y-2 mb-auto">
           <h2 class="text-xl font-semibold text-white line-clamp-1 font-display" :title="proposal.name">{{ proposal.name }}</h2>
-          <p class="muted line-clamp-3 flex items-start gap-2">
-            <VueIcon name="bs:megaphone" class="text-accent-300" />
+          <p class="muted items-start gap-2 line-clamp-3" :title="proposal.description || 'Aucune description fournie.'">
             {{ proposal.description || 'Aucune description fournie.' }}
           </p>
         </div>
@@ -61,8 +60,8 @@ const handleVoteClick = (value: boolean) => {
           <div class="flex flex-wrap items-center gap-3 text-sm text-foam-200/80">
             <VueIcon name="bx:upvote" class="text-emerald-400" />
             {{ proposal.votes.length }} vote{{ proposal.votes.length > 1 ? 's' : '' }}
-            <div class="inline-flex -space-x-3">
-              <RouterLink :to="`/user/${vote.user.id}`" v-for="vote in proposal.votes" :key="vote.user.id" class="not-first:not-last:hover:mx-1 first:hover:mr-1 transition-all">
+            <div class="flex flex-wrap -space-x-3 min-h-10">
+              <RouterLink :to="`/user/${vote.user.id}`" v-for="vote in proposal.votes" :key="vote.user.id" class="not-first:not-last:hover:mx-1 first:hover:mr-1 hover:scale-110 transition-all">
                 <Avatar
                   :src="vote.user.avatarUrl"
                   class="rounded-full border border-white/10"
