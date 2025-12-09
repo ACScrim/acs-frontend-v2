@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import MobileMenu from './MobileMenu.vue';
+import Confetti from "@/components/ui/Confetti.vue";
 
 interface Orb {
   id: number;
@@ -40,14 +41,15 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_55%)]" />
     </div>
 
-    <aside class="relative hidden lg:flex flex-col border-r border-white/5 bg-surface-900/80 backdrop-blur-2xl">
+    <aside class="relative hidden lg:flex flex-col border-r border-white/5 bg-surface-900/80 backdrop-blur-2xl overflow-y-auto">
       <slot name="aside" />
     </aside>
 
     <section class="relative z-10 flex flex-col overflow-y-auto" data-acs-scroll-region>
-      <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-10 lg:px-10">
+      <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-20 lg:py-5 lg:px-10">
         <slot name="view" />
       </div>
+      <Confetti manualstart :globalOptions="{ disableForReducedMotion: true }" class=" fixed top-0 left-0 right-0 bottom-0 h-screen overflow-y-auto pointer-events-none z-50" />
       <MobileMenu />
     </section>
   </main>

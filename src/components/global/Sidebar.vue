@@ -42,7 +42,7 @@ const logout = async () => {
 </script>
 
 <template>
-  <aside class="hidden lg:flex flex-col gap-8 px-6 py-8">
+  <div class="hidden lg:flex flex-col gap-8 px-6 py-8">
     <RouterLink to="/" class="flex items-center justify-center">
       <img src="/acs.avif" alt="ACS" class="h-16 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)]" />
     </RouterLink>
@@ -91,7 +91,7 @@ const logout = async () => {
         <span>Connexion Discord</span>
       </Button>
     </div>
-  </aside>
+  </div>
 </template>
 
 <style scoped>

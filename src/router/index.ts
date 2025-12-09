@@ -19,6 +19,7 @@ const routes: RouterOptions['routes'] = [
   { path: '/games/card-creator', component: () => import('@/views/games/card-creator/CardCreator.vue'), name: 'CardCreator', meta: { title: "Créateur de Cartes", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/games/card-collection', component: () => import('@/views/games/card-collection/CardCollection.vue'), name: 'CardCollection', meta: { title: "Collection de Cartes", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/games/booster-shop', component: () => import('@/views/games/booster-shop/BoosterShop.vue'), name: 'BoosterShop', meta: { title: "Boutique de Boosters", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
+  { path: '/games/acsdle', component: () => import('@/views/games/acsdle/Acsdle.vue'), name: 'Acsdle', meta: { title: "ACSDLE", showInAdminBar: false, showInAside: false, showInMobileFooter: false }},
   { path: '/:pathMatch(.*)', component: () => import('@/views/notfound/NotFound.vue'), name: 'NotFound', meta: { title: 'Page non trouvée', icon: null, showInAside: false, showInMobileFooter: false, showInAdminBar: false } }
 ]
 

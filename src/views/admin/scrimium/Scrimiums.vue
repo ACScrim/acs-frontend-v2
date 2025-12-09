@@ -26,7 +26,7 @@ const table = useVueTable({
   columns: [
     { header: 'Utilisateur', cell: info => h('div', { class: 'flex flex-row gap-2 items-center justify-center' }, [h(Avatar, { size: 10, src: info.row.original.user.avatarUrl }), info.row.original.user.username]) },
     { header: 'Scrimiums', accessorKey: 'balance' },
-    { header: 'Dernière activité', accessorKey: 'transactions', cell: info => `${info.getValue()[info.getValue().length-1].amount} | ${info.getValue()[info.getValue().length-1].description}` },
+    { header: 'Dernière activité', accessorKey: 'transactions', cell: info => info.getValue()[info.getValue().length-1] ? `${info.getValue()[info.getValue().length-1]?.amount ?? 0} | ${info.getValue()[info.getValue().length-1]?.description ?? ''}` : 'Aucune activité' },
     { header: 'Actions', cell: info => {
         return h('div', { class: "flex flex-col w-full gap-2"}, [
             h('input', { type: 'number', min: 0, placeholder: 'Montant', class: 'form-input', id: `scrimium-input-${info.row.original.user.id}`  }),

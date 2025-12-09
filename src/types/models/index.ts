@@ -333,3 +333,13 @@ export interface Booster {
   boosterId: string;
   booster: Booster;
 }
+
+export interface AcsdleUser {
+  id: string;
+  username: string;
+  createdAt: Date;
+  tournamentsPlayed: number;
+  victories: number;
+  top25Finishes: number;
+  mostGamePlayed: string;
+}

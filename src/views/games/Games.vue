@@ -10,9 +10,10 @@ interface Game {
 
 const games: Game[] = [
   { id: '1', name: 'DailyQuiz', route: '/games/dailyquiz' },
-  { id: '2', name: 'Créateur de Cartes', route: '/games/card-creator' },
-  { id: '3', name: 'Collection de Cartes', route: '/games/card-collection' },
-  { id: '4', name: 'Boutique de Boosters', route: '/games/booster-shop' },
+  { id: '2', name: 'Acsdle', route: '/games/acsdle' },
+  { id: '3', name: 'Créateur de Cartes', route: '/games/card-creator' },
+  { id: '4', name: 'Collection de Cartes', route: '/games/card-collection' },
+  { id: '5', name: 'Boutique de Boosters', route: '/games/booster-shop' },
 ]
 
 </script>

@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import type {
+  AcsdleUser,
   ApiResponse,
   DailyAnswer,
   DailyQuestion,
@@ -18,6 +19,11 @@ const useGamesStore = defineStore('games', {
       leaderboards: {
         weekly: [] as WeeklyLeaderboardEntry[],
       }
+    },
+    acsdle: {
+      users: [] as AcsdleUser[],
+      dailyCryptedUser: null as { payload: string, iv: string, tag: string } | null,
+      todayGuesses: [] as AcsdleUser[]
     }
   }),
   actions: {
@@ -66,8 +72,43 @@ const useGamesStore = defineStore('games', {
       } catch (e: any) {
         useToastStore().error("Il y a une erreur lors de la soumission de la réponse du quiz quotidien.", e);
       }
+    },
+    // Acsdle
+    async fetchAcsdleUsers() {
+      try {
+        const { data: { data: users }} = await api.get<ApiResponse<AcsdleUser[]>>("/games/acsdle/users");
+        this.acsdle.users = users;
+      } catch (e: any) {
+        useToastStore().error("Il y a une erreur lors de la récupération des utilisateurs Acsdle.", e);
+      }
+    },
+    async fetchAcsdleDailyCryptedUser() {
+      try {
+        const { data: { data } } = await api.get<ApiResponse<{ payload: string, iv: string, tag: string }>>("/games/acsdle/daily");
+        this.acsdle.dailyCryptedUser = data;
+      } catch (e: any) {
+        useToastStore().error("Il y a une erreur lors de la récupération de l'utilisateur Acsdle du jour.", e);
+      }
+    },
+    async fetchAcsdleTodayHistory() {
+      try {
+        const { data: { data: guesses }} = await api.get<ApiResponse<(AcsdleUser)[]>>("/games/acsdle/today-history");
+        this.acsdle.todayGuesses = guesses;
+      } catch (e: any) {
+        useToastStore().error("Il y a une erreur lors de la récupération de l'historique Acsdle d'aujourd'hui.", e);
+      }
+    },
+    async addAcsdleTodayGuess(user: AcsdleUser) {
+      try {
+        await api.post<ApiResponse<(AcsdleUser)[]>>("/games/acsdle/today-history", {
+          user
+        });
+        this.acsdle.todayGuesses.push(user);
+      } catch (e: any) {
+        useToastStore().error("Il y a une erreur lors de l'ajout de votre tentative Acsdle pour aujourd'hui.", e);
+      }
     }
   }
-})
+});
 
 export default useGamesStore;

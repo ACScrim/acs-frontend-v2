@@ -16,6 +16,7 @@
     "@vueuse/head": "^2.0.0",
     "@vueuse/motion": "^3.0.3",
     "axios": "^1.12.2",
+    "canvas-confetti": "^1.9.4",
     "dexie": "^4.2.1",
     "html2canvas": "^1.4.1",
     "pinia": "^3.0.3",
@@ -26,6 +27,7 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^24.6.0",
     "@typescript-eslint/utils": "^8.46.0",
     "@vitejs/plugin-vue": "^6.0.1",
