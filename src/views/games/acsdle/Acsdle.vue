@@ -4,6 +4,17 @@ import useGamesStore from "@/stores/gamesStore.ts";
 import type {AcsdleUser} from "@/types/models";
 import {formatDate} from "@vueuse/core";
 import confetti from "canvas-confetti";
+import {Line} from 'vue-chartjs'
+import {
+  CategoryScale,
+  Chart,
+  type ChartData,
+  type ChartOptions,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip
+} from "chart.js";
 
 // Encryption/Decryption functions
 function normalizeBase64(b64: string) {
@@ -87,6 +98,7 @@ onMounted(async () => {
       gameOver.value = true;
     }
   });
+  await gamesStore.fetchAcsdleHistory();
 
   // Calculate time remaining until midnight
   const timer = () => {
@@ -215,13 +227,32 @@ const hints = computed(() => [
     messageActive: `Pseudo: ${decryptedUser.value?.username.charAt(0) || "N/A"}${decryptedUser.value?.username.slice(1).replace(/./g, "*")}`,
     messageInactive: "Indice disponible au 10ème essai",
   },
-])
+]);
+
+Chart.register(Tooltip, PointElement, LineElement, CategoryScale, LinearScale)
+
+const chartData: ChartData<'line'> = {
+  labels: gamesStore.acsdle.guessHistory.map((guess) => formatDate(new Date(guess.completedAt ?? ""), "DD/MM")),
+  datasets: [ { data: gamesStore.acsdle.guessHistory.map(g => g.attempts.length), backgroundColor: '#f87979', label: "Essais", borderColor: "#ffffff", pointBorderColor: "#f87979" } ]
+}
+const chartOptions: ChartOptions<'line'> = {
+  responsive: true,
+  maintainAspectRatio: true,
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 2
+      }
+    }
+  }
+}
 </script>
 
 <template>
-  <div class="min-h-screen text-white p-8">
+  <div class="min-h-screen text-white">
     <!-- Header -->
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto space-y-8">
       <h1 class="text-5xl font-bold mb-2 text-center">ACSDLE</h1>
       <p class="text-center text-gray-400 mb-8">Devinez le joueur du jour</p>
 
@@ -240,6 +271,14 @@ const hints = computed(() => [
           </ul>
         </div>
         <p class="text-xl">Prochain joueur dans <b>{{ formatDate(new Date(timeRemaining), "HH:mm:ss")}}</b></p>
+      </div>
+
+      <div class="bg-gray-800 rounded-lg p-8 shadow-2xl">
+        <Line
+          id="my-chart-id"
+          :options="chartOptions"
+          :data="chartData"
+        />
       </div>
 
       <!-- Loss Screen -->
@@ -268,7 +307,8 @@ const hints = computed(() => [
                 v-model="searchInput"
                 type="text"
                 placeholder="Tapez le nom d'un joueur..."
-                class="w-full bg-gray-700 border-2 border-cyan-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/50"
+                class="w-full bg-gray-700 border-2 border-cyan-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                :disabled="gameWon || gameOver"
               />
               <!-- Dropdown de suggestions -->
               <div v-if="filteredUsers.length > 0" class="absolute top-full left-0 right-0 mt-2 bg-gray-700 rounded-lg border border-cyan-500 shadow-lg z-10">

@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import type {
+  AcsdleCompletion,
   AcsdleUser,
   ApiResponse,
   DailyAnswer,
@@ -23,7 +24,8 @@ const useGamesStore = defineStore('games', {
     acsdle: {
       users: [] as AcsdleUser[],
       dailyCryptedUser: null as { payload: string, iv: string, tag: string } | null,
-      todayGuesses: [] as AcsdleUser[]
+      todayGuesses: [] as AcsdleUser[],
+      guessHistory: [] as AcsdleCompletion[]
     }
   }),
   actions: {
@@ -96,6 +98,14 @@ const useGamesStore = defineStore('games', {
         this.acsdle.todayGuesses = guesses;
       } catch (e: any) {
         useToastStore().error("Il y a une erreur lors de la récupération de l'historique Acsdle d'aujourd'hui.", e);
+      }
+    },
+    async fetchAcsdleHistory() {
+      try {
+        const { data: { data: history }} = await api.get<ApiResponse<AcsdleCompletion[]>>("/games/acsdle/history");
+        this.acsdle.guessHistory = history;
+      } catch (e: any) {
+        useToastStore().error("Il y a une erreur lors de la récupération de l'historique Acsdle.", e);
       }
     },
     async addAcsdleTodayGuess(user: AcsdleUser) {

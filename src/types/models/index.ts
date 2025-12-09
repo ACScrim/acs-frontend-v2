@@ -343,3 +343,10 @@ export interface AcsdleUser {
   top25Finishes: number;
   mostGamePlayed: string;
 }
+
+export interface AcsdleCompletion {
+  userId: string;
+  attempts: AcsdleUser[];
+  won: boolean;
+  completedAt?: Date;
+}
