@@ -26,13 +26,13 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
           <Badge tone="neutral" size="sm">Programme hebdomadaire</Badge>
           <div>
             <p class="text-sm uppercase tracking-[0.4em] text-foam-200/60">Plateforme tournois ACS</p>
-            <h1 class="hero-title mt-2 max-w-3xl">Inscris-toi, joue, progresse chaque semaine</h1>
+            <h1 class="hero-title mt-2 max-w-3xl">Alors ça Scrim ?</h1>
           </div>
         </div>
       </template>
 
       <p class="muted max-w-2xl text-base leading-relaxed">
-        Créée pour les joueurs qui veulent affronter le meilleur niveau dans une ambiance premium. Tournois calibrés, matchmaking fin, stats en temps réel.
+        Tournois équilibrés en fonction du niveau des joueurs, pleins de styles de jeux, stats en temps réel.
       </p>
 
       <div class="mt-6 flex flex-wrap gap-3">
