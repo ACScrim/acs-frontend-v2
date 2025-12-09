@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import LoaderACS from '@/components/global/LoaderACS.vue';
 import PageHeader from '@/components/global/PageHeader.vue';
-import {Avatar, Select} from '@/components/ui';
+import {Select} from '@/components/ui';
 import useSeasonStore from '@/stores/seasonStore';
 import {useToastStore} from '@/stores/toastStore';
 import {type ApiResponse, type LeaderboardEntry} from '@/types/models';
 import api from '@/utils/api';
-import { getErrorMessage } from '@/utils';
+import {getErrorMessage} from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {whenever} from '@vueuse/core';
 import {computed, h, onMounted, ref} from 'vue';
-import {RouterLink} from 'vue-router';
-import {
-  createColumnHelper,
-  getCoreRowModel, getPaginationRowModel,
-  useVueTable
-} from '@tanstack/vue-table';
+import {createColumnHelper, getCoreRowModel, getPaginationRowModel, useVueTable} from '@tanstack/vue-table';
 import TableTanstack from "@/components/global/TableTanstack.vue";
+import ProfileLink from "@/components/global/ProfileLink.vue";
 
 const seasonFilter = ref('');
 const pagination = ref({
@@ -79,22 +75,10 @@ const columns = [
     cell: ({ row }) => {
       const user = row.original.user;
       return h(
-        RouterLink,
+        ProfileLink,
         {
-          to: `/profile/${user.id}`,
-          class: 'flex items-center gap-4 text-left group'
-        },
-        {
-          default: () => [
-            h(Avatar, {
-              src: user.avatarUrl,
-              alt: user.username,
-              size: 14
-            }),
-            h('div', null, [
-              h('p', { class: 'text-white font-semibold' }, user.username),
-            ])
-          ]
+          user: user,
+          size: 12
         }
       );
     }
@@ -112,7 +96,7 @@ const columns = [
     cell: info => h('span', { class: 'text-foam-50 font-semibold' }, info.getValue())
   }),
   columnHelper.accessor('points', {
-    header: () => 'Points',
+    header: () => h('div', { title: '3 points par victoire, 1 point par top25', class: 'flex items-center justify-center w-full' }, ['Points', h(VueIcon, { name: 'fa:circle-info' })]),
     cell: info => h('span', { class: 'text-2xl font-semibold text-white' }, info.getValue())
   })
 ];

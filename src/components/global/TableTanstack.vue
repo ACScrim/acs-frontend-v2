@@ -37,7 +37,7 @@ const headerMap = computed(() => {
             v-for="header in hg.headers"
             :key="header.id"
             :colspan="header.colSpan"
-            class="px-4 py-3 text-xs uppercase tracking-[0.3em] text-foam-300/70"
+            class="px-4 py-3 text-xs uppercase tracking-[0.3em] text-foam-300/70 text-center"
             :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
             @click="header.column.getToggleSortingHandler()?.($event)"
           >
@@ -52,12 +52,12 @@ const headerMap = computed(() => {
         <tr
           v-for="row in table.getRowModel().rows"
           :key="row.id"
-          class="block md:table-row border-t border-white/5"
+          class="block md:table-row border-t border-white/5 even:bg-white/2.5"
         >
           <td
             v-for="cell in row.getVisibleCells()"
             :key="cell.id"
-            class="block md:table-cell px-4 py-4 text-sm text-foam-200/80"
+            class="block md:table-cell px-4 py-4 text-sm text-foam-200/80 text-center"
           >
             <div class="flex flex-col md:flex-row md:items-center">
               <!-- label de la colonne (visible uniquement sur mobile) -->
