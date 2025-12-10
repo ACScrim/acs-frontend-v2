@@ -3,11 +3,14 @@ import { Avatar, Card } from '@/components/ui';
 import type { UserWithStats } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { formatDate } from '@vueuse/core';
-import {ref} from "vue";
+import { ref } from "vue";
+import { useRoute } from 'vue-router';
 
 const props = defineProps<{
   user: UserWithStats;
 }>();
+
+const route = useRoute();
 
 const emit = defineEmits<{
   'saveTwitchUsername': [twitchUsername: string | undefined];
@@ -46,29 +49,70 @@ const isEditingTwitchUsername = ref<boolean>(false);
 
 <template>
   <Card class="glass-panel p-8 space-y-8">
-    <div class="flex flex-col items-center gap-4 text-center">
-      <Avatar :src="user.avatarUrl" :alt="`Avatar de ${user.username}`" :size="40" class="shadow-[var(--shadow-soft)]" />
-      <div>
-        <p class="text-xs uppercase tracking-[0.4em] text-foam-300/80">Profil joueur</p>
-        <h1 class="hero-title">{{ user.username }}</h1>
-        <p v-if="!isEditingTwitchUsername" class="text-xs uppercase tracking-[0.4em] text-foam-300/80">{{ twitchUsername ?? 'Pas de twitch défini' }} <VueIcon name="fa:pencil" class="inline" @click="isEditingTwitchUsername = true" /></p>
-        <div v-else class="flex flex-row items-center justify-center gap-2">
-          <input v-model="twitchUsername" class="form-input" />
-          <button @click="emit('saveTwitchUsername', twitchUsername); isEditingTwitchUsername = false"><VueIcon name="fa:check" class="cursor-pointer hover:scale-110" /></button>
+    <div class="flex flex-col items-center gap-6 text-center">
+      <div class="relative">
+        <div class="absolute -inset-3 rounded-full bg-gradient-to-r from-accent-500 via-blush-500 to-emerald-500 opacity-20 blur-xl" />
+        <Avatar :src="user.avatarUrl" :alt="`Avatar de ${user.username}`" :size="40" class="relative shadow-[var(--shadow-soft)] ring-2 ring-accent-400" />
+      </div>
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-foam-300/80">Profil joueur</p>
+          <h1 class="hero-title font-display text-transparent bg-clip-text bg-gradient-to-r from-accent-300 via-blush-300 to-emerald-300">{{ user.username }}</h1>
+        </div>
+
+        <!-- Twitch Username Section -->
+        <div class="space-y-2">
+          <div v-if="!isEditingTwitchUsername" class="flex items-center justify-center gap-2">
+            <div class="flex items-center gap-2 text-foam-300/80">
+              <VueIcon name="ak:twitch-fill" class="text-purple-400" />
+              <span class="text-sm">{{ twitchUsername ?? 'Pas de nom Twitch défini' }}</span>
+            </div>
+            <button
+              v-if="user.id === route.params.userId || !route.params.userId"
+              @click="isEditingTwitchUsername = true"
+              class="text-foam-300/60 hover:text-accent-300 transition"
+              title="Modifier le nom Twitch"
+            >
+              <VueIcon name="fa:pencil" class="text-sm" />
+            </button>
+          </div>
+          <div v-else class="flex items-center justify-center gap-2">
+            <VueIcon name="ak:twitch-fill" class="text-purple-400" />
+            <input
+              v-model="twitchUsername"
+              placeholder="Nom Twitch"
+              class="form-input max-w-xs"
+            />
+            <button
+              @click="emit('saveTwitchUsername', twitchUsername); isEditingTwitchUsername = false"
+              class="text-emerald-400 hover:text-emerald-300 transition"
+              title="Enregistrer"
+            >
+              <VueIcon name="fa:check" class="cursor-pointer hover:scale-110 text-lg" />
+            </button>
+            <button
+              @click="isEditingTwitchUsername = false"
+              class="text-blush-400 hover:text-blush-300 transition"
+              title="Annuler"
+            >
+              <VueIcon name="fa:times" class="cursor-pointer hover:scale-110 text-lg" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
     <div class="grid gap-4 md:grid-cols-3">
-      <Card v-for="item in statsBlocks" :key="item.id" class="glass-panel bg-white/5 border-white/5 p-4 text-center">
+      <Card v-for="item in statsBlocks" :key="item.id" class="glass-panel bg-gradient-to-br from-white/5 to-white/[0.02] border-white/10 p-6 text-center group hover:border-white/20 transition">
         <template #header>
-          <div class="flex items-center justify-center gap-2 text-sm font-semibold" :class="item.colorClass">
-            <VueIcon :name="item.icon" />
+          <div class="flex items-center justify-center gap-2 text-sm font-semibold mb-2" :class="item.colorClass">
+            <VueIcon :name="item.icon" class="text-lg" />
             <span class="uppercase tracking-[0.3em] text-foam-200/70">{{ item.label }}</span>
           </div>
         </template>
-        <p class="text-2xl font-semibold text-white">{{ item.value }}</p>
+        <p class="text-2xl font-semibold text-white group-hover:text-accent-200 transition">{{ item.value }}</p>
         <template #footer>
-          <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70">{{ item.footer }}</p>
+          <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70 mt-2">{{ item.footer }}</p>
         </template>
       </Card>
     </div>

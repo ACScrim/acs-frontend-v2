@@ -65,30 +65,37 @@ const logout = async () => {
       </RouterLink>
     </nav>
 
-    <div class="mt-auto space-y-4">
-      <div v-if="userStore.isLoggedIn && userStore.user" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4">
-        <button
-          class="flex w-full items-center gap-3 text-left"
-          @click="isMenuOpen = !isMenuOpen"
-        >
-          <Avatar :src="userStore.user.avatarUrl" class="size-12" />
-          <div class="flex flex-col">
-            <span class="font-semibold text-white">{{ userStore.user.username }}</span>
-            <span class="text-xs uppercase tracking-[0.3em] text-foam-200/70">{{ userStore.user.scrimium.balance }}<img src="/scrimium.svg" title="Scrimium" alt="Scrimium" class="size-6 inline"/></span>
+    <div class="mt-auto space-y-3">
+      <div v-if="userStore.isLoggedIn && userStore.user" class="rounded-[var(--radius-lg)] border border-white/10 bg-gradient-to-br from-accent-500/10 to-blush-500/10 p-3">
+        <RouterLink to="/profile" class="group/profile flex items-center gap-3 text-left">
+          <div class="relative">
+            <Avatar :src="userStore.user.avatarUrl" class="size-10 ring-2 ring-accent-400/50 group-hover/profile:ring-accent-300" />
+            <div class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-xs text-white">
+              <VueIcon name="bs:check" class="text-[10px]" />
+            </div>
           </div>
-          <VueIcon name="bs:chevron-down" :class="['ml-auto transition-all', isMenuOpen ? 'rotate-180' : '']" />
-        </button>
-
-        <div v-if="isMenuOpen" class="mt-4 space-y-2 text-sm text-foam-200">
-          <RouterLink to="/profile" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Profil</RouterLink>
-          <RouterLink to="/player-levels" class="block rounded-xl px-3 py-2 hover:bg-white/10" @click="isMenuOpen = false">Mes niveaux</RouterLink>
-          <button class="w-full rounded-xl px-3 py-2 text-left text-blush-300 hover:bg-blush-500/10" @click="logout">Déconnexion</button>
-        </div>
+          <div class="flex-1 min-w-0">
+            <p class="truncate font-semibold text-white group-hover/profile:text-accent-300 transition-colors">{{ userStore.user.username }}</p>
+            <p class="text-xs truncate text-foam-300/70">{{ userStore.user.scrimium.balance }} <img src="/scrimium.svg" title="Scrimium" alt="Scrimium" class="size-3 inline"/></p>
+          </div>
+          <VueIcon name="bs:chevron-right" class="flex-shrink-0 text-foam-300/50 group-hover/profile:text-accent-300 transition" />
+        </RouterLink>
       </div>
 
-      <Button v-else color="accent" class="w-full justify-center" :to="`${API_URL}/auth/discord`">
-        <VueIcon name="ak:discord-fill" class="text-2xl" />
-        <span>Connexion Discord</span>
+      <div v-if="userStore.isLoggedIn" class="space-y-1">
+        <RouterLink to="/player-levels" class="group/nav flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foam-200 hover:bg-white/5 transition">
+          <VueIcon name="bs:mountains" class="text-accent-300" />
+          <span class="group-hover/nav:text-white transition">Mes niveaux</span>
+        </RouterLink>
+        <button @click="logout" class="group/nav w-full flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-blush-300 hover:bg-blush-500/10 transition">
+          <VueIcon name="bs:box-arrow-right" />
+          <span class="group-hover/nav:text-blush-200 transition">Déconnexion</span>
+        </button>
+      </div>
+
+      <Button v-else color="accent" class="w-full justify-center text-sm" :to="`${API_URL}/auth/discord`">
+        <VueIcon name="ak:discord-fill" class="text-lg" />
+        <span>Discord</span>
       </Button>
     </div>
   </div>

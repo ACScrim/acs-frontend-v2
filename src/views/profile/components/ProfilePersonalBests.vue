@@ -40,26 +40,26 @@ const statsBlocks = [
     <template #header>
       <div class="flex items-center gap-3">
         <div class="h-px w-16 bg-gradient-to-r from-accent-400 to-transparent" />
-        <h2 class="hero-title text-3xl">Records personnels</h2>
+        <h2 class="hero-title font-display text-3xl text-transparent bg-clip-text bg-gradient-to-r from-accent-300 to-blush-300">Records personnels</h2>
       </div>
     </template>
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <Card
         v-for="stat in statsBlocks"
         :key="stat.label"
-        class="glass-panel bg-white/5 border-white/5 p-5 text-center"
+        class="glass-panel bg-gradient-to-br from-white/5 to-white/[0.02] border-white/10 p-6 text-center group hover:border-white/20 transition"
       >
         <template #header>
-          <div class="flex items-center justify-center gap-2 text-sm font-semibold text-accent-200">
+          <div class="flex items-center justify-center gap-2 text-sm font-semibold text-accent-200 mb-2">
             <VueIcon :name="stat.icon" class="text-xl" />
             <span>{{ stat.label }}</span>
           </div>
         </template>
-        <p class="text-3xl font-semibold text-white">
+        <p class="text-3xl font-semibold text-white group-hover:text-accent-200 transition">
           {{ stat.value.toFixed(0) }}<span v-if="stat.label !== 'Série'" class="text-lg">%</span>
         </p>
         <template #footer>
-          <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70">{{ stat.text }}</p>
+          <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70 mt-2">{{ stat.text }}</p>
         </template>
       </Card>
     </div>
