@@ -18,6 +18,16 @@ const showEditForm = ref(false);
 const editingGameId = ref<string | null>(null);
 const isSubmitting = ref(false);
 const deletingId = ref<string | null>(null);
+const gameNameFilter = ref('');
+
+const filteredGames = computed(() => {
+  if (!gameNameFilter.value.trim()) {
+    return games.value;
+  }
+  return games.value.filter(game =>
+    game.name.toLowerCase().includes(gameNameFilter.value.toLowerCase())
+  );
+});
 
 const pagination = ref({
   pageIndex: 0,
@@ -30,7 +40,7 @@ const editingGame = computed(() => {
 
 const table = useVueTable({
   get data() {
-    return games.value;
+    return filteredGames.value;
   },
   columns: [
     {
@@ -209,9 +219,15 @@ const handleDeleteGame = async (gameId: string, gameName: string) => {
           <span class="rounded-2xl bg-white/5 p-3"><VueIcon name="bx:game" class="text-accent-300" /></span>
           Gestion des jeux
         </h1>
-        <p class="muted flex items-center gap-2">{{ games.length }} jeu(x) disponible(s)</p>
+        <p class="muted flex items-center gap-2">{{ filteredGames.length }} jeu{{ filteredGames.length > 1 ? "x" : "" }} disponible{{ filteredGames.length > 1 ? "s" : "" }}</p>
+        <input
+          v-model="gameNameFilter"
+          type="text"
+          placeholder="Rechercher un jeu..."
+          class="w-full mt-3 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-foam-300/50 transition focus:border-accent-300 focus:outline-none"
+        />
       </div>
-      <Button @click="showCreateForm = !showCreateForm" class="gap-2">
+      <Button @click="showCreateForm = !showCreateForm" class="gap-2 h-fit">
         <VueIcon :name="showCreateForm ? 'bs:x-circle' : 'bs:plus-circle'" />
         {{ showCreateForm ? 'Annuler' : 'Ajouter un jeu' }}
       </Button>

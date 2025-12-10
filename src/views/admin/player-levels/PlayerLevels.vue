@@ -6,6 +6,8 @@ import useTournamentStore from '@/stores/tournamentStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
 import {computed, h, onMounted, ref} from 'vue';
+import ProfileLink from "@/components/global/ProfileLink.vue";
+import ACSSelect from "@/components/ui/ACSSelect.vue";
 
 const adminStore = useAdminStore();
 const tournamentStore = useTournamentStore();
@@ -77,14 +79,8 @@ const table = useVueTable({
   columns: [
     {
       header: 'Joueur',
-      accessorKey: 'user.username',
-      cell: ({ row }) => h('div', { class: 'flex items-center gap-3' }, [
-        h('img', { src: row.original.user?.avatarUrl || '', alt: row.original.user?.username, class: 'size-10 rounded-full border border-white/10 object-cover' }),
-        h('div', [
-          h('p', { class: 'font-semibold text-white' }, row.original.user?.username || 'N/A'),
-          h('p', { class: 'text-xs text-foam-300/70' }, row.original.gameUsername || '—')
-        ])
-      ])
+      accessorKey: 'user',
+      cell: ({ row, getValue }) => h(ProfileLink, { user: getValue(), size: 10 })
     },
     {
       header: 'Jeu',
@@ -94,9 +90,9 @@ const table = useVueTable({
           h('img', {
             src: row.original.game?.imageUrl || '',
             alt: row.original.game?.name,
-            class: 'w-8 h-8 rounded object-cover'
-          }),
-          h('span', { class: 'text-foam-50' }, row.original.game?.name || 'N/A')
+            class: 'w-8 h-8 rounded object-cover',
+            title: row.original.game?.name || 'N/A'
+          })
         ]);
       }
     },
@@ -235,28 +231,19 @@ onMounted(async () => {
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <label class="space-y-2 text-sm text-foam-300/70">
           Nom du joueur
-          <input v-model="playerNameFilter" type="text" class="form-input" placeholder="Chercher un joueur..." />
+          <input v-model="playerNameFilter" type="text" class="form-input mt-1" placeholder="Chercher un joueur..." />
         </label>
         <label class="space-y-2 text-sm text-foam-300/70">
           Jeu
-          <select v-model="selectedGameFilter" class="form-input">
-            <option value="">Tous</option>
-            <option v-for="game in games" :key="game.id" :value="game.id">{{ game.name }}</option>
-          </select>
+          <ACSSelect v-model="selectedGameFilter" :options="games.map(g => ({ label: g.name, value: g.id }))" class="w-full! bg-surface-700/60! mt-1!" />
         </label>
         <label class="space-y-2 text-sm text-foam-300/70">
           Niveau
-          <select v-model="selectedLevelFilter" class="form-input">
-            <option value="">Tous</option>
-            <option v-for="level in levels" :key="level" :value="level">{{ level }}</option>
-          </select>
+          <ACSSelect v-model="selectedLevelFilter" :options="levels.map(l => ({ label: l, value: l }))" class="w-full! bg-surface-700/60! mt-1!" />
         </label>
         <label v-if="selectedGameFilter" class="space-y-2 text-sm text-foam-300/70">
           Tournoi
-          <select v-model="selectedTournamentFilter" class="form-input">
-            <option value="">Tous</option>
-            <option v-for="tournament in tournaments" :key="tournament.id" :value="tournament.id">{{ tournament.name }}</option>
-          </select>
+          <ACSSelect v-model="selectedTournamentFilter" :options="tournaments.map(t => ({ label: t.name, value: t.id }))" class="w-full! bg-surface-700/60! mt-1!" />
         </label>
       </div>
       <div class="flex justify-end">
