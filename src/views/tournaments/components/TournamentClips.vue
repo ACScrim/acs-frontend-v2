@@ -5,10 +5,13 @@ import type { Tournament } from '@/types/models';
 import { ref, computed } from 'vue';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { useDateFormat } from '@vueuse/core';
+import { getGameColor } from '../composables/useGameColor';
 
-defineProps<{
+interface Props {
   tournament: Tournament;
-}>();
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   addClip: [url: string];
@@ -58,13 +61,21 @@ const resetForm = () => {
   urlError.value = '';
   showFormToAddClip.value = false;
 };
+
+const headerColor = computed((): string => {
+  const gameId = props.tournament.gameId || 'default';
+  return getGameColor(gameId);
+});
 </script>
 
 <template>
   <Card class="glass-panel p-6">
     <template #header>
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+        <h2
+          class="text-2xl font-semibold text-white flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
+          :style="{ borderLeftColor: headerColor }"
+        >
           <VueIcon name="bs:play-circle" /> Clips du tournoi
         </h2>
         <Button v-if="!showFormToAddClip" @click="showFormToAddClip = true">

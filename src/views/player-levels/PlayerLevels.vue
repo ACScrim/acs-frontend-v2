@@ -3,8 +3,9 @@ import ListView from '@/components/global/ListView.vue';
 import {Button, Card} from '@/components/ui';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import {onMounted, ref} from 'vue';
+import {nextTick, onMounted, ref, watch} from 'vue';
 import LevelForm from './components/LevelForm.vue';
+import {useRoute} from "vue-router";
 
 const playerLevelStore = usePlayerLevelStore();
 const editingLevelId = ref<string | null>(null);
@@ -37,6 +38,41 @@ const handleEditCancel = () => {
 const handleEditSave = () => {
   editingLevelId.value = null;
 };
+
+/**
+ * Scroll programmé vers l'élément identifié par le hash.
+ * On attend le prochain tick et on retente quelques fois si l'élément n'est pas encore monté.
+ */
+async function scrollToHash(hash?: string) {
+  if (!hash) return;
+  const id = hash.startsWith('#') ? hash.slice(1) : hash;
+  await nextTick();
+
+  let el = document.getElementById(id);
+  let attempts = 0;
+  const maxAttempts = 6;
+  while (!el && attempts < maxAttempts) {
+    // courte pause pour laisser le DOM se stabiliser après rendu asynchrone
+    // (utile si les items sont rendus après un fetch)
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise(r => setTimeout(r, 100));
+    el = document.getElementById(id);
+    attempts++;
+  }
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    // console.info peut rester si besoin de debug
+    console.info(`Element with id "${id}" not found for hash scrolling.`);
+  }
+}
+
+const route = useRoute()
+
+onMounted(() => {
+  scrollToHash(route.hash);
+})
+
 </script>
 
 <template>
@@ -58,7 +94,7 @@ const handleEditSave = () => {
 
       <template #item="{ item: level }">
         <template v-if="editingLevelId !== level.id">
-          <Card class="glass-panel overflow-hidden">
+          <Card class="glass-panel overflow-hidden" :id="level.gameId">
             <template #header>
               <div class="relative h-48">
                 <img :src="level.game.imageUrl" :alt="`Bannière du jeu ${level.game.name}`" class="h-full w-full object-cover" />

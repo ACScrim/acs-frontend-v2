@@ -4,6 +4,8 @@ import { Card } from '@/components/ui';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import TournamentUserCard from './TournamentUserCard.vue';
 import type { Tournament, User } from '@/types/models';
+import { computed } from 'vue';
+import { getGameColor } from '../composables/useGameColor';
 
 interface Props {
   teams: Tournament['teams'];
@@ -11,7 +13,7 @@ interface Props {
   maxCols?: number;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   maxCols: 2,
 });
 
@@ -23,12 +25,20 @@ const mergeUserAndTournamentPlayerData = (user: User, tournamentPlayerData?: Tou
     inWaitlist: tournamentPlayerData?.inWaitlist || false,
   };
 };
+
+const headerColor = computed((): string => {
+  const gameId = props.tournament.gameId || 'default';
+  return getGameColor(gameId);
+});
 </script>
 
 <template>
   <Card class="glass-panel p-6 space-y-6">
     <template #header>
-      <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+      <h2
+        class="text-2xl font-semibold text-white flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
+        :style="{ borderLeftColor: headerColor }"
+      >
         <VueIcon name="bs:info-circle" /> Liste des équipes
       </h2>
     </template>

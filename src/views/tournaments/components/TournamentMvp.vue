@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/userStore';
 import type { Tournament } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
+import { getGameColor } from '../composables/useGameColor';
 
 const props = defineProps<{
   tournament: Tournament;
@@ -34,12 +35,20 @@ const userIdIVotedFor = computed(() => {
     player.mvpVotes.includes(myUserId)
   )?.user.id;
 });
+
+const headerColor = computed((): string => {
+  const gameId = props.tournament.gameId || 'default';
+  return getGameColor(gameId);
+});
 </script>
 
 <template>
   <Card class="p-6">
     <template #header>
-      <h2 class="text-2xl font-bold bg-gradient-to-r from-accent-500 via-emerald-500 to-blush-500 bg-clip-text text-transparent flex items-center gap-2">
+      <h2
+        class="text-2xl font-bold bg-gradient-to-r from-accent-500 via-emerald-500 to-blush-500 bg-clip-text text-transparent flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
+        :style="{ borderLeftColor: headerColor }"
+      >
         <VueIcon name="bs:star-fill" class="text-accent-300" />
         <span>🏆 MVP du tournoi 🏆</span>
       </h2>

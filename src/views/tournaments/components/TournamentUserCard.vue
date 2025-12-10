@@ -30,7 +30,7 @@ defineProps<{
       <a v-if="player.twitchSubscriptionId && player.twitchUsername" :href="`https://www.twitch.tv/${player.twitchUsername}`" target="_blank" rel="noopener noreferrer" class="text-accent-300">
         <VueIcon name="ak:twitch-fill" class="text-2xl" />
       </a>
-      <VueIcon v-if="!tournamentStarted && reminderSent && player.hasCheckin" name="bs:check2-circle" class="text-emerald-400 text-xl" />
+      <VueIcon v-if="!tournamentStarted && reminderSent && player.hasCheckin" name="bs:check-circle" class="text-emerald-400 text-xl" />
       <VueIcon v-else-if="!tournamentStarted && reminderSent && !player.hasCheckin" name="bs:exclamation-circle" class="text-blush-400 text-xl" />
     </div>
   </div>

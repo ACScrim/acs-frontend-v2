@@ -3,13 +3,12 @@ import ListView from '@/components/global/ListView.vue';
 import LoaderACS from '@/components/global/LoaderACS.vue';
 import PageHeader from '@/components/global/PageHeader.vue';
 import TournamentCard from '@/components/global/TournamentCard.vue';
-import { Button, Select } from '@/components/ui';
+import {Select} from '@/components/ui';
 import useTournamentStore from '@/stores/tournamentStore';
-import { getTournamentLink } from '@/utils';
+import {getTournamentLink} from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { computed, onMounted, ref } from 'vue';
+import {computed, onMounted, ref} from 'vue';
 
-const showFinishedTournaments = ref(false);
 const gameFilter = ref('');
 
 const tournamentStore = useTournamentStore();
@@ -40,12 +39,6 @@ onMounted(() => {
     <PageHeader title="Tournois hebdo" subtitle="Calendrier ACS">
       <template #icon>
         <VueIcon name="bs:trophy" class="text-3xl text-accent-300" />
-      </template>
-      <template #actions>
-        <Button variant="ghost" class="gap-2" @click="showFinishedTournaments = !showFinishedTournaments">
-          <VueIcon :name="showFinishedTournaments ? 'bs:eye-slash' : 'bs:archive'" />
-          {{ showFinishedTournaments ? 'Masquer les terminés' : 'Voir les terminés' }}
-        </Button>
       </template>
 
       <form class="mt-6 rounded-[var(--radius-xl)] border border-white/10 bg-white/5 p-4">
@@ -85,7 +78,7 @@ onMounted(() => {
       <LoaderACS v-else class="place-self-center" />
     </section>
 
-    <section v-if="showFinishedTournaments" class="space-y-8">
+    <section class="space-y-8">
       <ListView
         title="Tournois terminés"
         :data="finishedTournaments"

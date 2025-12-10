@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button, Card } from '@/components/ui';
+import {Badge, Button, Card} from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import { useToastStore } from '@/stores/toastStore';
 import type { Tournament } from '@/types/models';

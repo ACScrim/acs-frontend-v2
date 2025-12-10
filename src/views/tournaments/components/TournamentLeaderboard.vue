@@ -3,7 +3,10 @@ import { Card } from '@/components/ui';
 import type { Tournament } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
+import { getGameColor } from '../composables/useGameColor';
+
 const props = defineProps<{ tournament: Tournament }>();
+
 const podium = computed(() => {
   const sorted = [...props.tournament.teams].sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
   return {
@@ -13,12 +16,20 @@ const podium = computed(() => {
     others: sorted.slice(3)
   };
 });
+
+const headerColor = computed((): string => {
+  const gameId = props.tournament.gameId || 'default';
+  return getGameColor(gameId);
+});
 </script>
 
 <template>
   <Card v-if="tournament.finished" class="glass-panel p-6">
     <template #header>
-      <h2 class="text-2xl font-semibold text-white flex items-center gap-2">
+      <h2
+        class="text-2xl font-semibold text-white flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
+        :style="{ borderLeftColor: headerColor }"
+      >
         <VueIcon name="bs:trophy-fill" /> Résultats du tournoi
       </h2>
     </template>

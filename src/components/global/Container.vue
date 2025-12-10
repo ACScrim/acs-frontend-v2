@@ -46,7 +46,7 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
       <slot name="aside" />
     </aside>
 
-    <section class="relative z-10 flex flex-col overflow-y-auto" data-acs-scroll-region>
+    <section class="relative z-10 flex flex-col overflow-y-auto view" data-acs-scroll-region>
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-20 lg:py-5 lg:px-10">
         <slot name="view" />
       </div>

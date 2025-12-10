@@ -167,7 +167,7 @@ const getRankBadge = computed(() => {
         </div>
       </div>
     </div>
-    <Button :to="`/player-levels`" class="w-full">
+    <Button :to="`/player-levels#${playerLevel.gameId}`" class="w-full">
       Mettre à jour mon niveau
     </Button>
   </div>

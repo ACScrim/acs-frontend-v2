@@ -3,6 +3,8 @@ import { Card, ProgressBar } from '@/components/ui';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { generateCalendarLink } from '@/utils';
 import type { Tournament } from '@/types/models';
+import { computed } from 'vue';
+import { getGameColor } from '../composables/useGameColor';
 
 interface Props {
   tournament: Tournament;
@@ -11,7 +13,12 @@ interface Props {
   casterCount: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const headerColor = computed((): string => {
+  const gameId = props.tournament.gameId || 'default';
+  return getGameColor(gameId);
+});
 </script>
 
 <template>
@@ -29,34 +36,34 @@ defineProps<Props>();
 
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <div class="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
-        <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+        <p class="text-xs uppercase tracking-[0.3em] font-semibold flex items-center gap-2" :style="{ color: headerColor }">
           <VueIcon name="bs:calendar-event" /> Date
         </p>
         <p class="text-xl font-semibold text-white">
           {{ new Date(tournament.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) }}
         </p>
         <p class="muted">{{ new Date(tournament.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }}</p>
-        <div class="flex gap-3 text-lg text-accent-200">
-          <a :href="generateCalendarLink(tournament, 'google')" target="_blank" rel="noopener noreferrer"><VueIcon name="si:googlecalendar" /></a>
-          <a :href="generateCalendarLink(tournament, 'outlook')" target="_blank" rel="noopener noreferrer"><VueIcon name="ph:fill-microsoft-outlook-logo" /></a>
+        <div class="flex gap-3 text-lg text-foam-300">
+          <a :href="generateCalendarLink(tournament, 'google')" target="_blank" rel="noopener noreferrer"><img src="/gcalendar.svg" alt="Logo Google Calendar" width="20" height="20" class="hover:scale-110" title="Ajouter sur Google Calendar" /></a>
+          <a :href="generateCalendarLink(tournament, 'outlook')" target="_blank" rel="noopener noreferrer"><img src="/outlook.svg" alt="Logo Google Calendar" width="20" height="20" class="hover:scale-110" title="Ajouter sur Outlook" /></a>
         </div>
       </div>
       <div class="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
-        <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+        <p class="text-xs uppercase tracking-[0.3em] font-semibold flex items-center gap-2" :style="{ color: headerColor }">
           <VueIcon name="cl:users" /> Participants
         </p>
         <p class="text-xl font-semibold text-white">{{ playerCount }}<span v-if="tournament.playerCap > 0" class="text-foam-200/70 text-base">/{{ tournament.playerCap }}</span></p>
         <p class="muted">inscrit{{ playerCount > 1 ? 's' : '' }}</p>
       </div>
       <div class="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
-        <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+        <p class="text-xs uppercase tracking-[0.3em] font-semibold flex items-center gap-2" :style="{ color: headerColor }">
           <VueIcon name="bs:hourglass-split" /> Attente
         </p>
         <p class="text-xl font-semibold text-white">{{ waitlistCount }}</p>
         <p class="muted">en attente</p>
       </div>
       <div class="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2">
-        <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+        <p class="text-xs uppercase tracking-[0.3em] font-semibold flex items-center gap-2" :style="{ color: headerColor }">
           <VueIcon name="bs:camera-video" /> Casters
         </p>
         <p class="text-xl font-semibold text-white">{{ casterCount }}</p>
