@@ -80,12 +80,11 @@ const rarityColors = {
     <div class="glass-panel p-4 rounded-xl border border-white/10 flex items-center justify-between">
       <div>
         <p class="text-sm text-foam-300">Solde Scrimium</p>
-        <p class="text-2xl font-bold text-foam-50">
+        <p class="text-2xl font-bold text-foam-50 inline-flex items-center justify-center gap-2">
           {{ currentBalance.toLocaleString() }}
-          <span class="text-sm text-foam-300 ml-1">Ⓢ</span>
+          <img src="/scrimium.svg" width="30" height="30" alt="Scrimium" class="object-contain"/>
         </p>
       </div>
-      <div class="text-4xl opacity-20">💰</div>
     </div>
 
     <!-- Grille de boosters -->
@@ -120,9 +119,9 @@ const rarityColors = {
 
           <!-- Prix et réduction -->
           <div class="flex items-baseline gap-3">
-            <span class="text-3xl font-bold text-foam-50">
+            <span class="text-3xl font-bold text-foam-50 inline-flex items-center justify-center gap-2">
               {{ booster.price }}
-              <span class="text-sm text-foam-300 ml-1">Ⓢ</span>
+              <img src="/scrimium.svg" width="30" height="30" alt="Scrimium" class="object-contain"/>
             </span>
           </div>
 
