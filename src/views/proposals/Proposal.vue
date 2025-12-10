@@ -3,7 +3,7 @@ import { PageHeader} from '@/components/global';
 import ListView from '@/components/global/ListView.vue';
 import LoaderACS from '@/components/global/LoaderACS.vue';
 import ProposalCard from '@/components/global/ProposalCard.vue';
-import { Button, Select } from '@/components/ui';
+import { Button, AcsSelect } from '@/components/ui';
 import SelectSearch from '@/components/ui/SelectSearch.vue';
 import useProposalStore from '@/stores/proposalStore';
 import { useToastStore } from '@/stores/toastStore';
@@ -74,7 +74,7 @@ const resetForm = () => {
         <VueIcon name="bx:upvote" class="text-3xl text-accent-300" />
       </template>
       <template #actions>
-        <Select
+        <AcsSelect
           id="proposalFilter"
           v-model="filter"
           :options="[{ value: 'recent', label: 'Plus récents' }, { value: 'old', label: 'Plus anciens' }, { value: 'popular', label: 'Le plus de votes' }]"

@@ -37,7 +37,7 @@ const headerMap = computed(() => {
             v-for="header in hg.headers"
             :key="header.id"
             :colspan="header.colSpan"
-            class="px-4 py-3 text-xs uppercase tracking-[0.3em] text-foam-300/70 text-center"
+            class="px-4 py-3 text-xs uppercase tracking-[0.3em] text-foam-300/70 text-center text-nowrap"
             :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
             @click="header.column.getToggleSortingHandler()?.($event)"
           >

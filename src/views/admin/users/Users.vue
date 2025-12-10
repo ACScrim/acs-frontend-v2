@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Modal from '@/components/global/Modal.vue';
 import TableTanstack from '@/components/global/TableTanstack.vue';
-import { Avatar, Badge, Button, Card } from '@/components/ui';
+import {Avatar, Badge, Button, Card, AcsSelect} from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
@@ -49,15 +49,16 @@ const table = useVueTable({
     },
     {
       header: 'Rôle',
-      cell: ({ row }) => h('select', {
-        value: row.original.role,
-        onChange: (e: Event) => adminStore.updateUserRole(row.original.id, (e.target as HTMLSelectElement).value),
-        class: 'w-full rounded-[var(--radius-lg)] border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-foam-300/60 focus:border-accent-300 focus:ring-2 focus:ring-accent-300/20 outline-none max-w-[160px] text-sm'
-      }, [
-        h('option', { value: 'user' }, 'User'),
-        h('option', { value: 'admin' }, 'Admin'),
-        h('option', { value: 'superadmin' }, 'Superadmin')
-      ])
+      cell: ({ row }) => h(AcsSelect, {
+        modelValue: row.original.role,
+        ['onUpdate:modelValue']: (value: string) => adminStore.updateUserRole(row.original.id, value),
+        options: [
+          { label: 'User', value: 'user' },
+          { label: 'Admin', value: 'admin' },
+          { label: 'Superadmin', value: 'superadmin' }
+        ],
+        class: 'w-full!'
+      })
     },
     {
       header: 'Reports',

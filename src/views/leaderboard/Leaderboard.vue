@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LoaderACS from '@/components/global/LoaderACS.vue';
 import PageHeader from '@/components/global/PageHeader.vue';
-import {Select} from '@/components/ui';
+import {AcsSelect} from '@/components/ui';
 import useSeasonStore from '@/stores/seasonStore';
 import {useToastStore} from '@/stores/toastStore';
 import {type ApiResponse, type LeaderboardEntry} from '@/types/models';
@@ -127,7 +127,7 @@ const table = useVueTable({
         <VueIcon name="ic:leaderboard-star" class="text-3xl text-accent-300" />
       </template>
       <template #actions>
-        <Select v-model="seasonFilter"
+        <AcsSelect v-model="seasonFilter"
           class="min-w-[220px]"
           :options="seasons.map(season => ({ label: `${season.number === 0 ? 'Alors ça chill' : `Saison ${season.number}`}`, value: String(season.number) }))"
           default-option-label="Toutes les saisons" />

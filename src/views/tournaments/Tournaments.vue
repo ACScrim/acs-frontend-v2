@@ -3,7 +3,7 @@ import ListView from '@/components/global/ListView.vue';
 import LoaderACS from '@/components/global/LoaderACS.vue';
 import PageHeader from '@/components/global/PageHeader.vue';
 import TournamentCard from '@/components/global/TournamentCard.vue';
-import {Select} from '@/components/ui';
+import {AcsSelect} from '@/components/ui';
 import useTournamentStore from '@/stores/tournamentStore';
 import {getTournamentLink} from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
@@ -46,7 +46,7 @@ onMounted(() => {
           <VueIcon name="bs:funnel" class="text-accent-300" /> Filtrer par jeu
         </label>
         <div class="mt-3 max-w-sm">
-          <Select
+          <AcsSelect
             id="gameFilter"
             v-model="gameFilter"
             :options="games.map(game => ({ label: game.name, value: game.name })).concat([{ label: 'Tous les jeux', value: '' }])"
