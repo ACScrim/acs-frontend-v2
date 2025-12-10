@@ -724,8 +724,8 @@ const convertImageToBase64 = async (file: File): Promise<{ base64: string; mimeT
       const result = e.target?.result as string;
 
       // Check file size
-      if (file.size > 5 * 1024 * 1024) {
-        // If larger than 5MB, resize using canvas
+      if (file.size > 3 * 1024 * 1024) {
+        // If larger than 3MB, resize using canvas
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
@@ -760,7 +760,7 @@ const convertImageToBase64 = async (file: File): Promise<{ base64: string; mimeT
         };
         img.src = result;
       } else {
-        // If smaller than 5MB, use as is
+        // If smaller than 3MB, use as is
         const base64 = result.split(',')[1] || '';
         resolve({ base64, mimeType });
       }
@@ -1632,7 +1632,7 @@ watch(imageSourceType, (newType) => {
                   Supprimer
                 </Button>
               </div>
-              <p class="text-xs text-foam-300/50">PNG ou GIF, max 10MB</p>
+              <p class="text-xs text-foam-300/50">PNG ou GIF, max 3MB</p>
               <div
                 v-if="getCurrentImagePreview()"
                 class="w-full h-20 rounded-lg border border-white/10 overflow-hidden"
