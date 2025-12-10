@@ -3,7 +3,7 @@ import ListView from '@/components/global/ListView.vue';
 import {Button, Card} from '@/components/ui';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import {nextTick, onMounted, ref, watch} from 'vue';
+import {nextTick, onMounted, ref} from 'vue';
 import LevelForm from './components/LevelForm.vue';
 import {useRoute} from "vue-router";
 

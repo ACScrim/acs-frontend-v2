@@ -94,7 +94,7 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
       </div>
 
       <!-- Tournoi principal (le plus proche) -->
-      <div v-if="nextTournaments.length > 0" class="flex-1">
+      <div v-if="nextTournaments.length > 0 && nextTournaments[0]" class="flex-1">
         <RouterLink :to="`/tournaments/${nextTournaments[0].id}`">
           <TournamentCard :tournament="nextTournaments[0]" class="h-full" />
         </RouterLink>

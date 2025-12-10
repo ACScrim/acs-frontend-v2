@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { Button, Card } from '@/components/ui';
+import {Button, Card} from '@/components/ui';
 import PlayerGameLevelDisplay from '@/components/tournaments/PlayerGameLevelDisplay.vue';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import useTournamentStore from '@/stores/tournamentStore';
-import { useToastStore } from '@/stores/toastStore';
-import type { Tournament } from '@/types/models';
-import { ref, computed } from 'vue';
+import {useToastStore} from '@/stores/toastStore';
+import type {Tournament} from '@/types/models';
+import {computed, ref} from 'vue';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { getGameColor } from '../composables/useGameColor';
-import ACSSelect from "@/components/ui/ACSSelect.vue";
+import {getGameColor} from '../composables/useGameColor';
 
 const props = defineProps<{
   tournament: Tournament;
