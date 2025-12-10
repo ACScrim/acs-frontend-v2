@@ -108,20 +108,40 @@ const handleCancel = () => {
         <div class="flex items-center gap-2 text-sm text-foam-300/80">
           <VueIcon name="bs:trophy-fill" /> Tournois de la saison
         </div>
+
+        <!-- Tournois sélectionnés -->
+        <div v-if="selectedTournaments.length > 0" class="space-y-2">
+          <p class="text-xs font-semibold text-accent-300 uppercase tracking-[0.2em]">Sélectionnés ({{ selectedTournaments.length }})</p>
+          <div class="space-y-2">
+            <div v-for="tournamentId in selectedTournaments" :key="tournamentId" class="flex items-center gap-3 rounded-[var(--radius-lg)] border border-accent-300/30 bg-accent-300/10 p-3">
+              <VueIcon name="bs:check-circle" class="text-accent-300 flex-shrink-0" />
+              <div class="flex-1">
+                <p class="text-white font-semibold">{{ adminStore.tournaments.find(t => t.id === tournamentId)?.name }}</p>
+                <p class="text-xs text-foam-300/70">{{ new Date(adminStore.tournaments.find(t => t.id === tournamentId)?.date || '').toLocaleDateString('fr-FR') }} • {{ adminStore.tournaments.find(t => t.id === tournamentId)?.playerCap }} joueurs</p>
+              </div>
+              <button type="button" @click="toggleTournament(tournamentId)" class="text-foam-300/50 hover:text-red-400 transition">
+                <VueIcon name="bs:x-circle" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tournois disponibles -->
         <div v-if="availableTournaments.length === 0" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 text-sm text-foam-300/70">
           Aucun tournoi disponible. Créez d'abord des tournois.
         </div>
-        <div v-else class="max-h-64 space-y-2 overflow-y-auto">
-          <label v-for="tournament in availableTournaments" :key="tournament.id" class="flex cursor-pointer items-center gap-3 rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3">
-            <input type="checkbox" class="form-checkbox" :checked="selectedTournaments.includes(tournament.id)" @change="toggleTournament(tournament.id)" />
-            <div class="flex-1">
-              <p class="text-white font-semibold">{{ tournament.name }}</p>
-              <p class="text-xs text-foam-300/70">{{ new Date(tournament.date).toLocaleDateString('fr-FR') }} • {{ tournament.playerCap }} joueurs</p>
-            </div>
-            <VueIcon v-if="selectedTournaments.includes(tournament.id)" name="bs:check-circle" class="text-accent-300" />
-          </label>
+        <div v-else class="space-y-2">
+          <p class="text-xs font-semibold text-foam-300/70 uppercase tracking-[0.2em]">Disponibles</p>
+          <div class="max-h-64 space-y-2 overflow-y-auto">
+            <label v-for="tournament in availableTournaments" :key="tournament.id" class="flex cursor-pointer items-center gap-3 rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 hover:border-white/20 transition">
+              <input type="checkbox" class="form-checkbox" :checked="selectedTournaments.includes(tournament.id)" @change="toggleTournament(tournament.id)" />
+              <div class="flex-1">
+                <p class="text-white font-semibold">{{ tournament.name }}</p>
+                <p class="text-xs text-foam-300/70">{{ new Date(tournament.date).toLocaleDateString('fr-FR') }} • {{ tournament.playerCap }} joueurs</p>
+              </div>
+            </label>
+          </div>
         </div>
-        <p class="text-xs text-foam-300/70">{{ selectedTournaments.length }} tournoi(s) sélectionné(s)</p>
       </div>
 
       <div class="flex justify-end gap-3 border-t border-white/5 pt-4">
