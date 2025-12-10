@@ -54,16 +54,6 @@ const games = computed(() => {
   );
 });
 
-const getLevelConfig = () => {
-  const configs: Record<string, { color: string; bgColor: string; icon: string }> = {
-    'débutant': { color: 'text-green-400', bgColor: 'bg-green-500/20', icon: 'bs:mortarboard' },
-    'intermédiaire': { color: 'text-yellow-400', bgColor: 'bg-yellow-500/20', icon: 'bs:lightning-fill' },
-    'avancé': { color: 'text-orange-400', bgColor: 'bg-orange-500/20', icon: 'bs:fire' },
-    'expert': { color: 'text-red-400', bgColor: 'bg-red-500/20', icon: 'bs:crown-fill' }
-  };
-  return configs[form.value.level.toLowerCase()] || configs['débutant'] as { color: string; bgColor: string; icon: string };
-};
-
 const toggleRole = (role: string) => {
   const index = form.value.selectedRoles.indexOf(role);
   if (index > -1) {
@@ -133,6 +123,8 @@ const resetForm = () => {
     comment: '',
     gameProfileLink: ''
   };
+  selectedGameId.value = '';
+  isLoading.value = false
 };
 
 const handleSubmit = async () => {
@@ -182,18 +174,7 @@ const handleSubmit = async () => {
           <div class="absolute inset-0 bg-gradient-to-t from-ink-900 to-transparent"></div>
 
           <div class="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between">
-            <div>
-              <h3 class="text-xl font-bold text-white">{{ selectedGame.name }}</h3>
-            </div>
-            <div :class=" [
-              'px-3 py-1 rounded-lg font-bold flex items-center gap-2 border',
-              getLevelConfig().color,
-              getLevelConfig().bgColor,
-              'border-current'
-            ]">
-              <VueIcon :name="getLevelConfig().icon" />
-              <span>{{ form.level }}</span>
-            </div>
+            <h3 class="text-xl font-bold text-white">{{ selectedGame.name }}</h3>
           </div>
         </div>
       </template>
@@ -355,7 +336,7 @@ const handleSubmit = async () => {
             type="button"
             variant="ghost"
             class="flex items-center gap-2"
-            @click="emit('cancel')"
+            @click="resetForm(); emit('cancel')"
           >
             <VueIcon name="bs:x-lg" />
             Annuler

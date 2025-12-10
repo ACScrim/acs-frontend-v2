@@ -14,13 +14,14 @@ onMounted(() => {
 });
 
 const getLevelConfig = (level: string) => {
+  const normalizedLevel = level?.toLowerCase().trim() || 'débutant';
   const configs: Record<string, { color: string; bgColor: string; icon: string }> = {
-    'débutant': { color: 'text-green-400', bgColor: 'bg-green-500/20', icon: 'bs:mortarboard' },
-    'intermédiaire': { color: 'text-yellow-400', bgColor: 'bg-yellow-500/20', icon: 'bs:lightning-fill' },
+    'débutant': { color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', icon: 'bs:mortarboard' },
+    'intermédiaire': { color: 'text-amber-400', bgColor: 'bg-amber-500/20', icon: 'bs:lightning-fill' },
     'avancé': { color: 'text-orange-400', bgColor: 'bg-orange-500/20', icon: 'bs:fire' },
-    'expert': { color: 'text-red-400', bgColor: 'bg-red-500/20', icon: 'bs:crown-fill' }
+    'expert': { color: 'text-rose-400', bgColor: 'bg-rose-500/20', icon: 'bs:crown-fill' }
   };
-  return configs[level.toLowerCase()] || configs['débutant'] as { color: string; bgColor: string; icon: string };
+  return configs[normalizedLevel] || configs['débutant'] as { color: string; bgColor: string; icon: string };
 };
 
 const handleDelete = async (levelId: string) => {
@@ -67,15 +68,17 @@ const handleEditSave = () => {
                     <p class="text-xs uppercase tracking-[0.3em] text-foam-200/70">Jeu</p>
                     <h3 class="text-2xl font-semibold text-white">{{ level.game.name }}</h3>
                   </div>
-                  <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-[0.3em]">
-                    <VueIcon :name="getLevelConfig(level.level).icon" />
-                    {{ level.level }}
-                  </span>
                 </div>
               </div>
             </template>
 
             <div class="grid gap-6 p-6 md:grid-cols-2">
+              <div class="space-y-2 col-span-2">
+                <span :class="`inline-flex items-center gap-2 rounded-full border px-4 py-1 text-sm font-semibold ${getLevelConfig(level.level).color} ${getLevelConfig(level.level).bgColor} border-white/20`">
+                  <VueIcon :name="getLevelConfig(level.level).icon" />
+                  {{ level.level.toLowerCase().trim() }}
+                </span>
+              </div>
               <div class="space-y-2">
                 <p class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Pseudo</p>
                 <p class="text-lg font-semibold text-white">{{ level.gameUsername }}</p>
