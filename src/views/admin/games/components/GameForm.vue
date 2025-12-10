@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Button, Card } from '@/components/ui';
+import {Button, Card} from '@/components/ui';
 import useProposalStore from '@/stores/proposalStore';
-import { useToastStore } from '@/stores/toastStore';
+import {useToastStore} from '@/stores/toastStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { computed, ref, watch } from 'vue';
+import {computed, ref, watch} from 'vue';
+import ACSSelect from "@/components/ui/ACSSelect.vue";
 
 interface Props {
   isLoading?: boolean;
@@ -179,10 +180,7 @@ const handleCancel = () => {
         <input v-model="gameQuery" type="text" placeholder="Ex: Valorant" class="form-input" />
         <div v-if="gameQuery.length >= 3" class="space-y-2">
           <p v-if="isSearching" class="text-xs text-foam-300/70">Recherche…</p>
-          <select v-else v-model="selectedGameId" class="form-input">
-            <option value="">-- Sélectionner un jeu --</option>
-            <option v-for="game in proposalStore.rawgGames" :key="game.id" :value="String(game.id)">{{ game.name }}</option>
-          </select>
+          <ACSSelect v-else v-model="selectedGameId" defaultOptionLabel="-- Sélectionner un jeu --" :options="proposalStore.rawgGames.map(g => ({ label: g.name, value: String(g.id) }))" />
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { useToastStore } from '@/stores/toastStore';
 import type { Tournament, TournamentFormData } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed, onMounted, ref, watch } from 'vue';
+import ACSSelect from "@/components/ui/ACSSelect.vue";
 
 interface Props {
   tournament?: Tournament;
@@ -175,10 +176,7 @@ const autoFillReminders = () => {
       <!-- Jeu -->
       <div>
         <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Jeu *</label>
-        <select v-model="formData.gameId" class="form-input">
-          <option value="">-- Sélectionner un jeu --</option>
-          <option v-for="game in availableGames" :key="game.id" :value="game.id">{{ game.name }}</option>
-        </select>
+        <ACSSelect v-model="formData.gameId" customClass="w-full! bg-surface-700/60" :options="availableGames.map(game => ({ label: game.name, value: game.id }))" defaultOptionLabel="-- Sélectionner un jeu --" />
       </div>
 
       <div class="grid gap-4 md:grid-cols-2">

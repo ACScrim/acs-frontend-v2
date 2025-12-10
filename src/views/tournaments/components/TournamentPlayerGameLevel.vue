@@ -8,6 +8,7 @@ import type { Tournament } from '@/types/models';
 import { ref, computed } from 'vue';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { getGameColor } from '../composables/useGameColor';
+import ACSSelect from "@/components/ui/ACSSelect.vue";
 
 const props = defineProps<{
   tournament: Tournament;

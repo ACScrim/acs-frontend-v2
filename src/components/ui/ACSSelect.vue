@@ -19,7 +19,7 @@ const emit = defineEmits<{
     :class="customClass"
     v-tw-merge
   >
-    <option v-if="options.find(o => o.value.length === 0)" value="" class="bg-ink-900 text-foam-200">{{ defaultOptionLabel }}</option>
+    <option v-if="defaultOptionLabel" value="" class="bg-ink-900 text-foam-200">{{ defaultOptionLabel }}</option>
     <option v-for="option in options" :key="option.value" :value="option.value" class="bg-ink-900 text-foam-50">
       {{ option.label }}
     </option>
