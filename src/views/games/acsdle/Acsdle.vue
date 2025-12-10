@@ -15,6 +15,7 @@ import {
   PointElement,
   Tooltip
 } from "chart.js";
+import LoaderACS from "@/components/global/LoaderACS.vue";
 
 // Encryption/Decryption functions
 function normalizeBase64(b64: string) {
@@ -78,6 +79,7 @@ const searchInput = ref("");
 const gameWon = ref(false);
 const gameOver = ref(false);
 const timeRemaining = ref(0);
+const isLoading = ref(false);
 
 const filteredUsers = computed(() => {
   if (!searchInput.value) return [];
@@ -149,13 +151,16 @@ watch(gameWon, (newVal) => {
 })
 
 watch(dailyCryptedUser, async (newVal) => {
+  isLoading.value = true;
   try {
     if (!newVal) {
       console.log("No encrypted user data");
       return;
     }
     const pass = import.meta.env.VITE_ACSDLE_CRYPTO_KEY;
-    decryptedUser.value = await decryptAcsdle(newVal, pass);
+    decryptAcsdle(newVal, pass).then((decrypted) => {
+      decryptedUser.value = decrypted;
+    }).finally(() => isLoading.value = false)
   } catch (err) {
     console.error("Decrypt error:", err);
   }
@@ -180,16 +185,9 @@ function getIndicatorClass(guessValue: any, targetValue: any, field: string): st
   const targetStr = String(targetValue).toLowerCase().trim();
 
   // Pour les champs texte (mostGamePlayed)
-  if (field === "mostGamePlayed") {
+  if (field === "mostPlayedGames") {
     if (guessStr === targetStr) return "bg-green-500";
-    return "bg-red-500";
-  }
-
-  // Pour la date d'arrivée
-  if (field === "createdAt") {
-    const guessYear = new Date(guessValue).getFullYear();
-    const targetYear = new Date(targetValue).getFullYear();
-    if (guessYear === targetYear) return "bg-green-500";
+    if (guessStr.includes(targetStr)) return "bg-blue-500";
     return "bg-red-500";
   }
 
@@ -207,8 +205,10 @@ function getIndicatorClass(guessValue: any, targetValue: any, field: string): st
 function getYearDisplayClass(guess: AcsdleUser): string {
   if (!decryptedUser.value) return "bg-gray-600";
   const guessYear = new Date(guess.createdAt).getFullYear();
+  const guessMonth = new Date(guess.createdAt).getMonth();
   const targetYear = new Date(decryptedUser.value.createdAt).getFullYear();
-  return getIndicatorClass(guessYear, targetYear, "createdAt");
+  const targetMonth = new Date(decryptedUser.value.createdAt).getMonth();
+  return getIndicatorClass(guessYear+guessMonth, targetYear+targetMonth, "createdAt");
 }
 
 const hints = computed(() => [
@@ -219,7 +219,7 @@ const hints = computed(() => [
   },
   {
     condition: () => guesses.value.length > 6,
-    messageActive: `Jeu le plus joué: ${decryptedUser.value?.mostGamePlayed || "N/A"}`,
+    messageActive: `Jeux les plus joués: ${decryptedUser.value?.mostPlayedGames.join(', ') || "N/A"}`,
     messageInactive: "Indice disponible au 7ème essai",
   },
   {
@@ -231,11 +231,12 @@ const hints = computed(() => [
 
 Chart.register(Tooltip, PointElement, LineElement, CategoryScale, LinearScale)
 
-const chartData: ChartData<'line'> = {
+const chartData = computed<ChartData<'line'>>(() => ({
   labels: gamesStore.acsdle.guessHistory.map((guess) => formatDate(new Date(guess.completedAt ?? ""), "DD/MM")),
   datasets: [ { data: gamesStore.acsdle.guessHistory.map(g => g.attempts.length), backgroundColor: '#f87979', label: "Essais", borderColor: "#ffffff", pointBorderColor: "#f87979" } ]
-}
-const chartOptions: ChartOptions<'line'> = {
+}));
+
+const chartOptions = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: true,
   scales: {
@@ -246,13 +247,14 @@ const chartOptions: ChartOptions<'line'> = {
       }
     }
   }
-}
+}));
 </script>
 
 <template>
   <div class="min-h-screen text-white">
+    <LoaderACS v-if="isLoading" />
     <!-- Header -->
-    <div class="max-w-6xl mx-auto space-y-8">
+    <div v-else class="max-w-6xl mx-auto space-y-8">
       <h1 class="text-5xl font-bold mb-2 text-center">ACSDLE</h1>
       <p class="text-center text-gray-400 mb-8">Devinez le joueur du jour</p>
 
@@ -266,7 +268,7 @@ const chartOptions: ChartOptions<'line'> = {
             <li><strong>Tournois joués:</strong> {{ decryptedUser.tournamentsPlayed }}</li>
             <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
             <li><strong>Top 25%:</strong> {{ decryptedUser.top25Finishes }}</li>
-            <li><strong>Jeu le plus joué:</strong> {{ decryptedUser.mostGamePlayed }}</li>
+            <li><strong>Jeux les plus joués:</strong> {{ decryptedUser.mostPlayedGames.join(', ') }}</li>
             <li><strong>Membre depuis:</strong> {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}</li>
           </ul>
         </div>
@@ -283,7 +285,7 @@ const chartOptions: ChartOptions<'line'> = {
             <li><strong>Tournois joués:</strong> {{ decryptedUser.tournamentsPlayed }}</li>
             <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
             <li><strong>Top 25%:</strong> {{ decryptedUser.top25Finishes }}</li>
-            <li><strong>Jeu le plus joué:</strong> {{ decryptedUser.mostGamePlayed }}</li>
+            <li><strong>Jeu le plus joué:</strong> {{ decryptedUser.mostPlayedGames.join(', ') }}</li>
             <li><strong>Membre depuis:</strong> {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}</li>
           </ul>
         </div>
@@ -344,11 +346,11 @@ const chartOptions: ChartOptions<'line'> = {
 
         <!-- Column Headers -->
         <div class="mb-4 grid grid-cols-7 gap-2 items-center">
-          <div class="col-span-2 text-xs font-bold text-gray-300 text-center">Joueur</div>
+          <div class="text-xs font-bold text-gray-300 text-center">Joueur</div>
           <div class="text-xs font-bold text-gray-300 text-center">Tournois</div>
           <div class="text-xs font-bold text-gray-300 text-center">Victoires</div>
           <div class="text-xs font-bold text-gray-300 text-center">Top 25%</div>
-          <div class="text-xs font-bold text-gray-300 text-center">Jeu</div>
+          <div class="text-xs font-bold text-gray-300 text-center col-span-2">Jeux les plus joués</div>
           <div class="text-xs font-bold text-gray-300 text-center">Mois / Année</div>
         </div>
 
@@ -357,10 +359,8 @@ const chartOptions: ChartOptions<'line'> = {
           <div class="space-y-2">
             <div v-for="(guess, index) in reversedGuesses" :key="index" class="grid grid-cols-7 gap-2 items-center pb-4 border-b border-gray-700">
               <!-- Username -->
-              <div class="col-span-2">
-                <div class="bg-gray-700 p-3 rounded-lg text-sm font-semibold truncate">
-                  {{ guess.username }}
-                </div>
+              <div class="bg-gray-700 p-3 rounded-lg text-sm text-center font-semibold truncate">
+                {{ guess.username }}
               </div>
 
               <!-- Nombre de tournois -->
@@ -379,12 +379,12 @@ const chartOptions: ChartOptions<'line'> = {
               </div>
 
               <!-- Jeu le plus joué -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', getIndicatorClass(guess.mostGamePlayed, decryptedUser?.mostGamePlayed, 'mostGamePlayed')]">
-                {{ guess.mostGamePlayed || "N/A" }}
+              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', 'text-sm', 'col-span-2', getIndicatorClass(guess.mostPlayedGames, decryptedUser?.mostPlayedGames, 'mostPlayedGames')]">
+                {{ guess.mostPlayedGames.join(', ') || "N/A" }}
               </div>
 
               <!-- Date d'arrivée -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', 'text-sm', getYearDisplayClass(guess)]">
+              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', 'text-sm', 'capitalize', getYearDisplayClass(guess)]">
                 {{ formatDate(new Date(guess.createdAt), "MMMM / YYYY") }}
               </div>
             </div>
@@ -404,16 +404,16 @@ const chartOptions: ChartOptions<'line'> = {
               <span>Incorrect</span>
             </div>
             <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded bg-blue-500" />
+              <span>Partiellement</span>
+            </div>
+            <div class="flex items-center gap-2">
               <div class="w-6 h-6 rounded bg-yellow-500" />
               <span>Inférieur</span>
             </div>
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 rounded bg-orange-500" />
               <span>Supérieur</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded bg-gray-600" />
-              <span>Vide</span>
             </div>
           </div>
         </div>

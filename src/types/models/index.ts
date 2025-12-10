@@ -342,7 +342,7 @@ export interface AcsdleUser {
   tournamentsPlayed: number;
   victories: number;
   top25Finishes: number;
-  mostGamePlayed: string;
+  mostPlayedGames: string[];
 }
 
 export interface AcsdleCompletion {
