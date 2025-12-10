@@ -116,6 +116,16 @@ const onDropToAvailable = () => {
   draggedPlayer.value = null;
 };
 
+const dragOverAvailable = ref<boolean>(false);
+
+const onDragEnterAvailable = () => {
+  dragOverAvailable.value = true;
+};
+
+const onDragLeaveAvailable = () => {
+  dragOverAvailable.value = false;
+};
+
 const removePlayerFromTeam = (team: Team, playerId: string) => {
   team.players = team.players.filter(p => p.id !== playerId);
 };
@@ -234,7 +244,7 @@ const autoBalanceTeams = () => {
     </Card>
 
     <div v-if="teams.length > 0" class="grid gap-6 lg:grid-cols-4">
-      <Card class="glass-panel sticky top-6 max-h-[70vh] overflow-hidden p-4">
+      <Card class="glass-panel sticky top-6 max-h-[70vh] overflow-hidden p-4" @dragover="onDragOver" @drop="onDropToAvailable" @dragenter="onDragEnterAvailable" @dragleave="onDragLeaveAvailable" :class="dragOverAvailable ? 'border-accent-300' : 'border-white/5'">
         <template #header>
           <h3 class="text-sm uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
             <VueIcon name="cl:users" /> Disponibles
@@ -260,7 +270,7 @@ const autoBalanceTeams = () => {
       </Card>
 
       <div class="lg:col-span-3 grid gap-4 md:grid-cols-2">
-        <Card v-for="(team, index) in teams" :key="index" @dragover="onDragOver" @drop="onDropToTeam(team)" @dragenter="dragOverTeamIndex = index" @dragleave="dragOverTeamIndex = null" :class="['glass-panel p-4 min-h-[480px] transition', dragOverTeamIndex === index ? 'border-accent-300' : 'border-white/5']">
+        <Card v-for="(team, index) in teams" :key="index" @dragover="onDragOver" @drop="onDropToTeam(team)" @dragenter="dragOverTeamIndex = index" @dragleave="dragOverTeamIndex = null" :class="['glass-panel p-4 min-h-[480px] transition duration-200', dragOverTeamIndex === index ? 'border-accent-300 border-2' : 'border-white/5']">
           <template #header>
             <div class="flex items-center justify-between gap-3">
               <input v-model="team.name" class="form-input bg-transparent text-lg font-semibold" />
@@ -282,7 +292,7 @@ const autoBalanceTeams = () => {
             </div>
           </div>
 
-          <div class="flex-1 space-y-2 overflow-y-auto">
+          <div class="flex-1 space-y-2 overflow-y-auto" @dragover="onDragOver" @dragenter="dragOverTeamIndex = index" @dragleave="dragOverTeamIndex = null">
             <div v-for="player in team.players" :key="player.id" draggable="true" @dragstart="onDragStart(player)" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm">
               <div class="flex items-start justify-between gap-2">
                 <div>
