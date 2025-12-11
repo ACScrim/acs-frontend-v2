@@ -16,7 +16,7 @@ const mobileFooterRoutes = computed(() =>
     <RouterLink
       v-for="route in mobileFooterRoutes"
       :key="route.path"
-      :to="route.path"
+      :to="route.path.split(':')[0]!"
       class="flex flex-1 flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-foam-300/60 transition"
       active-class="text-white bg-white/5 shadow-inner shadow-accent-500/40"
     >
