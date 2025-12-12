@@ -12,6 +12,9 @@ const route = useRoute();
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 const isMenuOpen = ref(false);
+const profileButton = ref<HTMLButtonElement | null>(null);
+const menuPosition = ref({ top: 0, left: 0 });
+let closeMenuTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const asideRoutes = computed(() =>
   router.getRoutes()
@@ -39,10 +42,35 @@ const logout = async () => {
   isMenuOpen.value = false;
   router.push('/');
 };
+
+const updateMenuPosition = () => {
+  if (profileButton.value) {
+    const rect = profileButton.value.getBoundingClientRect();
+    menuPosition.value = {
+      top: rect.top + rect.height / 2,
+      left: rect.width
+    };
+  }
+};
+
+const handleMouseEnter = () => {
+  if (closeMenuTimeout) {
+    clearTimeout(closeMenuTimeout);
+    closeMenuTimeout = null;
+  }
+  isMenuOpen.value = true;
+  updateMenuPosition();
+};
+
+const handleMouseLeave = () => {
+  closeMenuTimeout = setTimeout(() => {
+    isMenuOpen.value = false;
+  }, 100);
+};
 </script>
 
 <template>
-  <div class="hidden lg:flex flex-col gap-8 px-6 py-8">
+  <div class="hidden lg:flex flex-col gap-8 px-6 py-8 overflow-visible">
     <RouterLink to="/" class="flex items-center justify-center">
       <img src="/acs.avif" alt="ACS" class="h-16 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)]" />
     </RouterLink>
@@ -65,38 +93,50 @@ const logout = async () => {
       </RouterLink>
     </nav>
 
-    <div class="mt-auto space-y-3">
-      <div v-if="userStore.isLoggedIn && userStore.user" class="rounded-[var(--radius-lg)] border border-white/10 bg-gradient-to-br from-accent-500/10 to-blush-500/10 p-3">
-        <RouterLink to="/profile" class="group/profile flex items-center gap-3 text-left">
+    <div class="mt-auto">
+      <button v-if="userStore.isLoggedIn && userStore.user" ref="profileButton" id="profileButton" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-gradient-to-br from-accent-500/10 to-blush-500/10 p-3 hover:from-accent-500/20 hover:to-blush-500/20 transition">
+        <div class="flex items-center gap-3 text-left">
           <div class="relative">
-            <Avatar :src="userStore.user.avatarUrl" class="size-10 ring-2 ring-accent-400/50 group-hover/profile:ring-accent-300" />
+            <Avatar :src="userStore.user.avatarUrl" class="size-10 ring-2 ring-accent-400/50" />
             <div class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-xs text-white">
               <VueIcon name="bs:check" class="text-[10px]" />
             </div>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="truncate font-semibold text-white group-hover/profile:text-accent-300 transition-colors">{{ userStore.user.username }}</p>
+            <p class="truncate font-semibold text-white">{{ userStore.user.username }}</p>
             <p class="text-xs truncate text-foam-300/70">{{ userStore.user.scrimium.balance }} <img src="/scrimium.svg" title="Scrimium" alt="Scrimium" class="size-3 inline"/></p>
           </div>
-          <VueIcon name="bs:chevron-right" class="flex-shrink-0 text-foam-300/50 group-hover/profile:text-accent-300 transition" />
-        </RouterLink>
-      </div>
+        </div>
+      </button>
 
-      <div v-if="userStore.isLoggedIn" class="space-y-1">
-        <RouterLink to="/player-levels" class="group/nav flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-foam-200 hover:bg-white/5 transition">
-          <VueIcon name="bs:mountains" class="text-accent-300" />
-          <span class="group-hover/nav:text-white transition">Mes niveaux</span>
-        </RouterLink>
-      </div>
+      <!-- Modal menu (teleported outside sidebar) -->
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition-all duration-200"
+          leave-active-class="transition-all duration-200"
+          enter-from-class="opacity-0 -translate-x-2"
+          enter-to-class="opacity-100 translate-x-0"
+        >
+          <div v-if="isMenuOpen && userStore.isLoggedIn && userStore.user" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" class="fixed w-56 bg-slate-800/95 backdrop-blur-sm border border-white/10 rounded-lg shadow-lg z-50" :style="{ top: menuPosition.top + 'px', left: menuPosition.left + 'px', transform: 'translateY(-50%)' }">
+            <RouterLink to="/profile" @click="isMenuOpen = false" class="flex items-center gap-3 px-4 py-3 text-sm text-foam-200 hover:bg-white/5 transition border-b border-white/10">
+              <VueIcon name="bs:person" class="text-accent-300 size-5" />
+              <span>Profil</span>
+            </RouterLink>
 
-      <div v-if="userStore.isLoggedIn" class="border-t border-white/10 pt-3">
-        <button @click="logout" class="group/nav w-full flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-blush-300 hover:bg-blush-500/10 transition">
-          <VueIcon name="bs:box-arrow-right" />
-          <span class="group-hover/nav:text-blush-200 transition">Déconnexion</span>
-        </button>
-      </div>
+            <RouterLink to="/player-levels" @click="isMenuOpen = false" class="flex items-center gap-3 px-4 py-3 text-sm text-foam-200 hover:bg-white/5 transition border-b border-white/10">
+              <VueIcon name="bs:mountains" class="text-accent-300 size-5" />
+              <span>Mes niveaux</span>
+            </RouterLink>
 
-      <Button v-else color="accent" class="w-full justify-center text-sm" :to="`${API_URL}/auth/discord`">
+            <button @click="logout" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-blush-300 hover:bg-blush-500/10 transition">
+              <VueIcon name="bs:box-arrow-right" class="size-5" />
+              <span>Déconnexion</span>
+            </button>
+          </div>
+        </Transition>
+      </Teleport>
+
+      <Button v-if="!userStore.isLoggedIn" color="accent" class="w-full justify-center text-sm" :to="`${API_URL}/auth/discord`">
         <VueIcon name="ak:discord-fill" class="text-lg" />
         <span>Discord</span>
       </Button>
