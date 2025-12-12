@@ -41,11 +41,11 @@ onMounted(() => {
         <VueIcon name="bs:trophy" class="text-3xl text-accent-300" />
       </template>
 
-      <form class="mt-6 rounded-[var(--radius-xl)] border border-white/10 bg-white/5 p-4">
-        <label for="gameFilter" class="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.3em] text-foam-300/70">
+      <form class="mt-6 rounded-[var(--radius-xl)] border border-white/10 bg-white/5 p-3 md:p-4">
+        <label for="gameFilter" class="flex flex-wrap items-center gap-2 text-xs md:text-sm uppercase tracking-[0.3em] text-foam-300/70">
           <VueIcon name="bs:funnel" class="text-accent-300" /> Filtrer par jeu
         </label>
-        <div class="mt-3 max-w-sm">
+        <div class="mt-2 md:mt-3 max-w-sm">
           <AcsSelect
             id="gameFilter"
             v-model="gameFilter"

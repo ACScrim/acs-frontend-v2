@@ -252,7 +252,7 @@ onUnmounted(() => {
       title="Anciens tournois"
       :to="getTournamentLink"
       v-if="oldTournaments.length > 0"
-    >>
+    >
       <template #item="{ item }">
         <TournamentCard 
           class="h-full transition-all duration-300 group-hover:-translate-y-2" 
