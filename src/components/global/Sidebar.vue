@@ -87,6 +87,9 @@ const logout = async () => {
           <VueIcon name="bs:mountains" class="text-accent-300" />
           <span class="group-hover/nav:text-white transition">Mes niveaux</span>
         </RouterLink>
+      </div>
+
+      <div v-if="userStore.isLoggedIn" class="border-t border-white/10 pt-3">
         <button @click="logout" class="group/nav w-full flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-blush-300 hover:bg-blush-500/10 transition">
           <VueIcon name="bs:box-arrow-right" />
           <span class="group-hover/nav:text-blush-200 transition">Déconnexion</span>

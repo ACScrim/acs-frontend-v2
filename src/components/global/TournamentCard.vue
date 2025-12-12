@@ -73,7 +73,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
         <div v-else class="rounded-lg border-2 border-amber-400 bg-gradient-to-r from-amber-500/10 to-amber-400/10 p-4">
           <div class="text-center">
             <p class="text-xs uppercase tracking-[0.3em] text-amber-300/70 mb-2">Vainqueur</p>
-            <p class="text-lg font-semibold text-amber-300">{{ tournament.teams.find(team => team.ranking === 1)?.name ?? 'NC' }}</p>
+            <p class="text-lg font-semibold text-amber-300">{{ tournament.teams.find(team => team.ranking === 1 || (team.ranking === null && tournament.teams[0] === team))?.name ?? tournament.teams[0]?.name ?? 'À déterminer' }}</p>
           </div>
         </div>
       </div>

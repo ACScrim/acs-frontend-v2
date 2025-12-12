@@ -22,7 +22,7 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
 <template>
   <div class="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] relative">
     <!-- Colonne gauche : Hero + Tournoi clôturé -->
-    <div class="space-y-8 flex flex-col sticky top-5 self-start">
+    <div class="space-y-8 flex flex-col lg:sticky lg:top-5 lg:self-start">
       <!-- Section supérieure : Programme hebdomadaire -->
       <section>
         <Card class="relative overflow-hidden p-6">
@@ -51,7 +51,7 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
             </Button>
           </div>
 
-          <div class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3">
+          <div class="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-3">
             <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
               <p class="text-sm uppercase tracking-[0.4em] text-foam-300/60">Tournois</p>
               <p class="text-3xl font-semibold">{{ homeStats.tournaments }}</p>
@@ -68,8 +68,8 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
         </Card>
       </section>
 
-      <!-- Section inférieure : Tournoi clôturé -->
-      <section class="space-y-4">
+      <!-- Section inférieure : Tournoi clôturé (masqué sur mobile) -->
+      <section class="lg:flex flex-col space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Dernier highlight</p>
@@ -94,14 +94,14 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
       </div>
 
       <!-- Tournoi principal (le plus proche) -->
-      <div v-if="nextTournaments.length > 0 && nextTournaments[0]" class="flex-1">
+      <div v-if="nextTournaments.length > 0 && nextTournaments[0]" class="flex-1 min-h-0">
         <RouterLink :to="`/tournaments/${nextTournaments[0].id}`">
           <TournamentCard :tournament="nextTournaments[0]" class="h-full" />
         </RouterLink>
       </div>
 
-      <!-- 2 tournois suivants en colonne -->
-      <div v-if="nextTournaments.length > 1" class="space-y-4 flex flex-col">
+      <!-- 2 tournois suivants en colonne (masqués sur mobile) -->
+      <div v-if="nextTournaments.length > 1" class="lg:flex space-y-4 lg:flex-col">
         <RouterLink v-for="tournament in nextTournaments.slice(1, 3)" :key="tournament.id" :to="`/tournaments/${tournament.id}`" class="flex">
           <TournamentCard :tournament="tournament" class="h-full w-full" />
         </RouterLink>
