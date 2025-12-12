@@ -147,10 +147,10 @@ const table = useVueTable({
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 flex-1">
               <div class="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 flex-shrink-0">
-                <VueIcon v-if="index < 3" :name="['bs:award', 'bs:award', 'bs:award'][index]" :class="`text-sm ${medalColors[index]}`" />
+                <VueIcon v-if="index < 3" name="bs:award" :class="`text-sm ${medalColors[index]}`" />
                 <span v-else class="text-xs font-semibold text-foam-200">#{{ index + 1 }}</span>
               </div>
-              <ProfileLink :user="entry.user" size="10" />
+              <ProfileLink :user="entry.user" :size="10" />
             </div>
             <div class="text-right flex-shrink-0">
               <p class="text-lg font-semibold text-white">{{ entry.points }}</p>

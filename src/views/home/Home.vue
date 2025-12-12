@@ -22,12 +22,12 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
 <template>
   <div class="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] relative">
     <!-- Logo retour accueil mobile -->
-    <RouterLink to="/" class="lg:hidden fixed top-4 left-4 z-40">
+    <RouterLink to="/" class="xl:hidden fixed top-4 left-4 z-40">
       <img src="/acs.avif" alt="ACS" class="h-10 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)] hover:opacity-80 transition-opacity" />
     </RouterLink>
 
     <!-- Colonne gauche : Hero + Tournoi clôturé -->
-    <div class="space-y-8 flex flex-col md:sticky md:top-5 md:self-start">
+    <div class="space-y-8 flex flex-col xl:sticky xl:top-5 xl:self-start">
       <!-- Section supérieure : Programme hebdomadaire -->
       <section>
         <Card class="relative overflow-hidden p-6">
@@ -56,7 +56,7 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
             </Button>
           </div>
 
-          <div class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3">
+          <div class="mt-10 grid grid-cols-2 gap-4 xl:grid-cols-3">
             <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
               <p class="text-sm uppercase tracking-[0.4em] text-foam-300/60">Tournois</p>
               <p class="text-3xl font-semibold">{{ homeStats.tournaments }}</p>
@@ -74,11 +74,11 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
       </section>
 
       <!-- Section inférieure : Tournoi clôturé (masqué sur mobile) -->
-      <section class="hidden md:flex flex-col space-y-4">
+      <section class="xl:flex flex-col space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Dernier highlight</p>
-            <h3 class="text-lg font-semibold text-white/90 font-display">Tournoi clôturé</h3>
+            <h3 class="text-xl font-semibold text-white/90 font-display">Tournoi clôturé</h3>
           </div>
           <Badge tone="accent" size="sm">Recap</Badge>
         </div>
@@ -95,7 +95,7 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
     <div class="space-y-4 flex flex-col">
       <div>
         <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Prochains tournois</p>
-        <h3 class="text-lg font-semibold text-white/90 font-display">À venir</h3>
+        <h3 class="text-xl font-semibold text-white/90 font-display">À venir</h3>
       </div>
 
       <!-- Tournoi principal (le plus proche) -->
@@ -106,7 +106,7 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
       </div>
 
       <!-- 2 tournois suivants en colonne (masqués sur mobile) -->
-      <div v-if="nextTournaments.length > 1" class="hidden md:flex md:space-y-4 md:flex-col">
+      <div v-if="nextTournaments.length > 1" class="xl:flex space-y-4 xl:flex-col">
         <RouterLink v-for="tournament in nextTournaments.slice(1, 3)" :key="tournament.id" :to="`/tournaments/${tournament.id}`" class="flex">
           <TournamentCard :tournament="tournament" class="h-full w-full" />
         </RouterLink>

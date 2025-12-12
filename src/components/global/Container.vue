@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import MobileMenu from './MobileMenu.vue';
-import Footer from './Footer.vue';
 import Confetti from "@/components/ui/Confetti.vue";
+import { ref } from 'vue';
+import { RouterLink } from 'vue-router';
+import Footer from './Footer.vue';
+import MobileMenu from './MobileMenu.vue';
 
 interface Orb {
   id: number;
@@ -21,6 +22,7 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
   hue: 210 + Math.random() * 80,
   delay: Math.random() * 4,
 })));
+
 </script>
 
 <template>
@@ -47,6 +49,14 @@ const orbs = ref<Orb[]>(Array.from({ length: 5 }, (_, idx) => ({
     </aside>
 
     <section class="relative z-10 flex flex-col overflow-y-auto view" data-acs-scroll-region>
+      <!-- Header mobile avec logo et liens admin -->
+      <div class="lg:hidden fixed left-0 top-0 py-2 z-40 backdrop-blur-md w-full border-b border-white/10">
+        <div class="flex items-center justify-between px-5">
+          <RouterLink to="/" class="block w-fit">
+            <img src="/acs.avif" alt="ACS" class="h-10 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)] hover:opacity-80 transition-opacity" />
+          </RouterLink>
+        </div>
+      </div>
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-5 py-20 lg:py-5 lg:px-10">
         <slot name="view" />
       </div>
