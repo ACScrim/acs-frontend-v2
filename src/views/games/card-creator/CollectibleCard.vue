@@ -45,24 +45,30 @@ const isHovered = ref(false);
 let animationFrameId: number | null = null;
 
 // Intersection Observer for lazy loading
-if (props.lazyLoad && cardRef.value) {
-  useIntersectionObserver(
-    cardRef,
-    (entries) => {
-      const entry = entries[0];
-      if (entry && entry.isIntersecting) {
-        isVisible.value = true;
-        hasBeenVisible.value = true;
-      } else if (entry) {
-        isVisible.value = false;
+onMounted(() => {
+  if (props.lazyLoad && cardRef.value) {
+    useIntersectionObserver(
+      cardRef,
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          isVisible.value = true;
+          hasBeenVisible.value = true;
+        } else if (entry) {
+          isVisible.value = false;
+        }
+      },
+      {
+        threshold: 0.01,
+        rootMargin: '50px'
       }
-    },
-    {
-      threshold: 0.01,
-      rootMargin: '50px'
-    }
-  );
-}
+    );
+  }
+  
+  if (props.interactive) {
+    window.addEventListener('mousemove', handleMouseMove);
+  }
+});
 
 // Holographic light position based on rotation
 const holoLightX = computed(() => {
@@ -157,9 +163,9 @@ const hasImageBackground = computed(() => {
 
 // Check if holographic effect should be shown
 const showHolographic = computed(() => {
-  // Only show holographic effect when hovered or always visible (not lazy loaded)
+  // Only show holographic effect when hovered (if interactive) or always (if not interactive)
   const shouldShow = hasImageBorder.value || props.card.holographicEffect;
-  return shouldShow && (isHovered.value || !props.interactive);
+  return shouldShow && (!props.interactive || isHovered.value);
 });
 
 // Holographic intensity (0 to 1)
@@ -271,6 +277,25 @@ const handleMouseLeave = () => {
 };
 
 onMounted(() => {
+  if (props.lazyLoad && cardRef.value) {
+    useIntersectionObserver(
+      cardRef,
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          isVisible.value = true;
+          hasBeenVisible.value = true;
+        } else if (entry) {
+          isVisible.value = false;
+        }
+      },
+      {
+        threshold: 0.01,
+        rootMargin: '50px'
+      }
+    );
+  }
+  
   if (props.interactive) {
     window.addEventListener('mousemove', handleMouseMove);
   }

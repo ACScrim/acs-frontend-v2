@@ -14,6 +14,10 @@ const cards = computed(() => collectionStore.cards);
 
 const isLoadingFullCard = ref<boolean>(false);
 
+// Constants
+const UNLOAD_DELAY_MS = 1000;
+const MIN_CACHED_CARDS = 3;
+
 // Initialize performance monitoring (only in dev mode)
 const isDev = import.meta.env.DEV;
 const { fps, memoryUsage } = usePerformanceMonitor({
@@ -32,16 +36,25 @@ const fetchQueue = useCardFetchQueue({
 // Track which cards need full data
 const cardsNeedingFullData = ref<Set<string>>(new Set());
 
+// Track active timeouts for cleanup
+const activeTimeouts = new Set<number>();
+
 onMounted(async () => {
   await collectionStore.fetchCollection();
 });
 
 onUnmounted(() => {
   fetchQueue.clear();
+  // Clear all pending timeouts
+  activeTimeouts.forEach(id => clearTimeout(id));
+  activeTimeouts.clear();
 });
 
 const handleMouseHoverPreview = async (card: Card) => {
-  if (isLoadingFullCard.value) return useToastStore().info('Le chargement de la carte est en cours.');
+  if (isLoadingFullCard.value) {
+    useToastStore().info('Le chargement de la carte est en cours.');
+    return;
+  }
   if (card.frontAsset) return; // Already loaded
   
   // Add to queue with high priority (user is hovering)
@@ -50,14 +63,20 @@ const handleMouseHoverPreview = async (card: Card) => {
   // Process the queue
   if (!fetchQueue.processing.value) {
     isLoadingFullCard.value = true;
-    await fetchQueue.processBatch(async (cardId) => {
-      if (!collectionStore.collection) return;
-      const targetCard = cards.value.find(c => c.id === cardId);
-      if (!targetCard || targetCard.frontAsset) return;
-      
-      await collectionStore.fetchFullCard(collectionStore.collection.id, cardId);
-    });
-    isLoadingFullCard.value = false;
+    try {
+      await fetchQueue.processBatch(async (cardId) => {
+        if (!collectionStore.collection) return;
+        const targetCard = cards.value.find(c => c.id === cardId);
+        if (!targetCard || targetCard.frontAsset) return;
+        
+        await collectionStore.fetchFullCard(collectionStore.collection.id, cardId);
+      });
+    } catch (error) {
+      console.error('Error processing card batch:', error);
+      useToastStore().error('Erreur lors du chargement des cartes.');
+    } finally {
+      isLoadingFullCard.value = false;
+    }
   }
 };
 
@@ -66,12 +85,15 @@ const handleMouseLeavePreview = (card: Card) => {
   fetchQueue.dequeue(card.id);
   
   // Unload card data after a delay to free memory
-  setTimeout(() => {
-    if (collectionStore.listCardLoaded.length <= 3) return; // Keep at least 3 loaded
+  const timeoutId = window.setTimeout(() => {
+    if (collectionStore.listCardLoaded.length <= MIN_CACHED_CARDS) return; // Keep at least 3 loaded
     const oldestLoadedCard = collectionStore.listCardLoaded[0];
     if (!oldestLoadedCard) return;
     collectionStore.unloadFullCard(oldestLoadedCard);
-  }, 1000);
+    activeTimeouts.delete(timeoutId);
+  }, UNLOAD_DELAY_MS);
+  
+  activeTimeouts.add(timeoutId);
 };
 
 // Handle when card becomes visible in viewport
@@ -92,9 +114,12 @@ const handleItemVisible = (card: Card) => {
         try {
           await collectionStore.fetchFullCard(collectionStore.collection.id, cardId);
           cardsNeedingFullData.value.delete(cardId);
-        } catch {
+        } catch (error) {
+          console.error('Error loading card:', cardId, error);
           // Silently fail for background loads
         }
+      }).catch(error => {
+        console.error('Error processing visible card batch:', error);
       });
     }
   }

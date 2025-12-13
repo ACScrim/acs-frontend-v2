@@ -20,6 +20,7 @@ export function useCardFetchQueue(options: {
   const queue = ref<FetchQueueItem[]>([]);
   const processing = ref(false);
   const activeRequests = ref(0);
+  const processedIds = new Set<string>(); // Track already queued IDs
   let processingTimer: number | null = null;
 
   /**
@@ -28,11 +29,12 @@ export function useCardFetchQueue(options: {
    * @param priority - Higher priority cards are fetched first (default: 0)
    */
   const enqueue = (id: string, priority: number = 0) => {
-    // Don't add duplicates
-    if (queue.value.some(item => item.id === id)) {
+    // Don't add duplicates - use Set for O(1) lookup
+    if (processedIds.has(id)) {
       return;
     }
 
+    processedIds.add(id);
     queue.value.push({
       id,
       priority,
@@ -58,6 +60,7 @@ export function useCardFetchQueue(options: {
    */
   const dequeue = (id: string) => {
     queue.value = queue.value.filter(item => item.id !== id);
+    processedIds.delete(id);
   };
 
   /**
@@ -110,6 +113,7 @@ export function useCardFetchQueue(options: {
    */
   const clear = () => {
     queue.value = [];
+    processedIds.clear();
     processing.value = false;
     if (processingTimer !== null) {
       clearTimeout(processingTimer);

@@ -22,11 +22,13 @@ const emit = defineEmits<{
 const containerRef = ref<HTMLElement | null>(null);
 const { width: containerWidth } = useElementSize(containerRef);
 const scrollTop = ref(0);
+const emittedItems = ref(new Set<string>()); // Track emitted items
 
 // Calculate columns based on container width
 const columns = computed(() => {
   if (containerWidth.value === 0) return 1;
-  return Math.max(1, Math.floor((containerWidth.value + props.gap) / (props.itemWidth + props.gap)));
+  // Calculate how many items fit, accounting for gaps properly
+  return Math.max(1, Math.floor(containerWidth.value / (props.itemWidth + props.gap)));
 });
 
 // Calculate total rows
@@ -80,10 +82,21 @@ const handleScroll = (event: Event) => {
   scrollTop.value = target.scrollTop;
 };
 
-// Emit visible items when they change
+// Emit visible items when they change (only newly visible)
 watch(visibleItems, (items) => {
   items.forEach(({ item, index }) => {
-    emit('itemVisible', item, index);
+    if (!emittedItems.value.has(item.id)) {
+      emittedItems.value.add(item.id);
+      emit('itemVisible', item, index);
+    }
+  });
+  
+  // Clean up emitted items that are no longer visible
+  const currentIds = new Set(items.map(i => i.item.id));
+  emittedItems.value.forEach(id => {
+    if (!currentIds.has(id)) {
+      emittedItems.value.delete(id);
+    }
   });
 }, { immediate: true });
 
