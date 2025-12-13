@@ -12,6 +12,7 @@ import TournamentPlayers from './components/TournamentPlayers.vue';
 import TournamentTeamsCreation from './components/TournamentTeamsCreation.vue';
 import TournamentTeamsDisplay from './components/TournamentTeamsDisplay.vue';
 import TournamentResults from './components/TournamentResults.vue';
+import TournamentChallongeBracket from './components/TournamentChallongeBracket.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,7 +20,7 @@ const adminStore = useAdminStore();
 
 const tournament = computed(() => adminStore.getTournamentById(route.params.id as string) as Tournament);
 const editingTeams = ref(!tournament.value?.teamsPublished);
-const activeTab = ref<'teams' | 'details' | 'players' | 'results'>('teams');
+const activeTab = ref<'teams' | 'details' | 'players' | 'results' | 'bracket'>('teams');
 const tournamentStarted = computed(() => new Date(tournament.value?.date ?? '').getTime() <= Date.now());
 
 whenever(tournament, () => {
@@ -34,7 +35,7 @@ onMounted(() => {
   adminStore.fetchTournamentDetails(route.params.id as string);
 
   const queryTab = route.query.tab as string;
-  if (queryTab === 'teams' || queryTab === 'details' || queryTab === 'players' || queryTab === 'results') {
+  if (queryTab === 'teams' || queryTab === 'details' || queryTab === 'players' || queryTab === 'results' || queryTab === 'bracket') {
     activeTab.value = queryTab;
   }
 });
@@ -126,6 +127,18 @@ const handleSubmit = async (formData: TournamentFormData) => {
         Équipes
       </button>
       <button
+        @click="activeTab = 'bracket'"
+        :class="[
+          'px-4 py-3 font-bold flex items-center gap-2 transition-all',
+          activeTab === 'bracket'
+            ? 'text-white border-b-2 border-accent-300'
+            : 'text-foam-300/70 hover:text-white'
+        ]"
+      >
+        <VueIcon name="bs:diagram-2" />
+        Bracket
+      </button>
+      <button
         @click="activeTab = 'players'"
         :class="[
           'px-4 py-3 font-bold flex items-center gap-2 transition-all',
@@ -183,6 +196,14 @@ const handleSubmit = async (formData: TournamentFormData) => {
     <div v-show="activeTab === 'players'" class="animate-in fade-in duration-200">
       <TournamentPlayers
         :tournament="tournament"
+      />
+    </div>
+
+    <!-- Bracket Tab -->
+    <div v-show="activeTab === 'bracket'" class="animate-in fade-in duration-200">
+      <TournamentChallongeBracket
+        :tournament="tournament"
+        @updated="handleTeamsSaved"
       />
     </div>
 

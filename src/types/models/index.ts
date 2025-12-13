@@ -95,6 +95,8 @@ export interface Tournament {
     addedAt: string;
     id: string;
   }[];
+  challongeUrl?: string;
+  challongeTournamentId?: string;
 }
 
 export interface TournamentPlayer {
@@ -350,4 +352,23 @@ export interface AcsdleCompletion {
   attempts: AcsdleUser[];
   won: boolean;
   completedAt?: Date;
+}
+
+export interface ChallongeBracketSettings {
+  tournamentType?: 'single elimination' | 'double elimination' | 'round robin' | 'swiss';
+  showRounds?: boolean;
+  privateOnly?: boolean;
+  notifyUsersWhenMatchesOpen?: boolean;
+  notifyUsersWhenTheTournamentEnds?: boolean;
+  sequentialPairings?: boolean;
+  signupCap?: number;
+  startAt?: string;
+  checkInDuration?: number;
+  description?: string;
+}
+
+export interface ChallongeBracketResponse {
+  challongeUrl: string;
+  challongeTournamentId: string;
+  bracketUrl: string;
 }

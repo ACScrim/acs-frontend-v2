@@ -29,6 +29,7 @@ import TournamentLeaderboard from './components/TournamentLeaderboard.vue';
 import TournamentMvp from './components/TournamentMvp.vue';
 import TournamentPlayersList from './components/TournamentPlayersList.vue';
 import TournamentTeamsList from './components/TournamentTeamsList.vue';
+import TournamentBracket from './components/TournamentBracket.vue';
 import { useUserStore } from '@/stores/userStore';
 import TournamentPlayerGameLevel from './components/TournamentPlayerGameLevel.vue';
 import { useToastStore } from '@/stores/toastStore';
@@ -189,6 +190,9 @@ onUnmounted(() => {
 
         <!-- Leaderboard -->
         <TournamentLeaderboard v-if="tournament.finished" :tournament="tournament" />
+
+        <!-- Bracket -->
+        <TournamentBracket v-if="tournament.teamsPublished" :tournament="tournament" />
 
         <!-- Liste des joueurs -->
         <TournamentPlayersList 
