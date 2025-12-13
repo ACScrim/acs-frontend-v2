@@ -370,10 +370,8 @@ const openBracket = () => {
           <iframe 
             v-if="tournament.challongeUrl"
             :src="tournament.challongeUrl + '/module'"
-            class="absolute top-0 left-0 w-full h-full rounded-lg border border-white/10"
-            frameborder="0"
+            class="absolute top-0 left-0 w-full h-full rounded-lg border-0"
             scrolling="auto"
-            allowtransparency="true"
           ></iframe>
         </div>
       </Card>
