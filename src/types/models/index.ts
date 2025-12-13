@@ -70,6 +70,31 @@ export interface Report {
   updatedAt: string;
 }
 
+export type TournamentFormat = 'single-elimination' | 'double-elimination' | 'round-robin' | 'swiss' | 'group-stage';
+
+export interface Match {
+  id?: string;
+  round: number;
+  matchNumber: number;
+  team1?: { id?: string; name: string; score?: number };
+  team2?: { id?: string; name: string; score?: number };
+  winner?: { id?: string; name: string };
+  status: 'pending' | 'in-progress' | 'completed';
+  nextMatchId?: string;
+}
+
+export interface TournamentPhase {
+  id?: string;
+  name: string;
+  format: TournamentFormat;
+  status: 'not-started' | 'in-progress' | 'completed';
+  teams: Team[];
+  matches: Match[];
+  startDate?: string;
+  endDate?: string;
+  order: number;
+}
+
 export interface Tournament {
   id: string;
   name: string;
@@ -95,6 +120,8 @@ export interface Tournament {
     addedAt: string;
     id: string;
   }[];
+  format?: TournamentFormat;
+  phases?: TournamentPhase[];
 }
 
 export interface TournamentPlayer {

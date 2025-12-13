@@ -10,6 +10,7 @@ import type {
   Season,
   Tournament,
   TournamentFormData,
+  TournamentPhase,
   UserAdmin
 } from "@/types/models";
 import api from "@/utils/api";
@@ -369,6 +370,40 @@ const useAdminStore = defineStore('admin', {
         }
       } catch (error: any) {
         useToastStore().error("Error updating scrimium balance:", error.message || error);
+        throw error;
+      }
+    },
+    // TOURNAMENT PHASE ACTIONS
+    async createTournamentPhase(tournamentId: string, phaseData: TournamentPhase) {
+      try {
+        const response = await api.post<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/phases`, phaseData);
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+        return tournament;
+      } catch (error: any) {
+        useToastStore().error("Error creating tournament phase:", error.message || error);
+        throw error;
+      }
+    },
+    async updateTournamentPhase(tournamentId: string, phaseId: string, phaseData: Partial<TournamentPhase>) {
+      try {
+        const response = await api.patch<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/phases/${phaseId}`, phaseData);
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+        return tournament;
+      } catch (error: any) {
+        useToastStore().error("Error updating tournament phase:", error.message || error);
+        throw error;
+      }
+    },
+    async deleteTournamentPhase(tournamentId: string, phaseId: string) {
+      try {
+        const response = await api.delete<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/phases/${phaseId}`);
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+        return tournament;
+      } catch (error: any) {
+        useToastStore().error("Error deleting tournament phase:", error.message || error);
         throw error;
       }
     }
