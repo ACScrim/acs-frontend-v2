@@ -39,6 +39,13 @@ const cardsNeedingFullData = ref<Set<string>>(new Set());
 // Track active timeouts for cleanup
 const activeTimeouts = new Set<number>();
 
+// Create a card lookup map for O(1) access
+const cardsMap = computed(() => {
+  const map = new Map<string, Card>();
+  cards.value.forEach(card => map.set(card.id, card));
+  return map;
+});
+
 onMounted(async () => {
   await collectionStore.fetchCollection();
 });
@@ -66,7 +73,7 @@ const handleMouseHoverPreview = async (card: Card) => {
     try {
       await fetchQueue.processBatch(async (cardId) => {
         if (!collectionStore.collection) return;
-        const targetCard = cards.value.find(c => c.id === cardId);
+        const targetCard = cardsMap.value.get(cardId);
         if (!targetCard || targetCard.frontAsset) return;
         
         await collectionStore.fetchFullCard(collectionStore.collection.id, cardId);
@@ -86,7 +93,8 @@ const handleMouseLeavePreview = (card: Card) => {
   
   // Unload card data after a delay to free memory
   const timeoutId = window.setTimeout(() => {
-    if (collectionStore.listCardLoaded.length <= MIN_CACHED_CARDS) return; // Keep at least 3 loaded
+    // Keep at least MIN_CACHED_CARDS loaded
+    if (collectionStore.listCardLoaded.length <= MIN_CACHED_CARDS) return;
     const oldestLoadedCard = collectionStore.listCardLoaded[0];
     if (!oldestLoadedCard) return;
     collectionStore.unloadFullCard(oldestLoadedCard);
@@ -108,7 +116,7 @@ const handleItemVisible = (card: Card) => {
     if (!fetchQueue.processing.value && fetchQueue.activeRequests.value === 0) {
       fetchQueue.processBatch(async (cardId) => {
         if (!collectionStore.collection) return;
-        const targetCard = cards.value.find(c => c.id === cardId);
+        const targetCard = cardsMap.value.get(cardId);
         if (!targetCard || targetCard.frontAsset) return;
         
         try {

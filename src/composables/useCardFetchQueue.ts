@@ -51,7 +51,8 @@ export function useCardFetchQueue(options: {
 
     // Start processing if not already
     if (!processing.value && activeRequests.value < maxConcurrent) {
-      scheduleProcessing();
+      // Note: External code must call processBatch to actually process
+      processing.value = true;
     }
   };
 
@@ -93,19 +94,16 @@ export function useCardFetchQueue(options: {
 
     // Continue processing if there are more items
     if (queue.value.length > 0 && activeRequests.value < maxConcurrent) {
-      scheduleProcessing();
+      // Set a small delay before next batch
+      if (processingTimer !== null) {
+        clearTimeout(processingTimer);
+      }
+      processingTimer = window.setTimeout(() => {
+        processing.value = true;
+      }, batchDelay);
     } else {
       processing.value = false;
     }
-  };
-
-  const scheduleProcessing = () => {
-    if (processingTimer !== null) {
-      clearTimeout(processingTimer);
-    }
-    processingTimer = window.setTimeout(() => {
-      processing.value = true;
-    }, batchDelay);
   };
 
   /**

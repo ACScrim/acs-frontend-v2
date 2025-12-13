@@ -44,32 +44,6 @@ const rotateY = ref(0);
 const isHovered = ref(false);
 let animationFrameId: number | null = null;
 
-// Intersection Observer for lazy loading
-onMounted(() => {
-  if (props.lazyLoad && cardRef.value) {
-    useIntersectionObserver(
-      cardRef,
-      (entries) => {
-        const entry = entries[0];
-        if (entry && entry.isIntersecting) {
-          isVisible.value = true;
-          hasBeenVisible.value = true;
-        } else if (entry) {
-          isVisible.value = false;
-        }
-      },
-      {
-        threshold: 0.01,
-        rootMargin: '50px'
-      }
-    );
-  }
-  
-  if (props.interactive) {
-    window.addEventListener('mousemove', handleMouseMove);
-  }
-});
-
 // Holographic light position based on rotation
 const holoLightX = computed(() => {
   // Map rotateY (-20 to 20) to light position (0 to 100)
