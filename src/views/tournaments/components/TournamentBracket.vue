@@ -28,7 +28,7 @@ const hasBracket = computed(() => !!props.tournament.challongeUrl);
       </div>
 
       <!-- Bracket iframe -->
-      <div class="relative w-full" style="padding-bottom: 56.25%;">
+      <div class="bracket-container">
         <iframe 
           :src="tournament.challongeUrl + '/module'"
           class="absolute top-0 left-0 w-full h-full rounded-lg border border-white/10 bg-ink-900/30"
@@ -40,3 +40,10 @@ const hasBracket = computed(() => !!props.tournament.challongeUrl);
     </Card>
   </div>
 </template>
+
+<style scoped>
+.bracket-container {
+  @apply relative w-full;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio for iframe */
+}
+</style>

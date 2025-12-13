@@ -188,6 +188,7 @@ const openBracket = () => {
         <div class="grid gap-4 md:grid-cols-2">
           <div class="space-y-2">
             <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Type de tournoi</label>
+            <!-- Note: option values must be in English as required by Challonge API -->
             <select v-model="bracketSettings.tournamentType" class="form-input">
               <option value="single elimination">Simple élimination</option>
               <option value="double elimination">Double élimination</option>
@@ -365,7 +366,7 @@ const openBracket = () => {
       <!-- Bracket Preview iframe -->
       <Card class="glass-panel p-6">
         <h3 class="text-lg font-bold text-white mb-4">Aperçu du bracket</h3>
-        <div class="relative w-full" style="padding-bottom: 56.25%;">
+        <div class="bracket-container">
           <iframe 
             v-if="tournament.challongeUrl"
             :src="tournament.challongeUrl + '/module'"
@@ -383,5 +384,10 @@ const openBracket = () => {
 <style scoped>
 .form-input {
   @apply w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-foam-300/50 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500 transition-all;
+}
+
+.bracket-container {
+  @apply relative w-full;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio for iframe */
 }
 </style>
