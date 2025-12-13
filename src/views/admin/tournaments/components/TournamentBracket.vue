@@ -19,8 +19,6 @@ const editingPhase = ref<TournamentPhase | null>(null);
 
 const phases = computed(() => props.tournament.phases || []);
 
-const getNextPhaseOrder = computed(() => (phases.value?.length || 0) + 1);
-
 const formatOptions: { value: TournamentFormat; label: string; description: string }[] = [
   { value: 'single-elimination', label: 'Élimination simple', description: 'Une seule défaite élimine l\'équipe' },
   { value: 'double-elimination', label: 'Élimination double', description: 'Deux défaites pour être éliminé' },
@@ -35,7 +33,7 @@ const phaseForm = ref<Partial<TournamentPhase>>({
   status: 'not-started',
   teams: [],
   matches: [],
-  order: getNextPhaseOrder.value
+  order: 1
 });
 
 const showDeleteConfirm = ref(false);
@@ -67,13 +65,14 @@ const openPhaseModal = (phase?: TournamentPhase) => {
     phaseForm.value = { ...phase };
   } else {
     editingPhase.value = null;
+    const currentPhasesLength = phases.value.length;
     phaseForm.value = {
-      name: phases.value.length === 0 ? 'Phase 1' : `Phase ${phases.value.length + 1}`,
+      name: currentPhasesLength === 0 ? 'Phase 1' : `Phase ${currentPhasesLength + 1}`,
       format: 'single-elimination',
       status: 'not-started',
       teams: [],
       matches: [],
-      order: getNextPhaseOrder.value
+      order: currentPhasesLength + 1
     };
   }
   showPhaseModal.value = true;
@@ -118,7 +117,11 @@ const handleSavePhase = async () => {
   }
 };
 
-const openDeleteConfirm = (phaseId: string) => {
+const openDeleteConfirm = (phaseId: string | undefined) => {
+  if (!phaseId) {
+    toast.error('Impossible de supprimer cette phase.');
+    return;
+  }
   phaseToDelete.value = phaseId;
   showDeleteConfirm.value = true;
 };
@@ -185,8 +188,8 @@ const phaseStatusLabel = (status: TournamentPhase['status']) => {
 
     <div v-if="phases.length > 0" class="grid gap-4">
       <Card
-        v-for="phase in phases"
-        :key="phase.id || phase.name"
+        v-for="(phase, index) in phases"
+        :key="phase.id || `phase-${index}`"
         class="glass-panel p-5 space-y-4"
       >
         <div class="flex items-start justify-between gap-4">
@@ -221,7 +224,7 @@ const phaseStatusLabel = (status: TournamentPhase['status']) => {
               <VueIcon name="bs:pencil" />
             </Button>
             <Button 
-              v-if="phase.status === 'not-started' && phase.id"
+              v-if="phase.status === 'not-started'"
               variant="ghost" 
               size="sm" 
               @click="openDeleteConfirm(phase.id)"

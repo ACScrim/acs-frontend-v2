@@ -381,7 +381,7 @@ const useAdminStore = defineStore('admin', {
         updateOneElementInArray(this.tournaments, tournament);
         return tournament;
       } catch (error: any) {
-        useToastStore().error("Error creating tournament phase:", error.message || error);
+        useToastStore().error(`Error creating tournament phase: ${error.message || error}`);
         throw error;
       }
     },
@@ -392,7 +392,7 @@ const useAdminStore = defineStore('admin', {
         updateOneElementInArray(this.tournaments, tournament);
         return tournament;
       } catch (error: any) {
-        useToastStore().error("Error updating tournament phase:", error.message || error);
+        useToastStore().error(`Error updating tournament phase: ${error.message || error}`);
         throw error;
       }
     },
@@ -403,7 +403,7 @@ const useAdminStore = defineStore('admin', {
         updateOneElementInArray(this.tournaments, tournament);
         return tournament;
       } catch (error: any) {
-        useToastStore().error("Error deleting tournament phase:", error.message || error);
+        useToastStore().error(`Error deleting tournament phase: ${error.message || error}`);
         throw error;
       }
     }
