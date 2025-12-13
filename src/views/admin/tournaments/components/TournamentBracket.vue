@@ -19,6 +19,8 @@ const editingPhase = ref<TournamentPhase | null>(null);
 
 const phases = computed(() => props.tournament.phases || []);
 
+const getNextPhaseOrder = computed(() => (phases.value?.length || 0) + 1);
+
 const formatOptions: { value: TournamentFormat; label: string; description: string }[] = [
   { value: 'single-elimination', label: 'Élimination simple', description: 'Une seule défaite élimine l\'équipe' },
   { value: 'double-elimination', label: 'Élimination double', description: 'Deux défaites pour être éliminé' },
@@ -33,8 +35,11 @@ const phaseForm = ref<Partial<TournamentPhase>>({
   status: 'not-started',
   teams: [],
   matches: [],
-  order: (phases.value?.length || 0) + 1
+  order: getNextPhaseOrder.value
 });
+
+const showDeleteConfirm = ref(false);
+const phaseToDelete = ref<string | null>(null);
 
 const getFormatLabel = (format: TournamentFormat) => {
   return formatOptions.find(f => f.value === format)?.label || format;
@@ -68,7 +73,7 @@ const openPhaseModal = (phase?: TournamentPhase) => {
       status: 'not-started',
       teams: [],
       matches: [],
-      order: (phases.value?.length || 0) + 1
+      order: getNextPhaseOrder.value
     };
   }
   showPhaseModal.value = true;
@@ -97,8 +102,9 @@ const handleSavePhase = async () => {
       matches: phaseForm.value.matches || []
     } as TournamentPhase;
 
-    if (editingPhase.value?.id) {
-      await adminStore.updateTournamentPhase(route.params.id as string, editingPhase.value.id, phaseData);
+    const phaseId = editingPhase.value?.id;
+    if (phaseId) {
+      await adminStore.updateTournamentPhase(route.params.id as string, phaseId, phaseData);
       toast.success('Phase mise à jour avec succès.');
     } else {
       await adminStore.createTournamentPhase(route.params.id as string, phaseData);
@@ -112,17 +118,27 @@ const handleSavePhase = async () => {
   }
 };
 
-const handleDeletePhase = async (phaseId: string) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer cette phase ?')) {
-    return;
-  }
+const openDeleteConfirm = (phaseId: string) => {
+  phaseToDelete.value = phaseId;
+  showDeleteConfirm.value = true;
+};
+
+const closeDeleteConfirm = () => {
+  showDeleteConfirm.value = false;
+  phaseToDelete.value = null;
+};
+
+const handleDeletePhase = async () => {
+  if (!phaseToDelete.value) return;
 
   try {
-    await adminStore.deleteTournamentPhase(route.params.id as string, phaseId);
+    await adminStore.deleteTournamentPhase(route.params.id as string, phaseToDelete.value);
     toast.success('Phase supprimée avec succès.');
     emit('saved');
   } catch (error) {
     toast.error('Erreur lors de la suppression de la phase.');
+  } finally {
+    closeDeleteConfirm();
   }
 };
 
@@ -205,10 +221,10 @@ const phaseStatusLabel = (status: TournamentPhase['status']) => {
               <VueIcon name="bs:pencil" />
             </Button>
             <Button 
-              v-if="phase.status === 'not-started'"
+              v-if="phase.status === 'not-started' && phase.id"
               variant="ghost" 
               size="sm" 
-              @click="handleDeletePhase(phase.id!)"
+              @click="openDeleteConfirm(phase.id)"
               class="text-red-400 hover:text-red-300"
             >
               <VueIcon name="bs:trash" />
@@ -300,6 +316,43 @@ const phaseStatusLabel = (status: TournamentPhase['status']) => {
             </Button>
           </div>
         </form>
+      </Card>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteConfirm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      @click.self="closeDeleteConfirm"
+    >
+      <Card class="glass-panel w-full max-w-md p-6 space-y-6">
+        <div class="flex items-start gap-3">
+          <div class="p-3 bg-red-500/10 rounded-lg">
+            <VueIcon name="bs:exclamation-triangle" class="text-2xl text-red-400" />
+          </div>
+          <div class="flex-1">
+            <h2 class="hero-title text-xl text-white mb-2">Confirmer la suppression</h2>
+            <p class="text-sm text-foam-300/80">
+              Êtes-vous sûr de vouloir supprimer cette phase ? Cette action est irréversible.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 border-t border-white/5 pt-4">
+          <Button 
+            @click="handleDeletePhase"
+            class="flex-1 bg-red-500 hover:bg-red-600"
+          >
+            Supprimer
+          </Button>
+          <Button 
+            variant="ghost" 
+            class="flex-1" 
+            @click="closeDeleteConfirm"
+          >
+            Annuler
+          </Button>
+        </div>
       </Card>
     </div>
   </div>
