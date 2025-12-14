@@ -355,16 +355,37 @@ export interface AcsdleCompletion {
 }
 
 export interface ChallongeBracketSettings {
-  tournamentType?: 'single elimination' | 'double elimination' | 'round robin' | 'swiss';
-  showRounds?: boolean;
-  privateOnly?: boolean;
-  notifyUsersWhenMatchesOpen?: boolean;
-  notifyUsersWhenTheTournamentEnds?: boolean;
-  sequentialPairings?: boolean;
-  signupCap?: number;
-  startAt?: string;
-  checkInDuration?: number;
-  description?: string;
+  tournamentType: 'single elimination' | 'double elimination' | 'round robin' | 'swiss' | 'free for all';
+  groupStageEnabled: boolean;
+  groupStage?: {
+    type?: 'round robin' | 'single elimination' | 'double elimination';
+    groupSize?: number;
+    participantCountToAdvancePerGroup?: number;
+    rrIterations?: number;
+    rankedBy?: '' | 'match wins' | 'game wins' | 'game win percentage' | 'points scored' | 'points difference';
+  };
+  doubleElimination?: {
+    splitParticipants?: boolean;
+    grandFinalsModifier?: '' | 'skip' | 'single match';
+  };
+  roundRobin?: {
+    iterations?: number;
+    ranking?: '' | 'match wins' | 'game wins' | 'game win percentage' | 'points scored' | 'points difference';
+    ptsForGameWin?: number;
+    ptsForGameTie?: number;
+    ptsForMatchWin?: number;
+    ptsForMatchTie?: number;
+  };
+  swiss?: {
+    rounds?: number;
+    ptsForGameWin?: number;
+    ptsForGameTie?: number;
+    ptsForMatchWin?: number;
+    ptsForMatchTie?: number;
+  };
+  freeForAll?: {
+    maxParticipants?: number;
+  };
 }
 
 export interface ChallongeBracketResponse {

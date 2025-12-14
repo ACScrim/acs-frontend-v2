@@ -19,14 +19,38 @@ const hasBracket = computed(() => !!props.tournament.challongeUrl);
 
 const bracketSettings = reactive<ChallongeBracketSettings>({
   tournamentType: 'single elimination',
-  showRounds: true,
-  privateOnly: false,
-  notifyUsersWhenMatchesOpen: true,
-  notifyUsersWhenTheTournamentEnds: true,
-  sequentialPairings: false,
-  signupCap: props.tournament.playerCap || undefined,
-  description: props.tournament.description || '',
+  groupStageEnabled: false,
+  groupStage: {
+    type: 'round robin',
+    groupSize: undefined,
+    participantCountToAdvancePerGroup: undefined,
+    rrIterations: 1,
+    rankedBy: '',
+  },
+  doubleElimination: {
+    splitParticipants: false,
+    grandFinalsModifier: '',
+  },
+  roundRobin: {
+    iterations: 1,
+    ranking: 'match wins',
+    ptsForGameWin: 1,
+    ptsForGameTie: 0,
+    ptsForMatchWin: 1,
+    ptsForMatchTie: 0,
+  },
+  swiss: {
+    rounds: 1,
+    ptsForGameWin: 1,
+    ptsForGameTie: 0,
+    ptsForMatchWin: 1,
+    ptsForMatchTie: 0,
+  },
+  freeForAll: {
+    maxParticipants: undefined,
+  },
 });
+
 
 const handleCreateBracket = async () => {
   if (!props.tournament.teamsPublished) {
@@ -47,83 +71,6 @@ const handleCreateBracket = async () => {
     }
   } catch (error) {
     toast.error('Erreur lors de la création du bracket Challonge.');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleUpdateBracket = async () => {
-  try {
-    loading.value = true;
-    await adminStore.updateChallongeBracket(props.tournament.id);
-    toast.success('Bracket Challonge mis à jour avec succès!');
-    emit('updated');
-  } catch (error) {
-    toast.error('Erreur lors de la mise à jour du bracket.');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleStartBracket = async () => {
-  if (!confirm('Êtes-vous sûr de vouloir démarrer le tournoi sur Challonge ? Cette action est irréversible.')) {
-    return;
-  }
-
-  try {
-    loading.value = true;
-    await adminStore.startChallongeBracket(props.tournament.id);
-    toast.success('Tournoi démarré sur Challonge!');
-    emit('updated');
-  } catch (error) {
-    toast.error('Erreur lors du démarrage du tournoi.');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleFinalizeBracket = async () => {
-  if (!confirm('Êtes-vous sûr de vouloir finaliser le tournoi sur Challonge ? Cette action est irréversible.')) {
-    return;
-  }
-
-  try {
-    loading.value = true;
-    await adminStore.finalizeChallongeBracket(props.tournament.id);
-    toast.success('Tournoi finalisé sur Challonge!');
-    emit('updated');
-  } catch (error) {
-    toast.error('Erreur lors de la finalisation du tournoi.');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleSyncResults = async () => {
-  try {
-    loading.value = true;
-    await adminStore.syncChallongeResults(props.tournament.id);
-    toast.success('Résultats synchronisés depuis Challonge!');
-    emit('updated');
-  } catch (error) {
-    toast.error('Erreur lors de la synchronisation des résultats.');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleDeleteBracket = async () => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer le bracket Challonge ? Cette action est irréversible.')) {
-    return;
-  }
-
-  try {
-    loading.value = true;
-    await adminStore.deleteChallongeBracket(props.tournament.id);
-    toast.success('Bracket Challonge supprimé avec succès!');
-    emit('updated');
-  } catch (error) {
-    toast.error('Erreur lors de la suppression du bracket.');
   } finally {
     loading.value = false;
   }
@@ -184,100 +131,265 @@ const openBracket = () => {
       <!-- Create Form -->
       <Card v-if="showCreateForm" class="glass-panel p-6 space-y-4">
         <h3 class="text-lg font-bold text-white mb-4">Configuration du bracket</h3>
-        
-        <div class="grid gap-4 md:grid-cols-2">
+
+        <!-- Type de tournoi -->
+        <div class="space-y-2">
+          <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Type de tournoi</label>
+          <select v-model="bracketSettings.tournamentType" class="form-input">
+            <option value="single elimination">Simple élimination</option>
+            <option value="double elimination">Double élimination</option>
+            <option value="round robin">Round Robin</option>
+            <option value="swiss">Swiss</option>
+            <option value="free for all">Free for all</option>
+          </select>
+        </div>
+
+        <!-- Phase de groupes -->
+        <div class="space-y-3 pt-2">
+          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
+            <input
+                type="checkbox"
+                v-model="bracketSettings.groupStageEnabled"
+                class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
+            />
+            Activer la phase de groupes
+          </label>
+
+          <!-- Paramètres de phase de groupes -->
+          <div v-if="bracketSettings.groupStageEnabled" class="ml-6 space-y-3 p-4 bg-white/5 rounded-lg border border-white/10">
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Type de phase de groupes</label>
+              <select v-model="bracketSettings.groupStage!.type" class="form-input">
+                <option value="">Sélectionner...</option>
+                <option value="round robin">Round Robin</option>
+                <option value="swiss">Swiss</option>
+              </select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Taille des groupes</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.groupStage!.groupSize"
+                  class="form-input"
+                  min="2"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Participants à avancer par groupe</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.groupStage!.participantCountToAdvancePerGroup"
+                  class="form-input"
+                  min="1"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Itérations Round Robin</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.groupStage!.rrIterations"
+                  class="form-input"
+                  min="1"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Classement par</label>
+              <select v-model="bracketSettings.groupStage!.rankedBy" class="form-input">
+                <option value="">Par défaut</option>
+                <option value="match wins">Victoires de matchs</option>
+                <option value="game wins">Victoires de jeux</option>
+                <option value="game win percentage">Pourcentage de victoires de jeux</option>
+                <option value="points scored">Points marqués</option>
+                <option value="points difference">Différence de points</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paramètres Double Élimination -->
+        <div v-if="bracketSettings.tournamentType === 'double elimination'" class="space-y-3 p-4 bg-white/5 rounded-lg border border-white/10">
+          <h4 class="text-sm font-semibold text-foam-200">Double élimination</h4>
+
+          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
+            <input
+                type="checkbox"
+                v-model="bracketSettings.doubleElimination!.splitParticipants"
+                class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
+            />
+            Diviser les participants
+          </label>
+
           <div class="space-y-2">
-            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Type de tournoi</label>
-            <!-- Note: option values must be in English as required by Challonge API -->
-            <select v-model="bracketSettings.tournamentType" class="form-input">
-              <option value="single elimination">Simple élimination</option>
-              <option value="double elimination">Double élimination</option>
-              <option value="round robin">Round Robin</option>
-              <option value="swiss">Swiss</option>
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Modifier les grandes finales</label>
+            <select v-model="bracketSettings.doubleElimination!.grandFinalsModifier" class="form-input">
+              <option value="">Aucun</option>
+              <option value="skip">Ignorer</option>
+              <option value="single match">Un seul match</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Paramètres Round Robin -->
+        <div v-if="bracketSettings.tournamentType === 'round robin'" class="space-y-3 p-4 bg-white/5 rounded-lg border border-white/10">
+          <h4 class="text-sm font-semibold text-foam-200">Round Robin</h4>
+
+          <div class="space-y-2">
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Itérations</label>
+            <input
+                type="number"
+                v-model.number="bracketSettings.roundRobin!.iterations"
+                class="form-input"
+                min="1"
+                max="3"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Classement par</label>
+            <select v-model="bracketSettings.roundRobin!.ranking" class="form-input">
+              <option value="">Par défaut</option>
+              <option value="match wins">Victoires de matchs</option>
+              <option value="game wins">Victoires de jeux</option>
+              <option value="game win percentage">Pourcentage de victoires de jeux</option>
+              <option value="points scored">Points marqués</option>
+              <option value="points difference">Différence de points</option>
             </select>
           </div>
 
+          <div class="grid gap-3 md:grid-cols-2">
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points victoire jeu</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.roundRobin!.ptsForGameWin"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points égalité jeu</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.roundRobin!.ptsForGameTie"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points victoire match</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.roundRobin!.ptsForMatchWin"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points égalité match</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.roundRobin!.ptsForMatchTie"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Paramètres Swiss -->
+        <div v-if="bracketSettings.tournamentType === 'swiss'" class="space-y-3 p-4 bg-white/5 rounded-lg border border-white/10">
+          <h4 class="text-sm font-semibold text-foam-200">Swiss</h4>
+
           <div class="space-y-2">
-            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Limite de joueurs</label>
-            <input 
-              type="number" 
-              v-model.number="bracketSettings.signupCap" 
-              class="form-input"
-              min="2"
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Nombre de rounds</label>
+            <input
+                type="number"
+                v-model.number="bracketSettings.swiss!.rounds"
+                class="form-input"
+                min="1"
+            />
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-2">
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points victoire jeu</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.swiss!.ptsForGameWin"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points égalité jeu</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.swiss!.ptsForGameTie"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points victoire match</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.swiss!.ptsForMatchWin"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Points égalité match</label>
+              <input
+                  type="number"
+                  v-model.number="bracketSettings.swiss!.ptsForMatchTie"
+                  class="form-input"
+                  min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Paramètres Free for All -->
+        <div v-if="bracketSettings.tournamentType === 'free for all'" class="space-y-3 p-4 bg-white/5 rounded-lg border border-white/10">
+          <h4 class="text-sm font-semibold text-foam-200">Free for all</h4>
+
+          <div class="space-y-2">
+            <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Nombre maximal de participants</label>
+            <input
+                type="number"
+                v-model.number="bracketSettings.freeForAll!.maxParticipants"
+                class="form-input"
+                min="2"
             />
           </div>
         </div>
 
-        <div class="space-y-2">
-          <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Description</label>
-          <textarea 
-            v-model="bracketSettings.description" 
-            class="form-input min-h-[100px]"
-            placeholder="Description du tournoi sur Challonge..."
-          ></textarea>
-        </div>
-
-        <div class="space-y-3 pt-2">
-          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
-            <input 
-              type="checkbox" 
-              v-model="bracketSettings.showRounds"
-              class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
-            />
-            Afficher les rounds
-          </label>
-
-          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
-            <input 
-              type="checkbox" 
-              v-model="bracketSettings.privateOnly"
-              class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
-            />
-            Bracket privé
-          </label>
-
-          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
-            <input 
-              type="checkbox" 
-              v-model="bracketSettings.notifyUsersWhenMatchesOpen"
-              class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
-            />
-            Notifier les utilisateurs à l'ouverture des matchs
-          </label>
-
-          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
-            <input 
-              type="checkbox" 
-              v-model="bracketSettings.notifyUsersWhenTheTournamentEnds"
-              class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
-            />
-            Notifier les utilisateurs à la fin du tournoi
-          </label>
-
-          <label class="flex items-center gap-3 text-sm text-foam-200 cursor-pointer">
-            <input 
-              type="checkbox" 
-              v-model="bracketSettings.sequentialPairings"
-              class="w-4 h-4 rounded border-white/20 bg-white/5 text-accent-500 focus:ring-accent-500"
-            />
-            Appariements séquentiels
-          </label>
-        </div>
-
+        <!-- Boutons d'action -->
         <div class="flex gap-3 pt-4">
-          <Button 
-            @click="handleCreateBracket"
-            :disabled="loading"
-            class="flex-1 flex items-center justify-center gap-2"
+          <Button
+              @click="handleCreateBracket"
+              :disabled="loading"
+              class="flex-1 flex items-center justify-center gap-2"
           >
             <VueIcon v-if="!loading" name="bs:check-lg" />
             <VueIcon v-else name="ri:loader-4-line" class="animate-spin" />
             {{ loading ? 'Création en cours...' : 'Créer le bracket' }}
           </Button>
-          <Button 
-            @click="showCreateForm = false"
-            variant="secondary"
-            :disabled="loading"
+          <Button
+              @click="showCreateForm = false"
+              variant="secondary"
+              :disabled="loading"
           >
             Annuler
           </Button>
@@ -310,57 +422,6 @@ const openBracket = () => {
             </div>
           </div>
         </div>
-
-        <!-- Bracket Actions -->
-        <div class="grid gap-3 md:grid-cols-2">
-          <Button 
-            @click="handleUpdateBracket"
-            :disabled="loading"
-            class="flex items-center justify-center gap-2"
-            variant="secondary"
-          >
-            <VueIcon name="bs:arrow-repeat" />
-            Mettre à jour
-          </Button>
-
-          <Button 
-            @click="handleStartBracket"
-            :disabled="loading"
-            class="flex items-center justify-center gap-2"
-          >
-            <VueIcon name="bs:play-fill" />
-            Démarrer le tournoi
-          </Button>
-
-          <Button 
-            @click="handleSyncResults"
-            :disabled="loading"
-            class="flex items-center justify-center gap-2"
-            variant="secondary"
-          >
-            <VueIcon name="bs:arrow-down-up" />
-            Synchroniser résultats
-          </Button>
-
-          <Button 
-            @click="handleFinalizeBracket"
-            :disabled="loading"
-            class="flex items-center justify-center gap-2"
-          >
-            <VueIcon name="bs:flag-fill" />
-            Finaliser
-          </Button>
-
-          <Button 
-            @click="handleDeleteBracket"
-            :disabled="loading"
-            class="flex items-center justify-center gap-2 md:col-span-2"
-            variant="secondary"
-          >
-            <VueIcon name="bs:trash" />
-            Supprimer le bracket
-          </Button>
-        </div>
       </Card>
 
       <!-- Bracket Preview iframe -->
@@ -380,10 +441,6 @@ const openBracket = () => {
 </template>
 
 <style scoped>
-.form-input {
-  @apply w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-foam-300/50 focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500 transition-all;
-}
-
 .bracket-container {
   @apply relative w-full;
   padding-bottom: 56.25%; /* 16:9 aspect ratio for iframe */
