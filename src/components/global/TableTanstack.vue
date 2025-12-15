@@ -50,7 +50,7 @@ const headerMap = computed(() => {
       <tbody class="block md:table-row-group">
         <!-- chaque ligne devient un "card" sur mobile -->
         <tr
-          v-for="(row, idx) in table.getRowModel().rows"
+          v-for="(row, _) in table.getRowModel().rows"
           :key="row.id"
           class="block md:table-row md:border-t md:border-white/5 md:even:bg-white/2.5 mb-3 md:mb-0 rounded-lg md:rounded-none bg-white/5 md:bg-transparent overflow-hidden md:overflow-visible"
         >

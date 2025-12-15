@@ -33,8 +33,8 @@ const isAdmin = computed(() => userStore.isAdmin);
     <transition
       v-if="isAdmin"
       name="slide-up"
-      @enter="(el) => el.style.height = el.scrollHeight + 'px'"
-      @leave="(el) => el.style.height = '0'"
+      @enter="(el) => (el as any).style.height = el.scrollHeight + 'px'"
+      @leave="(el) => (el as any).style.height = '0'"
     >
       <div
         v-show="isAdminMenuOpen"

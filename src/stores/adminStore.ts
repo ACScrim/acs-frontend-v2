@@ -385,51 +385,6 @@ const useAdminStore = defineStore('admin', {
         useToastStore().error("Error creating Challonge bracket:", error.message || error);
         throw error;
       }
-    },
-    async updateChallongeBracket(tournamentId: string): Promise<void> {
-      try {
-        await challongeService.updateBracket(tournamentId);
-        await this.fetchTournamentDetails(tournamentId);
-      } catch (error: any) {
-        useToastStore().error("Error updating Challonge bracket:", error.message || error);
-        throw error;
-      }
-    },
-    async startChallongeBracket(tournamentId: string): Promise<void> {
-      try {
-        await challongeService.startBracket(tournamentId);
-        await this.fetchTournamentDetails(tournamentId);
-      } catch (error: any) {
-        useToastStore().error("Error starting Challonge bracket:", error.message || error);
-        throw error;
-      }
-    },
-    async finalizeChallongeBracket(tournamentId: string): Promise<void> {
-      try {
-        await challongeService.finalizeBracket(tournamentId);
-        await this.fetchTournamentDetails(tournamentId);
-      } catch (error: any) {
-        useToastStore().error("Error finalizing Challonge bracket:", error.message || error);
-        throw error;
-      }
-    },
-    async deleteChallongeBracket(tournamentId: string): Promise<void> {
-      try {
-        await challongeService.deleteBracket(tournamentId);
-        await this.fetchTournamentDetails(tournamentId);
-      } catch (error: any) {
-        useToastStore().error("Error deleting Challonge bracket:", error.message || error);
-        throw error;
-      }
-    },
-    async syncChallongeResults(tournamentId: string): Promise<void> {
-      try {
-        await challongeService.syncResults(tournamentId);
-        await this.fetchTournamentDetails(tournamentId);
-      } catch (error: any) {
-        useToastStore().error("Error syncing Challonge results:", error.message || error);
-        throw error;
-      }
     }
   }
 })
