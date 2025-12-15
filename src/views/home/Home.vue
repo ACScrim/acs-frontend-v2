@@ -21,11 +21,6 @@ const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_UR
 
 <template>
   <div class="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] relative">
-    <!-- Logo retour accueil mobile -->
-    <RouterLink to="/" class="xl:hidden fixed top-4 left-4 z-40">
-      <img src="/acs.avif" alt="ACS" class="h-10 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)] hover:opacity-80 transition-opacity" />
-    </RouterLink>
-
     <!-- Colonne gauche : Hero + Tournoi clôturé -->
     <div class="space-y-8 flex flex-col xl:sticky xl:top-5 xl:self-start">
       <!-- Section supérieure : Programme hebdomadaire -->
