@@ -48,12 +48,6 @@ export function useCardFetchQueue(options: {
       }
       return a.timestamp - b.timestamp;
     });
-
-    // Start processing if not already
-    if (!processing.value && activeRequests.value < maxConcurrent) {
-      // Note: External code must call processBatch to actually process
-      processing.value = true;
-    }
   };
 
   /**

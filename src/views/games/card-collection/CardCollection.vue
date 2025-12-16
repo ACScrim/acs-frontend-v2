@@ -66,7 +66,7 @@ const handleMouseHoverPreview = async (card: Card) => {
   
   // Add to queue with high priority (user is hovering)
   fetchQueue.enqueue(card.id, 10);
-  
+
   // Process the queue
   if (!fetchQueue.processing.value) {
     isLoadingFullCard.value = true;
@@ -83,6 +83,7 @@ const handleMouseHoverPreview = async (card: Card) => {
       useToastStore().error('Erreur lors du chargement des cartes.');
     } finally {
       isLoadingFullCard.value = false;
+      fetchQueue.processing.value = false;
     }
   }
 };
