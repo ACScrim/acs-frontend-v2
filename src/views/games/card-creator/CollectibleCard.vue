@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useIntersectionObserver } from '@vueuse/core';
 import type {CollectibleCard} from "@/types/models";
 
 // Taille de base de la carte (référence)
@@ -7,11 +8,19 @@ const BASE_WIDTH = 250;
 const BASE_HEIGHT = 378;
 const ASPECT_RATIO = BASE_HEIGHT / BASE_WIDTH; // ~1.512
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   card: CollectibleCard,
   interactive?: boolean,
-  maxWidth?: number // Largeur maximale en pixels
-}>();
+  maxWidth?: number, // Largeur maximale en pixels
+  lazyLoad?: boolean // Enable lazy loading for performance
+}>(), {
+  interactive: false,
+  lazyLoad: false
+});
+
+// Lazy loading state
+const isVisible = ref(!props.lazyLoad); // If not lazy loading, always visible
+const hasBeenVisible = ref(!props.lazyLoad); // Track if card has been visible at least once
 
 // Calcul du scale factor basé sur maxWidth
 const scaleFactor = computed(() => {
@@ -128,7 +137,9 @@ const hasImageBackground = computed(() => {
 
 // Check if holographic effect should be shown
 const showHolographic = computed(() => {
-  return hasImageBorder.value || props.card.holographicEffect;
+  // Only show holographic effect when hovered (if interactive) or always (if not interactive)
+  const shouldShow = hasImageBorder.value || props.card.holographicEffect;
+  return shouldShow && (!props.interactive || isHovered.value);
 });
 
 // Holographic intensity (0 to 1)
@@ -240,6 +251,25 @@ const handleMouseLeave = () => {
 };
 
 onMounted(() => {
+  if (props.lazyLoad && cardRef.value) {
+    useIntersectionObserver(
+      cardRef,
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          isVisible.value = true;
+          hasBeenVisible.value = true;
+        } else if (entry) {
+          isVisible.value = false;
+        }
+      },
+      {
+        threshold: 0.01,
+        rootMargin: '50px'
+      }
+    );
+  }
+  
   if (props.interactive) {
     window.addEventListener('mousemove', handleMouseMove);
   }
@@ -260,16 +290,23 @@ onUnmounted(() => {
     ref="cardRef"
     class="collectible-card relative rounded-md overflow-hidden cursor-pointer transition-all duration-200 ease-out"
     :class="[
-      { 'shadow-2xl scale-105': isHovered }
+      { 'shadow-2xl scale-105': isHovered },
+      { 'card-loading': !hasBeenVisible }
     ]"
     :style="{
       ...cardStyle,
       width: `${cardWidth}px`,
       height: `${cardHeight}px`,
+      contain: 'layout style paint'
     }"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- Loading skeleton -->
+    <div v-if="!hasBeenVisible" class="absolute inset-0 bg-white/5 animate-pulse" />
+    
+    <!-- Card content - only render if visible or has been visible -->
+    <template v-if="hasBeenVisible">
     <!-- Image-based background (for UI Kit backgrounds like Nebula, Hex, Amber Liquid) -->
     <div
       v-if="hasImageBackground && backgroundLayerStyle"
@@ -280,7 +317,7 @@ onUnmounted(() => {
     
     <!-- Holographic overlay effect for UI Kit items -->
     <div 
-      v-if="showHolographic"
+      v-if="showHolographic && isVisible"
       class="holographic-overlay absolute inset-0 pointer-events-none z-40 rounded-md"
       :style="{
         opacity: holoIntensity,
@@ -318,6 +355,8 @@ onUnmounted(() => {
           class="w-full h-full rounded-lg"
           :style="{ objectFit: imageObjectFit }"
           :class="{ 'remove-bg-image': props.card.removeImageBg }"
+          loading="lazy"
+          decoding="async"
         />
         <div 
           v-else 
@@ -385,6 +424,7 @@ onUnmounted(() => {
         {{ customText.content }}
       </p>
     </div>
+    </template>
   </div>
 </template>
 
@@ -394,6 +434,12 @@ onUnmounted(() => {
   box-shadow: 
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  /* CSS containment for better performance */
+  contain: layout style paint;
+}
+
+.card-loading {
+  pointer-events: none;
 }
 
 .collectible-card::before {
@@ -436,6 +482,14 @@ onUnmounted(() => {
   mix-blend-mode: overlay;
   animation: holo-shift 4s ease-in-out infinite;
   pointer-events: none;
+  /* Pause animation if user prefers reduced motion */
+  will-change: filter, background-position;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holographic-overlay {
+    animation: none;
+  }
 }
 
 @keyframes holo-shift {
