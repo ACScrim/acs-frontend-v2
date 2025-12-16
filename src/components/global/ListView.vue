@@ -1,8 +1,8 @@
 <script setup lang="ts" generic="T extends { id: string }">
-import {ref, computed, watch} from 'vue';
-import { Card } from '../ui';
+import {computed, ref} from 'vue';
+import {Card} from '../ui';
 import Paginator from '../ui/Paginator.vue';
-import { RouterLink } from 'vue-router';
+import {RouterLink} from 'vue-router';
 
 
 const props = withDefaults(defineProps<{

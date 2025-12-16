@@ -26,7 +26,6 @@ const modalRef = ref<HTMLDivElement | null>(null);
 
 const boosterState = ref<'closed' | 'pulling' | 'opened'>('closed');
 const pullingProgress = ref(0);
-const pullStartX = ref(0);
 const isPointerDown = ref(false);
 const tearThreshold = 0.72;
 
