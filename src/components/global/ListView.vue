@@ -14,12 +14,14 @@ const props = withDefaults(defineProps<{
   maxCols?: number;
   paginate?: boolean;
   itemsPerPage?: number;
+  justifyCenter?: boolean;
 }>(), {
   data: () => [],
   emptyTitle: 'Aucun élément trouvé',
   maxCols: 3,
   paginate: false,
   itemsPerPage: 9,
+  justifyCenter: false,
 });
 
 const currentPage = ref(1);
@@ -61,7 +63,7 @@ const emit = defineEmits<{
     </div>
 
     <template v-if="data.length > 0">
-      <div :class="getGridColsClass()" class="gap-6 justify-items-center">
+      <div :class="`${getGridColsClass()} ${justifyCenter ? 'justify-center' : ''}`" class="gap-6">
         <slot name="add-preprend" />
         <RouterLink
           v-if="to"

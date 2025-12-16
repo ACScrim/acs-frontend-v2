@@ -162,6 +162,7 @@ watch(page, (newPage) => {
         :itemsPerPage="9"
         :max-cols="3"
         @updateCurrentPage="p => page = p"
+        justify-center
       >
         <template #item="{ item: card }">
           <div class="w-[250px]">
