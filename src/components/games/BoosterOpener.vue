@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { useTransition, TransitionPresets } from '@vueuse/core';
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import CollectibleCard from "@/views/games/card-creator/CollectibleCard.vue";
-import type { CollectibleCard as Card} from "@/types/models";
+import type {CollectibleCard as Card} from "@/types/models";
 
 interface Props {
   isOpen: boolean;
@@ -27,16 +26,9 @@ const modalRef = ref<HTMLDivElement | null>(null);
 
 const boosterState = ref<'closed' | 'pulling' | 'opened'>('closed');
 const pullingProgress = ref(0);
-const pullStartY = ref(0);
 const pullStartX = ref(0);
 const isPointerDown = ref(false);
 const tearThreshold = 0.72;
-
-const tearSpring = useTransition(pullingProgress, {
-  duration: 260,
-  transition: TransitionPresets.easeOutExpo,
-});
-const tearMotion = computed(() => tearSpring.value);
 
 const cinematicFlash = ref(false);
 const shimmerProgress = ref(0);
@@ -96,49 +88,11 @@ const completePullIfNeeded = () => {
   }
 };
 
-const updateDrag = (clientX?: number) => {
-  if (!isPointerDown.value || boosterState.value !== 'closed') return;
-
-  // Déplacement vers la gauche = positif (comme arracher un booster)
-  const resolvedX = clientX ?? pullStartX.value;
-  const deltaX = pullStartX.value - resolvedX;
-  pullingProgress.value = Math.max(0, Math.min(1, deltaX / 150));
-};
-
 const handlePointerRelease = () => {
   if (!isPointerDown.value) return;
   resetPointerState();
   completePullIfNeeded();
 };
-
-const handleMouseDown = (event: MouseEvent) => {
-  if (boosterState.value !== 'closed') return;
-  event.preventDefault();
-  isPointerDown.value = true;
-  pullStartY.value = event.clientY;
-  pullStartX.value = event.clientX;
-};
-
-const handleMouseMove = (event: MouseEvent) => updateDrag(event.clientX);
-const handleMouseUp = () => handlePointerRelease();
-
-const handleTouchStart = (event: TouchEvent) => {
-  if (boosterState.value !== 'closed') return;
-  const touch = event.touches[0];
-  if (!touch) return;
-  isPointerDown.value = true;
-  pullStartY.value = touch.clientY;
-  pullStartX.value = touch.clientX;
-};
-
-const handleTouchMove = (event: TouchEvent) => {
-  if (!isPointerDown.value) return;
-  const touch = event.touches[0];
-  if (!touch) return;
-  updateDrag(touch.clientX);
-};
-
-const handleTouchEnd = () => handlePointerRelease();
 
 const handleKeyboardShortcut = (event: KeyboardEvent) => {
   if (!props.isOpen) return;
@@ -229,8 +183,6 @@ onBeforeUnmount(() => {
       aria-label="Ouverture du booster"
       @keydown="handleKeyboardShortcut"
       class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-4"
-      @mouseup="handleMouseUp"
-      @mouseleave="handleMouseUp"
     >
       <p class="sr-only" aria-live="polite">{{ accessibilityStatus }}</p>
 

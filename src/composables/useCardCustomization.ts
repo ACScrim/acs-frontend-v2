@@ -9,6 +9,7 @@ export interface CustomText {
   align: 'left' | 'center' | 'right';
   color: string;
   width: 'w-full' | 'w-auto';
+  fontSize?: number;
 }
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
@@ -22,12 +23,14 @@ export interface PendingCardData {
   imageMimeType: string;
   frontAssetId?: string;
   borderAssetId?: string;
+  categoryId?: string;
   frontAssetData?: Omit<CardAsset, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> | null;
   borderAssetData?: Omit<CardAsset, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> | null;
   titlePosX: number;
   titlePosY: number;
   titleAlign: TextAlign;
   titleWidth: TextWidth;
+  titleFontSize?: number;
   removeImageBg: boolean;
   holographicEffect: boolean;
   holographicIntensity: number;
@@ -40,7 +43,6 @@ export interface PendingCardData {
   imageObjectFit: ImageObjectFit;
   rarity: Rarity;
   customTexts: CustomText[];
-  previewCardB64: string;
 }
 
 export interface CardCustomizationState {

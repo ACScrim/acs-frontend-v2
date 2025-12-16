@@ -1,19 +1,28 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {Button, Card} from '@/components/ui';
 import Modal from '@/components/global/Modal.vue';
 import CollectibleCard from './CollectibleCard.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
+import {useCardCategoryStore} from '@/stores/cardCategoryStore';
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
-import {useWindowSize} from "@vueuse/core";
-import type {CardAsset} from "@/types/models";
-import html2canvas from 'html2canvas';
-import type { CustomText, PendingCardData, TextAlign, TextWidth, ImageObjectFit, Rarity } from '@/composables/useCardCustomization';
-import type { AssetType, BorderAssetType } from '@/composables/useCardAssets';
+import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
+import type {CardAsset, CardCategory} from "@/types/models";
+import type {
+  CustomText,
+  ImageObjectFit,
+  PendingCardData,
+  Rarity,
+  TextAlign,
+  TextWidth
+} from '@/composables/useCardCustomization';
+import type {AssetType, BorderAssetType} from '@/composables/useCardAssets';
+import ACSSelect from "@/components/ui/ACSSelect.vue";
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
+const categoryStore = useCardCategoryStore();
 
 const {width} = useWindowSize();
 
@@ -40,10 +49,14 @@ const holographicEffect = ref(true);
 const holographicIntensity = ref(0.6);
 
 const cardPreviewRef = ref<HTMLDivElement | null>(null);
-const previewCardB64 = ref('');
+
+// Container ref for saved cards section
+const savedCardsContainer = ref<HTMLElement | null>(null);
+const activeTimeouts = new Set<number>();
 
 // Personnalisation - Couleurs du texte
 const titleColor = ref('#ffffff');
+const titleFontSize = ref(18);
 
 // Personnalisation - Textes personnalisés (0-5)
 const customTexts = ref<CustomText[]>([]);
@@ -58,6 +71,12 @@ const imageObjectFit = ref<ImageObjectFit>('cover');
 
 // Personnalisation - Rareté
 const rarity = ref<Rarity>('common');
+
+// Catégorie
+const selectedCategoryId = ref<string | undefined>();
+const showCreateCategoryModal = ref(false);
+const newCategoryName = ref('');
+const newCategoryDescription = ref('');
 
 const selectedFrontAssetId = ref<string | undefined>();
 const selectedBorderAssetId = ref<string | undefined>();
@@ -272,6 +291,12 @@ const isBorderAssetValid = computed(() => {
   return false;
 });
 
+const selectedCategoryName = computed(() => {
+  console.log(selectedCategoryId)
+  if (!selectedCategoryId.value) return undefined;
+  return categoryStore.categories.find(c => c.id === selectedCategoryId.value)?.name;
+});
+
 // Filtered Discord members based on search query
 const filteredDiscordMembers = computed(() => {
   if (!discordSearchQuery.value.trim()) {
@@ -458,7 +483,8 @@ const addCustomText = () => {
       posY: 50 + (customTexts.value.length * 15),
       align: 'center',
       color: '#ffffff',
-      width: 'w-full'
+      width: 'w-full',
+      fontSize: 14
     });
   }
 };
@@ -480,16 +506,65 @@ const updateCustomText = <K extends keyof CustomText>(
   }
 };
 
-const captureCardPreview = async () => {
-  if (!cardPreviewRef.value) return;
-  const canvas = await html2canvas(cardPreviewRef.value, {
-    backgroundColor: null,
-    useCORS: true,
-    width: 250,
-    height: 378
+// Category management
+const createNewCategory = async () => {
+  if (!newCategoryName.value.trim()) {
+    toastStore.error('Le nom de la catégorie est requis');
+    return;
+  }
+
+  const category = await categoryStore.createCategory(
+    newCategoryName.value,
+    newCategoryDescription.value
+  );
+
+  if (category) {
+    selectedCategoryId.value = category.id;
+    newCategoryName.value = '';
+    newCategoryDescription.value = '';
+    showCreateCategoryModal.value = false;
+    toastStore.success('Catégorie créée avec succès');
+  }
+};
+
+// Handle saved card visibility with intersection observer
+const handleSavedCardVisible = (cardId: string) => {
+  const card = cardStore.cardsPreview.find(c => c.id === cardId);
+  if (card && !cardStore.cards.find(c => c.id === cardId)?.frontAsset) {
+    cardStore.fetchFullCard(cardId);
+  }
+};
+
+// Observe saved cards when container is mounted or updated
+const observeSavedCards = () => {
+  if (!savedCardsContainer.value) return;
+
+  const cardElements = savedCardsContainer.value.querySelectorAll('[data-saved-card-id]');
+  cardElements.forEach(element => {
+    useIntersectionObserver(
+      element as HTMLElement,
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const cardId = (entry.target as HTMLElement).getAttribute('data-saved-card-id');
+            if (cardId) {
+              handleSavedCardVisible(cardId);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
   });
-  previewCardB64.value = canvas.toDataURL('image/webp', 0.75);
-}
+};
+
+// Reobserve saved cards when they change
+watch(() => cardStore.cardsPreview.length, () => {
+  const timeout = window.setTimeout(observeSavedCards, 100);
+  activeTimeouts.add(timeout);
+});
 
 const saveCard = async () => {
   if (!isFormValid.value) {
@@ -523,7 +598,6 @@ const saveCard = async () => {
     borderAssetData = buildBorderAssetData();
   }
 
-  await captureCardPreview();
   // Store card data for confirmation modal WITHOUT creating assets yet
   pendingCardData.value = {
     title: title.value,
@@ -531,12 +605,14 @@ const saveCard = async () => {
     imageMimeType: imageMimeType.value,
     frontAssetId: selectedFrontAssetId.value,
     borderAssetId: selectedBorderAssetId.value,
+    categoryId: selectedCategoryId.value,
     frontAssetData,
     borderAssetData,
     titlePosX: titlePosX.value,
     titlePosY: titlePosY.value,
     titleAlign: titleAlign.value,
     titleWidth: titleWidth.value,
+    titleFontSize: titleFontSize.value,
     removeImageBg: removeImageBg.value,
     holographicEffect: holographicEffect.value,
     holographicIntensity: holographicIntensity.value,
@@ -548,8 +624,7 @@ const saveCard = async () => {
     imageHeight: imageHeight.value,
     imageObjectFit: imageObjectFit.value,
     rarity: rarity.value,
-    customTexts: customTexts.value,
-    previewCardB64: previewCardB64.value
+    customTexts: customTexts.value
   };
 
   // Show confirmation modal
@@ -593,10 +668,12 @@ const confirmCardCreation = async () => {
       imageMimeType: pendingCardData.value.imageMimeType,
       frontAssetId: finalFrontAssetId,
       borderAssetId: finalBorderAssetId,
+      categoryId: pendingCardData.value.categoryId,
       titlePosX: pendingCardData.value.titlePosX,
       titlePosY: pendingCardData.value.titlePosY,
       titleAlign: pendingCardData.value.titleAlign,
       titleWidth: pendingCardData.value.titleWidth,
+      titleFontSize: pendingCardData.value.titleFontSize,
       removeImageBg: pendingCardData.value.removeImageBg,
       holographicEffect: pendingCardData.value.holographicEffect,
       holographicIntensity: pendingCardData.value.holographicIntensity,
@@ -608,8 +685,7 @@ const confirmCardCreation = async () => {
       imageHeight: pendingCardData.value.imageHeight,
     imageObjectFit: pendingCardData.value.imageObjectFit,
     rarity: pendingCardData.value.rarity,
-    customTexts: pendingCardData.value.customTexts,
-    previewCardB64: pendingCardData.value.previewCardB64,
+    customTexts: pendingCardData.value.customTexts
   });
 
     if (card) {
@@ -628,6 +704,7 @@ const confirmCardCreation = async () => {
       titlePosY.value = 10;
       titleAlign.value = 'center';
       titleWidth.value = 'w-full';
+      titleFontSize.value = 18;
       removeImageBg.value = false;
       holographicEffect.value = true;
       holographicIntensity.value = 0.6;
@@ -691,6 +768,7 @@ const resetForm = () => {
   titlePosY.value = 10;
   titleAlign.value = 'center';
   titleWidth.value = 'w-full';
+  titleFontSize.value = 18;
   removeImageBg.value = false;
   holographicEffect.value = true;
   holographicIntensity.value = 0.6;
@@ -713,6 +791,7 @@ onMounted(async () => {
   await cardStore.fetchCardAssets();
   await cardStore.fetchCardsPreviews();
   await cardStore.fetchDiscordAvatars();
+  await categoryStore.fetchCategories();
 });
 
 // Helper to convert image to base64 with resize if needed
@@ -833,6 +912,17 @@ watch(imageSourceType, (newType) => {
     imageUrlInput.value = '';
   }
 });
+
+onMounted(() => {
+  // Initial observation of saved cards
+  observeSavedCards();
+});
+
+onUnmounted(() => {
+  // Cleanup timeouts
+  activeTimeouts.forEach(id => clearTimeout(id));
+  activeTimeouts.clear();
+});
 </script>
 
 <template>
@@ -872,6 +962,7 @@ watch(imageSourceType, (newType) => {
                     titlePosY,
                     titleAlign,
                     titleWidth,
+                    titleFontSize,
                     removeImageBg,
                     holographicEffect,
                     holographicIntensity,
@@ -884,6 +975,10 @@ watch(imageSourceType, (newType) => {
                     imageObjectFit,
                     rarity,
                     customTexts,
+                    category: selectedCategoryId ? {
+                      id: selectedCategoryId,
+                      name: selectedCategoryName
+                    } as CardCategory : undefined,
                     createdAt: '',
                     updatedAt: ''
                   }"
@@ -901,6 +996,30 @@ watch(imageSourceType, (newType) => {
         <div class="w-full lg:w-1/2">
           <Card class="p-8 space-y-6">
           <h2 class="text-lg font-semibold text-foam-200 mb-4">Personnalisation</h2>
+
+          <!-- SECTION CATÉGORIE -->
+          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+            <h3 class="text-sm font-semibold text-foam-200">Catégorie</h3>
+
+            <!-- Category Selector -->
+            <div class="space-y-2">
+              <label class="form-label text-sm">Sélectionner ou créer une catégorie</label>
+              <div class="flex gap-2">
+                <ACSSelect
+                  v-model="selectedCategoryId"
+                  defaultOptionLabel="-- Pas de catégorie --"
+                  :options="categoryStore.categories.map(category => ({ label: category.name, value: category.id }))"
+                />
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  @click="showCreateCategoryModal = true"
+                >
+                  + Nouvelle
+                </Button>
+              </div>
+            </div>
+          </div>
 
           <!-- SECTION TITRE ET SA PERSONNALISATION -->
           <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
@@ -934,6 +1053,21 @@ watch(imageSourceType, (newType) => {
                   placeholder="#ffffff"
                   class="flex-1 form-input text-sm"
                 />
+              </div>
+            </div>
+
+            <!-- Title Font Size -->
+            <div class="space-y-2">
+              <label class="text-xs text-foam-300">Taille du titre</label>
+              <div class="flex gap-2 items-center">
+                <input
+                  v-model.number="titleFontSize"
+                  type="range"
+                  min="8"
+                  max="40"
+                  class="flex-1"
+                />
+                <span class="text-xs text-foam-300 w-12">{{ titleFontSize }}px</span>
               </div>
             </div>
 
@@ -1075,6 +1209,22 @@ watch(imageSourceType, (newType) => {
                     placeholder="#ffffff"
                     class="flex-1 form-input text-sm"
                   />
+                </div>
+              </div>
+
+              <!-- Text Font Size -->
+              <div class="space-y-2">
+                <label class="text-xs text-foam-300">Taille du texte</label>
+                <div class="flex gap-2 items-center">
+                  <input
+                    :value="text.fontSize || 14"
+                    @input="updateCustomText(index, 'fontSize', Number(($event.target as HTMLInputElement).value))"
+                    type="range"
+                    min="8"
+                    max="32"
+                    class="flex-1"
+                  />
+                  <span class="text-xs text-foam-300 w-12">{{ text.fontSize || 14 }}px</span>
                 </div>
               </div>
 
@@ -1767,24 +1917,23 @@ watch(imageSourceType, (newType) => {
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div ref="savedCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <div
             v-for="card in cardStore.cardsPreview"
             :key="card.id"
+            :data-saved-card-id="card.id"
             class="flex flex-col items-center min-w-64 w-64"
           >
             <CollectibleCard
-              v-if="cardStore.cards.find(c => c.id === card.id)"
-              :card="cardStore.cards.find(c => c.id === card.id)!"
+              :card="cardStore.cards.find(c => c.id === card.id) || {
+                id: card.id,
+                title: 'Carte non chargée',
+                imageMimeType: '',
+                createdAt: '',
+                updatedAt: ''
+              }"
+              :lazy-load="!cardStore.cards.find(c => c.id === card.id)"
               interactive
-              @mouseleave="cardStore.clearFullCardPreview(card.id)"
-            />
-            <img
-              v-else
-              :src="card.previewCardB64"
-              alt="Aperçu de la carte"
-              class="w-62.5 object-contain"
-              @mouseover="cardStore.fetchFullCard(card.id)"
             />
             <Button
               variant="danger"
@@ -1810,7 +1959,39 @@ watch(imageSourceType, (newType) => {
             Vous allez créer une nouvelle carte avec les paramètres suivants :
           </p>
 
-          <img :src="pendingCardData?.previewCardB64"  alt="Preview de la carte" width="250" height="378" class="mx-auto"/>
+          <div class="flex justify-center">
+            <CollectibleCard
+              v-if="pendingCardData"
+              :card="{
+                id: 'preview',
+                title: pendingCardData.title,
+                imageBase64: pendingCardData.imageBase64,
+                imageMimeType: pendingCardData.imageMimeType,
+                frontAsset: pendingCardData.frontAssetData ?? undefined,
+                borderAsset: pendingCardData.borderAssetData ?? undefined,
+                titlePosX: pendingCardData.titlePosX,
+                titlePosY: pendingCardData.titlePosY,
+                titleAlign: pendingCardData.titleAlign,
+                titleWidth: pendingCardData.titleWidth,
+                titleFontSize: pendingCardData.titleFontSize,
+                removeImageBg: pendingCardData.removeImageBg,
+                holographicEffect: pendingCardData.holographicEffect,
+                holographicIntensity: pendingCardData.holographicIntensity,
+                titleColor: pendingCardData.titleColor,
+                imagePosX: pendingCardData.imagePosX,
+                imagePosY: pendingCardData.imagePosY,
+                imageScale: pendingCardData.imageScale,
+                imageWidth: pendingCardData.imageWidth,
+                imageHeight: pendingCardData.imageHeight,
+                imageObjectFit: pendingCardData.imageObjectFit,
+                rarity: pendingCardData.rarity,
+                customTexts: pendingCardData.customTexts,
+                createdAt: '',
+                updatedAt: ''
+              }"
+              :interactive="false"
+            />
+          </div>
 
           <!-- Warning Message -->
           <div class="text-xs text-foam-300/70">
@@ -1835,6 +2016,59 @@ watch(imageSourceType, (newType) => {
               @click="confirmCardCreation"
             >
               Confirmer et créer
+            </Button>
+          </div>
+        </template>
+      </Modal>
+
+      <!-- Create Category Modal -->
+      <Modal :is-open="showCreateCategoryModal" @close="showCreateCategoryModal = false" class="!max-w-md">
+        <template #header>
+          <h2 class="text-lg font-semibold">Créer une nouvelle catégorie</h2>
+        </template>
+
+        <div class="space-y-4">
+          <!-- Category Name -->
+          <div class="space-y-2">
+            <label class="form-label text-sm">Nom de la catégorie *</label>
+            <input
+              v-model="newCategoryName"
+              type="text"
+              placeholder="Entrez le nom de la catégorie"
+              class="form-input w-full"
+              @keyup.enter="createNewCategory"
+            />
+          </div>
+
+          <!-- Category Description -->
+          <div class="space-y-2">
+            <label class="form-label text-sm">Description (optionnel)</label>
+            <textarea
+              v-model="newCategoryDescription"
+              placeholder="Entrez une description..."
+              rows="3"
+              class="form-input resize-none w-full"
+            />
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              @click="showCreateCategoryModal = false"
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              @click="createNewCategory"
+              :disabled="!newCategoryName.trim()"
+              :loading="categoryStore.loading"
+            >
+              Créer
             </Button>
           </div>
         </template>

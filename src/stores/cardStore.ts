@@ -6,7 +6,7 @@ import api from "@/utils/api.ts";
 const useCardStore = defineStore('cards', {
   state: () => ({
     cards: [] as CollectibleCard[],
-    cardsPreview: [] as Pick<CollectibleCard, 'id' | 'previewCardB64'| 'status'>[],
+    cardsPreview: [] as Pick<CollectibleCard, 'id' | 'status'>[],
     cardAssets: [] as CardAsset[],
     discordAvatars: [] as { id: string; username: string; avatarUrl: string }[],
     loading: false,
@@ -15,7 +15,7 @@ const useCardStore = defineStore('cards', {
     async fetchCardsPreviews() {
       this.loading = true;
       try {
-        const { data: { data: cards }} = await api.get<ApiResponse<Pick<CollectibleCard, 'id' | 'previewCardB64'| 'status'>[]>>("/games/card-creator/cards");
+        const { data: { data: cards }} = await api.get<ApiResponse<Pick<CollectibleCard, 'id' | 'status'>[]>>("/games/card-creator/cards");
         this.cardsPreview = cards;
       } catch {
         useToastStore().error("Erreur lors de la récupération des cartes.");

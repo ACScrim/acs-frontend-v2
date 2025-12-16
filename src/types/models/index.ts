@@ -276,6 +276,8 @@ export interface CollectibleCard {
   frontAsset?: CardAsset;
   borderAssetId?: string;
   borderAsset?: CardAsset;
+  categoryId?: string;
+  category?: CardCategory;
   rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   createdBy?: User;
   createdAt: string;
@@ -291,6 +293,7 @@ export interface CollectibleCard {
   holographicIntensity?: number;
   // Personnalisation - Couleurs du texte
   titleColor?: string;
+  titleFontSize?: number;
   // Personnalisation - Position et échelle de l'image
   imagePosX?: number;
   imagePosY?: number;
@@ -305,9 +308,9 @@ export interface CollectibleCard {
     align: 'left' | 'center' | 'right';
     color: string;
     width: 'w-full' | 'w-auto';
+    fontSize?: number;
   }>;
   status?: 'active' | 'inactive' | 'pending';
-  previewCardB64?: string;
   count?: number;
 }
 
@@ -317,6 +320,13 @@ export interface CardCollection {
   user: User;
   cardIds: string[];
   cards: CollectibleCard[]
+}
+
+export interface CardCategory {
+  id: string;
+  name: string;
+  description?: string;
+  createdBy?: string;
 }
 
 export interface BoosterShopItem {

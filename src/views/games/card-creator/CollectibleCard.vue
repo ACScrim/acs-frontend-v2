@@ -376,17 +376,20 @@ onUnmounted(() => {
 
       <!-- Rarity Icon (bottom of image) -->
       <div
-        class="absolute"
+        class="absolute right-1 flex flex-row items-center gap-1"
         :style="{
-          left: `95%`,
           top: `95%`,
-          transform: 'translateX(-50%)',
           fontSize: scaleFontSize(10),
           zIndex: 30,
           textShadow: '0 2px 4px rgba(0,0,0,0.8)',
         }"
       >
-        {{ rarityInfo?.icon ?? '⚪' }}
+        <!-- Category Name -->
+        <span v-if="props.card.category?.name" class="text-xs font-semibold text-white bg-black/50 px-1.5 py-0.5 rounded whitespace-nowrap">
+          {{ props.card.category.name }}
+        </span>
+        <!-- Rarity Icon -->
+        <span>{{ rarityInfo?.icon ?? '⚪' }}</span>
       </div>
 
       <!-- Title (positional) -->
@@ -399,7 +402,9 @@ onUnmounted(() => {
           textAlign: props.card.titleAlign ?? 'center',
           color: props.card.titleColor ?? '#ffffff',
           transform: 'translateX(-50%)',
-          fontSize: scaleFontSize(18),
+          fontSize: scaleFontSize(props.card.titleFontSize ?? 18),
+          whiteSpace: 'pre-wrap',
+          wordWrap: 'break-word',
         }"
       >
         {{ card.title || 'Titre de la carte' }}
@@ -418,7 +423,9 @@ onUnmounted(() => {
           textAlign: customText.align,
           color: customText.color,
           transform: 'translateX(-50%)',
-          fontSize: scaleFontSize(14),
+          fontSize: scaleFontSize(customText.fontSize ?? 14),
+          whiteSpace: 'pre-wrap',
+          wordWrap: 'break-word',
         }"
       >
         {{ customText.content }}
