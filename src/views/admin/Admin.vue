@@ -53,7 +53,7 @@ const getLogIcon = (level?: number) => {
     </div>
 
     <!-- Controls -->
-    <Card class="glass-panel space-y-4 p-6">
+    <Card class="glass-panel space-y-4 p-6 sticky top-5 z-10">
       <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div class="flex items-center gap-3 text-white">
           <VueIcon name="bs:funnel" />
@@ -78,14 +78,13 @@ const getLogIcon = (level?: number) => {
 
     <!-- Logs Container -->
     <div
-      id="logs-container"
-      class="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto pr-2"
+      class="space-y-3"
     >
       <template v-if="filteredLogs.length > 0">
         <Card
           v-for="(log, index) in filteredLogs"
           :key="index"
-          class="glass-panel border-l-4 p-4"
+          class="border-l-4 p-4"
           :class="`border-l-${getStatusVariant(log.statusCode)}`"
         >
           <!-- Header -->
@@ -140,23 +139,3 @@ const getLogIcon = (level?: number) => {
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Scrollbar personnalisée */
-#logs-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-#logs-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#logs-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--color-accent-500), var(--color-blush-500));
-  border-radius: 4px;
-}
-
-#logs-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--color-accent-300), var(--color-blush-400));
-}
-</style>

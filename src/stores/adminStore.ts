@@ -331,14 +331,15 @@ const useAdminStore = defineStore('admin', {
     // LOGS ACTIONS
     addLog(logLine: string) {
       const log = JSON.parse(logLine) as LogEntry;
-      if (this.logs.length <= 50) {
+      if (this.logs.length < 50) {
         if (!this.logs.find(l => l.reqId === log.reqId && l.time === log.time))
           this.logs.push(log);
       } else {
-        this.logs.shift();
+        this.logs.pop();
         if (!this.logs.find(l => l.reqId === log.reqId && l.time === log.time))
           this.logs.push(log);
       }
+      this.logs = this.logs.sort((a, b) => b.time - a.time)
     },
     // PROPOSAL ACTIONS
     async rejectProposal(proposalId: string) {
