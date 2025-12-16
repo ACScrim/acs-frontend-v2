@@ -1,22 +1,18 @@
 <script setup lang="ts">
 
 import useCollectionStore from "@/stores/collectionStore.ts";
-import {computed, onMounted, ref, onUnmounted} from "vue";
+import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import CollectibleCard from "@/views/games/card-creator/CollectibleCard.vue";
-import VirtualGrid from "@/components/global/VirtualGrid.vue";
-import type { CollectibleCard as Card } from "@/types/models";
-import {useToastStore} from "@/stores/toastStore.ts";
-import { useCardFetchQueue } from "@/composables/useCardFetchQueue.ts";
-import { usePerformanceMonitor } from "@/composables/usePerformanceMonitor.ts";
+import type {CollectibleCard as Card} from "@/types/models";
+import {useCardFetchQueue} from "@/composables/useCardFetchQueue.ts";
+import {usePerformanceMonitor} from "@/composables/usePerformanceMonitor.ts";
+import {storeToRefs} from "pinia";
+import ListView from "@/components/global/ListView.vue";
+import {useIntersectionObserver} from "@vueuse/core";
 
 const collectionStore = useCollectionStore();
-const cards = computed(() => collectionStore.cards);
-
-const isLoadingFullCard = ref<boolean>(false);
-
-// Constants
-const UNLOAD_DELAY_MS = 1000;
-const MIN_CACHED_CARDS = 3;
+const { cards } = storeToRefs(collectionStore);
+const page = ref(1);
 
 // Initialize performance monitoring (only in dev mode)
 const isDev = import.meta.env.DEV;
@@ -28,7 +24,7 @@ const { fps, memoryUsage } = usePerformanceMonitor({
 
 // Initialize fetch queue with batching
 const fetchQueue = useCardFetchQueue({
-  batchSize: 3,
+  batchSize: 40,
   batchDelay: 150,
   maxConcurrent: 2,
 });
@@ -46,80 +42,19 @@ const cardsMap = computed(() => {
   return map;
 });
 
+const queueProcessInterval = ref<number | null>(null);
+
 onMounted(async () => {
   await collectionStore.fetchCollection();
-});
 
-onUnmounted(() => {
-  fetchQueue.clear();
-  // Clear all pending timeouts
-  activeTimeouts.forEach(id => clearTimeout(id));
-  activeTimeouts.clear();
-});
-
-const handleMouseHoverPreview = async (card: Card) => {
-  if (isLoadingFullCard.value) {
-    useToastStore().info('Le chargement de la carte est en cours.');
-    return;
-  }
-  if (card.frontAsset) return; // Already loaded
-  
-  // Add to queue with high priority (user is hovering)
-  fetchQueue.enqueue(card.id, 10);
-
-  // Process the queue
-  if (!fetchQueue.processing.value) {
-    isLoadingFullCard.value = true;
-    try {
-      await fetchQueue.processBatch(async (cardId) => {
-        if (!collectionStore.collection) return;
-        const targetCard = cardsMap.value.get(cardId);
-        if (!targetCard || targetCard.frontAsset) return;
-        
-        await collectionStore.fetchFullCard(collectionStore.collection.id, cardId);
-      });
-    } catch (error) {
-      console.error('Error processing card batch:', error);
-      useToastStore().error('Erreur lors du chargement des cartes.');
-    } finally {
-      isLoadingFullCard.value = false;
-      fetchQueue.processing.value = false;
-    }
-  }
-};
-
-const handleMouseLeavePreview = (card: Card) => {
-  // Remove from queue if still pending
-  fetchQueue.dequeue(card.id);
-  
-  // Unload card data after a delay to free memory
-  const timeoutId = window.setTimeout(() => {
-    // Keep at least MIN_CACHED_CARDS loaded
-    if (collectionStore.listCardLoaded.length <= MIN_CACHED_CARDS) return;
-    const oldestLoadedCard = collectionStore.listCardLoaded[0];
-    if (!oldestLoadedCard) return;
-    collectionStore.unloadFullCard(oldestLoadedCard);
-    activeTimeouts.delete(timeoutId);
-  }, UNLOAD_DELAY_MS);
-  
-  activeTimeouts.add(timeoutId);
-};
-
-// Handle when card becomes visible in viewport
-const handleItemVisible = (card: Card) => {
-  if (!card.frontAsset && collectionStore.collection) {
-    cardsNeedingFullData.value.add(card.id);
-    
-    // Add to queue with lower priority (just visible, not hovered)
-    fetchQueue.enqueue(card.id, 1);
-    
+  queueProcessInterval.value = setInterval(() => {
     // Process queue if not busy
     if (!fetchQueue.processing.value && fetchQueue.activeRequests.value === 0) {
       fetchQueue.processBatch(async (cardId) => {
         if (!collectionStore.collection) return;
         const targetCard = cardsMap.value.get(cardId);
         if (!targetCard || targetCard.frontAsset) return;
-        
+
         try {
           await collectionStore.fetchFullCard(collectionStore.collection.id, cardId);
           cardsNeedingFullData.value.delete(cardId);
@@ -131,14 +66,76 @@ const handleItemVisible = (card: Card) => {
         console.error('Error processing visible card batch:', error);
       });
     }
+  }, 1000);
+});
+
+onUnmounted(() => {
+  fetchQueue.clear();
+  // Clear all pending timeouts
+  activeTimeouts.forEach(id => clearTimeout(id));
+  activeTimeouts.clear();
+  if (queueProcessInterval.value !== null) {
+    clearInterval(queueProcessInterval.value);
+    queueProcessInterval.value = null;
+  }
+});
+
+// Handle when card becomes visible in viewport
+const handleItemVisible = (card: Card) => {
+  if (!card.frontAsset && collectionStore.collection) {
+    cardsNeedingFullData.value.add(card.id);
+    // Add to queue with lower priority (just visible, not hovered)
+    fetchQueue.enqueue(card.id, 1);
   }
 };
 
-// Calculate card dimensions with gap
-const CARD_WIDTH = 250;
-const CARD_HEIGHT = 378;
-const CARD_GAP = 16;
+const cardsContainer = ref<HTMLElement>();
 
+// Observe cards when container is mounted or updated
+const observeCards = () => {
+  if (!cardsContainer.value) return;
+
+  const cardElements = cardsContainer.value.querySelectorAll('[data-card-id]');
+  console.log(cardElements)
+  cardElements.forEach(element => {
+    useIntersectionObserver(
+      element as HTMLElement,
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const cardId = (entry.target as HTMLElement).getAttribute('data-card-id');
+            if (cardId) {
+              const card = cardsMap.value.get(cardId);
+              if (card) {
+                handleItemVisible(card);
+              }
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+  });
+};
+
+// Watch for container changes and re-observe
+watch(cardsContainer, (newContainer) => {
+  if (newContainer) {
+    // Small delay to ensure DOM is ready
+    const timeout = window.setTimeout(observeCards, 100);
+    activeTimeouts.add(timeout);
+  }
+});
+
+watch(page, (newPage) => {
+  if (newPage) {
+    // Small delay to ensure DOM is ready
+    const timeout = window.setTimeout(observeCards, 100);
+    activeTimeouts.add(timeout);
+  }
+});
 </script>
 
 <template>
@@ -158,34 +155,26 @@ const CARD_GAP = 16;
     <div v-if="!collectionStore.collection" class="text-foam-300">
       Vous n'avez pas encore de cartes dans votre collection.
     </div>
-    <div v-else class="flex-1 min-h-0">
-      <VirtualGrid
-        :items="cards"
-        :item-width="CARD_WIDTH"
-        :item-height="CARD_HEIGHT"
-        :gap="CARD_GAP"
-        :overscan="2"
-        @item-visible="handleItemVisible"
+    <div v-else class="flex-1 min-h-0" ref="cardsContainer">
+      <ListView
+        :data="cards"
+        paginate
+        :itemsPerPage="9"
+        :max-cols="3"
+        @updateCurrentPage="p => page = p"
       >
         <template #item="{ item: card }">
-          <CollectibleCard
-            v-if="(card as Card).frontAsset"
-            :card="card as Card"
-            interactive
-            lazy-load
-            @mouseleave="handleMouseLeavePreview(card)"
-          />
-          <img
-            v-else
-            :src="card.previewCardB64"
-            alt="Aperçu de la carte"
-            class="w-62.5 object-contain"
-            :class="{ 'cursor-wait': isLoadingFullCard }"
-            loading="lazy"
-            @mouseover="handleMouseHoverPreview(card)"
-          />
+          <div class="w-[250px]">
+            <CollectibleCard
+              :card="card"
+              :data-card-id="card.id"
+              interactive
+              @click="handleItemVisible(card)"
+            />
+            <p class="text-end">{{ card.count }} exemplaire{{ (card.count ?? 0) > 1 ? "s" : ""}}</p>
+          </div>
         </template>
-      </VirtualGrid>
+      </ListView>
     </div>
   </div>
 </template>

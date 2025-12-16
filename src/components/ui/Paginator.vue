@@ -70,20 +70,27 @@ const visiblePages = computed(() => {
 const canGoPrevious = computed(() => currentPageComputed.value > 1);
 const canGoNext = computed(() => currentPageComputed.value < totalPages.value);
 
+const getScrollRegion = () => {
+  return document.querySelector('[data-acs-scroll-region]');
+}
+
 const goToPage = (page: number | string) => {
   if (typeof page === 'number') {
+    getScrollRegion()?.scrollTo(0,0);
     currentPageComputed.value = page;
   }
 };
 
 const goToPrevious = () => {
   if (canGoPrevious.value) {
+    getScrollRegion()?.scrollTo(0,0);
     currentPageComputed.value = currentPageComputed.value - 1;
   }
 };
 
 const goToNext = () => {
   if (canGoNext.value) {
+    getScrollRegion()?.scrollTo(0,0);
     currentPageComputed.value = currentPageComputed.value + 1;
   }
 };

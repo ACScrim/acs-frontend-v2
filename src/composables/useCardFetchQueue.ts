@@ -94,6 +94,7 @@ export function useCardFetchQueue(options: {
       }
       processingTimer = window.setTimeout(() => {
         processing.value = true;
+        processBatch(fetchFn);
       }, batchDelay);
     } else {
       processing.value = false;

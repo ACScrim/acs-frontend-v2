@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { id: string }">
-import { ref, computed } from 'vue';
+import {ref, computed, watch} from 'vue';
 import { Card } from '../ui';
 import Paginator from '../ui/Paginator.vue';
 import { RouterLink } from 'vue-router';
@@ -44,6 +44,10 @@ const getGridColsClass = () => {
       return 'grid gap-4 grid-cols-1 md:grid-cols-2 2xl:grid-cols-3';
   }
 };
+
+const emit = defineEmits<{
+  'updateCurrentPage': [page: number]
+}>();
 </script>
 
 <template>
@@ -57,7 +61,7 @@ const getGridColsClass = () => {
     </div>
 
     <template v-if="data.length > 0">
-      <div :class="`${getGridColsClass()} gap-6`">
+      <div :class="getGridColsClass()" class="gap-6 justify-items-center">
         <slot name="add-preprend" />
         <RouterLink
           v-if="to"
@@ -71,7 +75,7 @@ const getGridColsClass = () => {
         <slot v-else name="item" v-for="item in paged" :item="item" />
         <slot name="add-append" />
       </div>
-      <Paginator v-if="paginate" v-model:current-page="currentPage" :total="data.length" :items-per-page="itemsPerPage" :max-visible-pages="3" @paginate="({ limit, offset }) => pagination = { limit, offset }" />
+      <Paginator v-if="paginate" v-model:current-page="currentPage" :total="data.length" :items-per-page="itemsPerPage" :max-visible-pages="3" @paginate="({ limit, offset }) => pagination = { limit, offset }" @update:currentPage="page => emit('updateCurrentPage', page)" />
     </template>
 
     <div v-else>

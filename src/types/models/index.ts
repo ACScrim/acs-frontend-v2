@@ -308,13 +308,15 @@ export interface CollectibleCard {
   }>;
   status?: 'active' | 'inactive' | 'pending';
   previewCardB64?: string;
+  count?: number;
 }
 
 export interface CardCollection {
   id: string;
   userId: string;
   user: User;
-  cards: ({ id: string, previewCardB64: string} | CollectibleCard)[];
+  cardIds: string[];
+  cards: CollectibleCard[]
 }
 
 export interface BoosterShopItem {

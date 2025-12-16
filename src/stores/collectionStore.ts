@@ -10,7 +10,28 @@ const useCollectionStore = defineStore('collection', {
   }),
   getters: {
     cards(state): CollectibleCard[] {
-      return state.collection ? state.collection.cards as CollectibleCard[] : [];
+      return state.collection ? state.collection.cardIds.map(id => {
+        const card = state.collection?.cards.find(c => c.id === id);
+        if (card && (card as CollectibleCard).frontAsset) {
+          return card as CollectibleCard;
+        }
+        return {
+          id,
+          title: "Carte non chargée",
+          customTexts: [
+            {
+              content: "Si la carte ne se charge pas, essayez de cliquer dessus",
+              posY: 75,
+              posX: 50,
+              align: "center",
+              width: "w-full"
+            }
+          ],
+          rarity: "common",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as CollectibleCard;
+      }) : [];
     }
   },
   actions: {
@@ -24,38 +45,49 @@ const useCollectionStore = defineStore('collection', {
     },
     async fetchFullCard(collectionId: string, cardId: string) {
       try {
-        const response = await api.get<ApiResponse<CollectibleCard>>(`/card-collection/${collectionId}/cards/${cardId}`);
+        const response = await api.get<ApiResponse<CollectibleCard>>(
+          `/card-collection/${collectionId}/cards/${cardId}`
+        );
         if (!this.collection) {
           useToastStore().error("Collection non chargée.");
           return null;
         }
-        this.collection = {
-          ...this.collection,
-          cards: this.collection.cards.map(card =>
-            (card as CollectibleCard).id === cardId ? response.data.data : card
-          )
+
+        const fetched = response.data.data;
+        const existingCards = Array.isArray(this.collection.cards) ? this.collection.cards : [];
+
+        // Remplacer si trouvé, sinon préparer insertion
+        let found = false;
+        const newCards = existingCards.map(card => {
+          if (String((card as CollectibleCard).id) === String(cardId)) {
+            found = true;
+            return fetched;
+          }
+          return card;
+        });
+
+        if (!found) {
+          // Insérer à la position correspondant à cardIds si possible, sinon en fin
+          const idx = this.collection.cardIds.indexOf(cardId);
+          if (idx >= 0 && idx <= newCards.length) {
+            newCards.splice(idx, 0, fetched);
+          } else {
+            newCards.push(fetched);
+          }
         }
-        this.listCardLoaded.push(cardId);
-        return response.data.data;
+
+        // Affectation directe pour conserver la réactivité Pinia
+        this.collection.cards = newCards;
+
+        if (!this.listCardLoaded.includes(cardId)) {
+          this.listCardLoaded.push(cardId);
+        }
+
+        return fetched;
       } catch (error) {
         useToastStore().error("Erreur lors de la récupération de la carte.");
         return null;
       }
-    },
-    unloadFullCard(cardId: string) {
-      if (!this.collection) {
-        return;
-      }
-      this.collection = {
-        ...this.collection,
-        // @ts-ignore
-        cards: this.collection.cards.map(card =>
-          card.id === cardId
-            ? { id: cardId, previewCardB64: (card as CollectibleCard).previewCardB64 }
-            : card
-        )
-      }
-      this.listCardLoaded = this.listCardLoaded.filter(id => id !== cardId);
     }
   }
 })
