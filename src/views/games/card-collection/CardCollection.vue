@@ -177,5 +177,9 @@ watch(page, (newPage) => {
         </template>
       </ListView>
     </div>
+
+    <div class="text-center text-sm text-foam-400 mt-4">
+      <p>Vous avez des droits d'auteur à faire valoir ? <a href="mailto:acs.tournoi@gmail.com" class="text-foam-200 hover:text-foam-100 underline">Contactez-nous</a></p>
+    </div>
   </div>
 </template>

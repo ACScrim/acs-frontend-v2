@@ -39,6 +39,12 @@ const currentYear = ref(new Date().getFullYear());
             <a href="https://discord.gg/nH5cFvyVAG" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-white/5 text-foam-300/70 hover:bg-accent-500/20 hover:text-accent-300 transition" title="Discord">
               <VueIcon name="ak:discord-fill" class="text-lg" />
             </a>
+            <a href="https://www.twitch.tv/acstv1" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-white/5 text-foam-300/70 hover:bg-accent-500/20 hover:text-accent-300 transition" title="Discord">
+              <VueIcon name="ak:twitch-fill" class="text-lg" />
+            </a>
+            <a href="https://www.youtube.com/@ACS_TV1" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-white/5 text-foam-300/70 hover:bg-accent-500/20 hover:text-accent-300 transition" title="Discord">
+              <VueIcon name="ak:youtube-fill" class="text-lg" />
+            </a>
           </div>
         </div>
       </div>
@@ -50,9 +56,9 @@ const currentYear = ref(new Date().getFullYear());
       <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-foam-300/60">
         <p>&copy; {{ currentYear }} ACS - Tous droits réservés.</p>
         <div class="flex gap-4">
-          <a href="#" class="hover:text-accent-300 transition">Politique de confidentialité</a>
-          <a href="#" class="hover:text-accent-300 transition">Conditions d'utilisation</a>
-          <a href="#" class="hover:text-accent-300 transition">Contact</a>
+<!--          <a href="#" class="hover:text-accent-300 transition">Politique de confidentialité</a>-->
+<!--          <a href="#" class="hover:text-accent-300 transition">Conditions d'utilisation</a>-->
+          <a href="mailto:acs.tournoi@gmail.com" class="hover:text-accent-300 transition">Contact</a>
         </div>
       </div>
     </div>
