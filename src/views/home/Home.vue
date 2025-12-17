@@ -6,7 +6,7 @@ import useTournamentStore from '@/stores/tournamentStore';
 import { useUserStore } from '@/stores/userStore';
 import { API_URL } from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
-import { computed } from 'vue';
+import {computed, onMounted} from 'vue';
 
 const userStore = useUserStore();
 const statsStore = useStatsStore();
@@ -17,6 +17,10 @@ const lastFinishedTournament = computed(() => tournamentStore.finishedTournament
 const nextTournaments = computed(() => tournamentStore.nextTournaments);
 const ctaLabel = computed(() => userStore.isLoggedIn ? 'Explorer les tournois' : 'Rejoindre Discord');
 const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_URL}/auth/discord`);
+
+onMounted(() => {
+  statsStore.fetchHomeStats()
+})
 </script>
 
 <template>
