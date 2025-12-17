@@ -7,6 +7,7 @@ import {getCoreRowModel, useVueTable} from "@tanstack/vue-table";
 import type {WeeklyLeaderboardEntry} from "@/types/models";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
+import {shuffleArray} from "@/utils";
 
 const gamesStore = useGamesStore();
 
@@ -109,6 +110,13 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
   getCoreRowModel: getCoreRowModel(),
   enableSorting: false
 });
+
+const shuffledOptions = computed(() => {
+  if (gamesStore.dailyQuiz.todayQuestion) {
+    return shuffleArray(gamesStore.dailyQuiz.todayQuestion.options);
+  }
+  return [];
+});
 </script>
 
 <template>
@@ -142,12 +150,19 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
         <div class="space-y-4 bg-gradient-to-br from-surface-700/50 to-surface-800/30 border border-foam-200/10 rounded-xl p-6">
           <h2 class="text-lg font-semibold text-azure-300">{{ gamesStore.dailyQuiz.todayQuestion?.category }}</h2>
           <p class="text-white text-xl font-medium leading-relaxed">{{ gamesStore.dailyQuiz.todayQuestion?.question }}</p>
+          <img
+            v-if="gamesStore.dailyQuiz.todayQuestion?.image"
+            :src="gamesStore.dailyQuiz.todayQuestion?.image"
+            :alt="`Image pour la question du jour : ${gamesStore.dailyQuiz.todayQuestion?.question}`"
+            class="w-full object-contain rounded-md mt-4"
+            :class="{ 'max-h-64': gamesStore.dailyQuiz.todayQuestion?.category === 'Pokémon' }"
+          />
         </div>
 
         <!-- Options de réponse -->
         <div class="space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div v-for="option in gamesStore.dailyQuiz.todayQuestion?.options" :key="option" class="flex items-center cursor-pointer group">
+            <div v-for="option in shuffledOptions" :key="option" class="flex items-center cursor-pointer group">
               <input
                 type="radio"
                 :id="option"
