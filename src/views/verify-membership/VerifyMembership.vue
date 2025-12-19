@@ -25,7 +25,7 @@
           </div>
           <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4">
             <p class="text-sm text-white/80 mb-3">💡 Vous ne voyez pas la fenêtre d'invitation ?</p>
-            <Button :to="$route.query['invite'] as string" variant="outline" class="gap-2" size="sm">
+            <Button :to="route.query['invite'] as string" variant="outline" class="gap-2" size="sm">
               <VueIcon name="bs:box-arrow-up-right" /> Ouvrir l'invitation
             </Button>
           </div>
@@ -80,22 +80,20 @@ onMounted(() => {
           }
         );
 
-        if (result.ok) {
-          clearInterval(interval);
-          const data = await result.json();
-          if (data.success) {
-            window.location.href = "/";
-          }
-        } else if (result.status === 403) {
-          if (!linkOpened) {
-            window.open(route.query['invite'] as string, '_blank');
-            linkOpened = true;
-          }
+        if (!result.ok && !linkOpened) {
+          window.open(route.query['invite'] as string, '_blank');
+          linkOpened = true;
+          return;
+        }
+        clearInterval(interval);
+        const data = await result.json();
+        if (data.success) {
+          window.location.href = "/";
         }
       } catch (error) {
         console.error("Erreur lors de la vérification:", error);
       }
-    }, 3000);
+    }, 1000);
 
     // arrêter le polling après 5 minutes
     setTimeout(() => {
