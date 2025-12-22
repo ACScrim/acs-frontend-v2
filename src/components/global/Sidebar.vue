@@ -124,8 +124,13 @@ const handleMouseLeave = () => {
             </RouterLink>
 
             <RouterLink to="/player-levels" @click="isMenuOpen = false" class="flex items-center gap-3 px-4 py-3 text-sm text-foam-200 hover:bg-white/5 transition border-b border-white/10">
-              <VueIcon name="bs:mountains" class="text-accent-300 size-5" />
+              <VueIcon name="un:mountains" class="text-accent-300 size-5" />
               <span>Mes niveaux</span>
+            </RouterLink>
+
+            <RouterLink to="/badges" @click="isMenuOpen = false" class="flex items-center gap-3 px-4 py-3 text-sm text-foam-200 hover:bg-white/5 transition border-b border-white/10">
+              <VueIcon name="ph:thin-medal" class="text-accent-300 size-5" />
+              <span>Mes badges</span>
             </RouterLink>
 
             <button @click="logout" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-blush-300 hover:bg-blush-500/10 transition">

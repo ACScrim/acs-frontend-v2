@@ -406,3 +406,10 @@ export interface ChallongeBracketResponse {
   challongeTournamentId: string;
   bracketUrl: string;
 }
+
+export interface Badge {
+  id: string;
+  tournamentId: string;
+  tournament: Tournament;
+  type: 'participation' | 'victory' | 'mvp' | 'top25' | 'custom';
+}

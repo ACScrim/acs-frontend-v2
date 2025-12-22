@@ -4,17 +4,6 @@ import useGamesStore from "@/stores/gamesStore.ts";
 import type {AcsdleUser} from "@/types/models";
 import {formatDate} from "@vueuse/core";
 import confetti from "canvas-confetti";
-import {Line} from 'vue-chartjs'
-import {
-  CategoryScale,
-  Chart,
-  type ChartData,
-  type ChartOptions,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Tooltip
-} from "chart.js";
 import LoaderACS from "@/components/global/LoaderACS.vue";
 
 // Encryption/Decryption functions
@@ -228,26 +217,6 @@ const hints = computed(() => [
     messageInactive: "Indice disponible au 10ème essai",
   },
 ]);
-
-Chart.register(Tooltip, PointElement, LineElement, CategoryScale, LinearScale)
-
-const chartData = computed<ChartData<'line'>>(() => ({
-  labels: gamesStore.acsdle.guessHistory.map((guess) => formatDate(new Date(guess.completedAt ?? ""), "DD/MM")),
-  datasets: [ { data: gamesStore.acsdle.guessHistory.map(g => g.attempts.length), backgroundColor: '#f87979', label: "Essais", borderColor: "#ffffff", pointBorderColor: "#f87979" } ]
-}));
-
-const chartOptions = computed<ChartOptions<'line'>>(() => ({
-  responsive: true,
-  maintainAspectRatio: true,
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        stepSize: 2
-      }
-    }
-  }
-}));
 </script>
 
 <template>
@@ -289,14 +258,6 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             <li><strong>Membre depuis:</strong> {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}</li>
           </ul>
         </div>
-      </div>
-
-      <div v-if="gameWon || gameOver" class="bg-gray-800 rounded-lg p-8 shadow-2xl">
-        <Line
-          id="my-chart-id"
-          :options="chartOptions"
-          :data="chartData"
-        />
       </div>
 
       <!-- Game Container -->
