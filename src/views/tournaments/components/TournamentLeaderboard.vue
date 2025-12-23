@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Card } from '@/components/ui';
+import SectionHeader from '@/components/global/SectionHeader.vue';
 import type { Tournament } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
@@ -26,12 +27,7 @@ const headerColor = computed((): string => {
 <template>
   <Card v-if="tournament.finished" class="glass-panel p-6">
     <template #header>
-      <h2
-        class="text-2xl font-semibold text-white flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
-        :style="{ borderLeftColor: headerColor }"
-      >
-        <VueIcon name="bs:trophy-fill" /> Résultats du tournoi
-      </h2>
+      <SectionHeader title="Résultats du tournoi" :color="headerColor" icon="bs:trophy-fill" size-class="text-2xl" />
     </template>
 
     <div class="space-y-8">

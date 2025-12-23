@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
+import SectionHeader from '@/components/global/SectionHeader.vue';
 import { Card } from '@/components/ui';
-import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import TournamentUserCard from './TournamentUserCard.vue';
 import type { User, Tournament } from '@/types/models';
 import { computed } from 'vue';
@@ -23,12 +23,7 @@ const headerColor = computed((): string => {
 <template>
   <Card class="glass-panel p-6">
     <template #header>
-      <h2
-        class="text-2xl font-semibold text-white flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
-        :style="{ borderLeftColor: headerColor }"
-      >
-        <VueIcon name="bs:info-circle" /> Liste des casters
-      </h2>
+      <SectionHeader title="Liste des casters" :color="headerColor" icon="bs:info-circle" size-class="text-2xl" />
     </template>
 
     <ListView :data="casters" empty-title="Aucun caster inscrit pour le moment" :max-cols="1">

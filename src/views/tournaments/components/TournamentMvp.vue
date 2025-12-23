@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
+import SectionHeader from '@/components/global/SectionHeader.vue';
 import { Avatar, Button, Card } from '@/components/ui';
 import { useUserStore } from '@/stores/userStore';
 import type { Tournament } from '@/types/models';
-import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
 import { getGameColor } from '../composables/useGameColor';
 
@@ -45,13 +45,14 @@ const headerColor = computed((): string => {
 <template>
   <Card class="p-6">
     <template #header>
-      <h2
-        class="text-2xl font-bold bg-gradient-to-r from-accent-500 via-emerald-500 to-blush-500 bg-clip-text text-transparent flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
-        :style="{ borderLeftColor: headerColor }"
-      >
-        <VueIcon name="bs:star-fill" class="text-accent-300" />
-        <span>🏆 MVP du tournoi 🏆</span>
-      </h2>
+      <SectionHeader
+        title="🏆 MVP du tournoi 🏆"
+        :color="headerColor"
+        icon="bs:star-fill"
+        icon-class="text-accent-300"
+        size-class="text-2xl"
+        title-class="font-bold bg-gradient-to-r from-accent-500 via-emerald-500 to-blush-500 bg-clip-text text-transparent"
+      />
     </template>
     <!-- Mvp Vote -->
     <div v-if="tournament.mvpVoteOpen">

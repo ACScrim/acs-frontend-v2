@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {Button, Card} from '@/components/ui';
+import SectionHeader from '@/components/global/SectionHeader.vue';
 import PlayerGameLevelDisplay from '@/components/tournaments/PlayerGameLevelDisplay.vue';
 import usePlayerLevelStore from '@/stores/playerLevelStore';
 import useTournamentStore from '@/stores/tournamentStore';
@@ -124,12 +125,12 @@ const onSubmitHandler = async (e: Event) => {
 <template>
   <Card class="p-6 bg-white/5 border border-white/10 space-y-4" style="border-radius: var(--radius-xl);">
     <template #header>
-      <h2
-        class="text-xl font-bold text-foam-50 pl-4 -ml-4 py-1 border-l-4"
-        :style="{ borderLeftColor: headerColor }"
-      >
-        Mon niveau
-      </h2>
+      <SectionHeader
+        title="Mon niveau"
+        :color="headerColor"
+        size-class="text-xl"
+        title-class="font-bold text-foam-50"
+      />
     </template>
 
     <div v-if="tournament.game.currentPlayerLevel">
