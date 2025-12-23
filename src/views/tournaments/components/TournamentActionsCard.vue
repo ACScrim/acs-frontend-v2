@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button, Card } from '@/components/ui';
+import SectionHeader from '@/components/global/SectionHeader.vue';
 import type { Tournament } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed } from 'vue';
@@ -33,12 +34,7 @@ const headerColor = computed((): string => {
 <template>
   <Card class="glass-panel space-y-4 p-6">
     <template #header>
-      <h2
-        class="text-xl font-semibold text-white pl-4 -ml-4 py-1 border-l-4"
-        :style="{ borderLeftColor: headerColor }"
-      >
-        Actions
-      </h2>
+      <SectionHeader title="Actions" :color="headerColor" size-class="text-xl" />
     </template>
 
     <!-- Bouton Check-in: couleur vive et visible -->

@@ -1,6 +1,7 @@
 // Export des composants globaux
 export { default as PageHeader } from "./PageHeader.vue";
 export { default as Footer } from "./Footer.vue";
+export { default as SectionHeader } from "./SectionHeader.vue";
 
 // Ici on pourrait ajouter d'autres composants globaux comme :
 // export { default as LoadingOverlay } from "./LoadingOverlay.vue";

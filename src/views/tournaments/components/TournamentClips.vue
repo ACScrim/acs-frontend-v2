@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ListView from '@/components/global/ListView.vue';
+import SectionHeader from '@/components/global/SectionHeader.vue';
 import { Button, Card } from '@/components/ui';
 import type { Tournament } from '@/types/models';
 import { ref, computed } from 'vue';
@@ -72,12 +73,7 @@ const headerColor = computed((): string => {
   <Card class="glass-panel p-6">
     <template #header>
       <div class="flex items-center justify-between">
-        <h2
-          class="text-2xl font-semibold text-white flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
-          :style="{ borderLeftColor: headerColor }"
-        >
-          <VueIcon name="bs:play-circle" /> Clips du tournoi
-        </h2>
+        <SectionHeader title="Clips du tournoi" :color="headerColor" icon="bs:play-circle" size-class="text-2xl" />
         <Button v-if="!showFormToAddClip" @click="showFormToAddClip = true">
           <template #icon><VueIcon name="bs:plus-circle" /></template>
           Ajouter un clip
