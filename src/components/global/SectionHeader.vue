@@ -15,9 +15,12 @@ const props = withDefaults(defineProps<{
   titleClass: ''
 });
 
+const BASE_HEADING_CLASSES = 'flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4';
+const BASE_TEXT_CLASSES = 'font-semibold text-white';
+
 const headingClasses = computed(() => [
-  'flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4',
-  'font-semibold text-white',
+  BASE_HEADING_CLASSES,
+  BASE_TEXT_CLASSES,
   props.sizeClass,
   props.titleClass
 ]);
