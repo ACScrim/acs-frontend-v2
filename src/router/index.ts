@@ -35,6 +35,7 @@ const adminRoutes: RouterOptions['routes'] = [
   { path: '/admin/proposals', component: () => import('@/views/admin/proposals/Proposal.vue'), name: 'Gestion des propositions', meta: { title: 'Propositions de jeux', icon: 'bx:upvote', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 6 } },
   { path: '/admin/cards', component: () => import('@/views/admin/cards/Cards.vue'), name: 'Gestion des cartes', meta: { title: 'Cartes', icon: 'ch:cards', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 7 } },
   { path: '/admin/scrimium', component: () => import('@/views/admin/scrimium/Scrimiums.vue'), name: 'Scrimium', meta: { title: 'Scrimium', icon: 'mc:currency-baht-fill', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 8 } },
+  { path: '/admin/discord', component: () => import('@/views/admin/discord/DiscordMessages.vue'), name: 'Discord', meta: { title: 'Discord', icon: 'mdi:discord', showInAside: false, showInMobileFooter: false, showInAdminBar: true, order: 9 } },
 ]
 
 const router = createRouter({

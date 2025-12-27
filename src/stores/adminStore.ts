@@ -38,7 +38,11 @@ const useAdminStore = defineStore('admin', {
     seasons: [] as Array<Season>,
     proposals: [] as Array<GameProposal>,
     cards: [] as Array<CollectibleCard>,
-    scrimiums: [] as Array<ScrimiumAdmin>
+    scrimiums: [] as Array<ScrimiumAdmin>,
+    discordDMs: [] as Array<any>,
+    discordThreads: [] as Array<any>,
+    discordMeta: { channels: [], members: [] } as any,
+    discordDMTotal: 0
   }),
   getters: {
     getTournaments: (state) => {
@@ -129,6 +133,39 @@ const useAdminStore = defineStore('admin', {
         this.scrimiums = scrimiumsArray;
       } catch (error: any) {
         useToastStore().error("Error fetching all scrimiums:", error.message || error);
+      }
+    },
+    async fetchDiscordDMs(page = 1, limit = 20) {
+      try {
+        const response = await api.get<ApiResponse<{ items: any[]; total: number; page: number; pageSize: number }>>(`/admin/discord/dm?page=${page}&limit=${limit}`);
+        this.discordDMs = response.data.data.items;
+        this.discordDMTotal = response.data.data.total;
+      } catch (error: any) {
+        useToastStore().error("Error fetching Discord DMs:", error.message || error);
+      }
+    },
+    async fetchDiscordMeta() {
+      try {
+        const response = await api.get<ApiResponse<{ channels: any[]; members: any[] }>>('/admin/discord/meta');
+        this.discordMeta = response.data.data;
+      } catch (error: any) {
+        useToastStore().error("Error fetching Discord metadata:", error.message || error);
+      }
+    },
+    async fetchDiscordThreads() {
+      try {
+        const response = await api.get<ApiResponse<any[]>>('/admin/discord/dm/threads');
+        this.discordThreads = response.data.data;
+      } catch (error: any) {
+        useToastStore().error("Error fetching Discord threads:", error.message || error);
+      }
+    },
+    async fetchDiscordConversation(discordUserId: string) {
+      try {
+        const response = await api.get<ApiResponse<any[]>>(`/admin/discord/dm/${discordUserId}`);
+        this.discordDMs = response.data.data;
+      } catch (error: any) {
+        useToastStore().error("Error fetching Discord conversation:", error.message || error);
       }
     },
     // MODIFY ACTIONS
@@ -386,7 +423,16 @@ const useAdminStore = defineStore('admin', {
         useToastStore().error("Error creating Challonge bracket:", error.message || error);
         throw error;
       }
-    }
+    },
+    async sendDiscordMessage(payload: { targetType: 'channel' | 'dm'; discordChannelId?: string; discordUserId?: string; messageType: 'text' | 'embed'; content?: string; embed?: any }) {
+      try {
+        await api.post(`/admin/discord/send`, payload);
+        useToastStore().success("Message Discord envoyé");
+      } catch (error: any) {
+        useToastStore().error("Error sending Discord message:", error.message || error);
+        throw error;
+      }
+    },
   }
 })
 
