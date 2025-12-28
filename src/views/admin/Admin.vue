@@ -3,16 +3,24 @@ import { Button, Card, Badge } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { formatDate } from '@vueuse/core';
-import { computed, onMounted, ref } from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
 
 const adminStore = useAdminStore();
 const filter = ref<'all' | 'info' | 'error'>('all');
 
+const eventSource = ref<EventSource | null>(null);
+
 onMounted(() => {
-  const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/admin/logs`);
-  eventSource.onmessage = (event) => {
+  eventSource.value = new EventSource(`${import.meta.env.VITE_API_URL}/admin/logs`);
+  eventSource.value.onmessage = (event) => {
     adminStore.addLog(event.data);
   };
+});
+
+onBeforeUnmount(() => {
+  if (eventSource.value) {
+    eventSource.value.close();
+  }
 });
 
 const filteredLogs = computed(() => {
