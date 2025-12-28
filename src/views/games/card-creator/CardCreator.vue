@@ -78,13 +78,17 @@ const showCreateCategoryModal = ref(false);
 const newCategoryName = ref('');
 const newCategoryDescription = ref('');
 
+// Asset selection
 const selectedFrontAssetId = ref<string | undefined>();
 const selectedBorderAssetId = ref<string | undefined>();
+// Indique si l'utilisateur souhaite utiliser un asset personnalisé (créé localement) plutôt qu'un asset existant
+const useCustomFrontAsset = ref(false);
+const useCustomBorderAsset = ref(false);
 
 // Background asset state
 const backgroundAssetName = ref('');
 const backgroundAssetType = ref<AssetType>('solid');
-const backgroundSolidColor = ref('#667eea');
+const backgroundSolidColor = ref('transparent');
 const backgroundGradientColor1 = ref('#667eea');
 const backgroundGradientColor2 = ref('#764ba2');
 const backgroundGradientAngle = ref(135);
@@ -95,7 +99,7 @@ const backgroundAssetImagePreview = ref('');
 // Border asset state
 const borderAssetName = ref('');
 const borderAssetType = ref<BorderAssetType>('solid');
-const borderSolidColor = ref('#ffffff');
+const borderSolidColor = ref('transparent');
 const borderAssetImageBase64 = ref('');
 const borderAssetImageMimeType = ref('');
 const borderAssetImagePreview = ref('');
@@ -209,16 +213,20 @@ const hasMainImage = computed(() => Boolean(imageBase64.value));
 
 // Computed
 const selectedFrontAsset = computed(() => {
-  if (!selectedFrontAssetId.value) {
-    // Return current asset being created
-    if (backgroundAssetType.value === 'solid') {
+  if (selectedFrontAssetId.value) {
+    useCustomFrontAsset.value = false;
+    return cardStore.getCardAssetById(selectedFrontAssetId.value);
+  }
+
+  if (useCustomFrontAsset.value) {
+    if (backgroundAssetType.value === 'solid' && isBackgroundAssetValid.value) {
       return {
         type: 'solid' as const,
         category: 'background',
         solidColor: backgroundSolidColor.value
       } as CardAsset;
     }
-    if (backgroundAssetType.value === 'gradient') {
+    if (backgroundAssetType.value === 'gradient' && isBackgroundAssetValid.value) {
       return {
         type: 'gradient' as const,
         color1: backgroundGradientColor1.value,
@@ -227,7 +235,7 @@ const selectedFrontAsset = computed(() => {
         category: 'background',
       } as CardAsset;
     }
-    if (backgroundAssetType.value === 'image' && backgroundAssetImagePreview.value) {
+    if (backgroundAssetType.value === 'image' && isBackgroundAssetValid.value) {
       return {
         type: 'image' as const,
         imageBase64: backgroundAssetImageBase64.value,
@@ -236,20 +244,25 @@ const selectedFrontAsset = computed(() => {
       } as CardAsset;
     }
   }
-  return cardStore.getCardAssetById(selectedFrontAssetId.value || '');
+
+  return undefined;
 });
 
 const selectedBorderAsset = computed(() => {
-  if (!selectedBorderAssetId.value) {
-    // Return current asset being created
-    if (borderAssetType.value === 'solid') {
+  if (selectedBorderAssetId.value) {
+    useCustomBorderAsset.value = false;
+    return cardStore.getCardAssetById(selectedBorderAssetId.value);
+  }
+
+  if (useCustomBorderAsset.value) {
+    if (borderAssetType.value === 'solid' && isBorderAssetValid.value) {
       return {
         type: 'solid' as const,
         solidColor: borderSolidColor.value,
         category: 'border',
       } as CardAsset;
     }
-    if (borderAssetType.value === 'image' && borderAssetImagePreview.value) {
+    if (borderAssetType.value === 'image' && isBorderAssetValid.value) {
       return {
         type: 'image' as const,
         imageBase64: borderAssetImageBase64.value,
@@ -258,14 +271,13 @@ const selectedBorderAsset = computed(() => {
       } as CardAsset;
     }
   }
-  return cardStore.getCardAssetById(selectedBorderAssetId.value || '');
+
+  return undefined;
 });
 
 const isFormValid = computed(() => {
   const hasTitle = title.value.trim().length > 0;
-  const hasFrontAsset = selectedFrontAssetId.value !== undefined || isBackgroundAssetValid.value;
-
-  return hasTitle && hasFrontAsset && hasMainImage.value;
+  return hasTitle && hasMainImage.value;
 });
 
 const isBackgroundAssetValid = computed(() => {
@@ -377,16 +389,18 @@ const applyCurrentAsset = () => {
     }
     ensureAssetName('background');
     selectedFrontAssetId.value = undefined;
+    useCustomFrontAsset.value = true;
     toastStore.success('Fond personnalisé appliqué.');
     return;
   }
 
   if (!isBorderAssetValid.value) {
-    toastStore.error('Veuillez configurer correctement la bordure avant de l\'utiliser.');
+    toastStore.error('Veuillez configurer correctement la bordure.');
     return;
   }
   ensureAssetName('border');
   selectedBorderAssetId.value = undefined;
+  useCustomBorderAsset.value = true;
   toastStore.success('Bordure personnalisée appliquée.');
 };
 
@@ -577,9 +591,9 @@ const saveCard = async () => {
     return;
   }
 
-  // Validate front asset
+  // Validate front asset uniquement si l'utilisateur veut en créer un
   let frontAssetData = null;
-  if (!selectedFrontAssetId.value) {
+  if (!selectedFrontAssetId.value && useCustomFrontAsset.value) {
     frontAssetData = buildFrontAssetData();
 
     if (!frontAssetData) {
@@ -588,14 +602,15 @@ const saveCard = async () => {
     }
   }
 
-  // Validate border asset if a name is provided
+  // Validate border asset only when user opted to use a custom one
   let borderAssetData = null;
-  if (!selectedBorderAssetId.value && borderAssetName.value.trim()) {
-    if (!isBorderAssetValid.value) {
+  if (!selectedBorderAssetId.value && useCustomBorderAsset.value) {
+    borderAssetData = buildBorderAssetData();
+
+    if (!borderAssetData) {
       toastStore.error('Veuillez configurer correctement la bordure.');
       return;
     }
-    borderAssetData = buildBorderAssetData();
   }
 
   // Store card data for confirmation modal WITHOUT creating assets yet
@@ -698,6 +713,8 @@ const confirmCardCreation = async () => {
       imageMimeType.value = '';
       selectedFrontAssetId.value = undefined;
       selectedBorderAssetId.value = undefined;
+      useCustomFrontAsset.value = false;
+      useCustomBorderAsset.value = false;
 
       // Reset personnalisation
       titlePosX.value = 50;
@@ -721,7 +738,7 @@ const confirmCardCreation = async () => {
       // Reset background asset
       backgroundAssetName.value = '';
       backgroundAssetType.value = 'solid';
-      backgroundSolidColor.value = '#667eea';
+      backgroundSolidColor.value = 'transparent';
       backgroundGradientColor1.value = '#667eea';
       backgroundGradientColor2.value = '#764ba2';
       backgroundGradientAngle.value = 135;
@@ -732,7 +749,7 @@ const confirmCardCreation = async () => {
       // Reset border asset
       borderAssetName.value = '';
       borderAssetType.value = 'solid';
-      borderSolidColor.value = '#ffffff';
+      borderSolidColor.value = 'transparent';
       borderAssetImageBase64.value = '';
       borderAssetImageMimeType.value = '';
       borderAssetImagePreview.value = '';
@@ -762,6 +779,8 @@ const resetForm = () => {
   imageMimeType.value = '';
   selectedFrontAssetId.value = undefined;
   selectedBorderAssetId.value = undefined;
+  useCustomFrontAsset.value = false;
+  useCustomBorderAsset.value = false;
 
   // Reset personnalisation
   titlePosX.value = 50;
@@ -1822,6 +1841,16 @@ onUnmounted(() => {
           <!-- Background Assets Selector -->
           <div class="space-y-3">
             <label class="form-label">Fonds disponibles</label>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-foam-300/60">Sélectionnez un fond existant ou laissez vide pour aucun.</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="() => { selectedFrontAssetId = undefined; useCustomFrontAsset = false; }"
+              >
+                Aucun fond
+              </Button>
+            </div>
             <div v-if="cardStore.getCardAssetsByCategory('background').length === 0" class="text-sm text-foam-300/60">
               Aucun fond créé pour le moment.
             </div>
@@ -1839,7 +1868,7 @@ onUnmounted(() => {
                       : { background: '#1a1a2e' }
                 "
                 :title="asset.name"
-                @click="selectedFrontAssetId = asset.id"
+                @click="() => { selectedFrontAssetId = asset.id; useCustomFrontAsset = false; }"
               >
                 <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
@@ -1855,6 +1884,16 @@ onUnmounted(() => {
           <!-- Border Assets Selector -->
           <div class="space-y-3">
             <label class="form-label">Bordures disponibles</label>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-foam-300/60">Sélectionnez une bordure existante ou laissez vide pour aucune.</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="() => { selectedBorderAssetId = undefined; useCustomBorderAsset = false; }"
+              >
+                Aucune bordure
+              </Button>
+            </div>
             <div v-if="cardStore.getCardAssetsByCategory('border').length === 0" class="text-sm text-foam-300/60">
               Aucune bordure créée pour le moment.
             </div>
@@ -1870,7 +1909,7 @@ onUnmounted(() => {
                     : {}
                 "
                 :title="asset.name"
-                @click="selectedBorderAssetId = asset.id"
+                @click="() => { selectedBorderAssetId = asset.id; useCustomBorderAsset = false; }"
               >
                 <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img

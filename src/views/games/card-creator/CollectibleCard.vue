@@ -56,7 +56,7 @@ const holoLightY = computed(() => {
 });
 
 const cardStyle = computed(() => {
-  let bgStyle = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+  let bgStyle = 'transparent';
 
   // Custom asset takes precedence
   if (props.card.frontAsset) {
@@ -71,7 +71,7 @@ const cardStyle = computed(() => {
   }
   
   // Build border style from borderAsset
-  let borderStyle = '3px solid rgba(255, 255, 255, 0.3)';
+  let borderStyle = '0 solid transparent';
   let borderImageUrl = '';
 
   if (props.card.borderAsset) {
@@ -100,7 +100,6 @@ const cardStyle = computed(() => {
 });
 
 const backgroundLayerStyle = computed(() => {
-  // Check custom asset first
   if (props.card.frontAsset?.type === 'image' && props.card.frontAsset.imageBase64) {
     const mimeType = props.card.frontAsset.imageMimeType || 'image/png';
     return {
@@ -116,12 +115,10 @@ const backgroundLayerStyle = computed(() => {
   return null;
 });
 
-// Check if border uses an image
 const hasImageBorder = computed(() => {
   return props.card.borderAsset?.type === 'image' && !!props.card.borderAsset.imageBase64;
 });
 
-// Get border image URL (base64)
 const borderImageUrl = computed(() => {
   if (props.card.borderAsset?.type === 'image' && props.card.borderAsset.imageBase64) {
     const mimeType = props.card.borderAsset.imageMimeType || 'image/png';
@@ -130,14 +127,11 @@ const borderImageUrl = computed(() => {
   return '';
 });
 
-// Check if background uses an image (custom base64)
 const hasImageBackground = computed(() => {
   return props.card.frontAsset?.type === 'image' && !!props.card.frontAsset.imageBase64;
 });
 
-// Check if holographic effect should be shown
 const showHolographic = computed(() => {
-  // Only show holographic effect when hovered (if interactive) or always (if not interactive)
   const shouldShow = hasImageBorder.value || props.card.holographicEffect;
   return shouldShow && (!props.interactive || isHovered.value);
 });

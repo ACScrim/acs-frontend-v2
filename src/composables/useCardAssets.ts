@@ -29,7 +29,7 @@ export function useBackgroundAsset(): BackgroundAssetState {
   return {
     name: ref(''),
     type: ref<AssetType>('solid'),
-    solidColor: ref('#667eea'),
+    solidColor: ref('transparent'),
     gradientColor1: ref('#667eea'),
     gradientColor2: ref('#764ba2'),
     gradientAngle: ref(135),
@@ -43,7 +43,7 @@ export function useBorderAsset(): BorderAssetState {
   return {
     name: ref(''),
     type: ref<BorderAssetType>('solid'),
-    solidColor: ref('#ffffff'),
+    solidColor: ref('transparent'),
     imageBase64: ref(''),
     imageMimeType: ref(''),
     imagePreview: ref(''),
