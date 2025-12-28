@@ -25,9 +25,13 @@
           </div>
           <div class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4">
             <p class="text-sm text-white/80 mb-3">💡 Vous ne voyez pas la fenêtre d'invitation ?</p>
-            <Button :to="route.query['invite'] as string" variant="outline" class="gap-2" size="sm">
+            <a
+                :href="route.query['invite'] as string"
+                target="_blank"
+                class="px-4 py-2 bg-gradient-to-br from-accent-500 to-emerald-400 text-ink-900 font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+            >
               <VueIcon name="bs:box-arrow-up-right" /> Ouvrir l'invitation
-            </Button>
+            </a>
           </div>
         </div>
       </template>

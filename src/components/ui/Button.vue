@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
 const variantClasses = {
   primary: "bg-gradient-to-r from-accent-500 to-blush-500 text-ink-900 shadow-[var(--shadow-glow)] hover:brightness-110",
   emerald: "bg-gradient-to-r from-emerald-600 to-emerald-400 text-ink-900 shadow-[var(--shadow-soft)] hover:brightness-110",
-  danger: "bg-gradient-to-r from-blush-500 to-blush-300 text-white shadow-[0_25px_45px_rgba(255,95,143,0.35)]",
+  danger: "bg-gradient-to-r from-red-500 via-red-400 to-red-500 text-white shadow-[0_25px_45px_rgba(255,95,143,0.35)]",
   secondary: "bg-white/5 text-white border border-white/10 hover:bg-white/10",
   outline: "border border-white/20 text-white hover:border-accent-400 hover:text-accent-200",
   ghost: "text-foam-200 hover:text-white hover:bg-white/5"

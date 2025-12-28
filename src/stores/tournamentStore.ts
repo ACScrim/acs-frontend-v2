@@ -1,7 +1,9 @@
 import tournamentService from "@/services/tournamentService";
-import {type ApiResponse, type Game, type Tournament} from "@/types/models";
+import {type ApiResponse, type ChallongeMatch, type Game, type Tournament} from "@/types/models";
 import { defineStore } from "pinia";
 import api from "@/utils/api.ts";
+import {useToastStore} from "@/stores/toastStore.ts";
+import {useUserStore} from "@/stores/userStore.ts";
 
 const useTournamentStore = defineStore('tournament', {
   state: () => ({
@@ -101,6 +103,42 @@ const useTournamentStore = defineStore('tournament', {
         this.tournaments[index] = updatedTournament;
       }
       this.isLoading = false;
+    },
+    async fetchBracketMatches(tournamentId: string): Promise<ChallongeMatch[]> {
+      try {
+        return (await api.get<ApiResponse<ChallongeMatch[]>>(`tournaments/${tournamentId}/challonge-matches`))?.data?.data ?? [];
+      } catch (e) {
+        useToastStore().error("Erreur lors de la récupération des matchs du bracket.");
+        return [];
+      }
+    },
+    async placeBet(tournamentId: string, matchId: string, predictedWinner: string, amount: number) {
+      try {
+        await api.post<ApiResponse<null>>(`tournaments/${tournamentId}/bets`, {
+          challongeMatchId: matchId,
+          predictedWinner,
+          amount,
+        });
+        useUserStore().fetchUser().then();
+      } catch (e) {
+        throw e;
+      }
+    },
+    async cancelBet(tournamentId: string, matchId: string) {
+      try {
+        await api.delete<ApiResponse<null>>(`tournaments/${tournamentId}/bets/${matchId}`);
+        useUserStore().fetchUser().then();
+      } catch (e) {
+        throw e;
+      }
+    },
+    async validateBets(tournamentId: string) {
+      try {
+        await api.post<ApiResponse<null>>(`tournaments/${tournamentId}/bets/validate`);
+        useUserStore().fetchUser().then();
+      } catch (e) {
+        throw e;
+      }
     }
   },
 });

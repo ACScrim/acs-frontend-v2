@@ -413,3 +413,20 @@ export interface Badge {
   tournament: Tournament;
   type: 'participation' | 'victory' | 'mvp' | 'top25' | 'custom';
 }
+
+export interface ChallongeMatch {
+  id: string;
+  isStarted: boolean;
+  isCompleted: boolean;
+  player1: string | null;
+  player2: string | null;
+  bet?: {
+    id: string;
+    userId: string;
+    challongeMatchId: string;
+    amount: number;
+    predictedWinner: string;
+    won: boolean;
+    isProcessed: boolean;
+  }
+}
