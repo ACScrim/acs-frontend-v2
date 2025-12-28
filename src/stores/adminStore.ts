@@ -168,6 +168,16 @@ const useAdminStore = defineStore('admin', {
         useToastStore().error("Error fetching Discord conversation:", error.message || error);
       }
     },
+    async fetchLogsHistory() {
+      try {
+        const response = await api.get<ApiResponse<string[]>>("/admin/logs/history");
+        const logLines = response.data.data;
+        this.logs = logLines.map(line => JSON.parse(line) as LogEntry);
+        this.logs = this.logs.sort((a, b) => b.time - a.time);
+      } catch (error: any) {
+        useToastStore().error("Error fetching logs history:", error.message || error);
+      }
+    },
     // MODIFY ACTIONS
     async addReportToUser(userId: string, reason: string) {
       try {

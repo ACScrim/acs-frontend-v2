@@ -3,7 +3,7 @@ import { Button, Card, Badge } from '@/components/ui';
 import useAdminStore from '@/stores/adminStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { formatDate } from '@vueuse/core';
-import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 
 const adminStore = useAdminStore();
 const filter = ref<'all' | 'info' | 'error'>('all');
@@ -11,10 +11,8 @@ const filter = ref<'all' | 'info' | 'error'>('all');
 const eventSource = ref<EventSource | null>(null);
 
 onMounted(() => {
+  adminStore.fetchLogsHistory();
   eventSource.value = new EventSource(`${import.meta.env.VITE_API_URL}/admin/logs`);
-  eventSource.value.onmessage = (event) => {
-    adminStore.addLog(event.data);
-  };
 });
 
 onBeforeUnmount(() => {
@@ -23,8 +21,41 @@ onBeforeUnmount(() => {
   }
 });
 
+watch(eventSource, (es) => {
+  if (!es || es.readyState === EventSource.CLOSED || es.onmessage) return;
+
+  es.onmessage = (event) => {
+    const raw = event.data;
+    // Adaptez le parsing selon votre format (JSON array ou NDJSON)
+    const items: string[] = Array.isArray(raw)
+        ? raw
+        : typeof raw === 'string'
+            ? raw.split('\n').filter(Boolean)
+            : [raw];
+
+    const batchSize = 50;
+    let idx = 0;
+
+    const pushBatch = () => {
+      const end = Math.min(idx + batchSize, items.length);
+      for (; idx < end; idx++) {
+        if (idx && items[idx]) adminStore.addLog(items[idx] as string);
+      }
+      if (idx < items.length) {
+        (window.requestIdleCallback ?? window.requestAnimationFrame)(pushBatch);
+      }
+    };
+
+    if (items.length === 1) {
+      if (items[0]) queueMicrotask(() => adminStore.addLog(items[0] as string));
+    } else {
+      (window.requestIdleCallback ?? window.requestAnimationFrame)(pushBatch);
+    }
+  };
+});
+
 const filteredLogs = computed(() => {
-  const sorted = adminStore.logs.sort((a, b) => b.time - a.time);
+  const sorted = [...adminStore.logs].sort((a, b) => b.time - a.time);
   if (filter.value === 'all') return sorted;
   if (filter.value === 'info') return sorted.filter(log => log.level === 30);
   return sorted.filter(log => log.level === 50 || log.statusCode >= 400);
