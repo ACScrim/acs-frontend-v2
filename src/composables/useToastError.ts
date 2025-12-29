@@ -1,4 +1,4 @@
-import type { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { useToastStore } from "@/stores/toastStore";
 import { getErrorMessage } from "@/utils";
 import type { ApiResponse } from "@/types/models";
@@ -9,8 +9,9 @@ export const useToastError = () => {
   const toastStore = useToastStore();
 
   return (error: unknown, fallbackMessage = "Une erreur est survenue.") => {
-    const axiosError = error as AxiosError<ErrorResponse>;
-    const backendError = axiosError.response?.data?.error;
+    const backendError = isAxiosError<ErrorResponse>(error)
+      ? error.response?.data?.error
+      : undefined;
     const message = backendError?.message || getErrorMessage(error) || fallbackMessage;
 
     toastStore.error(message, backendError?.code);
