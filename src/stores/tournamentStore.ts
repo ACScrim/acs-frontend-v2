@@ -1,8 +1,7 @@
 import tournamentService from "@/services/tournamentService";
 import {type ApiResponse, type ChallongeMatch, type Game, type Tournament} from "@/types/models";
-import { defineStore } from "pinia";
+import {defineStore} from "pinia";
 import api from "@/utils/api.ts";
-import {useToastStore} from "@/stores/toastStore.ts";
 import {useUserStore} from "@/stores/userStore.ts";
 
 const useTournamentStore = defineStore('tournament', {
@@ -84,6 +83,15 @@ const useTournamentStore = defineStore('tournament', {
       }
       this.isLoading = false;
     },
+    async closeMvpVoteInTournament(tournamentId: string) {
+      this.isLoading = true;
+      const updatedTournament = await tournamentService.closeMvpVoteInTournament(tournamentId);
+      const index = this.tournaments.findIndex(t => t.id === tournamentId);
+      if (index !== -1) {
+        this.tournaments[index] = updatedTournament;
+      }
+      this.isLoading = false;
+    },
     async checkinToTournament(tournamentId: string) {
       this.isLoading = true;
       const response = await api.post<ApiResponse<Tournament>>(`tournaments/${tournamentId}/checkin`);
@@ -108,7 +116,6 @@ const useTournamentStore = defineStore('tournament', {
       try {
         return (await api.get<ApiResponse<ChallongeMatch[]>>(`tournaments/${tournamentId}/challonge-matches`))?.data?.data ?? [];
       } catch (e) {
-        useToastStore().error("Erreur lors de la récupération des matchs du bracket.");
         return [];
       }
     },

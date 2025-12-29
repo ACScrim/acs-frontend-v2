@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   vote: [playerId: string];
+  closeVote: [];
 }>();
 
 const sortedMvps = computed(() => {
@@ -45,13 +46,18 @@ const headerColor = computed((): string => {
 <template>
   <Card class="p-6">
     <template #header>
-      <h2
-        class="text-2xl font-bold bg-gradient-to-r from-accent-500 via-emerald-500 to-blush-500 bg-clip-text text-transparent flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
-        :style="{ borderLeftColor: headerColor }"
-      >
-        <VueIcon name="bs:star-fill" class="text-accent-300" />
-        <span>🏆 MVP du tournoi 🏆</span>
-      </h2>
+      <div class="flex items-center justify-between">
+        <h2
+          class="text-2xl font-bold bg-gradient-to-r from-accent-500 via-emerald-500 to-blush-500 bg-clip-text text-transparent flex items-center gap-2 pl-4 -ml-4 py-1 border-l-4"
+          :style="{ borderLeftColor: headerColor }"
+        >
+          <VueIcon name="bs:star-fill" class="text-accent-300" />
+          <span>🏆 MVP du tournoi 🏆</span>
+        </h2>
+        <Button variant="emerald" v-if="tournament.mvpVoteOpen && useUserStore().user?.role.includes('admin')" @click="emit('closeVote')">
+          Fermer le vote
+        </Button>
+      </div>
     </template>
     <!-- Mvp Vote -->
     <div v-if="tournament.mvpVoteOpen">
@@ -78,7 +84,7 @@ const headerColor = computed((): string => {
       </div>
       <ListView :data="sortedMvps.slice(1, 4)" :max-cols="3">
         <template #item="{ item }">
-          <div class="w-full flex items-center justify-between p-4 bg-ink-800/50 rounded-lg border border-white/10">
+          <div class="w-full flex flex-col items-center justify-between p-4 bg-ink-800/50 rounded-lg border border-white/10">
             <div class="inline-flex gap-2 items-center">
               <Avatar :src="item.user.avatarUrl" alt="Avatar" :fallback="item.user.username.charAt(0).toUpperCase()"
               class="rounded-full border-2 border-accent-300/30 overflow-hidden flex items-center justify-center" :size="10" />

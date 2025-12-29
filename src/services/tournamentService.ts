@@ -42,6 +42,13 @@ const tournamentService = {
       throw new Error('Failed to vote MVP in tournament');
     }
     return response.data.data;
+  },
+  closeMvpVoteInTournament: async (tournamentId: string) => {
+    const response = await api.post<ApiResponse<Tournament>>(`/tournaments/${tournamentId}/mvps/close`);
+    if (!response.data.success) {
+      throw new Error('Failed to close MVP vote in tournament');
+    }
+    return response.data.data;
   }
 };
 

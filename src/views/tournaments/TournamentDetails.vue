@@ -66,7 +66,7 @@ const getCasterCount = () => casters.value.length;
 // Background
 whenever(tournament, () => {
   const div = document.getElementsByClassName('view')[0] as HTMLDivElement;
-  if (div && tournament.value) {
+  if (div && tournament.value && route.params.tournamentId !== tournament.value.id) {
     div.scrollTo(0, 0);
     div.style.setProperty('background', `linear-gradient(135deg, rgba(10, 27, 61, 0.85), rgba(26, 41, 66, 0.85)), url(${tournament.value.game.imageUrl}) no-repeat center/cover`);
   }
@@ -123,6 +123,15 @@ const handleVoteMvp = (playerId: string) => {
     useToastStore().error('Erreur lors du vote MVP : ' + getErrorMessage(error));
   }
 };
+
+const handleCloseVoteMvp = () => {
+  try {
+    tournamentStore.closeMvpVoteInTournament(tournament.value!.id);
+    useToastStore().success('Le vote MVP a été fermé avec succès !');
+  } catch (error: unknown) {
+    useToastStore().error('Erreur lors de la fermeture du vote MVP : ' + getErrorMessage(error));
+  }
+}
 
 const handleCheckIn = () => {
   try {
@@ -210,7 +219,7 @@ onUnmounted(() => {
         />
 
         <!-- MVP -->
-        <TournamentMvp v-if="tournament.finished" :tournament="tournament" @vote="handleVoteMvp" />
+        <TournamentMvp v-if="tournament.finished" :tournament="tournament" @vote="handleVoteMvp" @closeVote="handleCloseVoteMvp" />
 
         <!-- Clips -->
         <TournamentClips v-if="tournament.finished" :tournament="tournament" @add-clip="handleAddClip" />

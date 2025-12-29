@@ -177,7 +177,7 @@ const handleBetValidation = async (tournamentId: string) => {
                     <span v-if="match.isStarted && match.isCompleted && !match.bet">Pas de prédiction</span>
                     <span v-if="!match.isStarted && !match.isCompleted && !!match.bet">En attente du match</span>
                   </Button>
-                  <Button type="button" variant="ghost" class="px-1" title="Annuler la prédiction" v-if="!match.isStarted && !!match.bet" @click="handleCancelBet(tournament.id, match.id)">
+                  <Button type="button" variant="ghost" class="px-1" title="Annuler la prédiction" v-if="!match.isStarted && !match.isCompleted && !!match.bet" @click="handleCancelBet(tournament.id, match.id)">
                     <VueIcon name="fa:x" color="red" />
                   </Button>
                 </div>
