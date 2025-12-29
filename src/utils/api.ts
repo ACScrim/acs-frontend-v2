@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useToastError } from "@/composables/useToastError";
+import { toastApiError } from "@/composables/useToastError";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -12,7 +12,7 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    useToastError()(error);
+    toastApiError(error);
     return Promise.reject(error);
   }
 );
