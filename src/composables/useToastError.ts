@@ -19,4 +19,4 @@ export const toastApiError = (error: unknown, fallbackMessage = "Une erreur est 
   }
 };
 
-export const useToastError = () => toastApiError;
+export const useToastError = () => ({ toastApiError });
