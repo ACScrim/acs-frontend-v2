@@ -9,16 +9,10 @@ const api = axios.create({
   }
 });
 
-let toastErrorHandler: ReturnType<typeof useToastError> | null = null;
-
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (!toastErrorHandler) {
-      toastErrorHandler = useToastError();
-    }
-
-    toastErrorHandler(error);
+    useToastError()(error);
     return Promise.reject(error);
   }
 );
