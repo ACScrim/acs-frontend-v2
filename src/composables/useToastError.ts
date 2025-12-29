@@ -2,13 +2,16 @@ import { isAxiosError } from "axios";
 import { useToastStore } from "@/stores/toastStore";
 import { getErrorMessage } from "@/utils";
 import type { ApiResponse } from "@/types/models";
+import { getActivePinia } from "pinia";
 
 type ErrorResponse = Pick<ApiResponse<unknown>, "error">;
 
 export const useToastError = () => {
-  const toastStore = useToastStore();
+  const toastStore = getActivePinia() ? useToastStore() : null;
 
   return (error: unknown, fallbackMessage = "Une erreur est survenue.") => {
+    if (!toastStore) return;
+
     const backendError = isAxiosError<ErrorResponse>(error)
       ? error.response?.data?.error
       : undefined;
