@@ -92,11 +92,11 @@ const columns = [
     cell: info => h('span', { class: 'text-foam-50 font-semibold' }, info.getValue())
   }),
   columnHelper.accessor('top25Count', {
-    header: () => 'Top 25',
+    header: () => 'Top 25%',
     cell: info => h('span', { class: 'text-foam-50 font-semibold' }, info.getValue())
   }),
   columnHelper.accessor('points', {
-    header: () => h('div', { title: '3 points par victoire, 1 point par top25', class: 'flex items-center justify-center w-full' }, ['Points', h(VueIcon, { name: 'fa:circle-info' })]),
+    header: () => h('div', { title: '3 points par victoire, 1 point par top 25%', class: 'flex items-center justify-center w-full' }, ['Points', h(VueIcon, { name: 'fa:circle-info' })]),
     cell: info => h('span', { class: 'text-2xl font-semibold text-white' }, info.getValue())
   })
 ];
@@ -167,7 +167,7 @@ const table = useVueTable({
               <p class="font-semibold text-foam-50">{{ entry.victoriesCount }}</p>
             </div>
             <div class="text-center">
-              <p class="text-foam-300/60">Top 25</p>
+              <p class="text-foam-300/60">Top 25%</p>
               <p class="font-semibold text-foam-50">{{ entry.top25Count }}</p>
             </div>
           </div>
