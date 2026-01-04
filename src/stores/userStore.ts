@@ -41,7 +41,7 @@ export const useUserStore = defineStore('acs-user', {
     },
     async logout() {
       try {
-        await cookieStore.delete('acs.sid');
+        await api.post("/auth/logout").catch(() => {});
         this.user = null;
       } catch (error: any) {
         useToastStore().error("Error logging out:", error.message || error);

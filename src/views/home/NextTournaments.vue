@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import ListView from "@/components/global/ListView.vue";
 import TournamentCard from "@/components/global/TournamentCard.vue";
-import useTournamentStore from "@/stores/tournamentStore";
 import {getTournamentLink} from "@/utils";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {computed} from "vue";
+import useHomeStore from "@/stores/homeStore.ts";
 
-const tournamentStore = useTournamentStore();
-const tournaments = computed(() => tournamentStore.nextTournaments);
+const homeStore = useHomeStore();
+const tournaments = computed(() => homeStore.nextTournaments);
 
 </script>
 
@@ -19,7 +19,6 @@ const tournaments = computed(() => tournamentStore.nextTournaments);
     </div>
 
     <ListView
-      v-if="!tournamentStore.isLoading"
       :data="tournaments.slice(0,3)"
       empty-title="Aucun tournoi à venir"
       empty-message="Il n'y a actuellement aucun tournoi prévu. Revenez plus tard pour découvrir les prochains événements !"

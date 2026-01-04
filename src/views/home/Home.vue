@@ -1,25 +1,26 @@
 <script setup lang="ts">
 import TournamentCard from '@/components/global/TournamentCard.vue';
-import { Button, Card, Badge } from '@/components/ui';
-import useStatsStore from '@/stores/statsStore';
-import useTournamentStore from '@/stores/tournamentStore';
-import { useUserStore } from '@/stores/userStore';
-import { API_URL } from '@/utils';
+import {Badge, Button, Card} from '@/components/ui';
+import useHomeStore from '@/stores/homeStore.ts';
+import {useUserStore} from '@/stores/userStore';
+import {API_URL} from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {computed, onMounted} from 'vue';
+import tournamentStore from "@/stores/tournamentStore.ts";
 
 const userStore = useUserStore();
-const statsStore = useStatsStore();
-const tournamentStore = useTournamentStore();
+const homeStore = useHomeStore();
 
-const homeStats = computed(() => statsStore.homeStats);
-const lastFinishedTournament = computed(() => tournamentStore.finishedTournaments[0] ?? null);
-const nextTournaments = computed(() => tournamentStore.nextTournaments);
+const homeStats = computed(() => homeStore.homeStats);
+const lastFinishedTournament = computed(() => homeStore.lastTournament ?? null);
+const nextTournaments = computed(() => homeStore.nextTournaments);
 const ctaLabel = computed(() => userStore.isLoggedIn ? 'Explorer les tournois' : 'Rejoindre Discord');
 const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_URL}/auth/discord`);
 
 onMounted(() => {
-  statsStore.fetchHomeStats()
+  homeStore.fetchHomeStats()
+  homeStore.fetchNextTournaments()
+  homeStore.fetchLastTournament()
 })
 </script>
 
@@ -100,7 +101,7 @@ onMounted(() => {
       <!-- Tournoi principal (le plus proche) -->
       <div v-if="nextTournaments.length > 0 && nextTournaments[0]" class="flex-1 min-h-0">
         <RouterLink :to="`/tournaments/${nextTournaments[0].id}`">
-          <TournamentCard :tournament="nextTournaments[0]" class="h-full" />
+          <TournamentCard :tournament="nextTournaments[0]" />
         </RouterLink>
       </div>
 

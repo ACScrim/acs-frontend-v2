@@ -56,7 +56,7 @@ router.beforeEach((to, _) => {
       return { path: '/not-found' };
     }
   }
-  if (to.path !== '/' && to.path !== '/verify-membership') {
+  if (to.path !== '/' && to.path !== '/verify-membership' && to.path !== '/api/auth/discord') {
     if (!userStore.isLoggedIn) {
       toastStore.error("Vous devez être connecté pour accéder à cette page.");
       return { path: '/' };
