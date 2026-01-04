@@ -13,8 +13,8 @@ const currentYear = ref(new Date().getFullYear());
         <!-- About Section -->
         <div class="flex flex-col gap-4">
           <div class="flex items-center gap-2">
-            <img src="/acs.avif" alt="ACS" class="h-8 w-auto" />
-            <span class="font-semibold text-white">ACS</span>
+            <img src="/acs.avif" alt="ACS" class="h-8 w-auto" width="71" height="32" />
+            <span class="font-semibold text-white sr-only">ACS</span>
           </div>
           <p class="text-sm text-foam-300/80">
             Plateforme de jeux compétitifs et de tournois passionnants.
