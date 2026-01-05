@@ -1,0 +1,38 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [ main ] # Se déclenche lors d'un push sur main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install & Build
+        run: |
+          npm install
+          npm run build  # Génère le dossier dist/
+
+      - name: Deploy via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          port: 22
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}   # ou ssh_private_key
+          sftp_only: true
+          local_path: ./dist
+          remote_path: /var/www/acsv2/frontend/dist
+          delete_remote_files: false
+          sftpArgs: "-o StrictHostKeyChecking=no"
+          ssh_private_key: ""

@@ -6,7 +6,6 @@ import {useUserStore} from '@/stores/userStore';
 import {API_URL} from '@/utils';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {computed, onMounted} from 'vue';
-import tournamentStore from "@/stores/tournamentStore.ts";
 
 const userStore = useUserStore();
 const homeStore = useHomeStore();
