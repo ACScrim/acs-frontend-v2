@@ -18,6 +18,13 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Generate env file
+        run: |
+          cat <<'EOF' > .env
+          VITE_API_URL=${{ secrets.VITE_API_URL }}
+          VITE_ACSDLE_CRYPTO_KEY=${{ secrets.VITE_ACSDLE_CRYPTO_KEY }}
+          EOF
+
       - name: Install & Build
         run: |
           npm install
