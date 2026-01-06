@@ -40,6 +40,6 @@ jobs:
           sftp_only: true
           local_path: ./dist
           remote_path: /var/www/acsv2/frontend
-          delete_remote_files: false
+          delete_remote_files: true
           sftpArgs: "-o StrictHostKeyChecking=no"
           ssh_private_key: ""
