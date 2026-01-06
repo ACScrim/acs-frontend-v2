@@ -17,36 +17,9 @@ export default defineConfig({
       devOptions: { enabled: true },
       injectRegister: "script-defer",
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,mp4}"],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB au lieu de 2 MB par défaut
-        // Exclure les routes d'authentification du cache
-        navigateFallbackDenylist: [
-          /^\/api\//, // Toutes les routes API
-          /\/auth\//, // Routes d'authentification
-          /\/discord\/callback/, // Callback Discord spécifiquement
-        ],
-        // Exclure du précaching
-        globIgnores: ["**/api/**", "**/auth/**"],
+        globPatterns: [],           // rien n’est précaché
         runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/acscrim\.fr\/api\/.*/,
-            handler: "NetworkOnly", // Jamais de cache pour l'API
-          },
-          {
-            urlPattern: /^https:\/\/v2\.acscrim\.fr\/api\/.*/,
-            handler: "NetworkOnly", // Jamais de cache pour l'API
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "images-cache",
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 jours
-              },
-            },
-          },
+          { urlPattern: /.*/, handler: "NetworkOnly" }, // tout passe par le réseau
         ],
       },
       manifest: {
