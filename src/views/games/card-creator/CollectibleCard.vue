@@ -379,7 +379,17 @@ onUnmounted(() => {
         }"
       >
         <!-- Category Name -->
-        <span v-if="props.card.category?.name" class="text-xs font-semibold text-white bg-black/50 px-1.5 py-0.5 rounded whitespace-nowrap">
+        <span
+          v-if="props.card.category?.name"
+          class="font-semibold text-white bg-black/50 rounded whitespace-nowrap"
+          :style="{
+            fontSize: scaleFontSize(12),
+            paddingLeft: `${scale(6)}px`,
+            paddingRight: `${scale(6)}px`,
+            paddingTop: `${scale(2)}px`,
+            paddingBottom: `${scale(2)}px`,
+          }"
+        >
           {{ props.card.category.name }}
         </span>
         <!-- Rarity Icon -->
