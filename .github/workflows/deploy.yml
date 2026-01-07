@@ -25,17 +25,6 @@ jobs:
           VITE_ACSDLE_CRYPTO_KEY=${{ secrets.VITE_ACSDLE_CRYPTO_KEY }}
           EOF
 
-      - name: Run remote command
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 22
-          script: |
-            cd /var/www/acsv2/frontend
-            git pull origin main
-
       - name: Install & Build
         run: |
           npm install
@@ -50,7 +39,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}   # ou ssh_private_key
           sftp_only: true
           local_path: ./dist
-          remote_path: /var/www/acsv2/frontend/dist
+          remote_path: /var/www/acsv2/frontend
           delete_remote_files: true
           sftpArgs: "-o StrictHostKeyChecking=no"
           ssh_private_key: ""
