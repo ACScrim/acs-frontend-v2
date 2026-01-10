@@ -207,11 +207,16 @@ onBeforeUnmount(() => {
           />
         </div>
 
-        <div class="flex flex-col gap-6 relative">
+        <div class="relative flex flex-col gap-6">
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 class="text-3xl font-bold text-foam-50">Cartes révélées</h3>
-              <p class="text-foam-300">Rareté maximale : <span class="font-bold capitalize" :style="{ color: glowColor }">{{ maxRarity }}</span></p>
+              <h3 class="text-2xl sm:text-3xl font-bold text-foam-50">Cartes révélées</h3>
+              <p class="text-foam-300">
+                Rareté maximale :
+                <span class="font-bold capitalize" :style="{ color: glowColor }">{{ maxRarity }}</span>
+                <span class="text-foam-300/70">·</span>
+                <span class="text-foam-100/80">{{ props.cards.length }} carte(s)</span>
+              </p>
             </div>
             <button @click="handleClose" class="text-foam-300 hover:text-white transition-colors text-3xl">
               ✕
@@ -219,26 +224,55 @@ onBeforeUnmount(() => {
           </div>
 
           <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] rounded-full pointer-events-none"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[26rem] h-[26rem] sm:w-[32rem] sm:h-[32rem] rounded-full pointer-events-none"
             :style="{ background: `radial-gradient(circle, ${glowColor.replace('0.9', '0.35')} 0%, transparent 70%)`, animation: 'auraPulse 6s ease-in-out infinite' }"
           />
 
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-4 p-4 bg-white/5 rounded-3xl border border-white/10 relative z-10">
-            <div
-              v-for="(card, idx) in props.cards"
-              :key="card.id"
-              class="card-reveal group"
-              :style="{
-                '--delay': `${idx * 80}ms`,
-                '--tiltX': `${rarityTiltMap[card.rarity || 'common'] ?? 4}deg`,
-                '--tiltY': `${idx % 2 === 0 ? -4 : 4}deg`,
-              }"
-            >
-              <CollectibleCard
-                :card="card"
-                :maxWidth="120"
-                lazy-load
-              />
+          <!--
+            Cartes:
+            - Mobile: bandeau horizontal scrollable + snap (lisible même avec 10+ cartes)
+            - Desktop: grille scrollable avec hauteur max (évite que le modal dépasse l'écran)
+          -->
+          <div class="relative z-10 rounded-3xl border border-white/10 bg-white/5">
+            <!-- Mobile -->
+            <div class="block md:hidden">
+              <div class="px-4 pt-4">
+                <p class="text-xs uppercase tracking-[0.35em] text-foam-300/60">Faites défiler</p>
+              </div>
+              <div class="cards-scroll-x px-4 pb-4 pt-3">
+                <div class="flex gap-4 w-max snap-x snap-mandatory">
+                  <div
+                    v-for="(card, idx) in props.cards"
+                    :key="card.id"
+                    class="card-reveal group snap-start shrink-0"
+                    :style="{
+                      '--delay': `${idx * 80}ms`,
+                      '--tiltX': `${rarityTiltMap[card.rarity || 'common'] ?? 4}deg`,
+                      '--tiltY': `${idx % 2 === 0 ? -4 : 4}deg`,
+                    }"
+                  >
+                    <CollectibleCard :card="card" :maxWidth="150" lazy-load />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop -->
+            <div class="hidden md:block p-4">
+              <div class="cards-grid-scroll grid grid-cols-5 gap-4">
+                <div
+                  v-for="(card, idx) in props.cards"
+                  :key="card.id"
+                  class="card-reveal group"
+                  :style="{
+                    '--delay': `${idx * 80}ms`,
+                    '--tiltX': `${rarityTiltMap[card.rarity || 'common'] ?? 4}deg`,
+                    '--tiltY': `${idx % 2 === 0 ? -4 : 4}deg`,
+                  }"
+                >
+                  <CollectibleCard :card="card" :maxWidth="120" lazy-load />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -338,82 +372,56 @@ onBeforeUnmount(() => {
 }
 
 .card-reveal {
+  /* Valeurs par défaut explicites pour satisfaire l'analyse statique (overrides via :style inline). */
+  --delay: 0ms;
+  --tiltX: 4deg;
+  --tiltY: 0deg;
+
   animation: cardReveal 0.7s ease-out forwards;
   animation-delay: var(--delay, 0ms);
 }
 
-.booster-svg {
-  width: 200px;
-  height: 290px;
-  transition: transform 80ms ease, filter 120ms ease;
-  transform-style: preserve-3d;
-  cursor: grab;
-  user-select: none;
+/* Styles du booster SVG supprimés (non utilisés dans ce composant). */
+
+.cards-scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
-.booster-svg:active {
-  cursor: grabbing;
+.cards-scroll-x::-webkit-scrollbar {
+  height: 10px;
 }
 
-/* Textes du booster */
-.logo-main {
-  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
-  font-size: 28px;
-  font-weight: 700;
-  fill: #f8f9ff;
-  letter-spacing: 0.12em;
+.cards-scroll-x::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
 }
 
-.logo-sub {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 8px;
-  fill: rgba(183, 194, 215, 0.85);
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
+.cards-scroll-x::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.card-question {
-  font-size: 28px;
-  fill: rgba(20, 220, 180, 0.9);
-  font-weight: bold;
+.cards-grid-scroll {
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
-.edition-text {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 11px;
-  fill: #14dcb4;
-  letter-spacing: 0.18em;
-  font-weight: 600;
+.cards-grid-scroll::-webkit-scrollbar {
+  width: 10px;
 }
 
-.info-text {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 6px;
-  fill: rgba(183, 194, 215, 0.6);
-  letter-spacing: 0.08em;
+.cards-grid-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
 }
 
-.star {
-  font-size: 8px;
-  fill: #ffd966;
-}
-
-.seal-text {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 7px;
-  fill: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.1em;
-}
-
-.seal-zone {
-  pointer-events: none;
-}
-
-.tear-part {
-  transition: transform 60ms ease, opacity 100ms ease;
-}
-
-.light-escape {
-  pointer-events: none;
+.cards-grid-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 </style>

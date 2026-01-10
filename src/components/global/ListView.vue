@@ -63,7 +63,7 @@ const emit = defineEmits<{
     </div>
 
     <template v-if="data.length > 0">
-      <div :class="`${getGridColsClass()} ${justifyCenter ? 'justify-center' : ''}`" class="gap-6">
+      <div :class="`${getGridColsClass()} ${justifyCenter ? 'justify-center justify-items-center' : ''}`" class="gap-6">
         <slot name="add-preprend" />
         <RouterLink
           v-if="to"

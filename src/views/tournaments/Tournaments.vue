@@ -36,7 +36,7 @@ onMounted(() => {
 
 <template>
   <div class="space-y-12">
-    <PageHeader title="Tournois hebdo" subtitle="Calendrier ACS">
+    <PageHeader title="Tournois" subtitle="Calendrier ACS">
       <template #icon>
         <VueIcon name="bs:trophy" class="text-3xl text-accent-300" />
       </template>
@@ -51,6 +51,7 @@ onMounted(() => {
             v-model="gameFilter"
             :options="games.map(game => ({ label: game.name, value: game.name })).concat([{ label: 'Tous les jeux', value: '' }])"
             default-option-label="Tous les jeux"
+            custom-class="w-full"
           />
         </div>
       </form>

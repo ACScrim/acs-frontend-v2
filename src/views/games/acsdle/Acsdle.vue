@@ -222,18 +222,21 @@ const hints = computed(() => [
 <template>
   <div class="min-h-screen text-white">
     <LoaderACS v-if="isLoading" />
-    <!-- Header -->
-    <div v-else class="max-w-6xl mx-auto space-y-8">
-      <h1 class="text-5xl font-bold mb-2 text-center">ACSDLE</h1>
-      <p class="text-center text-gray-400 mb-8">Devinez le joueur du jour</p>
+
+    <div v-else class="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-32 sm:px-6 sm:pt-8 lg:px-10">
+      <!-- Header -->
+      <header class="space-y-2 text-center">
+        <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">ACSDLE</h1>
+        <p class="text-sm text-gray-400 sm:text-base">Devinez le joueur du jour</p>
+      </header>
 
       <!-- Win Screen -->
-      <div v-if="gameWon && decryptedUser" class="rounded-lg border-2 border-green-500 bg-green-900 p-8 text-center shadow-2xl">
-        <h2 class="mb-4 text-4xl font-bold">🎉 Bravo! 🎉</h2>
-        <p class="mb-6 text-xl">Vous avez trouvé le joueur en {{ guesses.length }} essai(s)!</p>
-        <div class="mb-6 rounded-lg bg-gray-800 p-6">
-          <h3 class="mb-4 text-2xl font-bold">Statistiques de {{ decryptedUser.username }}</h3>
-          <ul class="space-y-2 text-left">
+      <div v-if="gameWon && decryptedUser" class="rounded-2xl border-2 border-green-500/80 bg-green-900/40 p-6 text-center shadow-2xl sm:p-8">
+        <h2 class="mb-3 text-3xl font-bold sm:text-4xl">🎉 Bravo! 🎉</h2>
+        <p class="mb-5 text-base sm:text-xl">Vous avez trouvé le joueur en {{ guesses.length }} essai(s)!</p>
+        <div class="mb-5 rounded-2xl bg-gray-900/40 p-5 text-left sm:p-6">
+          <h3 class="mb-4 text-xl font-bold sm:text-2xl">Statistiques de {{ decryptedUser.username }}</h3>
+          <ul class="space-y-2 text-sm sm:text-base">
             <li><strong>Tournois joués:</strong> {{ decryptedUser.tournamentsPlayed }}</li>
             <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
             <li><strong>Top 25%:</strong> {{ decryptedUser.top25Finishes }}</li>
@@ -241,16 +244,16 @@ const hints = computed(() => [
             <li><strong>Membre depuis:</strong> {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}</li>
           </ul>
         </div>
-        <p class="text-xl">Prochain joueur dans <b>{{ formatDate(new Date(timeRemaining), "HH:mm:ss")}}</b></p>
+        <p class="text-base sm:text-xl">Prochain joueur dans <b>{{ formatDate(new Date(timeRemaining), "HH:mm:ss") }}</b></p>
       </div>
 
       <!-- Loss Screen -->
-      <div v-if="gameOver && !gameWon && decryptedUser" class="rounded-lg border-2 border-red-500 bg-red-900 p-8 text-center shadow-2xl">
-        <h2 class="mb-4 text-4xl font-bold">😔 Game Over!</h2>
-        <p class="mb-6 text-xl">Le champion était: <strong>{{ decryptedUser.username }}</strong></p>
-        <div class="mb-6 rounded-lg bg-gray-800 p-6">
-          <h3 class="mb-4 text-2xl font-bold">Statistiques du champion</h3>
-          <ul class="space-y-2 text-left">
+      <div v-if="gameOver && !gameWon && decryptedUser" class="rounded-2xl border-2 border-red-500/80 bg-red-900/40 p-6 text-center shadow-2xl sm:p-8">
+        <h2 class="mb-3 text-3xl font-bold sm:text-4xl">😔 Game Over!</h2>
+        <p class="mb-5 text-base sm:text-xl">Le champion était: <strong>{{ decryptedUser.username }}</strong></p>
+        <div class="mb-5 rounded-2xl bg-gray-900/40 p-5 text-left sm:p-6">
+          <h3 class="mb-4 text-xl font-bold sm:text-2xl">Statistiques du champion</h3>
+          <ul class="space-y-2 text-sm sm:text-base">
             <li><strong>Tournois joués:</strong> {{ decryptedUser.tournamentsPlayed }}</li>
             <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
             <li><strong>Top 25%:</strong> {{ decryptedUser.top25Finishes }}</li>
@@ -261,25 +264,25 @@ const hints = computed(() => [
       </div>
 
       <!-- Game Container -->
-      <div v-if="decryptedUser" class="bg-gray-800 rounded-lg p-8 shadow-2xl">
-        <!-- Search Bar -->
-        <div class="mb-8 relative space-y-5">
+      <div v-if="decryptedUser" class="rounded-2xl bg-gray-800/70 p-4 shadow-2xl ring-1 ring-white/10 sm:p-6 lg:p-8">
+        <!-- Search + stats -->
+        <div class="mb-6 space-y-5">
           <div class="flex gap-2">
             <div class="relative flex-1">
               <input
                 v-model="searchInput"
                 type="text"
                 placeholder="Tapez le nom d'un joueur..."
-                class="w-full bg-gray-700 border-2 border-cyan-500 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+                class="w-full rounded-xl border-2 border-cyan-500 bg-gray-700/70 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="gameWon || gameOver"
               />
               <!-- Dropdown de suggestions -->
-              <div v-if="filteredUsers.length > 0" class="absolute top-full left-0 right-0 mt-2 bg-gray-700 rounded-lg border border-cyan-500 shadow-lg z-10">
+              <div v-if="filteredUsers.length > 0" class="absolute top-full left-0 right-0 mt-2 overflow-hidden rounded-xl border border-cyan-500/60 bg-gray-800/95 shadow-lg z-10">
                 <button
                   v-for="user in filteredUsers"
                   :key="user.id"
                   @click="selectUser(user)"
-                  class="w-full text-left px-4 py-2 hover:bg-cyan-500 hover:text-gray-900 transition"
+                  class="w-full text-left px-4 py-3 hover:bg-cyan-500 hover:text-gray-900 transition"
                 >
                   {{ user.username }}
                 </button>
@@ -287,94 +290,91 @@ const hints = computed(() => [
             </div>
             <button
               v-if="filteredUsers.length > 0"
-              class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-6 py-3 rounded-lg transition"
+              class="rounded-xl bg-yellow-500 px-5 py-3 font-bold text-gray-900 transition hover:bg-yellow-600"
               @click="selectUser(filteredUsers[0]!)"
+              aria-label="Valider la suggestion"
             >
               ▶
             </button>
           </div>
 
-          <div class="flex gap-2 justify-between">
-            <div v-for="hint in hints" class="p-5 bg-surface-600 rounded-md basis-1/3">
-              <p class="text-center">{{ hint.condition() ? hint.messageActive : hint.messageInactive }}</p>
+          <!-- Hints: 1 colonne sur mobile, 3 colonnes dès sm -->
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div v-for="hint in hints" class="rounded-xl bg-surface-600/70 p-4 ring-1 ring-white/10">
+              <p class="text-center text-sm sm:text-base">{{ hint.condition() ? hint.messageActive : hint.messageInactive }}</p>
             </div>
           </div>
 
-          <div>
-            <p class="text-sm text-gray-400 text-center">Vous avez utilisé {{ guesses.length }} / 20 essais.</p>
+          <div class="rounded-xl bg-gray-900/30 px-4 py-3 text-center">
+            <p class="text-sm text-gray-300">Vous avez utilisé <span class="font-semibold text-white">{{ guesses.length }}</span> / 20 essais.</p>
           </div>
         </div>
 
-        <!-- Column Headers -->
-        <div class="mb-4 grid grid-cols-7 gap-2 items-center">
-          <div class="text-xs font-bold text-gray-300 text-center">Joueur</div>
-          <div class="text-xs font-bold text-gray-300 text-center">Tournois</div>
-          <div class="text-xs font-bold text-gray-300 text-center">Victoires</div>
-          <div class="text-xs font-bold text-gray-300 text-center">Top 25%</div>
-          <div class="text-xs font-bold text-gray-300 text-center col-span-2">Jeux les plus joués</div>
-          <div class="text-xs font-bold text-gray-300 text-center">Mois / Année</div>
-        </div>
+        <!-- Table: scroll horizontal + layout plus compact sur mobile -->
+        <div class="space-y-3">
+          <div class="grid grid-cols-7 gap-2 items-center text-[11px] font-bold text-gray-300">
+            <div class="text-center">Joueur</div>
+            <div class="text-center">Tour.</div>
+            <div class="text-center">Vic.</div>
+            <div class="text-center">Top</div>
+            <div class="text-center col-span-2">Jeux</div>
+            <div class="text-center">M/A</div>
+          </div>
 
-        <!-- Guesses Table -->
-        <div v-if="guesses.length > 0" class="overflow-x-auto mb-8">
-          <div class="space-y-2">
-            <div v-for="(guess, index) in reversedGuesses" :key="index" class="grid grid-cols-7 gap-2 items-center pb-4 border-b border-gray-700">
-              <!-- Username -->
-              <div class="bg-gray-700 p-3 rounded-lg text-sm text-center font-semibold truncate">
-                {{ guess.username }}
-              </div>
+          <div v-if="guesses.length > 0" class="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+            <div class="min-w-[720px] space-y-2">
+              <div v-for="(guess, index) in reversedGuesses" :key="index" class="grid grid-cols-7 gap-2 items-center rounded-2xl bg-gray-900/25 p-3 ring-1 ring-white/10">
+                <div class="truncate rounded-xl bg-gray-700/70 p-3 text-center text-sm font-semibold">
+                  {{ guess.username }}
+                </div>
 
-              <!-- Nombre de tournois -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', getIndicatorClass(guess.tournamentsPlayed, decryptedUser?.tournamentsPlayed, 'tournamentsPlayed')]">
-                {{ guess.tournamentsPlayed }}
-              </div>
+                <div :class="['rounded-xl', 'p-3', 'text-center', 'font-bold', getIndicatorClass(guess.tournamentsPlayed, decryptedUser?.tournamentsPlayed, 'tournamentsPlayed')]">
+                  {{ guess.tournamentsPlayed }}
+                </div>
 
-              <!-- Nombre de victoires -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', getIndicatorClass(guess.victories, decryptedUser?.victories, 'victories')]">
-                {{ guess.victories }}
-              </div>
+                <div :class="['rounded-xl', 'p-3', 'text-center', 'font-bold', getIndicatorClass(guess.victories, decryptedUser?.victories, 'victories')]">
+                  {{ guess.victories }}
+                </div>
 
-              <!-- Top 25% -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', getIndicatorClass(guess.top25Finishes, decryptedUser?.top25Finishes, 'top25Finishes')]">
-                {{ guess.top25Finishes }}
-              </div>
+                <div :class="['rounded-xl', 'p-3', 'text-center', 'font-bold', getIndicatorClass(guess.top25Finishes, decryptedUser?.top25Finishes, 'top25Finishes')]">
+                  {{ guess.top25Finishes }}
+                </div>
 
-              <!-- Jeu le plus joué -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', 'text-sm', 'col-span-2', getIndicatorClass(guess.mostPlayedGames, decryptedUser?.mostPlayedGames, 'mostPlayedGames')]">
-                {{ guess.mostPlayedGames.join(', ') || "N/A" }}
-              </div>
+                <div :class="['rounded-xl', 'p-3', 'text-center', 'font-bold', 'text-sm', 'col-span-2', getIndicatorClass(guess.mostPlayedGames, decryptedUser?.mostPlayedGames, 'mostPlayedGames')]">
+                  {{ guess.mostPlayedGames.join(', ') || 'N/A' }}
+                </div>
 
-              <!-- Date d'arrivée -->
-              <div :class="['p-3', 'rounded-lg', 'text-center', 'font-bold', 'text-sm', 'capitalize', getYearDisplayClass(guess)]">
-                {{ formatDate(new Date(guess.createdAt), "MMMM / YYYY") }}
+                <div :class="['rounded-xl', 'p-3', 'text-center', 'font-bold', 'text-sm', 'capitalize', getYearDisplayClass(guess)]">
+                  {{ formatDate(new Date(guess.createdAt), 'MMMM / YYYY') }}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Indicateurs de couleur -->
-        <div class="bg-gray-700 p-6 rounded-lg">
-          <h3 class="font-bold mb-4 text-center">Indicateurs de couleur</h3>
-          <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded bg-green-500" />
-              <span>Correct</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded bg-red-500" />
-              <span>Incorrect</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded bg-blue-500" />
-              <span>Partiellement</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded bg-yellow-500" />
-              <span>Inférieur</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded bg-orange-500" />
-              <span>Supérieur</span>
+          <!-- Légende -->
+          <div class="rounded-2xl bg-gray-700/60 p-5 ring-1 ring-white/10">
+            <h3 class="mb-4 text-center font-bold">Indicateurs de couleur</h3>
+            <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
+              <div class="flex items-center gap-2">
+                <div class="h-6 w-6 rounded bg-green-500" />
+                <span>Correct</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-6 w-6 rounded bg-red-500" />
+                <span>Incorrect</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-6 w-6 rounded bg-blue-500" />
+                <span>Partiellement</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-6 w-6 rounded bg-yellow-500" />
+                <span>Inférieur</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-6 w-6 rounded bg-orange-500" />
+                <span>Supérieur</span>
+              </div>
             </div>
           </div>
         </div>
