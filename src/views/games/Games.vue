@@ -14,6 +14,7 @@ const games: Game[] = [
   { id: '3', name: 'Créateur de Cartes', route: '/games/card-creator' },
   { id: '4', name: 'Collection de Cartes', route: '/games/card-collection' },
   { id: '5', name: 'Boutique de Boosters', route: '/games/booster-shop' },
+  { id: '6', name: 'Cursor War', route: '/games/cursor-war' },
 ]
 
 </script>
