@@ -134,7 +134,7 @@ const columns = [
       h("span", { class: "text-foam-50 font-semibold" }, info.getValue()),
   }),
   columnHelper.accessor("top25Count", {
-    header: () => "Top 25%",
+    header: () => "Podium",
     cell: (info) =>
       h("span", { class: "text-foam-50 font-semibold" }, info.getValue()),
   }),
