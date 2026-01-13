@@ -44,6 +44,8 @@ const useTournamentStore = defineStore('tournament', {
       const index = this.tournaments.findIndex(t => t.id === tournamentId);
       if (index !== -1) {
         this.tournaments[index] = tournament;
+      } else {
+        this.tournaments.push(tournament);
       }
       this.isLoading = false;
     },

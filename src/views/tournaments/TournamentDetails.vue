@@ -6,7 +6,12 @@ export default {
     if (tournamentStore.getById(tournamentId)) {
       next();
     } else {
-      next({ path: '/not-found', query: { message: 'Tournoi non trouvé' } });
+      try {
+        tournamentStore.fetchTournament(tournamentId);
+        next();
+      } catch {
+        next({ path: '/not-found', query: { message: 'Tournoi non trouvé' } });
+      }
     }
   }
 };

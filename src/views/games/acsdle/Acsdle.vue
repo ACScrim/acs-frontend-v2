@@ -546,14 +546,14 @@ const hints = computed(() => [
         <!-- Table: scroll horizontal + layout plus compact sur mobile -->
         <div class="space-y-3">
           <div
-            class="grid grid-cols-7 gap-2 items-center text-[11px] font-bold text-gray-300"
+            class="grid grid-cols-8 gap-2 items-center text-[11px] font-bold text-gray-300"
           >
             <div class="text-center">Joueur</div>
             <div class="text-center">Tournois</div>
             <div class="text-center">Victoires</div>
             <div class="text-center">Podium</div>
             <div class="text-center col-span-2">Jeux</div>
-            <div class="text-center">M/A</div>
+            <div class="text-center col-span-2">Premier ACS</div>
           </div>
 
           <div
@@ -564,7 +564,7 @@ const hints = computed(() => [
               <div
                 v-for="(guess, index) in reversedGuesses"
                 :key="index"
-                class="grid grid-cols-7 gap-2 items-center rounded-2xl bg-gray-900/25 p-3 ring-1 ring-white/10 hover:bg-gray-900/40 transition-all duration-300 animate-in slide-in-from-bottom-2"
+                class="grid grid-cols-8 gap-2 items-center rounded-2xl bg-gray-900/25 p-3 ring-1 ring-white/10 hover:bg-gray-900/40 transition-all duration-300 animate-in slide-in-from-bottom-2"
                 :style="{ animationDelay: `${index * 100}ms` }"
               >
                 <div
@@ -694,6 +694,7 @@ const hints = computed(() => [
                     'text-center',
                     'font-bold',
                     'text-sm',
+                    'col-span-2',
                     'capitalize',
                     'relative',
                     'group',
