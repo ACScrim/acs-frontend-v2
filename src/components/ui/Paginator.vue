@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import VueIcon from '@kalimahapps/vue-icons/VueIcon';
+import { computed } from "vue";
+import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 
 interface Props {
   total: number;
@@ -16,8 +16,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  'update:currentPage': [page: number];
-  'paginate': [{ limit: number; offset: number }];
+  "update:currentPage": [page: number];
+  paginate: [{ limit: number; offset: number }];
 }>();
 
 const totalPages = computed(() => Math.ceil(props.total / props.itemsPerPage));
@@ -26,8 +26,8 @@ const currentPageComputed = computed({
   get: () => props.currentPage,
   set: (value: number) => {
     if (value >= 1 && value <= totalPages.value) {
-      emit('update:currentPage', value);
-      emit('paginate', {
+      emit("update:currentPage", value);
+      emit("paginate", {
         limit: props.itemsPerPage,
         offset: (value - 1) * props.itemsPerPage,
       });
@@ -40,7 +40,10 @@ const visiblePages = computed(() => {
   const halfVisible = Math.floor(props.maxVisiblePages / 2);
 
   let startPage = Math.max(1, currentPageComputed.value - halfVisible);
-  let endPage = Math.min(totalPages.value, startPage + props.maxVisiblePages - 1);
+  let endPage = Math.min(
+    totalPages.value,
+    startPage + props.maxVisiblePages - 1
+  );
 
   if (endPage - startPage < props.maxVisiblePages - 1) {
     startPage = Math.max(1, endPage - props.maxVisiblePages + 1);
@@ -49,7 +52,7 @@ const visiblePages = computed(() => {
   if (startPage > 1) {
     pages.push(1);
     if (startPage > 2) {
-      pages.push('...');
+      pages.push("...");
     }
   }
 
@@ -59,7 +62,7 @@ const visiblePages = computed(() => {
 
   if (endPage < totalPages.value) {
     if (endPage < totalPages.value - 1) {
-      pages.push('...');
+      pages.push("...");
     }
     pages.push(totalPages.value);
   }
@@ -71,26 +74,26 @@ const canGoPrevious = computed(() => currentPageComputed.value > 1);
 const canGoNext = computed(() => currentPageComputed.value < totalPages.value);
 
 const getScrollRegion = () => {
-  return document.querySelector('[data-acs-scroll-region]');
-}
+  return document.querySelector("[data-acs-scroll-region]");
+};
 
 const goToPage = (page: number | string) => {
-  if (typeof page === 'number') {
-    getScrollRegion()?.scrollTo(0,0);
+  if (typeof page === "number") {
+    getScrollRegion()?.scrollTo(0, 0);
     currentPageComputed.value = page;
   }
 };
 
 const goToPrevious = () => {
   if (canGoPrevious.value) {
-    getScrollRegion()?.scrollTo(0,0);
+    getScrollRegion()?.scrollTo(0, 0);
     currentPageComputed.value = currentPageComputed.value - 1;
   }
 };
 
 const goToNext = () => {
   if (canGoNext.value) {
-    getScrollRegion()?.scrollTo(0,0);
+    getScrollRegion()?.scrollTo(0, 0);
     currentPageComputed.value = currentPageComputed.value + 1;
   }
 };
@@ -102,8 +105,10 @@ const goToNext = () => {
     <button
       @click="goToPrevious"
       :disabled="!canGoPrevious"
-      class="px-3 py-2 rounded-lg border border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-      :title="canGoPrevious ? 'Page précédente' : 'Vous êtes à la première page'"
+      class="px-3 py-2 rounded-lg border border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer cursor-pointer"
+      :title="
+        canGoPrevious ? 'Page précédente' : 'Vous êtes à la première page'
+      "
     >
       <VueIcon name="bs:chevron-left" class="text-xl" />
     </button>
@@ -118,10 +123,10 @@ const goToNext = () => {
         :class="[
           'px-3 py-2 rounded-lg border transition-all duration-200',
           page === currentPageComputed
-            ? 'bg-gradient-to-r from-accent-500 to-emerald-500 text-ink-900 border-transparent font-bold shadow-[0_10px_30px_rgba(6,182,212,0.25)]'
+            ? 'bg-gradient-to-r from-accent-500 to-emerald-500 text-ink-900 border-transparent font-bold shadow-[0_10px_30px_rgba(6,182,212,0.25)] cursor-pointer'
             : page === '...'
             ? 'border-transparent text-foam-400 cursor-default'
-            : 'border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10'
+            : 'border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 cursor-pointer',
         ]"
       >
         {{ page }}
@@ -132,7 +137,7 @@ const goToNext = () => {
     <button
       @click="goToNext"
       :disabled="!canGoNext"
-      class="px-3 py-2 rounded-lg border border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      class="px-3 py-2 rounded-lg border border-white/10 text-foam-100 hover:text-white hover:border-accent-300 hover:bg-accent-300/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
       :title="canGoNext ? 'Page suivante' : 'Vous êtes à la dernière page'"
     >
       <VueIcon name="bs:chevron-right" class="text-xl" />
