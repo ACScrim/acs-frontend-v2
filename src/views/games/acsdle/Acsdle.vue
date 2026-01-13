@@ -263,7 +263,7 @@ function getIndicatorClass(
   const targetStr = String(targetValue).toLowerCase().trim();
 
   // Pour les champs texte (mostGamePlayed)
-  if (field === "mostPlayedGames") {
+  if (field === "mostPlayedGames" || field === "firstTournament") {
     if (guessStr === targetStr) return "bg-green-500 animate-pulse";
     if (guessStr.includes(targetStr)) return "bg-blue-500";
     return "bg-red-500";
@@ -290,7 +290,7 @@ function getIndicatorIcon(
   const guessStr = String(guessValue).toLowerCase().trim();
   const targetStr = String(targetValue).toLowerCase().trim();
 
-  if (field === "mostPlayedGames") {
+  if (field === "mostPlayedGames" || field === "firstTournament") {
     if (guessStr === targetStr) return "✅";
     if (guessStr.includes(targetStr)) return "🟦";
     return "❌";
@@ -306,27 +306,11 @@ function getIndicatorIcon(
   return "🔼";
 }
 
-function getYearDisplayClass(guess: AcsdleUser): string {
-  if (!decryptedUser.value) return "bg-gray-600";
-  const guessYear = new Date(guess.createdAt).getFullYear();
-  const guessMonth = new Date(guess.createdAt).getMonth();
-  const targetYear = new Date(decryptedUser.value.createdAt).getFullYear();
-  const targetMonth = new Date(decryptedUser.value.createdAt).getMonth();
-  return getIndicatorClass(
-    guessYear + guessMonth,
-    targetYear + targetMonth,
-    "createdAt"
-  );
-}
-
 const hints = computed(() => [
   {
     condition: () => guesses.value.length > 3,
-    messageActive: decryptedUser.value?.createdAt
-      ? `Arrivé en ${formatDate(
-          new Date(decryptedUser.value?.createdAt),
-          "MMMM YYYY"
-        )}`
+    messageActive: decryptedUser.value?.firstTournament
+      ? `Premier ACS : ${decryptedUser.value?.firstTournament}`
       : "ERREUR",
     messageInactive: "Indice disponible au 4ème essai",
   },
@@ -405,14 +389,14 @@ const hints = computed(() => [
               {{ decryptedUser.tournamentsPlayed }}
             </li>
             <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
-            <li><strong>Top 25%:</strong> {{ decryptedUser.top25Finishes }}</li>
+            <li><strong>Podium:</strong> {{ decryptedUser.podiumCount }}</li>
             <li>
               <strong>Jeux les plus joués:</strong>
               {{ decryptedUser.mostPlayedGames.join(", ") }}
             </li>
             <li>
-              <strong>Membre depuis:</strong>
-              {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}
+              <strong>Premier ACS:</strong>
+              {{ decryptedUser.firstTournament }}
             </li>
           </ul>
         </div>
@@ -441,14 +425,14 @@ const hints = computed(() => [
               {{ decryptedUser.tournamentsPlayed }}
             </li>
             <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
-            <li><strong>Top 25%:</strong> {{ decryptedUser.top25Finishes }}</li>
+            <li><strong>Podium:</strong> {{ decryptedUser.podiumCount }}</li>
             <li>
               <strong>Jeu le plus joué:</strong>
               {{ decryptedUser.mostPlayedGames.join(", ") }}
             </li>
             <li>
-              <strong>Membre depuis:</strong>
-              {{ new Date(decryptedUser.createdAt).toLocaleDateString() }}
+              <strong>Premier ACS:</strong>
+              {{ decryptedUser.firstTournament }}
             </li>
           </ul>
         </div>
@@ -567,7 +551,7 @@ const hints = computed(() => [
             <div class="text-center">Joueur</div>
             <div class="text-center">Tournois</div>
             <div class="text-center">Victoires</div>
-            <div class="text-center">Top</div>
+            <div class="text-center">Podium</div>
             <div class="text-center col-span-2">Jeux</div>
             <div class="text-center">M/A</div>
           </div>
@@ -657,20 +641,20 @@ const hints = computed(() => [
                     'duration-300',
                     'hover:scale-105',
                     getIndicatorClass(
-                      guess.top25Finishes,
-                      decryptedUser?.top25Finishes,
-                      'top25Finishes'
+                      guess.podiumCount,
+                      decryptedUser?.podiumCount,
+                      'podiumCount'
                     ),
                   ]"
                 >
                   <span class="absolute -top-1 -right-1 text-xs opacity-75">{{
                     getIndicatorIcon(
-                      guess.top25Finishes,
-                      decryptedUser?.top25Finishes,
-                      "top25Finishes"
+                      guess.podiumCount,
+                      decryptedUser?.podiumCount,
+                      "podiumCount"
                     )
                   }}</span>
-                  {{ guess.top25Finishes }}
+                  {{ guess.podiumCount }}
                 </div>
 
                 <div
@@ -716,17 +700,21 @@ const hints = computed(() => [
                     'transition-all',
                     'duration-300',
                     'hover:scale-105',
-                    getYearDisplayClass(guess),
+                    getIndicatorClass(
+                      guess.firstTournament,
+                      decryptedUser?.firstTournament,
+                      'firstTournament'
+                    ),
                   ]"
                 >
                   <span class="absolute -top-1 -right-1 text-xs opacity-75">{{
                     getIndicatorIcon(
-                      new Date(guess.createdAt).getFullYear(),
-                      new Date(decryptedUser?.createdAt || "").getFullYear(),
-                      "year"
+                      guess.firstTournament,
+                      decryptedUser.firstTournament,
+                      "firstTournament"
                     )
                   }}</span>
-                  {{ formatDate(new Date(guess.createdAt), "MMMM / YYYY") }}
+                  {{ guess.firstTournament }}
                 </div>
               </div>
             </div>

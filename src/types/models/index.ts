@@ -353,10 +353,10 @@ export interface Booster {
 export interface AcsdleUser {
   id: string;
   username: string;
-  createdAt: Date;
+  firstTournament: string;
   tournamentsPlayed: number;
   victories: number;
-  top25Finishes: number;
+  podiumCount: number;
   mostPlayedGames: string[];
 }
 
