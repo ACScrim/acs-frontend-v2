@@ -721,9 +721,11 @@ const hints = computed(() => [
                 >
                   <span class="absolute -top-1 -right-1 text-xs opacity-75">{{
                     getIndicatorIcon(
-                      new Date(guess.createdAt).getFullYear(),
-                      new Date(decryptedUser?.createdAt || "").getFullYear(),
-                      "year"
+                      new Date(guess.createdAt).getFullYear() +
+                        new Date(guess.createdAt).getMonth(),
+                      new Date(decryptedUser?.createdAt || "").getFullYear() +
+                        new Date(decryptedUser?.createdAt || "").getMonth(),
+                      "createdAt"
                     )
                   }}</span>
                   {{ formatDate(new Date(guess.createdAt), "MMMM / YYYY") }}
