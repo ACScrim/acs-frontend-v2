@@ -23,6 +23,9 @@ const asideRoutes = computed(() =>
       const showInAside = r.meta.showInAside;
       const showInAdminBar = r.meta.showInAdminBar;
       if (route.path.startsWith("/admin")) {
+        if (typeof showInAdminBar === "function") {
+          return showInAdminBar(user.value);
+        }
         return showInAdminBar;
       }
       if (!user.value) return false;
