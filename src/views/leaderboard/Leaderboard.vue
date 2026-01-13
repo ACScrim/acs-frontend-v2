@@ -12,7 +12,7 @@ import { computed, h, onMounted, ref, watch } from "vue";
 import {
   createColumnHelper,
   getCoreRowModel,
-  getPaginationRowModel,
+  getPaginationRowModel, getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
 import TableTanstack from "@/components/global/TableTanstack.vue";
@@ -127,6 +127,7 @@ const columns = [
     header: () => "Tournois",
     cell: (info) =>
       h("span", { class: "text-foam-50 font-semibold" }, info.getValue()),
+
   }),
   columnHelper.accessor("victoriesCount", {
     header: () => "Victoires",
@@ -162,7 +163,8 @@ const table = useVueTable({
     return filteredLeaderboard.value;
   },
   columns,
-  enableSorting: false,
+  enableSorting: true,
+  getSortedRowModel: getSortedRowModel(),
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   state: {
