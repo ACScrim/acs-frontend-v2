@@ -7,30 +7,35 @@ const props = defineProps<{
   user: UserWithStats;
 }>();
 
+const isRankingCountedAsPodium = (rank: number, totalTeams: number): boolean => {
+  if (rank === 1) return false;
+  if (totalTeams >= 4) {
+    return rank <= 3;
+  }
+  else if (totalTeams === 3) {
+    return rank <= 2;
+  }
+  return false;
+}
+
 const statsBlocks = [
   {
     label: 'Série',
     icon: 'bs:fire',
     text: 'Victoires consécutives',
-    value: 2 
+    value: props.user.tournamentStats.longuestWinStreak,
   },
   {
-    label: 'Top 25%',
-    icon: 'fl:target-arrow',
-    text: 'Des tournois',
-    value: (props.user.tournamentStats.firstPlaceCount + props.user.tournamentStats.top25Count) / props.user.tournamentStats.tournamentsCount * 100,
+    label: 'Podium',
+    icon: 'ca:trophy-filled',
+    text: 'De podiums',
+    value: (props.user.tournamentHistory.reduce((acc, t) => acc + (isRankingCountedAsPodium(t.teams.find(team => (team.users as unknown as string[]).includes(props.user.id))?.ranking || 100, t.teams.length) ? 1 : 0), 0)) / props.user.tournamentStats.tournamentsCount * 100,
   },
   {
     label: 'Taux',
     icon: 'cd:graph',
     text: 'de victoire',
     value: props.user.tournamentStats.firstPlaceCount / props.user.tournamentStats.tournamentsCount * 100,
-  },
-  {
-    label: 'Podium',
-    icon: 'ca:trophy-filled',
-    text: 'De podiums',
-    value: (props.user.tournamentStats.firstPlaceCount + props.user.tournamentStats.secondPlaceCount + props.user.tournamentStats.thirdPlaceCount) / props.user.tournamentStats.tournamentsCount * 100,
   }
 ];
 </script>
@@ -43,7 +48,7 @@ const statsBlocks = [
         <h2 class="hero-title font-display text-3xl text-transparent bg-clip-text bg-gradient-to-r from-accent-300 to-blush-300">Records personnels</h2>
       </div>
     </template>
-    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       <Card
         v-for="stat in statsBlocks"
         :key="stat.label"

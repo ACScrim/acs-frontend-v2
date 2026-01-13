@@ -47,6 +47,7 @@ export interface UserWithStats extends User {
     top25Count: number;
     tournamentsCount: number;
     points: number;
+    longuestWinStreak: number;
   };
   tournamentHistory: Tournament[];
   lastActivity: string;
