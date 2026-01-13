@@ -130,9 +130,12 @@ const runVerifyOnce = async (): Promise<void> => {
 
     lastStatusCode.value = result.status;
 
-    // 401 = la session n'a pas le discord_temp_token (perte cookie, ITP mobile, etc.)
+    // 401 = session perdue OU vmToken expiré/invalide
     if (result.status === 401) {
-      lastErrorMessage.value = "Session expirée ou cookie bloqué. Reconnectez-vous.";
+      const hasVmToken = Boolean(vmToken.value);
+      lastErrorMessage.value = hasVmToken
+        ? "Le lien de vérification a expiré. Relancez la connexion Discord."
+        : "Session expirée ou cookie bloqué. Reconnectez-vous.";
       verificationState.value = 'failed';
       stopTimers();
       return;
