@@ -93,6 +93,11 @@ const inviteUrl = computed(() => {
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 });
 
+const vmToken = computed(() => {
+  const raw = route.query['vmToken'];
+  return typeof raw === 'string' && raw.length > 0 ? raw : null;
+});
+
 let intervalId: number | undefined;
 let timeoutId: number | undefined;
 
@@ -119,7 +124,7 @@ const runVerifyOnce = async (): Promise<void> => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ vmToken: vmToken.value || undefined }),
       }
     );
 
@@ -174,6 +179,9 @@ onMounted(() => {
     lastErrorMessage.value = "Lien d'invitation manquant.";
     return;
   }
+
+  // Si pas de vmToken ET si la session saute, on va finir en 401.
+  // Avec vmToken (renvoyé par le callback), un F5 reste fonctionnel sur mobile.
 
   // Polling pour vérifier l'appartenance
   intervalId = window.setInterval(runVerifyOnce, 1000);
