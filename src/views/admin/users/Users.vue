@@ -9,7 +9,9 @@ import { formatDate } from '@vueuse/core';
 import { computed, h, onMounted, ref } from 'vue';
 
 const adminStore = useAdminStore();
-const users = computed(() => adminStore.users);
+const users = computed(() => adminStore.users.filter(user => user.username.toLowerCase().includes(usernameFilter.value.toLowerCase())));
+
+const usernameFilter = ref('');
 
 const reportModalUserId = ref<string | null>(null);
 const isReportsModalOpen = computed(() => reportModalUserId.value !== null);
@@ -58,10 +60,16 @@ const table = useVueTable({
           { label: 'Superadmin', value: 'superadmin' }
         ],
         class: 'w-full!'
-      })
+      }),
+      enableSorting: true,
+      accessorKey: 'role',
+      sortingFn: (rowA, rowB) => {
+        return rowA.original.role.localeCompare(rowB.original.role);
+      }
     },
     {
       header: 'Reports',
+      accessorKey: 'reports.length',
       cell: ({ row }) => {
         const reportsCount = row.original.reports?.length || 0;
         return h('div', { class: 'flex items-center gap-2' }, [
@@ -69,6 +77,11 @@ const table = useVueTable({
           h(Button, { size: 'sm', variant: 'ghost', onClick: () => openReportsModal(row.original.id) }, () => h(VueIcon, { name: 'bs:eye' })),
           h(Button, { size: 'sm', variant: 'ghost', onClick: () => openNewReportModal(row.original.id) }, () => h(VueIcon, { name: 'bs:plus-lg' }))
         ])
+      },
+      sortingFn: (rowA, rowB) => {
+        const countA = rowA.original.reports?.length || 0;
+        const countB = rowB.original.reports?.length || 0;
+        return countA - countB;
       }
     },
     {
@@ -125,6 +138,11 @@ onMounted(() => {
         <p class="muted flex items-center gap-2">{{ users.length }} utilisateur(s)</p>
       </div>
     </header>
+
+
+    <div>
+      <input class="form-input" placeholder="Rechercher un utilisateur" v-model="usernameFilter" />
+    </div>
 
     <!-- Users Table -->
     <div class="space-y-3">
