@@ -82,7 +82,7 @@ const columns = [
     id: "position",
     header: () => "Position",
     cell: ({ row }) => {
-      const rank = row.index + 1;
+      const rank = leaderboard.value.indexOf(row.original) + 1;
       if (rank <= 3) {
         return h("div", { class: "flex items-center gap-3" }, [
           h(

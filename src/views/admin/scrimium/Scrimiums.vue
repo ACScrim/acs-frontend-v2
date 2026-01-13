@@ -45,6 +45,9 @@ const table = useVueTable({
     get pagination() {
       return pagination.value;
     }
+  },
+  onPaginationChange: (updater) => {
+    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
   }
 });
 
