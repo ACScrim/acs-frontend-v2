@@ -6,8 +6,9 @@ import {useToastStore} from '@/stores/toastStore';
 import type {Season} from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getCoreRowModel, getPaginationRowModel, useVueTable} from '@tanstack/vue-table';
-import {computed, h, onMounted, ref} from 'vue';
+import {computed, h, nextTick, onMounted, ref} from 'vue';
 import SeasonForm from './components/SeasonForm.vue';
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const adminStore = useAdminStore();
 const toastStore = useToastStore();
@@ -19,10 +20,7 @@ const editingSeasonId = ref<string | null>(null);
 const isSubmitting = ref(false);
 const deletingId = ref<string | null>(null);
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const editingSeason = computed(() => {
   return editingSeasonId.value ? seasons.value.find(s => s.id === editingSeasonId.value) : null;
@@ -93,19 +91,24 @@ const table = useVueTable({
   ],
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     }
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  }
+  onPaginationChange: paginationQs.onPaginationChange
 });
 
-onMounted(() => {
-  adminStore.fetchSeasons();
-  adminStore.fetchTournaments();
+onMounted(async () => {
+  await adminStore.fetchSeasons();
+  await adminStore.fetchTournaments();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
 });
 
 const handleCreateSeason = async (data: { number: number; tournamentIds: string[] }) => {

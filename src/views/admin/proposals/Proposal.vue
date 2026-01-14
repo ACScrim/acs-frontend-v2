@@ -6,17 +6,15 @@ import {useToastStore} from '@/stores/toastStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
 import {formatDate} from '@vueuse/core';
-import {computed, h, onMounted, ref} from 'vue';
+import {computed, h, nextTick, onMounted, ref} from 'vue';
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const adminStore = useAdminStore();
 const toastStore = useToastStore();
 const proposals = computed(() => adminStore.proposals);
 const processingId = ref<string | null>(null);
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const table = useVueTable({
   get data() {
@@ -108,18 +106,23 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     }
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  }
+  onPaginationChange: paginationQs.onPaginationChange
 });
 
-onMounted(() => {
-  adminStore.fetchProposals();
+onMounted(async () => {
+  await adminStore.fetchProposals();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
 });
 
 const handleRejectProposal = async (proposalId: string) => {

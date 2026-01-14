@@ -7,10 +7,11 @@ import type { Tournament, TournamentFormData } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { getCoreRowModel, getPaginationRowModel, useVueTable, type ColumnDef } from '@tanstack/vue-table';
 import { formatDate } from '@vueuse/core';
-import { computed, h, onMounted, ref } from 'vue';
+import { computed, h, nextTick, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import TournamentForm from './components/TournamentForm.vue';
 import { useHead } from '@vueuse/head';
+import { useTablePaginationQueryString } from '@/composables/useTablePaginationQueryString';
 
 useHead({ title: 'Admin · Tournois' });
 
@@ -21,10 +22,7 @@ const showCreateForm = ref(false);
 const isSubmitting = ref(false);
 const deletingId = ref<string | null>(null);
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const columns: ColumnDef<Tournament>[] = [
   {
@@ -78,20 +76,25 @@ const table = useVueTable<Tournament>({
   enableSorting: false,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     }
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  }
+  onPaginationChange: paginationQs.onPaginationChange
 });
 
-onMounted(() => {
-  adminStore.fetchTournaments();
-  adminStore.fetchPlayerLevels();
-  adminStore.fetchGames();
+onMounted(async () => {
+  await adminStore.fetchTournaments();
+  await adminStore.fetchPlayerLevels();
+  await adminStore.fetchGames();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
 });
 
 const handleCreateTournament = async (formData: TournamentFormData) => {

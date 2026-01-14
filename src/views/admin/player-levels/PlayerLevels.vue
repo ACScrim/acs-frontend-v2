@@ -5,17 +5,15 @@ import useAdminStore from '@/stores/adminStore';
 import useTournamentStore from '@/stores/tournamentStore';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
-import {computed, h, onMounted, ref} from 'vue';
+import {computed, h, nextTick, onMounted, ref} from 'vue';
 import ProfileLink from "@/components/global/ProfileLink.vue";
 import ACSSelect from "@/components/ui/ACSSelect.vue";
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const adminStore = useAdminStore();
 const tournamentStore = useTournamentStore();
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 // Filtres
 const playerNameFilter = ref('');
@@ -188,14 +186,13 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     },
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  }
+  onPaginationChange: paginationQs.onPaginationChange
 });
 
 const clearFilters = () => {
@@ -210,6 +207,12 @@ onMounted(async () => {
   await adminStore.fetchPlayerLevels();
   await adminStore.fetchGames();
   await tournamentStore.fetchTournaments();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
 });
 </script>
 

@@ -4,7 +4,7 @@ import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {Button, Card} from "@/components/ui";
 import useAdminStore from "@/stores/adminStore.ts";
-import {computed, h, onMounted, ref} from "vue";
+import {computed, h, nextTick, onMounted, ref} from "vue";
 import {
   type ColumnDef,
   getCoreRowModel,
@@ -15,19 +15,13 @@ import {
 import type {CollectibleCard as CollectibleCardType} from "@/types/models";
 import {formatDate} from "@vueuse/core";
 import CollectibleCard from "@/views/games/card-creator/CollectibleCard.vue";
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const adminStore = useAdminStore();
 
 const cards = computed(() => adminStore.cards)
 
-onMounted(async () => {
-  await adminStore.fetchCards();
-});
-
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 5
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const sorting = ref<SortingState>([
   { id: "createdAt", desc: true },
@@ -62,21 +56,30 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     },
     get sorting() {
       return sorting.value;
     }
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  },
+  onPaginationChange: paginationQs.onPaginationChange,
   onSortingChange: (updater) => {
     sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
   }
 })
+
+onMounted(async () => {
+  await adminStore.fetchCards();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
+});
 </script>
 
 <template>

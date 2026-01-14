@@ -1,23 +1,17 @@
 <script setup lang="ts">
 
 import useAdminStore from "@/stores/adminStore.ts";
-import {h, onMounted, ref} from "vue";
+import {h, nextTick, onMounted} from "vue";
 import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from "@tanstack/vue-table";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {Avatar, Button, Card} from "@/components/ui";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import {useToastStore} from "@/stores/toastStore.ts";
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const adminStore = useAdminStore();
 
-onMounted(async () => {
-  await adminStore.fetchScrimiums()
-});
-
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const table = useVueTable({
   get data() {
@@ -41,14 +35,13 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     }
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  }
+  onPaginationChange: paginationQs.onPaginationChange
 });
 
 const handleUpdateScrimium = async (userId: string, action: 'add' | 'remove') => {
@@ -62,6 +55,16 @@ const handleUpdateScrimium = async (userId: string, action: 'add' | 'remove') =>
   inputElement.value = '';
   await adminStore.fetchScrimiums();
 };
+
+onMounted(async () => {
+  await adminStore.fetchScrimiums();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
+});
 </script>
 
 <template>

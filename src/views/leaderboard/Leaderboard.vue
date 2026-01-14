@@ -8,7 +8,7 @@ import { type ApiResponse, type LeaderboardEntry } from "@/types/models";
 import api from "@/utils/api";
 import { getErrorMessage } from "@/utils";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
-import { computed, h, onMounted, ref, watch } from "vue";
+import { computed, h, nextTick, onMounted, ref, watch } from "vue";
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -17,14 +17,13 @@ import {
 } from "@tanstack/vue-table";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import ProfileLink from "@/components/global/ProfileLink.vue";
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const seasonFilter = ref("");
 const searchQuery = ref("");
 const isLoading = ref(false);
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10,
-});
+
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const seasonStore = useSeasonStore();
 const seasons = computed(() => seasonStore.seasons);
@@ -67,6 +66,12 @@ onMounted(async () => {
     seasonFilter.value = String(seasonStore.seasons[0].number);
   }
   await loadLeaderboard();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
 });
 
 watch(seasonFilter, () => {
@@ -167,15 +172,13 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     },
   },
-  onPaginationChange: (updater) => {
-    pagination.value =
-      typeof updater === "function" ? updater(pagination.value) : updater;
-  },
+  onPaginationChange: paginationQs.onPaginationChange,
 });
 </script>
 

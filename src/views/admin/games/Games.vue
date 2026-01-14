@@ -7,8 +7,9 @@ import type {Game} from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getCoreRowModel, getPaginationRowModel, getSortedRowModel, useVueTable} from '@tanstack/vue-table';
 import {formatDate} from '@vueuse/core';
-import {computed, h, onMounted, ref} from 'vue';
+import {computed, h, nextTick, onMounted, ref} from 'vue';
 import GameForm from './components/GameForm.vue';
+import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
 
 const adminStore = useAdminStore();
 const toastStore = useToastStore();
@@ -29,10 +30,7 @@ const filteredGames = computed(() => {
   );
 });
 
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 10
-});
+const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
 
 const editingGame = computed(() => {
   return editingGameId.value ? games.value.find(g => g.id === editingGameId.value) : null;
@@ -129,18 +127,23 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  autoResetPageIndex: false,
   state: {
     get pagination() {
-      return pagination.value;
+      return paginationQs.pagination.value;
     }
   },
-  onPaginationChange: (updater) => {
-    pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
-  }
+  onPaginationChange: paginationQs.onPaginationChange
 });
 
-onMounted(() => {
-  adminStore.fetchGames();
+onMounted(async () => {
+  await adminStore.fetchGames();
+  await nextTick();
+  const targetPageIndex = paginationQs.pagination.value.pageIndex;
+  const pageCount = table.getPageCount();
+  if (targetPageIndex > 0 && pageCount > 0 && targetPageIndex < pageCount) {
+    table.setPageIndex(targetPageIndex);
+  }
 });
 
 const handleCreateGame = async (gameData: { name: string; rawgId?: number; imageUrl: string; description?: string; roles: Array<{ name: string; color: string }>; gameProfileLinkRegex?: string }) => {

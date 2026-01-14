@@ -36,10 +36,22 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           port: 22
           username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}   # ou ssh_private_key
+          password: ${{ secrets.FTP_PASSWORD }}
           sftp_only: true
           local_path: ./dist
-          remote_path: /var/www/acsv2/frontend
+          remote_path: /var/www/acsv2/frontend_new
           delete_remote_files: true
           sftpArgs: "-o StrictHostKeyChecking=no"
           ssh_private_key: ""
+
+      - name: Atomic swap
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          script: |
+            cd /var/www/acsv2
+            rm -rf frontend_old
+            mv frontend frontend_old 2>/dev/null || true
+            mv frontend_new frontend
