@@ -239,7 +239,7 @@ const table = useVueTable({
           </p>
         </div>
         <div
-          v-for="(entry, index) in filteredLeaderboard"
+          v-for="entry in filteredLeaderboard"
           :key="entry.user.id"
           class="rounded-lg border border-white/10 bg-white/5 p-3 space-y-2"
         >

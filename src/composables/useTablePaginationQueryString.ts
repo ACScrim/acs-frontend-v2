@@ -1,6 +1,6 @@
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import type { PaginationState, Updater } from '@tanstack/vue-table';
+import {ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import type {PaginationState, Updater} from '@tanstack/vue-table';
 
 type Options = {
   /**
