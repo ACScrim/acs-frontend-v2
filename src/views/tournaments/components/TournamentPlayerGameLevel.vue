@@ -8,6 +8,7 @@ import type {Tournament} from '@/types/models';
 import {computed, ref} from 'vue';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getGameColor} from '../composables/useGameColor';
+import {getProfileLinkExample, getUsernameExample} from "@/utils";
 
 const props = defineProps<{
   tournament: Tournament;
@@ -56,14 +57,14 @@ const validateUsername = (username: string, gameUsernameRegex: string): boolean 
 const onProfileLinkChange = () => {
   profileLinkError.value = '';
   if (gameProfileLink.value && !validateProfileLink(gameProfileLink.value, props.tournament.game.gameProfileLinkRegex || '')) {
-    profileLinkError.value = `Format regex: ${props.tournament.game.gameProfileLinkRegex}`;
+    profileLinkError.value = getProfileLinkExample(props.tournament.game.gameProfileLinkRegex || "") || 'Lien invalide.';
   }
 };
 
 const onUsernameChange = () => {
   usernameError.value = '';
   if (gameUsername.value && !validateUsername(gameUsername.value, props.tournament.game.gameUsernameRegex || '')) {
-    usernameError.value = `Format regex: ${props.tournament.game.gameUsernameRegex}`;
+    usernameError.value = getUsernameExample(props.tournament.game.gameUsernameRegex || "") || 'Pseudo invalide.';
   }
 };
 

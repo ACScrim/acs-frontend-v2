@@ -80,3 +80,35 @@ export function shuffleArray<T>(array: T[]): T[] {
   }
   return shuffled;
 }
+
+export const getProfileLinkExample = (regex: string): string | null => {
+  try {
+    // Extraire le domaine du regex
+    const domainMatch = regex.match(/https?:\/\/([^\/]+)/);
+    if (!domainMatch) return null;
+
+    const domain = domainMatch[1]?.replace(/\\./g, '.').replace(/\^/g, '').replace(/\$/g, '');
+    return `Exemple: https://${domain}/...`;
+  } catch {
+    return null;
+  }
+};
+
+export const getUsernameExample = (regex: string): string | null => {
+  try {
+    // Déterminer le format selon le regex
+    if (regex.includes('[A-Za-z]+#\\d\\d\\d\\d')) {
+      return 'Exemple: Nom#1234';
+    }
+    if (regex.includes('[a-zA-Z0-9]') && regex.includes('#')) {
+      return 'Exemple: NomUtilisateur#ABC';
+    }
+    if (regex.includes('[A-Za-z0-9]')) {
+      return 'Exemple: Pseudo alphanumérique';
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};

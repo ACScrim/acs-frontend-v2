@@ -6,7 +6,7 @@ import useTournamentStore from '@/stores/tournamentStore';
 import type { PlayerGameLevel } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { computed, ref } from 'vue';
-import { getErrorMessage } from '@/utils';
+import {getErrorMessage, getProfileLinkExample, getUsernameExample} from '@/utils';
 
 interface Props {
   level?: PlayerGameLevel;
@@ -158,6 +158,7 @@ const handleSubmit = async () => {
     isLoading.value = false;
   }
 };
+
 </script>
 
 <template>
@@ -236,7 +237,7 @@ const handleSubmit = async () => {
                 />
                 <p v-if="selectedGame?.gameUsernameRegex" class="text-xs text-foam-300/70 flex items-center gap-2 mt-2">
                   <VueIcon name="bs:info-circle" />
-                  Format regex: {{ selectedGame.gameUsernameRegex }}
+                  {{ getUsernameExample(selectedGame.gameUsernameRegex) || 'Format requis pour ce jeu.' }}
                 </p>
               </div>
 
@@ -309,7 +310,7 @@ const handleSubmit = async () => {
                 />
                 <p class="text-xs text-foam-300/70 flex items-center gap-2">
                   <VueIcon name="bs:info-circle" />
-                  Lien obligatoire pour ce jeu. Format regex: {{ selectedGame.gameProfileLinkRegex }}
+                  {{ getProfileLinkExample(selectedGame.gameProfileLinkRegex) || 'Lien obligatoire pour ce jeu.' }}
                 </p>
               </div>
             </div>
