@@ -7,6 +7,7 @@ interface Props {
   itemsPerPage?: number;
   currentPage?: number;
   maxVisiblePages?: number;
+  id?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -77,23 +78,40 @@ const getScrollRegion = () => {
   return document.querySelector("[data-acs-scroll-region]");
 };
 
+const scrollToTarget = () => {
+  if (!props.id) return;
+
+  const region = getScrollRegion();
+  const target = document.getElementById(props.id);
+
+  if (!region || !target) return;
+
+  const regionRect = region.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+
+  // Position de la cible dans le repère scrollable de la region
+  const top = region.scrollTop + (targetRect.top - regionRect.top);
+
+  region.scrollTo({ top, left: 0, behavior: "smooth" });
+};
+
 const goToPage = (page: number | string) => {
   if (typeof page === "number") {
-    getScrollRegion()?.scrollTo(0, 0);
+    scrollToTarget();
     currentPageComputed.value = page;
   }
 };
 
 const goToPrevious = () => {
   if (canGoPrevious.value) {
-    getScrollRegion()?.scrollTo(0, 0);
+    scrollToTarget();
     currentPageComputed.value = currentPageComputed.value - 1;
   }
 };
 
 const goToNext = () => {
   if (canGoNext.value) {
-    getScrollRegion()?.scrollTo(0, 0);
+    scrollToTarget();
     currentPageComputed.value = currentPageComputed.value + 1;
   }
 };

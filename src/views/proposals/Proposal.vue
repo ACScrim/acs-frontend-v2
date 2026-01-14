@@ -140,6 +140,7 @@ const resetForm = () => {
       </div>
     </PageHeader>
 
+    <span id="proposal-list"></span>
     <LoaderACS v-if="proposalStore.isLoading" />
     <ListView
       v-else
@@ -148,6 +149,7 @@ const resetForm = () => {
       empty-message="Revenez plus tard pour découvrir les nouvelles idées."
       title="Propositions de jeux"
       paginate
+      id="proposal-list"
     >
       <template #item="{ item: proposal }">
         <ProposalCard :proposal="proposal" />

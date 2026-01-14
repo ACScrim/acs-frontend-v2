@@ -9,7 +9,7 @@ import {
   type ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
+  getSortedRowModel, type SortingState,
   useVueTable
 } from "@tanstack/vue-table";
 import type {CollectibleCard as CollectibleCardType} from "@/types/models";
@@ -29,11 +29,15 @@ const pagination = ref({
   pageSize: 5
 });
 
+const sorting = ref<SortingState>([
+  { id: "createdAt", desc: true },
+]);
+
 const columns: ColumnDef<CollectibleCardType>[] = [
   { header: 'Titre', accessorKey: 'title' },
   { header: 'Proposé par', accessorKey: 'createdBy.username' },
   { header: 'Rareté', accessorKey: 'rarity' },
-  { header: 'Créée le', accessorKey: 'createdAt', cell: (info) =>  formatDate(new Date(info.getValue() as string), 'DD/MM/YYYY HH:mm') },
+  { header: 'Créée le', accessorKey: 'createdAt', cell: (info) =>  formatDate(new Date(info.getValue() as string), 'DD/MM/YYYY HH:mm'), sortDescFirst: true },
   { header: 'Statut', accessorKey: 'status' },
   { header: 'Preview', cell: info => {
     return h(CollectibleCard, { card: info.row.original, maxWidth: 120 });
@@ -61,10 +65,16 @@ const table = useVueTable({
   state: {
     get pagination() {
       return pagination.value;
+    },
+    get sorting() {
+      return sorting.value;
     }
   },
   onPaginationChange: (updater) => {
     pagination.value = typeof updater === 'function' ? updater(pagination.value) : updater;
+  },
+  onSortingChange: (updater) => {
+    sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
   }
 })
 </script>

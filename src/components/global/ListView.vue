@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<{
   paginate?: boolean;
   itemsPerPage?: number;
   justifyCenter?: boolean;
+  id?: string;
 }>(), {
   data: () => [],
   emptyTitle: 'Aucun élément trouvé',
@@ -77,7 +78,7 @@ const emit = defineEmits<{
         <slot v-else name="item" v-for="item in paged" :item="item" />
         <slot name="add-append" />
       </div>
-      <Paginator v-if="paginate" v-model:current-page="currentPage" :total="data.length" :items-per-page="itemsPerPage" :max-visible-pages="3" @paginate="({ limit, offset }) => pagination = { limit, offset }" @update:currentPage="page => emit('updateCurrentPage', page)" />
+      <Paginator v-if="paginate" v-model:current-page="currentPage" :id="id" :total="data.length" :items-per-page="itemsPerPage" :max-visible-pages="3" @paginate="({ limit, offset }) => pagination = { limit, offset }" @update:currentPage="page => emit('updateCurrentPage', page)" />
     </template>
 
     <div v-else>

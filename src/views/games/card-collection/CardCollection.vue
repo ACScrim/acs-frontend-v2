@@ -155,7 +155,7 @@ watch(page, (newPage) => {
     <div v-if="!collectionStore.collection" class="text-foam-300">
       Vous n'avez pas encore de cartes dans votre collection.
     </div>
-    <div v-else class="flex-1 min-h-0" ref="cardsContainer">
+    <div v-else class="flex-1 min-h-0" ref="cardsContainer" id="cards-list">
       <ListView
         :data="cards"
         paginate
@@ -163,6 +163,7 @@ watch(page, (newPage) => {
         :max-cols="3"
         @updateCurrentPage="p => page = p"
         justify-center
+        id="cards-list"
       >
         <template #item="{ item: card }">
           <div class="w-[250px]">

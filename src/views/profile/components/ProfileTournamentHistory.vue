@@ -32,7 +32,7 @@ const colorMedalsClass = (ranking: number | undefined): string => {
 </script>
 
 <template>
-  <Card class="glass-panel p-8 space-y-6">
+  <Card class="glass-panel p-8 space-y-6" id="tournament-history-list">
     <template #header>
       <div class="flex items-center gap-3">
         <div class="h-px w-16 bg-gradient-to-r from-blush-400 to-transparent" />
@@ -41,7 +41,7 @@ const colorMedalsClass = (ranking: number | undefined): string => {
     </template>
 
     <ListView :data="user.tournamentHistory" empty-message="Aucun tournoi joué pour le moment."
-      :max-cols="1" :paginate="true" :items-per-page="5">
+      :max-cols="1" :paginate="true" :items-per-page="5" id="tournament-history-list">
       <template #item="{ item: tournament }">
         <Card class="flex flex-col lg:flex-row gap-4 border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-4 group hover:border-white/20 transition">
           <img :src="tournament.game.imageUrl" :alt="`Bannière du tournoi ${tournament.name}`"

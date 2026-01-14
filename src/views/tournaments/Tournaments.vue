@@ -79,7 +79,7 @@ onMounted(() => {
       <LoaderACS v-else class="place-self-center" />
     </section>
 
-    <section class="space-y-8">
+    <section class="space-y-8" id="finished-tournaments">
       <ListView
         title="Tournois terminés"
         :data="finishedTournaments"
@@ -88,6 +88,7 @@ onMounted(() => {
         :to="getTournamentLink"
         :paginate="true"
         :items-per-page="6"
+        id="finished-tournaments"
       >
         <template #emptyIcon>
           <VueIcon name="bs:calendar-x" class="mx-auto mb-4 text-4xl text-foam-300/60" />
