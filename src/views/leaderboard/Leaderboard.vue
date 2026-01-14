@@ -246,12 +246,12 @@ const table = useVueTable({
                 class="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 flex-shrink-0"
               >
                 <VueIcon
-                  v-if="index < 3"
+                  v-if="leaderboard.indexOf(entry) < 3"
                   name="bs:award"
-                  :class="`text-sm ${medalColors[index]}`"
+                  :class="`text-sm ${medalColors[leaderboard.indexOf(entry)]}`"
                 />
                 <span v-else class="text-xs font-semibold text-foam-200"
-                  >#{{ index + 1 }}</span
+                  >#{{ leaderboard.indexOf(entry) + 1 }}</span
                 >
               </div>
               <ProfileLink :user="entry.user" :size="10" />
