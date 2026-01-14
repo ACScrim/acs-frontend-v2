@@ -375,6 +375,18 @@ const useAdminStore = defineStore('admin', {
         throw error;
       }
     },
+    async updateCard(cardId: string, data: Partial<CollectibleCard>) {
+      try {
+        const response = await api.patch<ApiResponse<CollectibleCard>>(`/admin/cards/${cardId}`, data);
+        const updatedCard = response.data.data;
+        updateOneElementInArray(this.cards, updatedCard);
+        this.fetchCards().then(_ => {});
+        return updatedCard;
+      } catch (error: any) {
+        useToastStore().error("Error updating card:", error.message || error);
+        throw error;
+      }
+    },
     // LOGS ACTIONS
     addLog(logLine: string) {
       const log = JSON.parse(logLine) as LogEntry;

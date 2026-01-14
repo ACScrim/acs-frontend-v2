@@ -19,10 +19,15 @@ import type {
 } from '@/composables/useCardCustomization';
 import type {AssetType, BorderAssetType} from '@/composables/useCardAssets';
 import ACSSelect from "@/components/ui/ACSSelect.vue";
+import {useRoute, useRouter} from 'vue-router';
+import useAdminStore from '@/stores/adminStore';
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
 const categoryStore = useCardCategoryStore();
+const adminStore = useAdminStore();
+const route = useRoute();
+const router = useRouter();
 
 const {width} = useWindowSize();
 
@@ -114,6 +119,10 @@ const imageSourceType = ref<'upload' | 'url' | 'discord'>('upload');
 const imageUrlInput = ref('');
 const selectedDiscordMemberId = ref<string>('');
 const discordSearchQuery = ref('');
+
+// Mode édition admin quand on passe par /admin/cards/:cardId/edit
+const adminEditCardId = computed(() => (route.params as any).cardId as string | undefined);
+const isAdminEdit = computed(() => route.path.startsWith('/admin/cards/') && route.path.endsWith('/edit') && Boolean(adminEditCardId.value));
 
 // Helper to get current asset config based on category
 const getCurrentAssetName = () => assetCategory.value === 'background' ? backgroundAssetName.value : borderAssetName.value;
@@ -676,6 +685,47 @@ const confirmCardCreation = async () => {
       }
     }
 
+    if (isAdminEdit.value) {
+      const cardId = adminEditCardId.value;
+      if (!cardId) return;
+
+      const updatedCard = await adminStore.updateCard(cardId, {
+        title: pendingCardData.value.title,
+        imageBase64: pendingCardData.value.imageBase64,
+        imageMimeType: pendingCardData.value.imageMimeType,
+        frontAssetId: finalFrontAssetId,
+        borderAssetId: finalBorderAssetId,
+        categoryId: pendingCardData.value.categoryId,
+        titlePosX: pendingCardData.value.titlePosX,
+        titlePosY: pendingCardData.value.titlePosY,
+        titleAlign: pendingCardData.value.titleAlign,
+        titleWidth: pendingCardData.value.titleWidth,
+        titleFontSize: pendingCardData.value.titleFontSize,
+        removeImageBg: pendingCardData.value.removeImageBg,
+        holographicEffect: pendingCardData.value.holographicEffect,
+        holographicIntensity: pendingCardData.value.holographicIntensity,
+        titleColor: pendingCardData.value.titleColor,
+        imagePosX: pendingCardData.value.imagePosX,
+        imagePosY: pendingCardData.value.imagePosY,
+        imageScale: pendingCardData.value.imageScale,
+        imageWidth: pendingCardData.value.imageWidth,
+        imageHeight: pendingCardData.value.imageHeight,
+        imageObjectFit: pendingCardData.value.imageObjectFit,
+        rarity: pendingCardData.value.rarity,
+        customTexts: pendingCardData.value.customTexts,
+      });
+
+      if (updatedCard) {
+        toastStore.success('Carte mise à jour avec succès.');
+        showConfirmationModal.value = false;
+        pendingCardData.value = null;
+        await adminStore.fetchCards();
+        await router.push('/admin/cards');
+      }
+
+      return;
+    }
+
     // Create the card with the asset IDs
     const card = await cardStore.createCard({
       title: pendingCardData.value.title,
@@ -762,7 +812,7 @@ const confirmCardCreation = async () => {
       await cardStore.fetchCardsPreviews();
     }
   } catch (error) {
-    toastStore.error('Erreur lors de la création de la carte.');
+    toastStore.error(isAdminEdit.value ? 'Erreur lors de la mise à jour de la carte.' : 'Erreur lors de la création de la carte.');
   }
 };
 
@@ -811,6 +861,57 @@ onMounted(async () => {
   await cardStore.fetchCardsPreviews();
   await cardStore.fetchDiscordAvatars();
   await categoryStore.fetchCategories();
+
+  if (isAdminEdit.value) {
+    const cardId = adminEditCardId.value;
+    if (!cardId) return;
+
+    // On préfère utiliser la liste admin (qui comprend tous les status)
+    if (!adminStore.cards.length) {
+      await adminStore.fetchCards();
+    }
+
+    const card = adminStore.cards.find(c => c.id === cardId);
+    if (!card) {
+      toastStore.error('Carte introuvable.');
+      await router.push('/admin/cards');
+      return;
+    }
+
+    // Pré-remplissage du form
+    title.value = card.title ?? '';
+    imageBase64.value = card.imageBase64 ?? '';
+    imageMimeType.value = card.imageMimeType ?? '';
+    selectedFrontAssetId.value = card.frontAssetId;
+    selectedBorderAssetId.value = card.borderAssetId;
+    selectedCategoryId.value = card.categoryId;
+
+    titlePosX.value = card.titlePosX ?? 50;
+    titlePosY.value = card.titlePosY ?? 10;
+    titleAlign.value = (card.titleAlign as any) ?? 'center';
+    titleWidth.value = (card.titleWidth as any) ?? 'w-full';
+    titleFontSize.value = card.titleFontSize ?? 18;
+
+    removeImageBg.value = Boolean(card.removeImageBg);
+    holographicEffect.value = card.holographicEffect ?? true;
+    holographicIntensity.value = card.holographicIntensity ?? 0.6;
+
+    titleColor.value = card.titleColor ?? '#ffffff';
+
+    imagePosX.value = card.imagePosX ?? 50;
+    imagePosY.value = card.imagePosY ?? 30;
+    imageScale.value = card.imageScale ?? 1;
+    imageWidth.value = card.imageWidth ?? 160;
+    imageHeight.value = card.imageHeight ?? 160;
+    imageObjectFit.value = (card.imageObjectFit as any) ?? 'cover';
+
+    rarity.value = (card.rarity as any) ?? 'common';
+    customTexts.value = (card.customTexts as any) ?? [];
+
+    // En mode edit, on veut éviter de montrer du state "création" résiduel
+    showConfirmationModal.value = false;
+    pendingCardData.value = null;
+  }
 });
 
 // Helper to convert image to base64 with resize if needed
@@ -942,6 +1043,7 @@ onUnmounted(() => {
   activeTimeouts.forEach(id => clearTimeout(id));
   activeTimeouts.clear();
 });
+
 </script>
 
 <template>
@@ -1995,7 +2097,7 @@ onUnmounted(() => {
 
         <div class="space-y-4">
           <p class="text-sm text-center text-foam-300/80">
-            Vous allez créer une nouvelle carte avec les paramètres suivants :
+            Vous allez {{ isAdminEdit ? 'mettre à jour' : 'créer' }} une nouvelle carte avec les paramètres suivants :
           </p>
 
           <div class="flex justify-center">

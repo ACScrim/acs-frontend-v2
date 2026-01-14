@@ -16,8 +16,10 @@ import type {CollectibleCard as CollectibleCardType} from "@/types/models";
 import {formatDate} from "@vueuse/core";
 import CollectibleCard from "@/views/games/card-creator/CollectibleCard.vue";
 import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
+import {useRouter} from "vue-router";
 
 const adminStore = useAdminStore();
+const router = useRouter();
 
 const cards = computed(() => adminStore.cards)
 
@@ -30,21 +32,70 @@ const sorting = ref<SortingState>([
 const columns: ColumnDef<CollectibleCardType>[] = [
   { header: 'Titre', accessorKey: 'title' },
   { header: 'Proposé par', accessorKey: 'createdBy.username' },
-  { header: 'Rareté', accessorKey: 'rarity' },
+  {
+    header: 'Rareté',
+    accessorKey: 'rarity',
+    cell: (info) => {
+      const card = info.row.original;
+      const current = (info.getValue() as CollectibleCardType['rarity']) ?? 'common';
+
+      return h('select', {
+        class: 'form-input !py-1 !text-xs min-w-32',
+        value: current,
+        onchange: async (e: Event) => {
+          const next = (e.target as HTMLSelectElement).value as CollectibleCardType['rarity'];
+          if (!card?.id || next === card.rarity) return;
+
+          try {
+            await adminStore.updateCard(card.id, { rarity: next } as any);
+          } catch {
+            // revert UI to previous value if API fails
+            (e.target as HTMLSelectElement).value = (card.rarity ?? current) as any;
+          }
+        }
+      }, [
+        h('option', { value: 'common' }, 'common'),
+        h('option', { value: 'uncommon' }, 'uncommon'),
+        h('option', { value: 'rare' }, 'rare'),
+        h('option', { value: 'epic' }, 'epic'),
+        h('option', { value: 'legendary' }, 'legendary'),
+      ]);
+    }
+  },
   { header: 'Créée le', accessorKey: 'createdAt', cell: (info) =>  formatDate(new Date(info.getValue() as string), 'DD/MM/YYYY HH:mm'), sortDescFirst: true },
   { header: 'Statut', accessorKey: 'status' },
   { header: 'Preview', cell: info => {
     return h(CollectibleCard, { card: info.row.original, maxWidth: 120 });
   }},
   { header: 'Actions', cell: (info) => {
-    if (info.row.original.status === "pending") {
+    const card = info.row.original;
+
+    const editBtn = h(Button, {
+      variant: 'outline',
+      onclick: () => router.push(`/admin/cards/${card.id}/edit`)
+    }, 'Modifier');
+
+    if (card.status === "pending") {
       return h('div', { class: 'flex flex-col justify-center gap-2' }, [
-        h(Button, { variant: "emerald", onclick: () => adminStore.approveCard(info.row.original.id)}, 'Approuver'),
-        h(Button, { variant: "danger", onclick: () => adminStore.rejectCard(info.row.original.id) }, 'Rejeter'),
+        editBtn,
+        h(Button, { variant: "emerald", onclick: () => adminStore.approveCard(card.id)}, 'Approuver'),
+        h(Button, { variant: "danger", onclick: () => adminStore.rejectCard(card.id) }, 'Rejeter'),
       ])
     }
-    else if (info.row.original.status === "active") { return `Acceptée le ${formatDate(new Date(info.row.original.updatedAt), "DD/MM/YYYY")}` }
-    else if (info.row.original.status === "inactive") { return `Rejetée le ${formatDate(new Date(info.row.original.updatedAt), "DD/MM/YYYY")}` }
+    else if (card.status === "active") {
+      return h('div', { class: 'flex flex-col justify-center gap-2' }, [
+        editBtn,
+        `Acceptée le ${formatDate(new Date(card.updatedAt), "DD/MM/YYYY")}`
+      ])
+    }
+    else if (card.status === "inactive") {
+      return h('div', { class: 'flex flex-col justify-center gap-2' }, [
+        editBtn,
+        `Rejetée le ${formatDate(new Date(card.updatedAt), "DD/MM/YYYY")}`
+      ])
+    }
+
+    return h('div', { class: 'flex flex-col justify-center gap-2' }, [editBtn]);
   }}
 ]
 
