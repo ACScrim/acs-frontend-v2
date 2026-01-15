@@ -21,11 +21,13 @@ import type {AssetType, BorderAssetType} from '@/composables/useCardAssets';
 import ACSSelect from "@/components/ui/ACSSelect.vue";
 import {useRoute, useRouter} from 'vue-router';
 import useAdminStore from '@/stores/adminStore';
+import {useUserStore} from "@/stores/userStore.ts";
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
 const categoryStore = useCardCategoryStore();
 const adminStore = useAdminStore();
+const user = useUserStore().user;
 const route = useRoute();
 const router = useRouter();
 
@@ -1957,7 +1959,7 @@ onUnmounted(() => {
                 :title="asset.name"
                 @click="() => { selectedFrontAssetId = asset.id; useCustomFrontAsset = false; }"
               >
-                <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
+                <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
                   v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
                   :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
@@ -1998,7 +2000,7 @@ onUnmounted(() => {
                 :title="asset.name"
                 @click="() => { selectedBorderAssetId = asset.id; useCustomBorderAsset = false; }"
               >
-                <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
+                <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
                   v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
                   :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
