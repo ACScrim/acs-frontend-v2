@@ -86,6 +86,22 @@ const handleMouseLeave = () => {
     </RouterLink>
 
     <nav class="flex flex-col gap-2">
+      <!-- Bouton retour en mode non-admin -->
+      <RouterLink
+        v-if="route.path.startsWith('/admin')"
+        to="/"
+        class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-foam-200 transition hover:bg-white/5 border border-white/10"
+      >
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-blush-300 transition group-hover:bg-white/10 group-hover:text-blush-200"
+        >
+          <VueIcon name="bs:arrow-left" class="size-5" />
+        </div>
+        <div class="flex flex-col">
+          <span class="font-semibold">Retour à l'app</span>
+        </div>
+      </RouterLink>
+
       <RouterLink
         v-for="route in asideRoutes"
         :key="route.path"
