@@ -262,23 +262,10 @@ const shuffledOptions = computed(() => {
                   ✨ Prêt pour le défi du jour ?
                 </p>
               </div>
-              <VueIcon
-                :name="
-                  dailyQuestionAnswered
-                    ? 'md:sharp-check-circle'
-                    : dailyQuestionDiscovered
-                    ? 'md:sharp-access-time-filled'
-                    : 'md:visibility'
-                "
-                :class="
-                  dailyQuestionAnswered
-                    ? 'text-emerald-400'
-                    : dailyQuestionDiscovered
-                    ? 'text-amber-400'
-                    : 'text-azure-400'
-                "
-                size="32"
-              />
+
+              <VueIcon v-if="dailyQuestionAnswered" name="md:sharp-check-circle" class="text-emerald-400" size="32" />
+              <VueIcon v-else-if="dailyQuestionDiscovered" name="md:sharp-access-time-filled" class="text-amber-400" size="32" />
+              <VueIcon v-else name="md:visibility" class="text-azure-400" size="32" />
             </div>
           </div>
 
@@ -288,7 +275,7 @@ const shuffledOptions = computed(() => {
               <div
                 class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-azure-400 rounded-full flex items-center justify-center mx-auto"
               >
-                <VueIcon name="md:quiz" class="text-white size-12" />
+                <VueIcon name="md:quiz" class="text-white" size="48" />
               </div>
               <div class="space-y-3">
                 <h3 class="text-2xl font-bold text-white">
@@ -469,15 +456,8 @@ const shuffledOptions = computed(() => {
                     : 'bg-blush-500',
                 ]"
               >
-                <VueIcon
-                  :name="
-                    gamesStore.dailyQuiz.yesterdayQuestion.userAnswer?.isCorrect
-                      ? 'md:sharp-check-circle'
-                      : 'md:cancel'
-                  "
-                  class="text-white"
-                  size="32"
-                />
+                <VueIcon v-if="gamesStore.dailyQuiz.yesterdayQuestion.userAnswer?.isCorrect" name="md:sharp-check-circle" size="32" />
+                <VueIcon v-else name="md:cancel" size="32" />
               </div>
             </div>
             <h3
