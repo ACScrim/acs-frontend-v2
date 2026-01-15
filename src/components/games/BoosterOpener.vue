@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
     >
       <p class="sr-only" aria-live="polite">{{ accessibilityStatus }}</p>
 
-      <div class="relative max-w-4xl w-full">
+      <div class="relative max-w-7xl w-full">
         <div
           v-if="cinematicFlash"
           class="flash-overlay"
@@ -210,12 +210,14 @@ onBeforeUnmount(() => {
         <div class="relative flex flex-col gap-6">
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 class="text-2xl sm:text-3xl font-bold text-foam-50">Cartes révélées</h3>
-              <p class="text-foam-300">
+              <h3 class="text-2xl sm:text-3xl font-bold text-foam-50 text-center md:text-left">Cartes révélées</h3>
+              <p class="text-foam-300 text-center md:text-left">
                 Rareté maximale :
                 <span class="font-bold capitalize" :style="{ color: glowColor }">{{ maxRarity }}</span>
-                <span class="text-foam-300/70">·</span>
+                <span class="text-foam-300/70 mx-2">·</span>
                 <span class="text-foam-100/80">{{ props.cards.length }} carte(s)</span>
+                <span class="text-foam-300/70 mx-2">·</span>
+                <span class="text-foam-100/80">{{ props.cards.reduce((acc, c) => c.isNew ?  true : acc, false) ? "Nouvelle carte" : "" }}</span>
               </p>
             </div>
             <button @click="handleClose" class="text-foam-300 hover:text-white transition-colors text-3xl">
@@ -244,14 +246,33 @@ onBeforeUnmount(() => {
                   <div
                     v-for="(card, idx) in props.cards"
                     :key="card.id"
-                    class="card-reveal group snap-start shrink-0"
+                    class="card-reveal group snap-start shrink-0 relative"
                     :style="{
                       '--delay': `${idx * 80}ms`,
                       '--tiltX': `${rarityTiltMap[card.rarity || 'common'] ?? 4}deg`,
                       '--tiltY': `${idx % 2 === 0 ? -4 : 4}deg`,
                     }"
                   >
-                    <CollectibleCard :card="card" :maxWidth="150" lazy-load />
+                    <CollectibleCard :card="card" :maxWidth="200" lazy-load :interactive="false" />
+                    <div
+                      v-if="card.isNew !== undefined || card.ownedCount !== undefined"
+                      class="flex justify-center w-[200px] mt-2"
+                    >
+                      <!-- Badge "Nouvelle" -->
+                      <p
+                        v-if="card.isNew === true"
+                        class="px-2 py-1 bg-gradient-to-r from-amber-400 to-amber-500 text-black text-xs font-bold rounded-full shadow-lg"
+                      >
+                        ✨ Nouvelle
+                      </p>
+                      <!-- Nombre de possessions -->
+                      <p
+                        v-if="card.ownedCount !== undefined && card.ownedCount > 0"
+                        class="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-full shadow-lg border border-white/30"
+                      >
+                        ×{{ card.ownedCount }}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -259,7 +280,7 @@ onBeforeUnmount(() => {
 
             <!-- Desktop -->
             <div class="hidden md:block p-4">
-              <div class="cards-grid-scroll grid grid-cols-5 gap-4">
+              <div class="cards-grid-scroll grid grid-cols-5 gap-4 justify-items-center">
                 <div
                   v-for="(card, idx) in props.cards"
                   :key="card.id"
@@ -270,7 +291,26 @@ onBeforeUnmount(() => {
                     '--tiltY': `${idx % 2 === 0 ? -4 : 4}deg`,
                   }"
                 >
-                  <CollectibleCard :card="card" :maxWidth="120" lazy-load />
+                  <CollectibleCard :card="card" :maxWidth="200" lazy-load />
+                  <div
+                      v-if="card.isNew !== undefined || card.ownedCount !== undefined"
+                      class="flex justify-center w-[200px] mt-2"
+                  >
+                    <!-- Badge "Nouvelle" -->
+                    <p
+                        v-if="card.isNew === true"
+                        class="px-2 py-1 bg-gradient-to-r from-amber-400 to-amber-500 text-black text-xs font-bold rounded-full shadow-lg"
+                    >
+                        ✨ Nouvelle
+                      </p>
+                    <!-- Nombre de possessions -->
+                    <p
+                        v-if="card.ownedCount !== undefined && card.ownedCount > 0"
+                        class="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold rounded-full shadow-lg border border-white/30"
+                    >
+                        ×{{ card.ownedCount }}
+                      </p>
+                  </div>
                 </div>
               </div>
             </div>

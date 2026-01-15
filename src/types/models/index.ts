@@ -313,6 +313,9 @@ export interface CollectibleCard {
   }>;
   status?: 'active' | 'inactive' | 'pending';
   count?: number;
+  // Informations supplémentaires pour l'ouverture du booster
+  ownedCount?: number;  // Nombre de fois que l'utilisateur possède déjà cette carte
+  isNew?: boolean;      // Flag indiquant si c'est une nouvelle carte pour l'utilisateur
 }
 
 export interface CardCollection {
