@@ -261,8 +261,8 @@ export interface CardAsset {
   color2?: string;
   angle?: number;
   solidColor?: string;
-  imageBase64?: string;
-  imageMimeType?: string;
+  imageUrl?: string;
+  imageBase64?: string;  // Temporary for preview only, not stored in DB
   createdBy?: User;
   createdAt?: string;
   updatedAt?: string;
@@ -272,8 +272,7 @@ export interface CollectibleCard {
   id: string;
   title: string;
   imageUrl?: string;
-  imageBase64?: string;
-  imageMimeType?: string;
+  imageBase64?: string;  // Temporary for preview only, not stored in DB
   frontAssetId?: string;
   frontAsset?: CardAsset;
   borderAssetId?: string;

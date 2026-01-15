@@ -64,7 +64,7 @@ const cardStyle = computed(() => {
       bgStyle = props.card.frontAsset.solidColor;
     } else if (props.card.frontAsset.type === 'gradient') {
       bgStyle = `linear-gradient(${props.card.frontAsset.angle || 135}deg, ${props.card.frontAsset.color1 || '#667eea'} 0%, ${props.card.frontAsset.color2 || '#764ba2'} 100%)`;
-    } else if (props.card.frontAsset.type === 'image' && props.card.frontAsset.imageBase64) {
+    } else if (props.card.frontAsset.type === 'image' && (props.card.frontAsset.imageUrl || props.card.frontAsset.imageBase64)) {
       // Use dark background as base, img element will overlay
       bgStyle = '#1a1a2e';
     }
@@ -79,8 +79,8 @@ const cardStyle = computed(() => {
       borderStyle = `3px solid ${props.card.borderAsset.solidColor}`;
     } else if (props.card.borderAsset.type === 'gradient') {
       borderStyle = `3px solid transparent`;
-    } else if (props.card.borderAsset.type === 'image' && props.card.borderAsset.imageBase64) {
-      borderImageUrl = `url(data:${props.card.borderAsset.imageMimeType || 'image/png'};base64,${props.card.borderAsset.imageBase64})`;
+    } else if (props.card.borderAsset.type === 'image' && (props.card.borderAsset.imageUrl || props.card.borderAsset.imageBase64)) {
+      borderImageUrl = props.card.borderAsset.imageUrl || (props.card.borderAsset.imageBase64 ? `url(data:image/png;base64,${props.card.borderAsset.imageBase64})` : '');
     }
   }
 
@@ -100,35 +100,44 @@ const cardStyle = computed(() => {
 });
 
 const backgroundLayerStyle = computed(() => {
-  if (props.card.frontAsset?.type === 'image' && props.card.frontAsset.imageBase64) {
-    const mimeType = props.card.frontAsset.imageMimeType || 'image/png';
-    return {
-      backgroundImage: `url(data:${mimeType};base64,${props.card.frontAsset.imageBase64})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      mask: 'unset',
-      WebkitMask: 'unset',
-    };
+  if (props.card.frontAsset?.type === 'image') {
+    // Utiliser imageUrl en priorité, fallback sur imageBase64 pour backward compatibility
+    const imageSource = props.card.frontAsset.imageUrl
+      ? props.card.frontAsset.imageUrl
+      : (props.card.frontAsset.imageBase64 ? `data:image/png;base64,${props.card.frontAsset.imageBase64}` : '');
+
+    if (imageSource) {
+      return {
+        backgroundImage: `url(${imageSource})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        mask: 'unset',
+        WebkitMask: 'unset',
+      };
+    }
   }
 
   return null;
 });
 
 const hasImageBorder = computed(() => {
-  return props.card.borderAsset?.type === 'image' && !!props.card.borderAsset.imageBase64;
+  return props.card.borderAsset?.type === 'image' && (!!props.card.borderAsset.imageUrl || !!props.card.borderAsset.imageBase64);
 });
 
 const borderImageUrl = computed(() => {
-  if (props.card.borderAsset?.type === 'image' && props.card.borderAsset.imageBase64) {
-    const mimeType = props.card.borderAsset.imageMimeType || 'image/png';
-    return `data:${mimeType};base64,${props.card.borderAsset.imageBase64}`;
+  if (props.card.borderAsset?.type === 'image') {
+    if (props.card.borderAsset.imageUrl) {
+      return props.card.borderAsset.imageUrl;
+    } else if (props.card.borderAsset.imageBase64) {
+      return `data:image/png;base64,${props.card.borderAsset.imageBase64}`;
+    }
   }
   return '';
 });
 
 const hasImageBackground = computed(() => {
-  return props.card.frontAsset?.type === 'image' && !!props.card.frontAsset.imageBase64;
+  return props.card.frontAsset?.type === 'image' && (!!props.card.frontAsset.imageUrl || !!props.card.frontAsset.imageBase64);
 });
 
 const showHolographic = computed(() => {
@@ -343,8 +352,8 @@ onUnmounted(() => {
       <!-- Image container -->
       <div class="absolute" :style="imageStyle">
         <img
-          v-if="card.imageUrl || (props.card.imageBase64 && props.card.imageMimeType)"
-          :src="card.imageUrl || `data:${props.card.imageMimeType};base64,${props.card.imageBase64}`"
+          v-if="card.imageUrl || (props.card.imageBase64)"
+          :src="card.imageUrl || (props.card.imageBase64 ? `data:image/png;base64,${props.card.imageBase64}` : '')"
           :alt="card.title"
           class="w-full h-full rounded-lg"
           :style="{ objectFit: imageObjectFit }"

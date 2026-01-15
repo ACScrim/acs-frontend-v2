@@ -38,8 +38,7 @@ const pendingCardData = ref<PendingCardData | null>(null);
 // Form state
 const title = ref('');
 const imageUrl = ref('');
-const imageBase64 = ref('');
-const imageMimeType = ref('');
+const imageBase64 = ref('');  // Temporary for preview only, NOT sent to server
 const assetCategory = ref<'background' | 'border'>('background');
 
 // Personnalisation - Position
@@ -97,16 +96,14 @@ const backgroundSolidColor = ref('transparent');
 const backgroundGradientColor1 = ref('#667eea');
 const backgroundGradientColor2 = ref('#764ba2');
 const backgroundGradientAngle = ref(135);
-const backgroundAssetImageBase64 = ref('');
-const backgroundAssetImageMimeType = ref('');
+const backgroundAssetImageBase64 = ref('');  // Temporary for preview
 const backgroundAssetImagePreview = ref('');
 
 // Border asset state
 const borderAssetName = ref('');
 const borderAssetType = ref<BorderAssetType>('solid');
 const borderSolidColor = ref('transparent');
-const borderAssetImageBase64 = ref('');
-const borderAssetImageMimeType = ref('');
+const borderAssetImageBase64 = ref('');  // Temporary for preview
 const borderAssetImagePreview = ref('');
 
 // File input refs
@@ -182,11 +179,9 @@ const setCurrentGradientAngle = (value: number) => {
 const setCurrentImageData = (base64: string, mimeType: string, preview: string) => {
   if (assetCategory.value === 'background') {
     backgroundAssetImageBase64.value = base64;
-    backgroundAssetImageMimeType.value = mimeType;
     backgroundAssetImagePreview.value = preview;
   } else {
     borderAssetImageBase64.value = base64;
-    borderAssetImageMimeType.value = mimeType;
     borderAssetImagePreview.value = preview;
   }
 };
@@ -194,11 +189,9 @@ const setCurrentImageData = (base64: string, mimeType: string, preview: string) 
 const clearCurrentImageData = () => {
   if (assetCategory.value === 'background') {
     backgroundAssetImageBase64.value = '';
-    backgroundAssetImageMimeType.value = '';
     backgroundAssetImagePreview.value = '';
   } else {
     borderAssetImageBase64.value = '';
-    borderAssetImageMimeType.value = '';
     borderAssetImagePreview.value = '';
   }
 };
@@ -248,7 +241,6 @@ const selectedFrontAsset = computed(() => {
       return {
         type: 'image' as const,
         imageBase64: backgroundAssetImageBase64.value,
-        imageMimeType: backgroundAssetImageMimeType.value,
         category: 'background',
       } as CardAsset;
     }
@@ -275,7 +267,6 @@ const selectedBorderAsset = computed(() => {
       return {
         type: 'image' as const,
         imageBase64: borderAssetImageBase64.value,
-        imageMimeType: borderAssetImageMimeType.value,
         category: 'border',
       } as CardAsset;
     }
@@ -431,7 +422,6 @@ const buildFrontAssetData = () => {
     }),
     ...(backgroundAssetType.value === 'image' && {
       imageBase64: backgroundAssetImageBase64.value,
-      imageMimeType: backgroundAssetImageMimeType.value
     })
   };
 };
@@ -448,7 +438,6 @@ const buildBorderAssetData = () => {
     ...(borderAssetType.value === 'solid' && { solidColor: borderSolidColor.value }),
     ...(borderAssetType.value === 'image' && {
       imageBase64: borderAssetImageBase64.value,
-      imageMimeType: borderAssetImageMimeType.value
     })
   };
 };
@@ -469,7 +458,6 @@ const handleImageUpload = async (event: Event) => {
     const base64Data = await convertImageToBase64(file);
     if (base64Data) {
       imageBase64.value = base64Data.base64;
-      imageMimeType.value = base64Data.mimeType;
       imageUrl.value = `data:${base64Data.mimeType};base64,${base64Data.base64}`;
 
       const sizeInMB = file.size / 1024 / 1024;
@@ -491,7 +479,6 @@ const triggerFileInput = () => {
 const removeImage = () => {
   imageUrl.value = '';
   imageBase64.value = '';
-  imageMimeType.value = '';
   if (fileInputRef.value) {
     fileInputRef.value.value = '';
   }
@@ -623,10 +610,14 @@ const saveCard = async () => {
   }
 
   // Store card data for confirmation modal WITHOUT creating assets yet
+  // For Discord avatars, use imageUrl directly instead of imageBase64
+  const isDiscordAvatar = imageSourceType.value === 'discord' && selectedDiscordMemberId.value;
+  const member = isDiscordAvatar ? cardStore.discordAvatars.find(m => m.id === selectedDiscordMemberId.value) : null;
+
   pendingCardData.value = {
     title: title.value,
-    imageBase64: imageBase64.value,
-    imageMimeType: imageMimeType.value,
+    imageBase64: !isDiscordAvatar ? imageBase64.value : '',
+    imageUrl: isDiscordAvatar ? member?.avatarUrl : undefined,
     frontAssetId: selectedFrontAssetId.value,
     borderAssetId: selectedBorderAssetId.value,
     categoryId: selectedCategoryId.value,
@@ -692,7 +683,7 @@ const confirmCardCreation = async () => {
       const updatedCard = await adminStore.updateCard(cardId, {
         title: pendingCardData.value.title,
         imageBase64: pendingCardData.value.imageBase64,
-        imageMimeType: pendingCardData.value.imageMimeType,
+        imageUrl: pendingCardData.value.imageUrl,  // For Discord avatars
         frontAssetId: finalFrontAssetId,
         borderAssetId: finalBorderAssetId,
         categoryId: pendingCardData.value.categoryId,
@@ -730,7 +721,7 @@ const confirmCardCreation = async () => {
     const card = await cardStore.createCard({
       title: pendingCardData.value.title,
       imageBase64: pendingCardData.value.imageBase64,
-      imageMimeType: pendingCardData.value.imageMimeType,
+      imageUrl: pendingCardData.value.imageUrl,  // For Discord avatars
       frontAssetId: finalFrontAssetId,
       borderAssetId: finalBorderAssetId,
       categoryId: pendingCardData.value.categoryId,
@@ -748,10 +739,10 @@ const confirmCardCreation = async () => {
       imageScale: pendingCardData.value.imageScale,
       imageWidth: pendingCardData.value.imageWidth,
       imageHeight: pendingCardData.value.imageHeight,
-    imageObjectFit: pendingCardData.value.imageObjectFit,
-    rarity: pendingCardData.value.rarity,
-    customTexts: pendingCardData.value.customTexts
-  });
+      imageObjectFit: pendingCardData.value.imageObjectFit,
+      rarity: pendingCardData.value.rarity,
+      customTexts: pendingCardData.value.customTexts
+    });
 
     if (card) {
       toastStore.success('Carte créée avec succès ! En attente de validation admin.');
@@ -760,7 +751,6 @@ const confirmCardCreation = async () => {
       title.value = '';
       imageUrl.value = '';
       imageBase64.value = '';
-      imageMimeType.value = '';
       selectedFrontAssetId.value = undefined;
       selectedBorderAssetId.value = undefined;
       useCustomFrontAsset.value = false;
@@ -793,7 +783,6 @@ const confirmCardCreation = async () => {
       backgroundGradientColor2.value = '#764ba2';
       backgroundGradientAngle.value = 135;
       backgroundAssetImageBase64.value = '';
-      backgroundAssetImageMimeType.value = '';
       backgroundAssetImagePreview.value = '';
 
       // Reset border asset
@@ -801,7 +790,6 @@ const confirmCardCreation = async () => {
       borderAssetType.value = 'solid';
       borderSolidColor.value = 'transparent';
       borderAssetImageBase64.value = '';
-      borderAssetImageMimeType.value = '';
       borderAssetImagePreview.value = '';
 
       // Close modal and reset
@@ -826,7 +814,6 @@ const resetForm = () => {
   title.value = '';
   imageUrl.value = '';
   imageBase64.value = '';
-  imageMimeType.value = '';
   selectedFrontAssetId.value = undefined;
   selectedBorderAssetId.value = undefined;
   useCustomFrontAsset.value = false;
@@ -880,8 +867,7 @@ onMounted(async () => {
 
     // Pré-remplissage du form
     title.value = card.title ?? '';
-    imageBase64.value = card.imageBase64 ?? '';
-    imageMimeType.value = card.imageMimeType ?? '';
+    imageBase64.value = '';  // Don't load base64, it's not stored anymore
     selectedFrontAssetId.value = card.frontAssetId;
     selectedBorderAssetId.value = card.borderAssetId;
     selectedCategoryId.value = card.categoryId;
@@ -991,7 +977,6 @@ watch(imageUrlInput, async (newUrl) => {
     const base64Data = await loadImageFromUrl(newUrl.trim());
     if (base64Data) {
       imageBase64.value = base64Data.base64;
-      imageMimeType.value = base64Data.mimeType;
       imageUrl.value = '';
     }
   }
@@ -1001,11 +986,12 @@ watch(selectedDiscordMemberId, async (newMemberId) => {
   if (imageSourceType.value === 'discord' && newMemberId) {
     const member = cardStore.discordAvatars.find(m => m.id === newMemberId);
     if (member) {
+      // Load avatar URL and convert to base64 for preview
       const base64Data = await loadImageFromUrl(member.avatarUrl);
       if (base64Data) {
-        imageBase64.value = base64Data.base64; // Assuming avatar is already in base64 format
-        imageMimeType.value = base64Data.mimeType; // Default to PNG for Discord avatars
-        imageUrl.value = '';
+        imageBase64.value = base64Data.base64;
+        imageUrl.value = '';  // Will be overwritten by Cloudinary on save
+        toastStore.success(`Avatar de ${member.username} sélectionné`);
       }
     }
   }
@@ -1076,7 +1062,6 @@ onUnmounted(() => {
                     id: 'preview',
                     title,
                     imageBase64,
-                    imageMimeType,
                     frontAsset: selectedFrontAsset,
                     borderAsset: selectedBorderAsset,
                     titlePosX,
@@ -1524,7 +1509,6 @@ onUnmounted(() => {
                     const base64Data = await loadImageFromUrl(imageUrlInput.trim());
                     if (base64Data) {
                       (imageBase64 as any).value = base64Data.base64;
-                      (imageMimeType as any).value = base64Data.mimeType;
                     }
                   }"
                 >
@@ -1974,8 +1958,8 @@ onUnmounted(() => {
               >
                 <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
-                  v-if="asset.type === 'image' && asset.imageBase64"
-                  :src="`data:${asset.imageMimeType || 'image/png'};base64,${asset.imageBase64}`"
+                  v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
+                  :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
                   :alt="asset.name"
                   class="w-full h-full object-cover"
                 />
@@ -2015,8 +1999,8 @@ onUnmounted(() => {
               >
                 <VueIcon name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
                 <img
-                  v-if="asset.type === 'image' && asset.imageBase64"
-                  :src="`data:${asset.imageMimeType || 'image/png'};base64,${asset.imageBase64}`"
+                  v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
+                  :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
                   :alt="asset.name"
                   class="w-full h-full object-cover"
                 />
@@ -2069,7 +2053,6 @@ onUnmounted(() => {
               :card="cardStore.cards.find(c => c.id === card.id) || {
                 id: card.id,
                 title: 'Carte non chargée',
-                imageMimeType: '',
                 createdAt: '',
                 updatedAt: ''
               }"
@@ -2107,9 +2090,8 @@ onUnmounted(() => {
                 id: 'preview',
                 title: pendingCardData.title,
                 imageBase64: pendingCardData.imageBase64,
-                imageMimeType: pendingCardData.imageMimeType,
-                frontAsset: pendingCardData.frontAssetData ?? undefined,
-                borderAsset: pendingCardData.borderAssetData ?? undefined,
+                frontAsset: pendingCardData.frontAssetData ?? (pendingCardData.frontAssetId ? cardStore.getCardAssetById(pendingCardData.frontAssetId) : undefined),
+                borderAsset: pendingCardData.borderAssetData ?? (pendingCardData.borderAssetId ? cardStore.getCardAssetById(pendingCardData.borderAssetId) : undefined),
                 titlePosX: pendingCardData.titlePosX,
                 titlePosY: pendingCardData.titlePosY,
                 titleAlign: pendingCardData.titleAlign,

@@ -19,8 +19,8 @@ export type ImageObjectFit = 'contain' | 'cover';
 
 export interface PendingCardData {
   title: string;
-  imageBase64: string;
-  imageMimeType: string;
+  imageBase64: string;  // Temporary base64 for upload, will be converted to URL on server
+  imageUrl?: string;  // For Discord avatars - used directly without Cloudinary
   frontAssetId?: string;
   borderAssetId?: string;
   categoryId?: string;

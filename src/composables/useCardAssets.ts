@@ -11,8 +11,8 @@ export interface BackgroundAssetState {
   gradientColor1: Ref<string>;
   gradientColor2: Ref<string>;
   gradientAngle: Ref<number>;
-  imageBase64: Ref<string>;
-  imageMimeType: Ref<string>;
+  imageUrl: Ref<string>;  // URL Cloudinary for storage
+  imageBase64: Ref<string>;  // Temporary base64 for preview
   imagePreview: Ref<string>;
 }
 
@@ -20,8 +20,8 @@ export interface BorderAssetState {
   name: Ref<string>;
   type: Ref<BorderAssetType>;
   solidColor: Ref<string>;
-  imageBase64: Ref<string>;
-  imageMimeType: Ref<string>;
+  imageUrl: Ref<string>;  // URL Cloudinary for storage
+  imageBase64: Ref<string>;  // Temporary base64 for preview
   imagePreview: Ref<string>;
 }
 
@@ -33,8 +33,8 @@ export function useBackgroundAsset(): BackgroundAssetState {
     gradientColor1: ref('#667eea'),
     gradientColor2: ref('#764ba2'),
     gradientAngle: ref(135),
+    imageUrl: ref(''),
     imageBase64: ref(''),
-    imageMimeType: ref(''),
     imagePreview: ref(''),
   };
 }
@@ -44,8 +44,8 @@ export function useBorderAsset(): BorderAssetState {
     name: ref(''),
     type: ref<BorderAssetType>('solid'),
     solidColor: ref('transparent'),
+    imageUrl: ref(''),
     imageBase64: ref(''),
-    imageMimeType: ref(''),
     imagePreview: ref(''),
   };
 }
