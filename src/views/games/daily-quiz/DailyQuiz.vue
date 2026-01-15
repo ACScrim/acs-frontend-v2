@@ -191,7 +191,7 @@ const shuffledOptions = computed(() => {
           :variant="activeTab === 'today' ? 'primary' : 'ghost'"
           class="flex-1 cursor-pointer rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
         >
-          <VueIcon name="mdToday" size="18" />
+          <VueIcon name="md:today" size="18" />
           Aujourd'hui
         </Button>
 
@@ -200,7 +200,7 @@ const shuffledOptions = computed(() => {
           :variant="activeTab === 'yesterday' ? 'secondary' : 'ghost'"
           class="flex-1 cursor-pointer rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
         >
-          <VueIcon name="mdYesterday" size="18" />
+          <VueIcon name="md:calendar-today" size="18" />
           Hier
         </Button>
 
@@ -209,7 +209,7 @@ const shuffledOptions = computed(() => {
           :variant="activeTab === 'leaderboard' ? 'outline' : 'ghost'"
           class="flex-1 cursor-pointer rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
         >
-          <VueIcon name="mdLeaderboard" size="18" />
+          <VueIcon name="md:leaderboard" size="18" />
           Classement
         </Button>
       </div>
@@ -235,7 +235,7 @@ const shuffledOptions = computed(() => {
                   class="text-emerald-300 font-medium flex items-center gap-2"
                 >
                   <VueIcon
-                    name="mdTimeFilled"
+                    name="md:sharp-access-time-filled"
                     class="text-emerald-400"
                     size="18"
                   />
@@ -249,7 +249,7 @@ const shuffledOptions = computed(() => {
                   class="text-emerald-300 font-medium flex items-center gap-2"
                 >
                   <VueIcon
-                    name="mdCheckCircle"
+                    name="md:sharp-check-circle"
                     class="text-emerald-400"
                     size="18"
                   />
@@ -265,10 +265,10 @@ const shuffledOptions = computed(() => {
               <VueIcon
                 :name="
                   dailyQuestionAnswered
-                    ? 'mdCheckCircle'
+                    ? 'md:sharp-check-circle'
                     : dailyQuestionDiscovered
-                    ? 'mdTimeFilled'
-                    : 'mdVisibility'
+                    ? 'md:sharp-access-time-filled'
+                    : 'md:visibility'
                 "
                 :class="
                   dailyQuestionAnswered
@@ -288,7 +288,7 @@ const shuffledOptions = computed(() => {
               <div
                 class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-azure-400 rounded-full flex items-center justify-center mx-auto"
               >
-                <VueIcon name="mdQuiz" class="text-white" size="48" />
+                <VueIcon name="md:quiz" class="text-white size-12" />
               </div>
               <div class="space-y-3">
                 <h3 class="text-2xl font-bold text-white">
@@ -305,7 +305,7 @@ const shuffledOptions = computed(() => {
                   updateAnswer({ discoveredAt: new Date().toISOString() })
                 "
               >
-                <VueIcon name="mdVisibility" class="mr-3" size="20" />
+                <VueIcon name="md:visibility" class="mr-3" size="20" />
                 Dévoiler la question
               </Button>
             </div>
@@ -372,7 +372,7 @@ const shuffledOptions = computed(() => {
                     >
                       <VueIcon
                         v-if="userAnswer === option"
-                        name="mdCheck"
+                        name="md:sharp-check"
                         class="text-white w-full h-full"
                         size="16"
                       />
@@ -390,7 +390,7 @@ const shuffledOptions = computed(() => {
                 class="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 disabled:from-surface-600 disabled:to-surface-600 text-white font-bold px-12 py-4 text-lg shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 @click="updateAnswer({ userAnswer: userAnswer })"
               >
-                <VueIcon name="mdSend" class="mr-3" size="20" />
+                <VueIcon name="md:send" class="mr-3" size="20" />
                 Valider ma réponse
               </Button>
             </div>
@@ -399,45 +399,14 @@ const shuffledOptions = computed(() => {
           <!-- Question répondue -->
           <div v-else class="space-y-6">
             <div class="text-center py-8">
-              <div
-                :class="[
-                  'w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4',
-                  gamesStore.dailyQuiz.todayAnswer?.isCorrect
-                    ? 'bg-gradient-to-br from-emerald-400 to-emerald-500'
-                    : 'bg-gradient-to-br from-blush-400 to-blush-500',
-                ]"
-              >
-                <VueIcon
-                  :name="
-                    gamesStore.dailyQuiz.todayAnswer?.isCorrect
-                      ? 'mdCheckCircle'
-                      : 'mdCancel'
-                  "
-                  class="text-white"
-                  size="40"
-                />
-              </div>
               <h3
                 :class="[
                   'text-2xl font-bold mb-2',
-                  gamesStore.dailyQuiz.todayAnswer?.isCorrect
-                    ? 'text-emerald-300'
-                    : 'text-blush-300',
+                   'text-emerald-300'
                 ]"
               >
-                {{
-                  gamesStore.dailyQuiz.todayAnswer?.isCorrect
-                    ? "Bravo ! 🎉"
-                    : "Pas cette fois ! 😔"
-                }}
+               Reviens demain pour connaître la réponse !
               </h3>
-              <p class="text-foam-300">
-                {{
-                  gamesStore.dailyQuiz.todayAnswer?.isCorrect
-                    ? "Tu as trouvé la bonne réponse"
-                    : "Ce sera pour la prochaine fois"
-                }}
-              </p>
             </div>
 
             <!-- Question et réponse -->
@@ -503,8 +472,8 @@ const shuffledOptions = computed(() => {
                 <VueIcon
                   :name="
                     gamesStore.dailyQuiz.yesterdayQuestion.userAnswer?.isCorrect
-                      ? 'mdCheckCircle'
-                      : 'mdCancel'
+                      ? 'md:sharp-check-circle'
+                      : 'md:cancel'
                   "
                   class="text-white"
                   size="32"
@@ -590,7 +559,7 @@ const shuffledOptions = computed(() => {
         <!-- Aucun résultat -->
         <div v-else class="text-center py-16">
           <VueIcon
-            name="mdSchedule"
+            name="md:schedule"
             class="text-foam-400 mx-auto mb-4"
             size="64"
           />
