@@ -10,7 +10,7 @@ import {storeToRefs} from "pinia";
 import {useIntersectionObserver} from "@vueuse/core";
 import CategoryGroup from "./CategoryGroup.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
-import CollectionPaginator from "@/views/games/card-creator/components/CollectionPaginator.vue";
+import CollectionPaginator from "@/views/games/card-collection/components/CollectionPaginator.vue";
 
 const collectionStore = useCollectionStore();
 const { categoriesOverview, collectionId } = storeToRefs(collectionStore);
@@ -246,24 +246,13 @@ watch(() => currentCategoryIndex, () => {
       <div ref="mainContainer" class="flex-1 overflow-y-auto pb-2">
         <transition name="fade" mode="out-in">
           <template v-if="currentCategory">
-            <template v-if="filteredCards.length === 0">
-              <div class="flex items-center justify-center h-full">
-                <div class="text-center space-y-2">
-                  <VueIcon name="io:sharp-search" class="text-foam-400/30 mx-auto mb-2" size="48" />
-                  <p class="text-foam-400 font-medium">Aucune carte ne correspond</p>
-                  <p class="text-foam-400/70 text-sm">Essayez une autre recherche</p>
-                </div>
-              </div>
-            </template>
-            <template v-else>
-              <CategoryGroup
-                :category-name="currentCategory.categoryName"
-                :cards="filteredCards"
-                :total-cards="currentCategory.totalCards"
-                :show-empty-slots="searchText.length === 0"
-                @item-visible="handleItemVisible"
-              />
-            </template>
+            <CategoryGroup
+              :category-name="currentCategory.categoryName"
+              :cards="filteredCards"
+              :total-cards="currentCategory.totalCards"
+              :show-empty-slots="searchText.length === 0"
+              @item-visible="handleItemVisible"
+            />
           </template>
         </transition>
       </div>

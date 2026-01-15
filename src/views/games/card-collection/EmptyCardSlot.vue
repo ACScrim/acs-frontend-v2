@@ -15,7 +15,7 @@ withDefaults(defineProps<Props>(), {
     <div class="text-center">
       <img src="/acs.avif" width="175" height="79" alt="Logo ACS" />
       <p class="text-foam-500 text-sm font-medium">Emplacement vide</p>
-      <p class="text-foam-600 text-xs">#{{ String(index).padStart(3, '0') }}</p>
+      <p class="text-foam-600 text-xs">#{{ String(index+1).padStart(3, '0') }}</p>
     </div>
   </div>
 </template>
