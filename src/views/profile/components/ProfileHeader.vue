@@ -3,14 +3,16 @@ import { Avatar, Card } from '@/components/ui';
 import type { UserWithStats } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { formatDate } from '@vueuse/core';
-import { ref } from "vue";
+import {ref, watch} from "vue";
 import { useRoute } from 'vue-router';
+import {useUserStore} from "@/stores/userStore.ts";
 
 const props = defineProps<{
   user: UserWithStats;
 }>();
 
 const route = useRoute();
+const me = useUserStore().user
 
 const emit = defineEmits<{
   'saveTwitchUsername': [twitchUsername: string | undefined];
@@ -45,6 +47,10 @@ const statsBlocks= [
 
 const twitchUsername = ref<string | undefined>(props.user.twitchUsername);
 const isEditingTwitchUsername = ref<boolean>(false);
+
+watch(() => [route.params.userId], () => {
+  twitchUsername.value = props.user.twitchUsername;
+});
 </script>
 
 <template>
@@ -68,7 +74,7 @@ const isEditingTwitchUsername = ref<boolean>(false);
               <span class="text-sm">{{ twitchUsername ?? 'Pas de nom Twitch défini' }}</span>
             </div>
             <button
-              v-if="user.id === route.params.userId || !route.params.userId"
+              v-if="me?.id === route.params.userId || !route.params.userId"
               @click="isEditingTwitchUsername = true"
               class="text-foam-300/60 hover:text-accent-300 transition"
               title="Modifier le nom Twitch"

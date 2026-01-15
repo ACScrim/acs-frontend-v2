@@ -3,10 +3,19 @@ import type {ApiResponse, CardCollection, CollectibleCard} from "@/types/models"
 import api from "@/utils/api.ts";
 import {useToastStore} from "@/stores/toastStore.ts";
 
+export interface CategoryOverviewData {
+  categoryId: string;
+  categoryName: string;
+  totalCards: number;
+  ownedCards: {count: number, card: CollectibleCard}[];
+}
+
 const useCollectionStore = defineStore('collection', {
   state: () => ({
     collection: null as CardCollection | null,
-    listCardLoaded: [] as string[]
+    listCardLoaded: [] as string[],
+    categoriesOverview: [] as CategoryOverviewData[],
+    collectionId: '' as string
   }),
   getters: {
     cards(state): CollectibleCard[] {
@@ -43,6 +52,21 @@ const useCollectionStore = defineStore('collection', {
         useToastStore().error("Erreur lors de la récupération de la collection de cartes.");
       }
     },
+
+    async fetchCategoriesOverview() {
+      try {
+        const response = await api.get<ApiResponse<{
+          categories: CategoryOverviewData[];
+          collectionId: string;
+        }>>('/card-collection/me/categories-overview');
+        this.categoriesOverview = response.data.data.categories;
+        this.collectionId = response.data.data.collectionId;
+      } catch (error) {
+        useToastStore().error("Erreur lors de la récupération des catégories.");
+        console.error(error);
+      }
+    },
+
     async fetchFullCard(collectionId: string, cardId: string) {
       try {
         const response = await api.get<ApiResponse<CollectibleCard>>(

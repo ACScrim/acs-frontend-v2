@@ -19,7 +19,7 @@ const user = computed(() => {
 });
 
 const fetchUserProfile = async (userId: string) => {
-  isLoading.value = user !== null ? false : true;
+  isLoading.value = user === null;
   try {
     await userStore.fetchUserById(userId);
   } catch (error: unknown) {
