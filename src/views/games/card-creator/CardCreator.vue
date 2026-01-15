@@ -1922,6 +1922,7 @@ onUnmounted(() => {
                 </Button>
               </div>
             </div>
+            <p class="muted text-xs text-justify">Merci de vérifier qu'un asset n'existe pas déjà avant d'en créer un nouveau pour éviter les doublons. Les assets disponibles sont juste en dessous.</p>
           </div>
 
           <!-- Background Assets Selector -->
@@ -2090,6 +2091,7 @@ onUnmounted(() => {
                 id: 'preview',
                 title: pendingCardData.title,
                 imageBase64: pendingCardData.imageBase64,
+                imageUrl: pendingCardData.imageUrl,
                 frontAsset: pendingCardData.frontAssetData ?? (pendingCardData.frontAssetId ? cardStore.getCardAssetById(pendingCardData.frontAssetId) : undefined),
                 borderAsset: pendingCardData.borderAssetData ?? (pendingCardData.borderAssetId ? cardStore.getCardAssetById(pendingCardData.borderAssetId) : undefined),
                 titlePosX: pendingCardData.titlePosX,
