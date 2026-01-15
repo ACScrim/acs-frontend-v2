@@ -340,35 +340,35 @@ const hints = computed(() => [
       class="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-32 sm:px-6 sm:pt-8 lg:px-10"
     >
       <!-- Header -->
-      <header class="space-y-4 text-center">
+      <div class="text-center space-y-3 mb-8">
         <h1
-          class="text-4xl font-extrabold tracking-tight sm:text-5xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent"
+          class="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-azure-400 to-accent-400 bg-clip-text text-transparent"
         >
           ACSDLE
         </h1>
-        <p class="text-sm text-gray-400 sm:text-base">
+        <p class="text-foam-300 text-lg">
           Devinez le joueur du jour en analysant ses statistiques
         </p>
+      </div>
 
-        <!-- Progress Bar -->
-        <div class="max-w-md mx-auto">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs text-gray-400">Progression</span>
-            <span class="text-xs text-gray-400">{{ guesses.length }}/20</span>
-          </div>
-          <div class="w-full bg-gray-700 rounded-full h-2">
-            <div
-              class="h-2 rounded-full transition-all duration-500 ease-out"
-              :class="{
-                'bg-green-500': guesses.length <= 5,
-                'bg-yellow-500': guesses.length > 5 && guesses.length <= 15,
-                'bg-red-500': guesses.length > 15,
-              }"
-              :style="{ width: `${(guesses.length / 20) * 100}%` }"
-            ></div>
-          </div>
+      <!-- Progress Bar -->
+      <div class="max-w-md mx-auto mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs text-gray-400">Progression</span>
+          <span class="text-xs text-gray-400">{{ guesses.length }}/20</span>
         </div>
-      </header>
+        <div class="w-full bg-gray-700 rounded-full h-2">
+          <div
+            class="h-2 rounded-full transition-all duration-500 ease-out"
+            :class="{
+              'bg-green-500': guesses.length <= 5,
+              'bg-yellow-500': guesses.length > 5 && guesses.length <= 15,
+              'bg-red-500': guesses.length > 15,
+            }"
+            :style="{ width: `${(guesses.length / 20) * 100}%` }"
+          ></div>
+        </div>
+      </div>
 
       <!-- Win Screen -->
       <div

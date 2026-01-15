@@ -1,13 +1,12 @@
 <script setup lang="ts">
-
 import useCollectionStore from "@/stores/collectionStore.ts";
-import {computed, onMounted, onUnmounted, ref, watch} from "vue";
-import type {CollectibleCard as Card} from "@/types/models";
-import {useCardFetchQueue} from "@/composables/useCardFetchQueue.ts";
-import {usePerformanceMonitor} from "@/composables/usePerformanceMonitor.ts";
-import {useCardCollectionFilters} from "@/composables/useCardCollectionFilters.ts";
-import {storeToRefs} from "pinia";
-import {useIntersectionObserver} from "@vueuse/core";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import type { CollectibleCard as Card } from "@/types/models";
+import { useCardFetchQueue } from "@/composables/useCardFetchQueue.ts";
+import { usePerformanceMonitor } from "@/composables/usePerformanceMonitor.ts";
+import { useCardCollectionFilters } from "@/composables/useCardCollectionFilters.ts";
+import { storeToRefs } from "pinia";
+import { useIntersectionObserver } from "@vueuse/core";
 import CategoryGroup from "./CategoryGroup.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import CollectionPaginator from "@/views/games/card-collection/components/CollectionPaginator.vue";
@@ -19,7 +18,7 @@ const { categoriesOverview, collectionId } = storeToRefs(collectionStore);
 const isDev = import.meta.env.DEV;
 const { fps, memoryUsage } = usePerformanceMonitor({
   enabled: isDev,
-  componentName: 'CardCollection',
+  componentName: "CardCollection",
   logInterval: 10000, // Log every 10 seconds
 });
 
@@ -46,7 +45,7 @@ const cardsNeedingFullData = ref<Set<string>>(new Set());
 const activeTimeouts = new Set<number>();
 
 // Search filter state
-const searchText = ref('');
+const searchText = ref("");
 
 // Filter cards based on search text
 const filteredCards = computed(() => {
@@ -57,14 +56,16 @@ const filteredCards = computed(() => {
   }
 
   const searchLower = searchText.value.toLowerCase();
-  return currentCategory.value.ownedCards.filter(card => {
+  return currentCategory.value.ownedCards.filter((card) => {
     // Rechercher dans le title
-    const titleMatch = card.card.title?.toLowerCase().includes(searchLower) || false;
+    const titleMatch =
+      card.card.title?.toLowerCase().includes(searchLower) || false;
 
     // Rechercher dans les customTexts
-    const customTextsMatch = card.card.customTexts?.some(text =>
-      text.content?.toLowerCase().includes(searchLower)
-    ) || false;
+    const customTextsMatch =
+      card.card.customTexts?.some((text) =>
+        text.content?.toLowerCase().includes(searchLower)
+      ) || false;
 
     return titleMatch || customTextsMatch;
   });
@@ -73,7 +74,7 @@ const filteredCards = computed(() => {
 // Create a card lookup map - built from filtered cards
 const cardsMap = computed(() => {
   const map = new Map<string, Card>();
-  filteredCards.value.forEach(card => map.set(card.card.id, card.card));
+  filteredCards.value.forEach((card) => map.set(card.card.id, card.card));
   return map;
 });
 
@@ -86,16 +87,18 @@ onMounted(async () => {
   queueProcessInterval.value = setInterval(() => {
     // Process queue if not busy
     if (!fetchQueue.processing.value && fetchQueue.activeRequests.value === 0) {
-      fetchQueue.processBatch(async (cardId) => {
-        try {
-          await collectionStore.fetchFullCard(collectionId.value, cardId);
-          cardsNeedingFullData.value.delete(cardId);
-        } catch (error) {
-          console.error('Error loading card:', cardId, error);
-        }
-      }).catch(error => {
-        console.error('Error processing visible card batch:', error);
-      });
+      fetchQueue
+        .processBatch(async (cardId) => {
+          try {
+            await collectionStore.fetchFullCard(collectionId.value, cardId);
+            cardsNeedingFullData.value.delete(cardId);
+          } catch (error) {
+            console.error("Error loading card:", cardId, error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error processing visible card batch:", error);
+        });
     }
   }, 1000);
 });
@@ -103,7 +106,7 @@ onMounted(async () => {
 onUnmounted(() => {
   fetchQueue.clear();
   // Clear all pending timeouts
-  activeTimeouts.forEach(id => clearTimeout(id));
+  activeTimeouts.forEach((id) => clearTimeout(id));
   activeTimeouts.clear();
   if (queueProcessInterval.value !== null) {
     clearInterval(queueProcessInterval.value);
@@ -126,14 +129,16 @@ const mainContainer = ref<HTMLElement>();
 const observeCards = () => {
   if (!mainContainer.value) return;
 
-  const cardElements = mainContainer.value.querySelectorAll('[data-card-id]');
-  cardElements.forEach(element => {
+  const cardElements = mainContainer.value.querySelectorAll("[data-card-id]");
+  cardElements.forEach((element) => {
     useIntersectionObserver(
       element as HTMLElement,
       (entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const cardId = (entry.target as HTMLElement).getAttribute('data-card-id');
+            const cardId = (entry.target as HTMLElement).getAttribute(
+              "data-card-id"
+            );
             if (cardId) {
               const card = cardsMap.value.get(cardId);
               if (card) {
@@ -160,13 +165,14 @@ watch(mainContainer, (newContainer) => {
 });
 
 // Watch category changes
-watch(() => currentCategoryIndex, () => {
-  // Small delay to ensure DOM is ready
-  const timeout = window.setTimeout(observeCards, 100);
-  activeTimeouts.add(timeout);
-});
-
-
+watch(
+  () => currentCategoryIndex,
+  () => {
+    // Small delay to ensure DOM is ready
+    const timeout = window.setTimeout(observeCards, 100);
+    activeTimeouts.add(timeout);
+  }
+);
 </script>
 
 <template>
@@ -183,12 +189,18 @@ watch(() => currentCategoryIndex, () => {
     </div>
 
     <!-- En-tête et titre -->
-    <div class="space-y-4 pt-1">
-      <div>
-        <h1 class="hero-title text-3xl">Ma collection de cartes</h1>
-        <p class="text-foam-400/70 text-sm mt-2">Explorez et collectionnez vos cartes préférées</p>
-      </div>
+    <div class="text-center space-y-3 mb-8">
+      <h1
+        class="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-azure-400 to-accent-400 bg-clip-text text-transparent"
+      >
+        Ma collection de cartes
+      </h1>
+      <p class="text-foam-300 text-lg">
+        Explorez et collectionnez vos cartes préférées
+      </p>
+    </div>
 
+    <div class="space-y-4">
       <!-- Filtre de recherche -->
       <div class="flex gap-3 items-end">
         <div class="flex-1 space-y-2">
@@ -233,11 +245,22 @@ watch(() => currentCategoryIndex, () => {
     />
 
     <!-- Contenu principal -->
-    <div v-if="categoriesOverview.length === 0" class="flex-1 flex items-center justify-center">
+    <div
+      v-if="categoriesOverview.length === 0"
+      class="flex-1 flex items-center justify-center"
+    >
       <div class="text-center space-y-2">
-        <VueIcon name="io:sharp-warning" class="text-foam-400/50 mx-auto mb-2" size="48" />
-        <p class="text-foam-300 font-medium">Aucune carte dans votre collection</p>
-        <p class="text-foam-400/70 text-sm">Ouvrez des boosters pour commencer</p>
+        <VueIcon
+          name="io:sharp-warning"
+          class="text-foam-400/50 mx-auto mb-2"
+          size="48"
+        />
+        <p class="text-foam-300 font-medium">
+          Aucune carte dans votre collection
+        </p>
+        <p class="text-foam-400/70 text-sm">
+          Ouvrez des boosters pour commencer
+        </p>
       </div>
     </div>
 
@@ -271,34 +294,41 @@ watch(() => currentCategoryIndex, () => {
 
     <!-- Pied de page -->
     <div class="text-center text-xs text-foam-400/60 py-2">
-      <p>Vous avez des droits d'auteur à faire valoir ? <a href="mailto:acs.tournoi@gmail.com" class="text-foam-200 hover:text-foam-100 underline transition-colors">Contactez-nous</a></p>
+      <p>
+        Vous avez des droits d'auteur à faire valoir ?
+        <a
+          href="mailto:acs.tournoi@gmail.com"
+          class="text-foam-200 hover:text-foam-100 underline transition-colors"
+          >Contactez-nous</a
+        >
+      </p>
     </div>
   </div>
 </template>
 
 <style scoped>
-  .slide-fade-enter-active,
-  .slide-fade-leave-active {
-    transition: all 200ms ease;
-  }
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 200ms ease;
+}
 
-  .slide-fade-enter-from {
-    transform: translateX(-10px);
-    opacity: 0;
-  }
+.slide-fade-enter-from {
+  transform: translateX(-10px);
+  opacity: 0;
+}
 
-  .slide-fade-leave-to {
-    transform: translateX(10px);
-    opacity: 0;
-  }
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
 
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 200ms ease;
-  }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 200ms ease;
+}
 
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

@@ -80,19 +80,17 @@ const rarityColors = {
 
 <template>
   <div class="flex flex-col gap-6">
-    <!-- En-tête avec Card -->
-    <Card
-      class="text-center p-8 bg-gradient-to-r from-accent-500/10 via-emerald-500/10 to-blush-500/10 border border-accent-500/20"
-    >
+    <!-- En-tête avec titre principal -->
+    <div class="text-center space-y-3 mb-8">
       <h1
-        class="text-4xl font-bold bg-gradient-to-r from-accent-400 via-emerald-500 to-blush-400 bg-clip-text text-transparent mb-4"
+        class="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-azure-400 to-accent-400 bg-clip-text text-transparent"
       >
         🎁 Boutique de Boosters
       </h1>
-      <p class="text-lg text-foam-300 max-w-2xl mx-auto">
+      <p class="text-foam-300 text-lg">
         Achète des boosters pour obtenir de nouvelles cartes!
       </p>
-    </Card>
+    </div>
 
     <!-- Solde de Scrimium avec Card -->
     <Card
