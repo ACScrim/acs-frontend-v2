@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import useGamesStore from "@/stores/gamesStore.ts";
-import { computed, h, onMounted, onUnmounted, ref } from "vue";
-import { Avatar, Button, Card } from "@/components/ui";
-import { useToastStore } from "@/stores/toastStore.ts";
-import {getCoreRowModel, getPaginationRowModel, useVueTable} from "@tanstack/vue-table";
-import type { WeeklyLeaderboardEntry } from "@/types/models";
+import {computed, h, onMounted, onUnmounted, ref} from "vue";
+import {Avatar, Button, Card} from "@/components/ui";
+import {useToastStore} from "@/stores/toastStore.ts";
+import {getCoreRowModel, useVueTable} from "@tanstack/vue-table";
+import type {WeeklyLeaderboardEntry} from "@/types/models";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
-import { shuffleArray } from "@/utils";
+import {shuffleArray} from "@/utils";
 
 const activeTab = ref<"today" | "yesterday" | "leaderboard">("today");
 
