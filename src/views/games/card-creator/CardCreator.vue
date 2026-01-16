@@ -867,9 +867,16 @@ onMounted(async () => {
       return;
     }
 
+    if (card.imageUrl) {
+      const base64Data = await loadImageFromUrl(card.imageUrl);
+      if (base64Data) {
+        imageBase64.value = base64Data.base64;
+      }
+    }
+
     // Pré-remplissage du form
     title.value = card.title ?? '';
-    imageBase64.value = '';  // Don't load base64, it's not stored anymore
+    imageUrl.value = card.imageUrl ?? '';
     selectedFrontAssetId.value = card.frontAssetId;
     selectedBorderAssetId.value = card.borderAssetId;
     selectedCategoryId.value = card.categoryId;
