@@ -3,7 +3,7 @@ import useGamesStore from "@/stores/gamesStore.ts";
 import { computed, h, onMounted, onUnmounted, ref } from "vue";
 import { Avatar, Button, Card } from "@/components/ui";
 import { useToastStore } from "@/stores/toastStore.ts";
-import { getCoreRowModel, useVueTable } from "@tanstack/vue-table";
+import {getCoreRowModel, getPaginationRowModel, useVueTable} from "@tanstack/vue-table";
 import type { WeeklyLeaderboardEntry } from "@/types/models";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
@@ -566,7 +566,7 @@ const shuffledOptions = computed(() => {
           <div
             class="bg-gradient-to-r from-amber-500/10 to-amber-400/10 border border-amber-400/20 rounded-xl overflow-hidden"
           >
-            <TableTanstack :table="table" paginated />
+            <TableTanstack :table="table" />
           </div>
         </div>
       </Card>
