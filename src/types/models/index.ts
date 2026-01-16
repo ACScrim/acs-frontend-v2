@@ -27,7 +27,6 @@ export interface ScrimiumAdmin extends Scrimium {
 
 export interface User {
   id: string;
-  email: string;
   username: string;
   role: string;
   discordId: string;
