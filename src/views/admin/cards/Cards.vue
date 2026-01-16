@@ -17,8 +17,10 @@ import { formatDate } from "@vueuse/core";
 import CollectibleCard from "@/views/games/card-creator/CollectibleCard.vue";
 import { useTablePaginationQueryString } from "@/composables/useTablePaginationQueryString";
 import { useRouter } from "vue-router";
+import {useUserStore} from "@/stores/userStore.ts";
 
 const adminStore = useAdminStore();
+const user = useUserStore().user;
 const router = useRouter();
 
 const cards = computed(() => adminStore.cards);
@@ -90,14 +92,14 @@ const columns: ColumnDef<CollectibleCardType>[] = [
     cell: (info) => {
       const card = info.row.original;
 
-      const editBtn = h(
+      const editBtn = user && user.role.includes("admin") ? h(
         Button,
         {
           variant: "outline",
           onclick: () => router.push(`/admin/cards/${card.id}/edit`),
         },
         "Modifier"
-      );
+      ) : null;
 
       if (card.status === "pending") {
         return h("div", { class: "flex flex-col justify-center gap-2" }, [

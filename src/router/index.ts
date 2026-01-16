@@ -230,7 +230,7 @@ const adminRoutes: RouterOptions["routes"] = [
       icon: "bs:shield-lock",
       showInAside: (user: User) => user.role.includes("admin"),
       showInMobileFooter: false,
-      showInAdminBar: true,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
       order: 0,
     },
   },
@@ -256,7 +256,7 @@ const adminRoutes: RouterOptions["routes"] = [
       icon: "bx:trophy",
       showInAside: false,
       showInMobileFooter: false,
-      showInAdminBar: true,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
       order: 2,
     },
   },
@@ -282,7 +282,7 @@ const adminRoutes: RouterOptions["routes"] = [
       icon: "bx:game",
       showInAside: false,
       showInMobileFooter: false,
-      showInAdminBar: true,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
       order: 3,
     },
   },
@@ -295,7 +295,7 @@ const adminRoutes: RouterOptions["routes"] = [
       icon: "lu:gamepad-2",
       showInAside: false,
       showInMobileFooter: false,
-      showInAdminBar: true,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
       order: 4,
     },
   },
@@ -308,7 +308,7 @@ const adminRoutes: RouterOptions["routes"] = [
       icon: "bx:medal",
       showInAside: false,
       showInMobileFooter: false,
-      showInAdminBar: true,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
       order: 5,
     },
   },
@@ -321,7 +321,7 @@ const adminRoutes: RouterOptions["routes"] = [
       icon: "bx:upvote",
       showInAside: false,
       showInMobileFooter: false,
-      showInAdminBar: true,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
       order: 6,
     },
   },
@@ -332,7 +332,7 @@ const adminRoutes: RouterOptions["routes"] = [
     meta: {
       title: "Cartes",
       icon: "ch:cards",
-      showInAside: false,
+      showInAside: (user: User) => user.role.includes("card"),
       showInMobileFooter: false,
       showInAdminBar: true,
       order: 7,
@@ -392,7 +392,7 @@ router.beforeEach((to, _) => {
   const toastStore = useToastStore();
 
   if (to.path.startsWith("/admin")) {
-    if (!userStore.user || !userStore.user.role.includes("admin")) {
+    if (!userStore.user || (!userStore.user.role.includes("admin") && !userStore.user.role.includes("card"))) {
       return { path: "/not-found" };
     }
   }
