@@ -392,7 +392,10 @@ router.beforeEach((to, _) => {
   const toastStore = useToastStore();
 
   if (to.path.startsWith("/admin")) {
-    if (!userStore.user || (!userStore.user.role.includes("admin") && !userStore.user.role.includes("card"))) {
+    if (to.path === '/admin/cards' && userStore.user && userStore.user.role.includes("card")) {
+      return true;
+    }
+    if (!userStore.user || !userStore.user.role.includes("admin")) {
       return { path: "/not-found" };
     }
   }
