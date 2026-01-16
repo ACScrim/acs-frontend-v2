@@ -74,7 +74,11 @@ const filteredCards = computed(() => {
 // Create a card lookup map - built from filtered cards
 const cardsMap = computed(() => {
   const map = new Map<string, Card>();
-  filteredCards.value.forEach((card) => map.set(card.card.id, card.card));
+  filteredCards.value.forEach((card) => {
+    if (card.card?.id) {
+      map.set(card.card.id, card.card);
+    }
+  });
   return map;
 });
 
