@@ -41,6 +41,9 @@ export interface PendingCardData {
   imageWidth: number;
   imageHeight: number;
   imageObjectFit: ImageObjectFit;
+  imageRounded: number;
+  imageCropX: number;
+  imageCropY: number;
   rarity: Rarity;
   customTexts: CustomText[];
 }

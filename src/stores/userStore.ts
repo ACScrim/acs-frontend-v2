@@ -12,6 +12,7 @@ export const useUserStore = defineStore('acs-user', {
     isSuperAdmin: (state) => state.user?.role === "superadmin",
     isAdmin: (state) =>
       state.user?.role === "admin" || state.user?.role === "superadmin",
+    isCardAdmin: (state) => state.user?.role.includes('card'),
     isLoggedIn: (state) => !!state.user
   },
   actions: {

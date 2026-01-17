@@ -350,13 +350,17 @@ onUnmounted(() => {
       :style="{ padding: `${scale(16)}px` }"
     >
       <!-- Image container -->
-      <div class="absolute" :style="imageStyle">
+      <div class="absolute overflow-hidden" :style="imageStyle">
         <img
           v-if="card.imageUrl || (props.card.imageBase64)"
           :src="card.imageUrl || (props.card.imageBase64 ? `data:image/png;base64,${props.card.imageBase64}` : '')"
           :alt="card.title"
-          class="w-full h-full rounded-lg"
-          :style="{ objectFit: imageObjectFit }"
+          class="w-full h-full"
+          :style="{
+            objectFit: imageObjectFit,
+            objectPosition: `${props.card.imageCropX ?? 50}% ${props.card.imageCropY ?? 50}%`,
+            borderRadius: `${scale(props.card.imageRounded ?? 0)}%`
+          }"
           :class="{ 'remove-bg-image': props.card.removeImageBg }"
           loading="lazy"
           decoding="async"

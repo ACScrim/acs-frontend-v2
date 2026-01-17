@@ -74,6 +74,9 @@ const imageScale = ref(1);
 const imageWidth = ref(160);
 const imageHeight = ref(160);
 const imageObjectFit = ref<ImageObjectFit>('cover');
+const imageRounded = ref(0); // 0-50 %
+const imageCropX = ref(50); // 0-100 % position horizontale dans l'image
+const imageCropY = ref(50); // 0-100 % position verticale dans l'image
 
 // Personnalisation - Rareté
 const rarity = ref<Rarity>('common');
@@ -114,10 +117,11 @@ const backgroundAssetImageInputRef = ref<HTMLInputElement | null>(null);
 const borderAssetImageInputRef = ref<HTMLInputElement | null>(null);
 
 // Image source selection
-const imageSourceType = ref<'upload' | 'url' | 'discord'>('upload');
+const imageSourceType = ref<'upload' | 'url' | 'discord' | 'cloudinary'>('cloudinary');
 const imageUrlInput = ref('');
 const selectedDiscordMemberId = ref<string>('');
 const discordSearchQuery = ref('');
+const selectedCloudinaryImage = ref<string>('');
 
 // Mode édition admin quand on passe par /admin/cards/:cardId/edit
 const adminEditCardId = computed(() => (route.params as any).cardId as string | undefined);
@@ -640,6 +644,9 @@ const saveCard = async () => {
     imageWidth: imageWidth.value,
     imageHeight: imageHeight.value,
     imageObjectFit: imageObjectFit.value,
+    imageRounded: imageRounded.value,
+    imageCropX: imageCropX.value,
+    imageCropY: imageCropY.value,
     rarity: rarity.value,
     customTexts: customTexts.value
   };
@@ -648,9 +655,16 @@ const saveCard = async () => {
   showConfirmationModal.value = true;
 };
 
+const isSavingCard = ref(false);
 // Confirm card creation from modal
 const confirmCardCreation = async () => {
-  if (!pendingCardData.value) return;
+  isSavingCard.value = true;
+  if (!pendingCardData.value) {
+    toastStore.error('Données de carte manquantes.');
+    isSavingCard.value = false;
+    showConfirmationModal.value = false;
+    return;
+  }
 
   try {
     // Determine if we're using a new or existing front asset
@@ -661,6 +675,8 @@ const confirmCardCreation = async () => {
       const newAsset = await cardStore.createCardAsset(pendingCardData.value.frontAssetData);
       if (!newAsset) {
         toastStore.error('Erreur lors de la création du fond.');
+        isSavingCard.value = false;
+        showConfirmationModal.value = false;
         return;
       }
       finalFrontAssetId = newAsset.id;
@@ -704,6 +720,9 @@ const confirmCardCreation = async () => {
         imageWidth: pendingCardData.value.imageWidth,
         imageHeight: pendingCardData.value.imageHeight,
         imageObjectFit: pendingCardData.value.imageObjectFit,
+        imageRounded: pendingCardData.value.imageRounded,
+        imageCropX: pendingCardData.value.imageCropX,
+        imageCropY: pendingCardData.value.imageCropY,
         rarity: pendingCardData.value.rarity,
         customTexts: pendingCardData.value.customTexts,
       });
@@ -711,6 +730,7 @@ const confirmCardCreation = async () => {
       if (updatedCard) {
         toastStore.success('Carte mise à jour avec succès.');
         showConfirmationModal.value = false;
+        isSavingCard.value = false;
         pendingCardData.value = null;
         await adminStore.fetchCards();
         await router.push('/admin/cards');
@@ -742,6 +762,9 @@ const confirmCardCreation = async () => {
       imageWidth: pendingCardData.value.imageWidth,
       imageHeight: pendingCardData.value.imageHeight,
       imageObjectFit: pendingCardData.value.imageObjectFit,
+      imageRounded: pendingCardData.value.imageRounded,
+      imageCropX: pendingCardData.value.imageCropX,
+      imageCropY: pendingCardData.value.imageCropY,
       rarity: pendingCardData.value.rarity,
       customTexts: pendingCardData.value.customTexts
     });
@@ -798,11 +821,16 @@ const confirmCardCreation = async () => {
       showConfirmationModal.value = false;
       pendingCardData.value = null;
 
+      isSavingCard.value = false;
+      showConfirmationModal.value = false;
+
       // Fetch updated cards
       await cardStore.fetchCardsPreviews();
     }
   } catch (error) {
     toastStore.error(isAdminEdit.value ? 'Erreur lors de la mise à jour de la carte.' : 'Erreur lors de la création de la carte.');
+    isSavingCard.value = false;
+    showConfirmationModal.value = false;
   }
 };
 
@@ -849,6 +877,7 @@ onMounted(async () => {
   await cardStore.fetchCardAssets();
   await cardStore.fetchCardsPreviews();
   await cardStore.fetchDiscordAvatars();
+  await cardStore.fetchMainCardImages();
   await categoryStore.fetchCategories();
 
   if (isAdminEdit.value) {
@@ -909,7 +938,7 @@ onMounted(async () => {
   }
 });
 
-// Helper to convert image to base64 with resize if needed
+// Helper to convert image to base64 with resize to 378px height
 const convertImageToBase64 = async (file: File): Promise<{ base64: string; mimeType: string } | null> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -917,47 +946,34 @@ const convertImageToBase64 = async (file: File): Promise<{ base64: string; mimeT
     reader.onload = async (e) => {
       const result = e.target?.result as string;
 
-      // Check file size
-      if (file.size > 3 * 1024 * 1024) {
-        // If larger than 3MB, resize using canvas
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
 
-          // Calculate new dimensions to keep aspect ratio
-          const maxDimension = 1024;
-          if (width > height) {
-            if (width > maxDimension) {
-              height = Math.round((height * maxDimension) / width);
-              width = maxDimension;
-            }
-          } else {
-            if (height > maxDimension) {
-              width = Math.round((width * maxDimension) / height);
-              height = maxDimension;
-            }
-          }
+        // Redimensionner à 378px de hauteur en conservant le ratio d'aspect
+        const targetHeight = 378;
+        const ratio = width / height;
+        const newHeight = targetHeight;
+        const newWidth = Math.round(newHeight * ratio);
 
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL(mimeType);
-            const base64 = dataUrl.split(',')[1] || '';
-            resolve({ base64, mimeType });
-          } else {
-            resolve(null);
-          }
-        };
-        img.src = result;
-      } else {
-        // If smaller than 3MB, use as is
-        const base64 = result.split(',')[1] || '';
-        resolve({ base64, mimeType });
-      }
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          const dataUrl = canvas.toDataURL(mimeType);
+          const base64 = dataUrl.split(',')[1] || '';
+          resolve({ base64, mimeType });
+        } else {
+          resolve(null);
+        }
+      };
+      img.onerror = () => {
+        resolve(null);
+      };
+      img.src = result;
     };
     reader.onerror = () => {
       resolve(null);
@@ -1012,6 +1028,7 @@ watch(imageSourceType, (newType) => {
     imageUrlInput.value = '';
     selectedDiscordMemberId.value = '';
     discordSearchQuery.value = '';
+    selectedCloudinaryImage.value = '';
   } else if (newType === 'url') {
     // Clear file input and Discord selection when using URL
     if (fileInputRef.value) {
@@ -1019,12 +1036,41 @@ watch(imageSourceType, (newType) => {
     }
     selectedDiscordMemberId.value = '';
     discordSearchQuery.value = '';
+    selectedCloudinaryImage.value = '';
   } else if (newType === 'discord') {
     // Clear file input and URL when using Discord avatar
     if (fileInputRef.value) {
       fileInputRef.value.value = '';
     }
     imageUrlInput.value = '';
+    selectedCloudinaryImage.value = '';
+  } else if (newType === 'cloudinary') {
+    // Load Cloudinary images when switching to Cloudinary source
+    if (fileInputRef.value) {
+      fileInputRef.value.value = '';
+    }
+    imageUrlInput.value = '';
+    selectedDiscordMemberId.value = '';
+    discordSearchQuery.value = '';
+    selectedCloudinaryImage.value = '';
+    if (cardStore.mainCardImages.length === 0) {
+      cardStore.fetchMainCardImages();
+    }
+  }
+});
+
+watch(selectedCloudinaryImage, async (newImageId) => {
+  if (imageSourceType.value === 'cloudinary' && newImageId) {
+    const image = cardStore.mainCardImages.find(img => img.publicId === newImageId);
+    if (image) {
+      // Load image from Cloudinary and convert to base64 for preview
+      const base64Data = await loadImageFromUrl(image.secure_url);
+      if (base64Data) {
+        imageBase64.value = base64Data.base64;
+        imageUrl.value = image.secure_url; // Use Cloudinary URL directly
+        toastStore.success('Image sélectionnée');
+      }
+    }
   }
 });
 
@@ -1088,6 +1134,9 @@ onUnmounted(() => {
                     imageWidth,
                     imageHeight,
                     imageObjectFit,
+                    imageRounded,
+                    imageCropX,
+                    imageCropY,
                     rarity,
                     customTexts,
                     category: selectedCategoryId ? {
@@ -1468,10 +1517,29 @@ onUnmounted(() => {
               </p>
             </div>
 
+            <p class="muted text-xs text-justify">
+              Merci de vérifier qu'un asset n'existe pas déjà avant d'en créer un nouveau pour éviter les doublons. Les assets disponibles sont juste en dessous.
+            </p>
+
             <!-- Image Source Selection -->
             <div class="space-y-2">
               <label class="text-xs text-foam-300 block">Source de l'image</label>
               <div class="flex gap-2">
+                <button
+                  :class="imageSourceType === 'cloudinary' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
+                  @click="imageSourceType = 'cloudinary'"
+                >
+                  Galerie
+                </button>
+                <button
+                  v-if="cardStore.discordAvatars.length > 0"
+                  :class="imageSourceType === 'discord' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
+                  @click="imageSourceType = 'discord'"
+                >
+                  Discord
+                </button>
                 <button
                   :class="imageSourceType === 'upload' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
                   class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
@@ -1485,14 +1553,6 @@ onUnmounted(() => {
                   @click="imageSourceType = 'url'"
                 >
                   URL
-                </button>
-                <button
-                  v-if="cardStore.discordAvatars.length > 0"
-                  :class="imageSourceType === 'discord' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageSourceType = 'discord'"
-                >
-                  Discord ({{ cardStore.discordAvatars.length }})
                 </button>
               </div>
             </div>
@@ -1563,6 +1623,43 @@ onUnmounted(() => {
               </div>
             </div>
 
+            <!-- Cloudinary Images Gallery -->
+            <div v-if="imageSourceType === 'cloudinary'" class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="form-label text-sm">Galerie d'images</label>
+                <button
+                  v-if="!cardStore.loading"
+                  @click="cardStore.fetchMainCardImages()"
+                  class="text-xs px-2 py-1 rounded bg-ink-700 hover:bg-ink-600 transition-colors text-foam-300"
+                >
+                  Actualiser
+                </button>
+                <div v-else class="text-xs text-foam-400">Chargement...</div>
+              </div>
+
+              <!-- Cloudinary Images Grid -->
+              <div v-if="cardStore.mainCardImages.length > 0" class="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
+                <button
+                  v-for="image in cardStore.mainCardImages"
+                  :key="image.publicId"
+                  :class="selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400' : 'border-white/10 hover:border-white/30'"
+                  class="w-full h-22 items-center gap-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
+                  @click="selectedCloudinaryImage = image.publicId"
+                >
+                  <img
+                    :src="image.secure_url"
+                    :alt="image.publicId"
+                    class="size-full rounded object-cover"
+                  />
+                </button>
+              </div>
+
+              <!-- No images message -->
+              <div v-else class="text-xs text-foam-300/60 py-4 text-center">
+                Aucune image trouvée dans la galerie.
+              </div>
+            </div>
+
             <!-- Image Positioning and Scale -->
             <div class="space-y-2">
               <label class="text-xs text-foam-300 block">Position de l'image</label>
@@ -1622,8 +1719,8 @@ onUnmounted(() => {
                     v-model.number="imageWidth"
                     type="range"
                     min="40"
-                    max="300"
-                    step="10"
+                    max="250"
+                    step="1"
                     class="w-full"
                   />
                   <span class="text-xs text-foam-300">{{ imageWidth }}px</span>
@@ -1634,8 +1731,8 @@ onUnmounted(() => {
                     v-model.number="imageHeight"
                     type="range"
                     min="40"
-                    max="300"
-                    step="10"
+                    max="378"
+                    step="1"
                     class="w-full"
                   />
                   <span class="text-xs text-foam-300">{{ imageHeight }}px</span>
@@ -1661,6 +1758,57 @@ onUnmounted(() => {
                 >
                   Contain (complète)
                 </button>
+              </div>
+            </div>
+
+            <!-- Image Style - Rounded -->
+            <div class="space-y-2">
+              <label class="text-xs text-foam-300 block">Coins arrondis</label>
+              <div class="flex gap-2 items-center">
+                <input
+                  v-model.number="imageRounded"
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="1"
+                  class="flex-1"
+                />
+                <span class="text-xs text-foam-300 w-10">{{ imageRounded }}%</span>
+              </div>
+            </div>
+
+            <!-- Image Crop Position -->
+            <div class="space-y-2">
+              <label class="text-xs text-foam-300 block">Position de l'image</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-foam-300/80 block mb-1">Horizontal</label>
+                  <div class="flex gap-2 items-center">
+                    <input
+                      v-model.number="imageCropX"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      class="flex-1"
+                    />
+                    <span class="text-xs text-foam-300 w-8">{{ imageCropX }}%</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="text-xs text-foam-300/80 block mb-1">Vertical</label>
+                  <div class="flex gap-2 items-center">
+                    <input
+                      v-model.number="imageCropY"
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      class="flex-1"
+                    />
+                    <span class="text-xs text-foam-300 w-8">{{ imageCropY }}%</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2118,6 +2266,9 @@ onUnmounted(() => {
                 imageWidth: pendingCardData.imageWidth,
                 imageHeight: pendingCardData.imageHeight,
                 imageObjectFit: pendingCardData.imageObjectFit,
+                imageRounded: pendingCardData.imageRounded,
+                imageCropX: pendingCardData.imageCropX,
+                imageCropY: pendingCardData.imageCropY,
                 rarity: pendingCardData.rarity,
                 customTexts: pendingCardData.customTexts,
                 createdAt: '',
@@ -2148,6 +2299,8 @@ onUnmounted(() => {
               variant="primary"
               size="sm"
               @click="confirmCardCreation"
+              :loading="isSavingCard"
+              :disabled="isSavingCard"
             >
               Confirmer et créer
             </Button>

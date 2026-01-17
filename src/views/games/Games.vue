@@ -34,39 +34,7 @@ const games: Game[] = [
     category: "Puzzle",
     gradient: "from-green-500/20 to-emerald-500/20",
     players: "Solo",
-  },
-  {
-    id: "3",
-    name: "Créateur de Cartes",
-    description:
-      "Créez vos propres cartes personnalisées avec des designs uniques.",
-    route: "/games/card-creator",
-    icon: "✨",
-    category: "Créatif",
-    gradient: "from-pink-500/20 to-rose-500/20",
-    players: "Solo",
-  },
-  {
-    id: "4",
-    name: "Collection de Cartes",
-    description: "Consultez et gérez votre collection de cartes.",
-    route: "/games/card-collection",
-    icon: "📚",
-    category: "Collection",
-    gradient: "from-amber-500/20 to-orange-500/20",
-    players: "Solo",
-  },
-  {
-    id: "5",
-    name: "Boutique de Boosters",
-    description:
-      "Achetez des boosters pour enrichir votre collection de cartes.",
-    route: "/games/booster-shop",
-    icon: "🛍️",
-    category: "Collection",
-    gradient: "from-indigo-500/20 to-blue-500/20",
-    players: "Solo",
-  },
+  }
 ];
 
 const getCategoryColor = (category: string) => {

@@ -8,6 +8,7 @@ import type {WeeklyLeaderboardEntry} from "@/types/models";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {shuffleArray} from "@/utils";
+import {useUserStore} from "@/stores/userStore.ts";
 
 const activeTab = ref<"today" | "yesterday" | "leaderboard">("today");
 
@@ -89,6 +90,7 @@ const updateAnswer = async (answerData: {
     gamesStore.dailyQuiz.todayQuestion.id,
     answerData
   );
+  useUserStore().fetchUser().then()
   if (answerData.userAnswer) {
     if (answerTimeInterval.value) clearInterval(answerTimeInterval.value);
     // Vérifier si la réponse est correcte pour le feedback visuel

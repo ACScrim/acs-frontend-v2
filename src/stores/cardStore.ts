@@ -9,6 +9,7 @@ const useCardStore = defineStore('cards', {
     cardsPreview: [] as Pick<CollectibleCard, 'id' | 'status'>[],
     cardAssets: [] as CardAsset[],
     discordAvatars: [] as { id: string; username: string; avatarUrl: string }[],
+    mainCardImages: [] as { publicId: string; url: string; secure_url: string }[],
     loading: false,
   }),
   actions: {
@@ -66,6 +67,18 @@ const useCardStore = defineStore('cards', {
         this.discordAvatars = avatars;
       } catch {
         useToastStore().error("Erreur lors de la récupération des avatars Discord.");
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchMainCardImages() {
+      this.loading = true;
+      try {
+        const { data: { data: images }} = await api.get<ApiResponse<{ publicId: string; url: string; secure_url: string }[]>>("/games/card-creator/main-images");
+        this.mainCardImages = images;
+      } catch {
+        useToastStore().error("Erreur lors de la récupération des images principales des cartes.");
       } finally {
         this.loading = false;
       }

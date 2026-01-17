@@ -5,6 +5,7 @@ import type { AcsdleUser } from "@/types/models";
 import { formatDate } from "@vueuse/core";
 import confetti from "canvas-confetti";
 import LoaderACS from "@/components/global/LoaderACS.vue";
+import {useUserStore} from "@/stores/userStore.ts";
 
 // Encryption/Decryption functions
 function normalizeBase64(b64: string) {
@@ -81,7 +82,6 @@ const decryptedUser = ref<AcsdleUser | null>(null);
 const searchInput = ref("");
 const selectedSuggestionIndex = ref(-1);
 const gameWon = ref(false);
-const gameOver = ref(false);
 const timeRemaining = ref(0);
 const isLoading = ref(false);
 const showTooltip = ref(false);
@@ -118,8 +118,6 @@ onMounted(async () => {
       )
     ) {
       gameWon.value = true;
-    } else if (gamesStore.acsdle.todayGuesses.length >= 20) {
-      gameOver.value = true;
     }
   });
   await gamesStore.fetchAcsdleHistory();
@@ -194,17 +192,17 @@ function selectUser(user: AcsdleUser) {
   searchInput.value = "";
   selectedSuggestionIndex.value = -1;
 
-  gamesStore.addAcsdleTodayGuess(user);
-
-  if (user.id === decryptedUser.value?.id) {
-    gameWon.value = true;
-  } else if (guesses.value.length >= 20) {
-    gameOver.value = true;
-  }
+  gamesStore.addAcsdleTodayGuess(user)
+    .then(() => {
+      if (user.id === decryptedUser.value?.id) {
+        gameWon.value = true;
+        useUserStore().fetchUser().then()
+      }
+    });
 }
 
 function handleKeyNavigation(event: KeyboardEvent) {
-  if (gameWon.value || gameOver.value) return;
+  if (gameWon.value) return;
 
   const suggestions = filteredUsers.value;
   if (!suggestions.length) return;
@@ -351,25 +349,6 @@ const hints = computed(() => [
         </p>
       </div>
 
-      <!-- Progress Bar -->
-      <div class="max-w-md mx-auto mb-6">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-xs text-gray-400">Progression</span>
-          <span class="text-xs text-gray-400">{{ guesses.length }}/20</span>
-        </div>
-        <div class="w-full bg-gray-700 rounded-full h-2">
-          <div
-            class="h-2 rounded-full transition-all duration-500 ease-out"
-            :class="{
-              'bg-green-500': guesses.length <= 5,
-              'bg-yellow-500': guesses.length > 5 && guesses.length <= 15,
-              'bg-red-500': guesses.length > 15,
-            }"
-            :style="{ width: `${(guesses.length / 20) * 100}%` }"
-          ></div>
-        </div>
-      </div>
-
       <!-- Win Screen -->
       <div
         v-if="gameWon && decryptedUser"
@@ -406,38 +385,6 @@ const hints = computed(() => [
         </p>
       </div>
 
-      <!-- Loss Screen -->
-      <div
-        v-if="gameOver && !gameWon && decryptedUser"
-        class="rounded-2xl border-2 border-red-500/80 bg-red-900/40 p-6 text-center shadow-2xl sm:p-8"
-      >
-        <h2 class="mb-3 text-3xl font-bold sm:text-4xl">😔 Game Over!</h2>
-        <p class="mb-5 text-base sm:text-xl">
-          Le champion était: <strong>{{ decryptedUser.username }}</strong>
-        </p>
-        <div class="mb-5 rounded-2xl bg-gray-900/40 p-5 text-left sm:p-6">
-          <h3 class="mb-4 text-xl font-bold sm:text-2xl">
-            Statistiques du champion
-          </h3>
-          <ul class="space-y-2 text-sm sm:text-base">
-            <li>
-              <strong>Tournois joués:</strong>
-              {{ decryptedUser.tournamentsPlayed }}
-            </li>
-            <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
-            <li><strong>Podium:</strong> {{ decryptedUser.podiumCount }}</li>
-            <li>
-              <strong>Jeu le plus joué:</strong>
-              {{ decryptedUser.mostPlayedGames.join(", ") }}
-            </li>
-            <li>
-              <strong>Premier ACS:</strong>
-              {{ decryptedUser.firstTournament }}
-            </li>
-          </ul>
-        </div>
-      </div>
-
       <!-- Game Container -->
       <div
         v-if="decryptedUser"
@@ -454,7 +401,7 @@ const hints = computed(() => [
                 type="text"
                 placeholder="🔍 Tapez le nom d'un joueur..."
                 class="w-full rounded-xl border-2 border-cyan-500/50 bg-gray-700/70 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
-                :disabled="gameWon || gameOver"
+                :disabled="gameWon"
               />
               <!-- Dropdown de suggestions amélioré -->
               <div
@@ -538,7 +485,7 @@ const hints = computed(() => [
             <p class="text-sm text-gray-300">
               Vous avez utilisé
               <span class="font-semibold text-white">{{ guesses.length }}</span>
-              / 20 essais.
+              essais.
             </p>
           </div>
         </div>

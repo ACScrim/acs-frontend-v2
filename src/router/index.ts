@@ -163,36 +163,39 @@ const routes: RouterOptions["routes"] = [
     },
   },
   {
-    path: "/games/card-creator",
+    path: "/scrimdeck/creator",
     component: () => import("@/views/games/card-creator/CardCreator.vue"),
     name: "CardCreator",
     meta: {
-      title: "Créateur de Cartes",
+      title: "Éditeur",
       showInAdminBar: false,
       showInAside: false,
       showInMobileFooter: false,
+      icon: "io:outline-sparkles"
     },
   },
   {
-    path: "/games/card-collection",
+    path: "/scrimdeck/collection",
     component: () => import("@/views/games/card-collection/CardCollection.vue"),
     name: "CardCollection",
     meta: {
-      title: "Collection de Cartes",
+      title: "Collection",
       showInAdminBar: false,
       showInAside: false,
       showInMobileFooter: false,
+      icon: "ch:cards",
     },
   },
   {
-    path: "/games/booster-shop",
+    path: "/scrimdeck/booster",
     component: () => import("@/views/games/booster-shop/BoosterShop.vue"),
     name: "BoosterShop",
     meta: {
-      title: "Boutique de Boosters",
+      title: "Ouvrir un booster",
       showInAdminBar: false,
       showInAside: false,
       showInMobileFooter: false,
+      icon: "bx:solid-shopping-bags",
     },
   },
   {
@@ -200,10 +203,11 @@ const routes: RouterOptions["routes"] = [
     component: () => import("@/views/games/acsdle/Acsdle.vue"),
     name: "Acsdle",
     meta: {
-      title: "ACSDLE",
+      title: "Acsdle",
       showInAdminBar: false,
       showInAside: false,
       showInMobileFooter: false,
+      icon: "fl:person-question-mark"
     },
   },
   {

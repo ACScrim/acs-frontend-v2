@@ -301,6 +301,9 @@ export interface CollectibleCard {
   imageWidth?: number;
   imageHeight?: number;
   imageObjectFit?: 'contain' | 'cover';
+  imageRounded?: number;
+  imageCropX?: number;
+  imageCropY?: number;
   customTexts?: Array<{
     content: string;
     posX: number;
