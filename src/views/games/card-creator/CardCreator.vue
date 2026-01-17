@@ -616,14 +616,20 @@ const saveCard = async () => {
   }
 
   // Store card data for confirmation modal WITHOUT creating assets yet
-  // For Discord avatars, use imageUrl directly instead of imageBase64
-  const isDiscordAvatar = imageSourceType.value === 'discord' && selectedDiscordMemberId.value;
-  const member = isDiscordAvatar ? cardStore.discordAvatars.find(m => m.id === selectedDiscordMemberId.value) : null;
+  // For Discord avatars and Cloudinary images, use imageUrl directly instead of imageBase64
+  const isDirectImageUrl = (imageSourceType.value === 'discord' && selectedDiscordMemberId.value) ||
+                           (imageSourceType.value === 'cloudinary' && selectedCloudinaryImage.value);
+  const member = imageSourceType.value === 'discord' && selectedDiscordMemberId.value
+    ? cardStore.discordAvatars.find(m => m.id === selectedDiscordMemberId.value)
+    : null;
+  const cloudinaryImage = imageSourceType.value === 'cloudinary' && selectedCloudinaryImage.value
+    ? cardStore.mainCardImages.find(img => img.publicId === selectedCloudinaryImage.value)
+    : null;
 
   pendingCardData.value = {
     title: title.value,
-    imageBase64: !isDiscordAvatar ? imageBase64.value : '',
-    imageUrl: isDiscordAvatar ? member?.avatarUrl : undefined,
+    imageBase64: !isDirectImageUrl ? imageBase64.value : '',
+    imageUrl: member?.avatarUrl || cloudinaryImage?.secure_url || undefined,
     frontAssetId: selectedFrontAssetId.value,
     borderAssetId: selectedBorderAssetId.value,
     categoryId: selectedCategoryId.value,
@@ -1011,13 +1017,16 @@ watch(selectedDiscordMemberId, async (newMemberId) => {
   if (imageSourceType.value === 'discord' && newMemberId) {
     const member = cardStore.discordAvatars.find(m => m.id === newMemberId);
     if (member) {
-      // Load avatar URL and convert to base64 for preview
+      // For Discord avatars, use URL directly - no base64 conversion
+      imageUrl.value = member.avatarUrl;
+      imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
+
+      // Load for preview only
       const base64Data = await loadImageFromUrl(member.avatarUrl);
       if (base64Data) {
-        imageBase64.value = base64Data.base64;
-        imageUrl.value = '';  // Will be overwritten by Cloudinary on save
-        toastStore.success(`Avatar de ${member.username} sélectionné`);
+        imageBase64.value = base64Data.base64; // Only for preview
       }
+      toastStore.success(`Avatar de ${member.username} sélectionné`);
     }
   }
 });
@@ -1063,13 +1072,16 @@ watch(selectedCloudinaryImage, async (newImageId) => {
   if (imageSourceType.value === 'cloudinary' && newImageId) {
     const image = cardStore.mainCardImages.find(img => img.publicId === newImageId);
     if (image) {
-      // Load image from Cloudinary and convert to base64 for preview
+      // For Cloudinary images, use URL directly - no base64 conversion
+      imageUrl.value = image.secure_url;
+      imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
+
+      // Load for preview only
       const base64Data = await loadImageFromUrl(image.secure_url);
       if (base64Data) {
-        imageBase64.value = base64Data.base64;
-        imageUrl.value = image.secure_url; // Use Cloudinary URL directly
-        toastStore.success('Image sélectionnée');
+        imageBase64.value = base64Data.base64; // Only for preview
       }
+      toastStore.success('Image sélectionnée');
     }
   }
 });
@@ -2222,7 +2234,7 @@ onUnmounted(() => {
               size="sm"
               class="mt-4"
               @click="cardStore.deleteCard(card.id)"
-              :disabled="card.status === 'active'"
+              :disabled="!useUserStore().isSuperAdmin"
             >
               Supprimer
             </Button>
