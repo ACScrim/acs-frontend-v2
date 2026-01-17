@@ -18,8 +18,8 @@ const menuRoutes = computed(() => [
   { label: 'Propositions de jeux', to: '/game-proposals', icon: 'bx:upvote' },
   { label: 'Acsdle', to: '/games/acsdle', icon: 'ca:game-console' },
   { label: 'Daily Quiz', to: '/games/dailyQuiz', icon: 'md:outlined-quiz' },
-  { label: 'Collection de cartes', to: '/games/card-collection', icon: 'ch:cards' },
-  { label: 'Boutique de boosters', to: '/games/booster-shop', icon: 'ci:shop' },
+  { label: 'Collection de cartes', to: '/scrimdeck/collection', icon: 'ch:cards' },
+  { label: 'Boutique de boosters', to: '/scrimdeck/booster', icon: 'ci:shop' },
 ]);
 
 const closeMenu = () => {
