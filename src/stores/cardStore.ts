@@ -84,6 +84,18 @@ const useCardStore = defineStore('cards', {
       }
     },
 
+    async fetchUsedMainCardImages() {
+      this.loading = true;
+      try {
+        const { data: { data: images }} = await api.get<ApiResponse<{ publicId: string; url: string; secure_url: string }[]>>("/games/card-creator/main-images/used");
+        this.mainCardImages = images;
+      } catch {
+        useToastStore().error("Erreur lors de la récupération des images utilisées.");
+      } finally {
+        this.loading = false;
+      }
+    },
+
     // Mock API: Create a new card asset
     async createCardAsset(assetData: Omit<CardAsset, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>): Promise<CardAsset | null> {
       this.loading = true;

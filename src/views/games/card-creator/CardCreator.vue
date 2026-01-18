@@ -130,6 +130,10 @@ const selectedCloudinaryImage = ref<string>('');
 const adminEditCardId = computed(() => (route.params as any).cardId as string | undefined);
 const isAdminEdit = computed(() => route.path.startsWith('/admin/cards/') && route.path.endsWith('/edit') && Boolean(adminEditCardId.value));
 
+// Filtrage des assets et images
+const showAllAssets = ref(false);
+const showAllImages = ref(false);
+
 // Helper to get current asset config based on category
 const getCurrentAssetName = () => assetCategory.value === 'background' ? backgroundAssetName.value : borderAssetName.value;
 const getCurrentAssetType = () => assetCategory.value === 'background' ? backgroundAssetType.value : borderAssetType.value;
@@ -336,6 +340,23 @@ const filteredDiscordMembers = computed(() => {
   return cardStore.discordAvatars.filter(member =>
     member.username.toLowerCase().includes(query)
   );
+});
+
+// Filtered assets - show only user's assets by default
+const filteredBackgroundAssets = computed(() => {
+  const assets = cardStore.getCardAssetsByCategory('background');
+  if (showAllAssets.value) {
+    return assets;
+  }
+  return assets.filter(asset => asset.createdBy?.id === user?.id);
+});
+
+const filteredBorderAssets = computed(() => {
+  const assets = cardStore.getCardAssetsByCategory('border');
+  if (showAllAssets.value) {
+    return assets;
+  }
+  return assets.filter(asset => asset.createdBy?.id === user?.id);
 });
 
 // Handle asset image upload
@@ -552,6 +573,27 @@ const createNewCategory = async () => {
     newCategoryDescription.value = '';
     showCreateCategoryModal.value = false;
     toastStore.success('Catégorie créée avec succès');
+  }
+};
+
+// Toggle functions for showing all assets/images
+const toggleShowAllAssets = async () => {
+  showAllAssets.value = !showAllAssets.value;
+  if (showAllAssets.value) {
+    toastStore.info('Affichage de tous les assets');
+  } else {
+    toastStore.info('Affichage de vos assets uniquement');
+  }
+};
+
+const toggleShowAllImages = async () => {
+  showAllImages.value = !showAllImages.value;
+  if (showAllImages.value) {
+    await cardStore.fetchMainCardImages();
+    toastStore.info('Affichage de toutes les images');
+  } else {
+    await cardStore.fetchUsedMainCardImages();
+    toastStore.info('Affichage des images utilisées uniquement');
   }
 };
 
@@ -895,7 +937,7 @@ onMounted(async () => {
   await cardStore.fetchCardAssets();
   await cardStore.fetchCardsPreviews();
   await cardStore.fetchDiscordAvatars();
-  await cardStore.fetchMainCardImages();
+  await cardStore.fetchUsedMainCardImages(); // Charger uniquement les images utilisées par défaut
   await categoryStore.fetchCategories();
 
   if (isAdminEdit.value) {
@@ -1075,7 +1117,7 @@ watch(imageSourceType, (newType) => {
     discordSearchQuery.value = '';
     selectedCloudinaryImage.value = '';
     if (cardStore.mainCardImages.length === 0) {
-      cardStore.fetchMainCardImages();
+      cardStore.fetchUsedMainCardImages(); // Charger uniquement les images utilisées
     }
   }
 });
@@ -1450,16 +1492,25 @@ onUnmounted(() => {
 
                     <!-- Cloudinary Images Gallery -->
                     <div v-if="imageSourceType === 'cloudinary'" class="space-y-2">
-                      <div class="flex items-center justify-between">
-                        <label class="form-label text-sm">Galerie d'images</label>
-                        <button
-                          v-if="!cardStore.loading"
-                          @click="cardStore.fetchMainCardImages()"
-                          class="text-xs px-2 py-1 rounded bg-ink-700 hover:bg-ink-600 transition-colors text-foam-300"
+                      <label class="form-label text-sm">Galerie d'images</label>
+                      <div class="flex gap-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          @click="toggleShowAllImages"
+                          class="flex-1"
                         >
-                          🔄 Actualiser
-                        </button>
-                        <div v-else class="text-xs text-foam-400">Chargement...</div>
+                          {{ showAllImages ? '📌 Afficher les images utilisées' : '🌐 Afficher toutes les images' }}
+                        </Button>
+                        <Button
+                          v-if="!cardStore.loading"
+                          variant="secondary"
+                          size="sm"
+                          @click="showAllImages ? cardStore.fetchMainCardImages() : cardStore.fetchUsedMainCardImages()"
+                        >
+                          🔄
+                        </Button>
+                        <div v-else class="text-xs text-foam-400 flex items-center px-2">Chargement...</div>
                       </div>
                       <div v-if="cardStore.mainCardImages.length > 0" class="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
                         <button
@@ -1477,7 +1528,7 @@ onUnmounted(() => {
                         </button>
                       </div>
                       <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-                        Aucune image trouvée dans la galerie.
+                        {{ showAllImages ? 'Aucune image trouvée dans la galerie.' : 'Aucune image utilisée pour le moment.' }}
                       </div>
                     </div>
                   </div>
@@ -2189,12 +2240,22 @@ onUnmounted(() => {
                       ✕ Aucun fond
                     </Button>
                   </div>
-                  <div v-if="cardStore.getCardAssetsByCategory('background').length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
-                    Aucun fond créé pour le moment.
+                  <div class="flex justify-center">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      @click="toggleShowAllAssets"
+                      class="w-full max-w-xs"
+                    >
+                      {{ showAllAssets ? '👤 Afficher mes assets uniquement' : '👥 Afficher tous les assets' }}
+                    </Button>
+                  </div>
+                  <div v-if="filteredBackgroundAssets.length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
+                    {{ showAllAssets ? 'Aucun fond créé pour le moment.' : 'Vous n\'avez créé aucun fond. Cliquez sur "Afficher tous les assets" pour voir ceux des autres utilisateurs.' }}
                   </div>
                   <div v-else class="grid grid-cols-4 gap-3">
                     <button
-                      v-for="asset in cardStore.getCardAssetsByCategory('background')"
+                      v-for="asset in filteredBackgroundAssets"
                       :key="asset.id"
                       class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden relative"
                       :class="selectedFrontAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
@@ -2233,12 +2294,22 @@ onUnmounted(() => {
                       ✕ Aucune bordure
                     </Button>
                   </div>
-                  <div v-if="cardStore.getCardAssetsByCategory('border').length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
-                    Aucune bordure créée pour le moment.
+                  <div class="flex justify-center">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      @click="toggleShowAllAssets"
+                      class="w-full max-w-xs"
+                    >
+                      {{ showAllAssets ? '👤 Afficher mes assets uniquement' : '👥 Afficher tous les assets' }}
+                    </Button>
+                  </div>
+                  <div v-if="filteredBorderAssets.length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
+                    {{ showAllAssets ? 'Aucune bordure créée pour le moment.' : 'Vous n\'avez créé aucune bordure. Cliquez sur "Afficher tous les assets" pour voir ceux des autres utilisateurs.' }}
                   </div>
                   <div v-else class="grid grid-cols-4 gap-3">
                     <button
-                      v-for="asset in cardStore.getCardAssetsByCategory('border')"
+                      v-for="asset in filteredBorderAssets"
                       :key="asset.id"
                       class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden bg-ink-800 relative"
                       :class="selectedBorderAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
