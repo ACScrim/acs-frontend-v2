@@ -60,6 +60,9 @@ const cardPreviewRef = ref<HTMLDivElement | null>(null);
 const savedCardsContainer = ref<HTMLElement | null>(null);
 const activeTimeouts = new Set<number>();
 
+// UI State - Tabs and collapsible sections
+const activeTab = ref<'basics' | 'appearance' | 'texts' | 'assets' | 'effects'>('basics');
+
 // Personnalisation - Couleurs du texte
 const titleColor = ref('#ffffff');
 const titleFontSize = ref(18);
@@ -216,6 +219,15 @@ const ensureAssetName = (category: 'background' | 'border') => {
   }
   return target.value;
 };
+
+// Tab completion status
+const isTabComplete = computed(() => ({
+  basics: title.value.trim().length > 0 && hasMainImage.value,
+  appearance: true, // Always accessible
+  texts: true, // Always accessible
+  assets: true, // Always accessible
+  effects: true // Always accessible
+}));
 
 const hasMainImage = computed(() => Boolean(imageBase64.value));
 
@@ -1171,1015 +1183,1138 @@ onUnmounted(() => {
         <!-- Editor Panel -->
         <div class="w-full lg:w-1/2">
           <Card class="p-8 space-y-6">
-          <h2 class="text-lg font-semibold text-foam-200 mb-4">Personnalisation</h2>
+            <h2 class="text-lg font-semibold text-foam-200 mb-4">Personnalisation</h2>
 
-          <!-- SECTION CATÉGORIE -->
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <h3 class="text-sm font-semibold text-foam-200">Catégorie</h3>
-
-            <!-- Category Selector -->
-            <div class="space-y-2">
-              <label class="form-label text-sm">Sélectionner ou créer une catégorie</label>
-              <div class="flex gap-2">
-                <ACSSelect
-                  v-model="selectedCategoryId"
-                  defaultOptionLabel="-- Pas de catégorie --"
-                  :options="categoryStore.categories.map(category => ({ label: category.name, value: category.id }))"
-                />
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  @click="showCreateCategoryModal = true"
-                >
-                  + Nouvelle
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION TITRE ET SA PERSONNALISATION -->
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <h3 class="text-sm font-semibold text-foam-200">Titre</h3>
-
-            <!-- Title Input -->
-            <div class="space-y-2">
-              <label class="form-label text-sm">Contenu du titre *</label>
-              <input
-                v-model="title"
-                type="text"
-                maxlength="30"
-                placeholder="Entrez le titre de votre carte"
-                class="form-input"
-              />
-              <p class="text-xs text-foam-300/50">{{ title.length }}/30 caractères</p>
-            </div>
-
-            <!-- Title Color -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300">Couleur du titre</label>
-              <div class="flex gap-3 items-center">
-                <input
-                  v-model="titleColor"
-                  type="color"
-                  class="w-12 h-10 rounded cursor-pointer border border-white/10"
-                />
-                <input
-                  v-model="titleColor"
-                  type="text"
-                  placeholder="#ffffff"
-                  class="flex-1 form-input text-sm"
-                />
-              </div>
-            </div>
-
-            <!-- Title Font Size -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300">Taille du titre</label>
-              <div class="flex gap-2 items-center">
-                <input
-                  v-model.number="titleFontSize"
-                  type="range"
-                  min="8"
-                  max="40"
-                  class="flex-1"
-                />
-                <span class="text-xs text-foam-300 w-12">{{ titleFontSize }}px</span>
-              </div>
-            </div>
-
-            <!-- Title Positioning -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Position du titre</label>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">X</label>
-                  <div class="flex gap-2 items-center">
-                    <input
-                      v-model.number="titlePosX"
-                      type="range"
-                      min="0"
-                      max="100"
-                      class="flex-1"
-                    />
-                    <span class="text-xs text-foam-300 w-8">{{ titlePosX }}%</span>
-                  </div>
-                </div>
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">Y</label>
-                  <div class="flex gap-2 items-center">
-                    <input
-                      v-model.number="titlePosY"
-                      type="range"
-                      min="0"
-                      max="100"
-                      class="flex-1"
-                    />
-                    <span class="text-xs text-foam-300 w-8">{{ titlePosY }}%</span>
-                  </div>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  :class="titleAlign === 'left' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                  @click="titleAlign = 'left'"
-                >
-                  Gauche
-                </button>
-                <button
-                  :class="titleAlign === 'center' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                  @click="titleAlign = 'center'"
-                >
-                  Centré
-                </button>
-                <button
-                  :class="titleAlign === 'right' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                  @click="titleAlign = 'right'"
-                >
-                  Droite
-                </button>
-              </div>
-
-              <!-- Title width -->
-              <div class="space-y-2">
-                <label class="text-xs text-foam-300 block">Largeur du titre</label>
-                <div class="flex gap-2">
-                  <button
-                    :class="titleWidth === 'w-full' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="titleWidth = 'w-full'"
-                  >
-                    Pleine largeur
-                  </button>
-                  <button
-                    :class="titleWidth === 'w-auto' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="titleWidth = 'w-auto'"
-                  >
-                    Auto
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION TEXTES PERSONNALISÉS -->
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-semibold text-foam-200">Textes personnalisés (0-5)</h3>
-              <Button
-                v-if="customTexts.length < 5"
-                variant="secondary"
-                size="sm"
-                @click="addCustomText"
+            <!-- Tabs Navigation -->
+            <div class="flex gap-2 border-b border-white/10 pb-4">
+              <button
+                :class="[
+                  'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200 relative',
+                  activeTab === 'basics'
+                    ? 'bg-accent-500 text-white shadow-lg'
+                    : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
+                ]"
+                @click="activeTab = 'basics'"
               >
-                + Ajouter texte
-              </Button>
+                <span class="flex items-center gap-2">
+                  🎯 Essentiel
+                  <span v-if="isTabComplete.basics" class="text-green-400">✓</span>
+                </span>
+              </button>
+              <button
+                :class="[
+                  'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
+                  activeTab === 'appearance'
+                    ? 'bg-accent-500 text-white shadow-lg'
+                    : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
+                ]"
+                @click="activeTab = 'appearance'"
+              >
+                🎨 Apparence
+              </button>
+              <button
+                :class="[
+                  'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
+                  activeTab === 'texts'
+                    ? 'bg-accent-500 text-white shadow-lg'
+                    : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
+                ]"
+                @click="activeTab = 'texts'"
+              >
+                📝 Textes
+              </button>
+              <button
+                :class="[
+                  'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
+                  activeTab === 'assets'
+                    ? 'bg-accent-500 text-white shadow-lg'
+                    : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
+                ]"
+                @click="activeTab = 'assets'"
+              >
+                🖼️ Fond & Bordures
+              </button>
+              <button
+                :class="[
+                  'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
+                  activeTab === 'effects'
+                    ? 'bg-accent-500 text-white shadow-lg'
+                    : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
+                ]"
+                @click="activeTab = 'effects'"
+              >
+                ✨ Effets
+              </button>
             </div>
 
-            <!-- Custom texts list -->
-            <div v-if="customTexts.length === 0" class="text-xs text-foam-300/60 py-4">
-              Aucun texte personnalisé. Cliquez sur "+ Ajouter texte" pour en ajouter.
-            </div>
-
-            <div v-for="(text, index) in customTexts" :key="index" class="space-y-3 p-3 border border-white/10 rounded bg-ink-700/20">
-              <!-- Text content -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-xs text-foam-300">Texte {{ index + 1 }}</label>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    @click="removeCustomText(index)"
+            <!-- Tab Content -->
+            <div class="space-y-6 min-h-[500px]">
+              <!-- TAB 1: ESSENTIEL -->
+              <div v-show="activeTab === 'basics'" class="space-y-6 animate-fadeIn">
+                <!-- SECTION CATÉGORIE -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <div
+                    class="flex items-center justify-between"
                   >
-                    Supprimer
-                  </Button>
-                </div>
-                <textarea
-                  :value="text.content"
-                  @input="updateCustomText(index, 'content', ($event.target as HTMLTextAreaElement).value)"
-                  rows="2"
-                  maxlength="100"
-                  placeholder="Entrez votre texte..."
-                  class="form-input resize-none w-full text-sm"
-                />
-                <p class="text-xs text-foam-300/50">{{ text.content.length }}/100 caractères</p>
-              </div>
-
-              <!-- Text color -->
-              <div class="space-y-2">
-                <label class="text-xs text-foam-300">Couleur</label>
-                <div class="flex gap-3 items-center">
-                  <input
-                    :value="text.color"
-                    type="color"
-                    @input="updateCustomText(index, 'color', ($event.target as HTMLInputElement).value)"
-                    class="w-12 h-8 rounded cursor-pointer border border-white/10"
-                  />
-                  <input
-                    :value="text.color"
-                    type="text"
-                    @input="updateCustomText(index, 'color', ($event.target as HTMLInputElement).value)"
-                    placeholder="#ffffff"
-                    class="flex-1 form-input text-sm"
-                  />
-                </div>
-              </div>
-
-              <!-- Text Font Size -->
-              <div class="space-y-2">
-                <label class="text-xs text-foam-300">Taille du texte</label>
-                <div class="flex gap-2 items-center">
-                  <input
-                    :value="text.fontSize || 14"
-                    @input="updateCustomText(index, 'fontSize', Number(($event.target as HTMLInputElement).value))"
-                    type="range"
-                    min="8"
-                    max="32"
-                    class="flex-1"
-                  />
-                  <span class="text-xs text-foam-300 w-12">{{ text.fontSize || 14 }}px</span>
-                </div>
-              </div>
-
-              <!-- Text positioning -->
-              <div class="space-y-2">
-                <label class="text-xs text-foam-300 block">Position</label>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="text-xs text-foam-300/80 block mb-1">X</label>
-                    <div class="flex gap-2 items-center">
-                      <input
-                        :value="text.posX"
-                        @input="updateCustomText(index, 'posX', Number(($event.target as HTMLInputElement).value))"
-                        type="range"
-                        min="0"
-                        max="100"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-foam-300 w-8">{{ text.posX }}%</span>
-                    </div>
+                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
+                      <span>📁 Catégorie</span>
+                    </h3>
                   </div>
-                  <div>
-                    <label class="text-xs text-foam-300/80 block mb-1">Y</label>
-                    <div class="flex gap-2 items-center">
-                      <input
-                        :value="text.posY"
-                        @input="updateCustomText(index, 'posY', Number(($event.target as HTMLInputElement).value))"
-                        type="range"
-                        min="0"
-                        max="100"
-                        class="flex-1"
+
+                  <div class="space-y-2 pt-2">
+                    <label class="form-label text-sm">Sélectionner ou créer une catégorie</label>
+                    <div class="flex gap-2">
+                      <ACSSelect
+                        v-model="selectedCategoryId"
+                        defaultOptionLabel="-- Pas de catégorie --"
+                        :options="categoryStore.categories.map(category => ({ label: category.name, value: category.id }))"
                       />
-                      <span class="text-xs text-foam-300 w-8">{{ text.posY }}%</span>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        @click="showCreateCategoryModal = true"
+                      >
+                        + Nouvelle
+                      </Button>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Text alignment -->
-              <div class="space-y-2">
-                <label class="text-xs text-foam-300 block">Alignement</label>
-                <div class="flex gap-2">
-                  <button
-                    :class="text.align === 'left' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="updateCustomText(index, 'align', 'left')"
+                <!-- SECTION TITRE -->
+                <div class="space-y-4 p-4 border border-accent-500/20 rounded-lg bg-gradient-to-br from-accent-900/10 to-ink-800/30 shadow-lg">
+                  <div
+                    class="flex items-center justify-between"
                   >
-                    Gauche
-                  </button>
-                  <button
-                    :class="text.align === 'center' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="updateCustomText(index, 'align', 'center')"
-                  >
-                    Centré
-                  </button>
-                  <button
-                    :class="text.align === 'right' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="updateCustomText(index, 'align', 'right')"
-                  >
-                    Droite
-                  </button>
-                </div>
-              </div>
+                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
+                      <span>📌 Titre</span>
+                      <span class="text-xs text-red-400">*</span>
+                    </h3>
+                  </div>
 
-              <!-- Text width -->
-              <div class="space-y-2">
-                <label class="text-xs text-foam-300 block">Largeur du texte</label>
-                <div class="flex gap-2">
-                  <button
-                    :class="text.width === 'w-full' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="updateCustomText(index, 'width', 'w-full')"
-                  >
-                    Pleine largeur
-                  </button>
-                  <button
-                    :class="text.width === 'w-auto' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                    class="px-2 py-1 rounded text-xs font-medium transition-colors flex-1"
-                    @click="updateCustomText(index, 'width', 'w-auto')"
-                  >
-                    Auto
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION IMAGE PRINCIPALE -->
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <h3 class="text-sm font-semibold text-foam-200">Image principale</h3>
-
-            <!-- Image Upload -->
-            <div class="space-y-2">
-              <label class="form-label text-sm">Importer une image</label>
-              <input
-                ref="fileInputRef"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="handleImageUpload"
-              />
-              <div class="flex gap-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  @click="triggerFileInput"
-                >
-                  {{ hasMainImage ? 'Changer l\'image' : 'Ajouter une image' }}
-                </Button>
-                <Button
-                  v-if="hasMainImage"
-                  variant="danger"
-                  size="sm"
-                  @click="removeImage"
-                >
-                  Supprimer
-                </Button>
-              </div>
-              <p
-                v-if="!hasMainImage"
-                class="text-xs text-red-400"
-              >
-                L'image principale est obligatoire pour sauvegarder la carte.
-              </p>
-            </div>
-
-            <p class="muted text-xs text-justify">
-              Merci de vérifier qu'un asset n'existe pas déjà avant d'en créer un nouveau pour éviter les doublons. Les assets disponibles sont juste en dessous.
-            </p>
-
-            <!-- Image Source Selection -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Source de l'image</label>
-              <div class="flex gap-2">
-                <button
-                  :class="imageSourceType === 'cloudinary' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageSourceType = 'cloudinary'"
-                >
-                  Galerie
-                </button>
-                <button
-                  v-if="cardStore.discordAvatars.length > 0"
-                  :class="imageSourceType === 'discord' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageSourceType = 'discord'"
-                >
-                  Discord
-                </button>
-                <button
-                  :class="imageSourceType === 'upload' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageSourceType = 'upload'"
-                >
-                  Téléverser
-                </button>
-                <button
-                  :class="imageSourceType === 'url' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-2 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageSourceType = 'url'"
-                >
-                  URL
-                </button>
-              </div>
-            </div>
-
-            <!-- URL Input -->
-            <div v-if="imageSourceType === 'url'" class="space-y-2">
-              <label class="form-label text-sm">URL de l'image</label>
-              <div class="flex gap-2">
-                <input
-                  v-model="imageUrlInput"
-                  type="text"
-                  placeholder="Entrez l'URL de l'image"
-                  class="form-input flex-1"
-                />
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  @click="async () => {
-                    if (!imageUrlInput.trim()) {
-                      toastStore.error('Veuillez entrer une URL valide.');
-                      return;
-                    }
-                    const base64Data = await loadImageFromUrl(imageUrlInput.trim());
-                    if (base64Data) {
-                      (imageBase64 as any).value = base64Data.base64;
-                    }
-                  }"
-                >
-                  Charger
-                </Button>
-              </div>
-            </div>
-
-            <!-- Discord Member Selector -->
-            <div v-if="imageSourceType === 'discord'" class="space-y-2">
-              <label class="form-label text-sm">Sélectionner un avatar Discord</label>
-
-              <!-- Search Input -->
-              <input
-                v-model="discordSearchQuery"
-                type="text"
-                placeholder="Rechercher par username..."
-                class="form-input"
-              />
-
-              <!-- Discord Members Grid -->
-              <div v-if="filteredDiscordMembers.length > 0" class="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
-                <button
-                  v-for="member in filteredDiscordMembers"
-                  :key="member.id"
-                  :class="selectedDiscordMemberId === member.id ? 'ring-2 ring-accent-400 border-accent-400' : 'border-white/10 hover:border-white/30'"
-                  class="flex flex-col items-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 hover:scale-105"
-                  :title="member.username"
-                  @click="selectedDiscordMemberId = member.id"
-                >
-                  <img
-                    :src="member.avatarUrl"
-                    :alt="member.username"
-                    class="w-12 h-12 rounded-full object-cover border border-white/10"
-                  />
-                  <span class="text-xs text-foam-300 truncate max-w-[3rem]">{{ member.username }}</span>
-                </button>
-              </div>
-
-              <!-- No results message -->
-              <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-                {{ discordSearchQuery ? 'Aucun membre trouvé.' : 'Aucun membre disponible.' }}
-              </div>
-            </div>
-
-            <!-- Cloudinary Images Gallery -->
-            <div v-if="imageSourceType === 'cloudinary'" class="space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="form-label text-sm">Galerie d'images</label>
-                <button
-                  v-if="!cardStore.loading"
-                  @click="cardStore.fetchMainCardImages()"
-                  class="text-xs px-2 py-1 rounded bg-ink-700 hover:bg-ink-600 transition-colors text-foam-300"
-                >
-                  Actualiser
-                </button>
-                <div v-else class="text-xs text-foam-400">Chargement...</div>
-              </div>
-
-              <!-- Cloudinary Images Grid -->
-              <div v-if="cardStore.mainCardImages.length > 0" class="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
-                <button
-                  v-for="image in cardStore.mainCardImages"
-                  :key="image.publicId"
-                  :class="selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400' : 'border-white/10 hover:border-white/30'"
-                  class="w-full h-22 items-center gap-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
-                  @click="selectedCloudinaryImage = image.publicId"
-                >
-                  <img
-                    :src="image.secure_url"
-                    :alt="image.publicId"
-                    class="size-full rounded object-cover"
-                  />
-                </button>
-              </div>
-
-              <!-- No images message -->
-              <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-                Aucune image trouvée dans la galerie.
-              </div>
-            </div>
-
-            <!-- Image Positioning and Scale -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Position de l'image</label>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">X</label>
-                  <div class="flex gap-2 items-center">
-                    <input
-                      v-model.number="imagePosX"
-                      type="range"
-                      min="0"
-                      max="100"
-                      class="flex-1"
-                    />
-                    <span class="text-xs text-foam-300 w-8">{{ imagePosX }}%</span>
+                  <div class="space-y-4 pt-2">
+                    <div class="space-y-2">
+                      <label class="form-label text-sm">Contenu du titre *</label>
+                      <input
+                        v-model="title"
+                        type="text"
+                        maxlength="30"
+                        placeholder="Entrez le titre de votre carte"
+                        class="form-input"
+                      />
+                      <p class="text-xs text-foam-300/50">{{ title.length }}/30 caractères</p>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">Y</label>
-                  <div class="flex gap-2 items-center">
-                    <input
-                      v-model.number="imagePosY"
-                      type="range"
-                      min="0"
-                      max="100"
-                      class="flex-1"
-                    />
-                    <span class="text-xs text-foam-300 w-8">{{ imagePosY }}%</span>
+
+                <!-- SECTION IMAGE PRINCIPALE -->
+                <div class="space-y-4 p-4 border border-accent-500/20 rounded-lg bg-gradient-to-br from-accent-900/10 to-ink-800/30 shadow-lg">
+                  <div
+                    class="flex items-center justify-between"
+                  >
+                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
+                      <span>🖼️ Image principale</span>
+                      <span class="text-xs text-red-400">*</span>
+                    </h3>
+                  </div>
+
+                  <div class="space-y-4 pt-2">
+                    <!-- Image Upload -->
+                    <div class="space-y-2">
+                      <input
+                        ref="fileInputRef"
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        @change="handleImageUpload"
+                      />
+                      <div class="flex gap-3">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          @click="triggerFileInput"
+                        >
+                          {{ hasMainImage ? 'Changer l\'image' : '📤 Ajouter une image' }}
+                        </Button>
+                        <Button
+                          v-if="hasMainImage"
+                          variant="danger"
+                          size="sm"
+                          @click="removeImage"
+                        >
+                          🗑️ Supprimer
+                        </Button>
+                      </div>
+                      <p
+                        v-if="!hasMainImage"
+                        class="text-xs text-red-400"
+                      >
+                        L'image principale est obligatoire pour sauvegarder la carte.
+                      </p>
+                    </div>
+
+                    <!-- Image Source Selection -->
+                    <div class="space-y-2">
+                      <label class="text-xs text-foam-300 block">Source de l'image</label>
+                      <div class="grid grid-cols-2 gap-2">
+                        <button
+                          :class="imageSourceType === 'cloudinary' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
+                          @click="imageSourceType = 'cloudinary'"
+                        >
+                          🖼️ Galerie
+                        </button>
+                        <button
+                          v-if="cardStore.discordAvatars.length > 0"
+                          :class="imageSourceType === 'discord' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
+                          @click="imageSourceType = 'discord'"
+                        >
+                          💬 Discord
+                        </button>
+                        <button
+                          :class="imageSourceType === 'upload' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
+                          @click="imageSourceType = 'upload'"
+                        >
+                          📤 Téléverser
+                        </button>
+                        <button
+                          :class="imageSourceType === 'url' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
+                          @click="imageSourceType = 'url'"
+                        >
+                          🔗 URL
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- URL Input -->
+                    <div v-if="imageSourceType === 'url'" class="space-y-2">
+                      <label class="form-label text-sm">URL de l'image</label>
+                      <div class="flex gap-2">
+                        <input
+                          v-model="imageUrlInput"
+                          type="text"
+                          placeholder="Entrez l'URL de l'image"
+                          class="form-input flex-1"
+                        />
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          @click="async () => {
+                            if (!imageUrlInput.trim()) {
+                              toastStore.error('Veuillez entrer une URL valide.');
+                              return;
+                            }
+                            const base64Data = await loadImageFromUrl(imageUrlInput.trim());
+                            if (base64Data) {
+                              (imageBase64 as any).value = base64Data.base64;
+                            }
+                          }"
+                        >
+                          Charger
+                        </Button>
+                      </div>
+                    </div>
+
+                    <!-- Discord Member Selector -->
+                    <div v-if="imageSourceType === 'discord'" class="space-y-2">
+                      <label class="form-label text-sm">Sélectionner un avatar Discord</label>
+                      <input
+                        v-model="discordSearchQuery"
+                        type="text"
+                        placeholder="🔍 Rechercher par username..."
+                        class="form-input"
+                      />
+                      <div v-if="filteredDiscordMembers.length > 0" class="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
+                        <button
+                          v-for="member in filteredDiscordMembers"
+                          :key="member.id"
+                          :class="selectedDiscordMemberId === member.id ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
+                          class="flex flex-col items-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 hover:scale-105"
+                          :title="member.username"
+                          @click="selectedDiscordMemberId = member.id"
+                        >
+                          <img
+                            :src="member.avatarUrl"
+                            :alt="member.username"
+                            class="w-12 h-12 rounded-full object-cover border border-white/10"
+                          />
+                          <span class="text-xs text-foam-300 truncate max-w-[3rem]">{{ member.username }}</span>
+                        </button>
+                      </div>
+                      <div v-else class="text-xs text-foam-300/60 py-4 text-center">
+                        {{ discordSearchQuery ? 'Aucun membre trouvé.' : 'Aucun membre disponible.' }}
+                      </div>
+                    </div>
+
+                    <!-- Cloudinary Images Gallery -->
+                    <div v-if="imageSourceType === 'cloudinary'" class="space-y-2">
+                      <div class="flex items-center justify-between">
+                        <label class="form-label text-sm">Galerie d'images</label>
+                        <button
+                          v-if="!cardStore.loading"
+                          @click="cardStore.fetchMainCardImages()"
+                          class="text-xs px-2 py-1 rounded bg-ink-700 hover:bg-ink-600 transition-colors text-foam-300"
+                        >
+                          🔄 Actualiser
+                        </button>
+                        <div v-else class="text-xs text-foam-400">Chargement...</div>
+                      </div>
+                      <div v-if="cardStore.mainCardImages.length > 0" class="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
+                        <button
+                          v-for="image in cardStore.mainCardImages"
+                          :key="image.publicId"
+                          :class="selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
+                          class="w-full h-22 items-center gap-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
+                          @click="selectedCloudinaryImage = image.publicId"
+                        >
+                          <img
+                            :src="image.secure_url"
+                            :alt="image.publicId"
+                            class="size-full rounded object-cover"
+                          />
+                        </button>
+                      </div>
+                      <div v-else class="text-xs text-foam-300/60 py-4 text-center">
+                        Aucune image trouvée dans la galerie.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SECTION RARETÉ -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <div
+                    class="flex items-center justify-between"
+                  >
+                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
+                      <span>⭐ Rareté</span>
+                    </h3>
+                  </div>
+
+                  <div class="space-y-2 pt-2">
+                    <label class="text-xs text-foam-300 block">Sélectionnez la rareté de la carte</label>
+                    <div class="grid grid-cols-5 gap-2">
+                      <button
+                        v-for="r in ['common', 'uncommon', 'rare', 'epic', 'legendary']"
+                        :key="r"
+                        :class="rarity === r ? 'bg-accent-500 text-white ring-2 ring-accent-400 scale-105' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-2 py-2 rounded text-xs font-medium transition-all duration-200"
+                        :title="r.charAt(0).toUpperCase() + r.slice(1)"
+                        @click="rarity = r as 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'"
+                      >
+                        {{ r === 'common' ? '⚪' : r === 'uncommon' ? '🟩' : r === 'rare' ? '🟦' : r === 'epic' ? '🟪' : '🟨' }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Image Scale -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300">Échelle de l'image</label>
-              <div class="flex gap-2 items-center">
-                <input
-                  v-model.number="imageScale"
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  class="flex-1"
-                />
-                <span class="text-xs text-foam-300 w-10">{{ imageScale.toFixed(1) }}x</span>
-              </div>
-            </div>
+              <!-- TAB 2: APPARENCE -->
+              <div v-show="activeTab === 'appearance'" class="space-y-6 animate-fadeIn">
+                <!-- SECTION STYLE DU TITRE -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <h3 class="text-sm font-semibold text-foam-200">🎨 Style du titre</h3>
 
-            <!-- Image Container Size -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Taille du conteneur</label>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">Largeur (px)</label>
-                  <input
-                    v-model.number="imageWidth"
-                    type="range"
-                    min="40"
-                    max="250"
-                    step="1"
-                    class="w-full"
-                  />
-                  <span class="text-xs text-foam-300">{{ imageWidth }}px</span>
-                </div>
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">Hauteur (px)</label>
-                  <input
-                    v-model.number="imageHeight"
-                    type="range"
-                    min="40"
-                    max="378"
-                    step="1"
-                    class="w-full"
-                  />
-                  <span class="text-xs text-foam-300">{{ imageHeight }}px</span>
-                </div>
-              </div>
-            </div>
+                  <!-- Title Color -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300">Couleur du titre</label>
+                    <div class="flex gap-3 items-center">
+                      <input
+                        v-model="titleColor"
+                        type="color"
+                        class="w-12 h-10 rounded cursor-pointer border border-white/10"
+                      />
+                      <input
+                        v-model="titleColor"
+                        type="text"
+                        placeholder="#ffffff"
+                        class="flex-1 form-input text-sm"
+                      />
+                    </div>
+                  </div>
 
-            <!-- Image Object Fit -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Ajustement de l'image</label>
-              <div class="flex gap-2">
-                <button
-                  :class="imageObjectFit === 'cover' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-1 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageObjectFit = 'cover'"
-                >
-                  Cover (rognée)
-                </button>
-                <button
-                  :class="imageObjectFit === 'contain' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-1 rounded text-xs font-medium transition-colors flex-1"
-                  @click="imageObjectFit = 'contain'"
-                >
-                  Contain (complète)
-                </button>
-              </div>
-            </div>
-
-            <!-- Image Style - Rounded -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Coins arrondis</label>
-              <div class="flex gap-2 items-center">
-                <input
-                  v-model.number="imageRounded"
-                  type="range"
-                  min="0"
-                  max="50"
-                  step="1"
-                  class="flex-1"
-                />
-                <span class="text-xs text-foam-300 w-10">{{ imageRounded }}%</span>
-              </div>
-            </div>
-
-            <!-- Image Crop Position -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Position de l'image</label>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">Horizontal</label>
-                  <div class="flex gap-2 items-center">
-                    <input
-                      v-model.number="imageCropX"
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      class="flex-1"
-                    />
-                    <span class="text-xs text-foam-300 w-8">{{ imageCropX }}%</span>
+                  <!-- Title Font Size -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300">Taille du titre</label>
+                    <div class="flex gap-2 items-center">
+                      <input
+                        v-model.number="titleFontSize"
+                        type="range"
+                        min="8"
+                        max="40"
+                        class="flex-1"
+                      />
+                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ titleFontSize }}px</span>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label class="text-xs text-foam-300/80 block mb-1">Vertical</label>
-                  <div class="flex gap-2 items-center">
-                    <input
-                      v-model.number="imageCropY"
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="1"
-                      class="flex-1"
+
+                <!-- SECTION POSITION DU TITRE -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <h3 class="text-sm font-semibold text-foam-200">📍 Position du titre</h3>
+
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Position</label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">X (Horizontal)</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="titlePosX"
+                            type="range"
+                            min="0"
+                            max="100"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ titlePosX }}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">Y (Vertical)</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="titlePosY"
+                            type="range"
+                            min="0"
+                            max="100"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ titlePosY }}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Title Alignment -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Alignement</label>
+                    <div class="flex gap-2">
+                      <button
+                        :class="titleAlign === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="titleAlign = 'left'"
+                      >
+                        ◀ Gauche
+                      </button>
+                      <button
+                        :class="titleAlign === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="titleAlign = 'center'"
+                      >
+                        ■ Centré
+                      </button>
+                      <button
+                        :class="titleAlign === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="titleAlign = 'right'"
+                      >
+                        ▶ Droite
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Title width -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Largeur du titre</label>
+                    <div class="flex gap-2">
+                      <button
+                        :class="titleWidth === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="titleWidth = 'w-full'"
+                      >
+                        Pleine largeur
+                      </button>
+                      <button
+                        :class="titleWidth === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="titleWidth = 'w-auto'"
+                      >
+                        Auto
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- SECTION POSITION & TAILLE DE L'IMAGE -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <h3 class="text-sm font-semibold text-foam-200">📐 Position & Taille de l'image</h3>
+
+                  <!-- Image Positioning -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Position de l'image</label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">X (Horizontal)</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="imagePosX"
+                            type="range"
+                            min="0"
+                            max="100"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imagePosX }}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">Y (Vertical)</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="imagePosY"
+                            type="range"
+                            min="0"
+                            max="100"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imagePosY }}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Image Scale -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300">Échelle de l'image</label>
+                    <div class="flex gap-2 items-center">
+                      <input
+                        v-model.number="imageScale"
+                        type="range"
+                        min="0.5"
+                        max="2"
+                        step="0.1"
+                        class="flex-1"
+                      />
+                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageScale.toFixed(1) }}x</span>
+                    </div>
+                  </div>
+
+                  <!-- Image Container Size -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Taille du conteneur</label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">Largeur</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="imageWidth"
+                            type="range"
+                            min="40"
+                            max="250"
+                            step="1"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageWidth }}px</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">Hauteur</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="imageHeight"
+                            type="range"
+                            min="40"
+                            max="378"
+                            step="1"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageHeight }}px</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Image Object Fit -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Ajustement de l'image</label>
+                    <div class="flex gap-2">
+                      <button
+                        :class="imageObjectFit === 'cover' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="imageObjectFit = 'cover'"
+                      >
+                        Cover (rognée)
+                      </button>
+                      <button
+                        :class="imageObjectFit === 'contain' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                        @click="imageObjectFit = 'contain'"
+                      >
+                        Contain (complète)
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Image Style - Rounded -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Coins arrondis</label>
+                    <div class="flex gap-2 items-center">
+                      <input
+                        v-model.number="imageRounded"
+                        type="range"
+                        min="0"
+                        max="50"
+                        step="1"
+                        class="flex-1"
+                      />
+                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageRounded }}px</span>
+                    </div>
+                  </div>
+
+                  <!-- Image Crop Position -->
+                  <div class="space-y-2">
+                    <label class="text-xs text-foam-300 block">Position du crop</label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">Horizontal</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="imageCropX"
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="1"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageCropX }}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs text-foam-300/80 block mb-1">Vertical</label>
+                        <div class="flex gap-2 items-center">
+                          <input
+                            v-model.number="imageCropY"
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="1"
+                            class="flex-1"
+                          />
+                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageCropY }}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 3: TEXTES -->
+              <div v-show="activeTab === 'texts'" class="space-y-6 animate-fadeIn">
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-foam-200">📝 Textes personnalisés ({{ customTexts.length }}/5)</h3>
+                    <Button
+                      v-if="customTexts.length < 5"
+                      variant="secondary"
+                      size="sm"
+                      @click="addCustomText"
+                    >
+                      ➕ Ajouter texte
+                    </Button>
+                  </div>
+
+                  <!-- Custom texts list -->
+                  <div v-if="customTexts.length === 0" class="text-xs text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
+                    <div class="mb-2">📝</div>
+                    Aucun texte personnalisé. Cliquez sur "+ Ajouter texte" pour en ajouter.
+                  </div>
+
+                  <div v-for="(text, index) in customTexts" :key="index" class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-700/20 hover:border-accent-500/30 transition-all duration-200">
+                    <!-- Text header -->
+                    <div class="flex items-center justify-between">
+                      <label class="text-xs text-foam-300 font-semibold">📄 Texte {{ index + 1 }}</label>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        @click="removeCustomText(index)"
+                      >
+                        🗑️ Supprimer
+                      </Button>
+                    </div>
+
+                    <!-- Text content -->
+                    <div class="space-y-2">
+                      <textarea
+                        :value="text.content"
+                        @input="updateCustomText(index, 'content', ($event.target as HTMLTextAreaElement).value)"
+                        rows="2"
+                        maxlength="100"
+                        placeholder="Entrez votre texte..."
+                        class="form-input resize-none w-full text-sm"
+                      />
+                      <p class="text-xs text-foam-300/50">{{ text.content.length }}/100 caractères</p>
+                    </div>
+
+                    <!-- Text color -->
+                    <div class="space-y-2">
+                      <label class="text-xs text-foam-300">Couleur</label>
+                      <div class="flex gap-3 items-center">
+                        <input
+                          :value="text.color"
+                          type="color"
+                          @input="updateCustomText(index, 'color', ($event.target as HTMLInputElement).value)"
+                          class="w-12 h-8 rounded cursor-pointer border border-white/10"
+                        />
+                        <input
+                          :value="text.color"
+                          type="text"
+                          @input="updateCustomText(index, 'color', ($event.target as HTMLInputElement).value)"
+                          placeholder="#ffffff"
+                          class="flex-1 form-input text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Text Font Size -->
+                    <div class="space-y-2">
+                      <label class="text-xs text-foam-300">Taille du texte</label>
+                      <div class="flex gap-2 items-center">
+                        <input
+                          :value="text.fontSize || 14"
+                          @input="updateCustomText(index, 'fontSize', Number(($event.target as HTMLInputElement).value))"
+                          type="range"
+                          min="8"
+                          max="32"
+                          class="flex-1"
+                        />
+                        <span class="text-xs text-foam-300 w-12 font-semibold">{{ text.fontSize || 14 }}px</span>
+                      </div>
+                    </div>
+
+                    <!-- Text positioning -->
+                    <div class="space-y-2">
+                      <label class="text-xs text-foam-300 block">Position</label>
+                      <div class="grid grid-cols-2 gap-3">
+                        <div>
+                          <label class="text-xs text-foam-300/80 block mb-1">X</label>
+                          <div class="flex gap-2 items-center">
+                            <input
+                              :value="text.posX"
+                              @input="updateCustomText(index, 'posX', Number(($event.target as HTMLInputElement).value))"
+                              type="range"
+                              min="0"
+                              max="100"
+                              class="flex-1"
+                            />
+                            <span class="text-xs text-foam-300 w-12 font-semibold">{{ text.posX }}%</span>
+                          </div>
+                        </div>
+                        <div>
+                          <label class="text-xs text-foam-300/80 block mb-1">Y</label>
+                          <div class="flex gap-2 items-center">
+                            <input
+                              :value="text.posY"
+                              @input="updateCustomText(index, 'posY', Number(($event.target as HTMLInputElement).value))"
+                              type="range"
+                              min="0"
+                              max="100"
+                              class="flex-1"
+                            />
+                            <span class="text-xs text-foam-300 w-12 font-semibold">{{ text.posY }}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Text alignment -->
+                    <div class="space-y-2">
+                      <label class="text-xs text-foam-300 block">Alignement</label>
+                      <div class="flex gap-2">
+                        <button
+                          :class="text.align === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                          @click="updateCustomText(index, 'align', 'left')"
+                        >
+                          ◀ Gauche
+                        </button>
+                        <button
+                          :class="text.align === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                          @click="updateCustomText(index, 'align', 'center')"
+                        >
+                          ■ Centré
+                        </button>
+                        <button
+                          :class="text.align === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                          @click="updateCustomText(index, 'align', 'right')"
+                        >
+                          ▶ Droite
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Text width -->
+                    <div class="space-y-2">
+                      <label class="text-xs text-foam-300 block">Largeur du texte</label>
+                      <div class="flex gap-2">
+                        <button
+                          :class="text.width === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                          @click="updateCustomText(index, 'width', 'w-full')"
+                        >
+                          Pleine largeur
+                        </button>
+                        <button
+                          :class="text.width === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
+                          @click="updateCustomText(index, 'width', 'w-auto')"
+                        >
+                          Auto
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 4: FOND & BORDURES -->
+              <div v-show="activeTab === 'assets'" class="space-y-6 animate-fadeIn">
+                <!-- CRÉER UN ASSET -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-foam-200">🎨 Créer un asset personnalisé</h3>
+                    <div class="flex gap-2">
+                      <button
+                        :class="assetCategory === 'background' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200"
+                        @click="assetCategory = 'background'"
+                      >
+                        🖼️ Fond
+                      </button>
+                      <button
+                        :class="assetCategory === 'border' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200"
+                        @click="assetCategory = 'border'"
+                      >
+                        🔲 Bordure
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Asset Type Tabs -->
+                  <div class="flex gap-2">
+                    <button
+                      :class="getCurrentAssetType() === 'solid' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                      class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
+                      @click="setCurrentAssetType('solid')"
+                    >
+                      🎨 Couleur
+                    </button>
+                    <button
+                      v-if="assetCategory === 'background'"
+                      :class="getCurrentAssetType() === 'gradient' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                      class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
+                      @click="setCurrentAssetType('gradient')"
+                    >
+                      🌈 Dégradé
+                    </button>
+                    <button
+                      :class="getCurrentAssetType() === 'image' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+                      class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
+                      @click="setCurrentAssetType('image')"
+                    >
+                      📷 Image
+                    </button>
+                  </div>
+
+                  <!-- Solid Color -->
+                  <div v-if="getCurrentAssetType() === 'solid'" class="space-y-3">
+                    <div class="flex gap-3 items-center">
+                      <input
+                        :value="getCurrentSolidColor()"
+                        type="color"
+                        class="w-16 h-10 rounded cursor-pointer border border-white/10"
+                        @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
+                      />
+                      <input
+                        :value="getCurrentSolidColor()"
+                        type="text"
+                        placeholder="#667eea"
+                        class="flex-1 form-input text-sm"
+                        @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
+                      />
+                    </div>
+                    <div
+                      class="w-full h-20 rounded-lg border border-white/10"
+                      :style="{ background: getCurrentSolidColor() }"
                     />
-                    <span class="text-xs text-foam-300 w-8">{{ imageCropY }}%</span>
+                  </div>
+
+                  <!-- Gradient -->
+                  <div v-if="getCurrentAssetType() === 'gradient' && assetCategory === 'background'" class="space-y-3">
+                    <div>
+                      <label class="form-label text-sm">Couleur 1</label>
+                      <div class="flex gap-3 items-center mt-1">
+                        <input
+                          :value="getCurrentGradientColor1()"
+                          type="color"
+                          class="w-16 h-10 rounded cursor-pointer border border-white/10"
+                          @input="(e) => setCurrentGradientColor1((e.target as HTMLInputElement).value)"
+                        />
+                        <input
+                          :value="getCurrentGradientColor1()"
+                          type="text"
+                          placeholder="#667eea"
+                          class="flex-1 form-input text-sm"
+                          @input="(e) => setCurrentGradientColor1((e.target as HTMLInputElement).value)"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="form-label text-sm">Couleur 2</label>
+                      <div class="flex gap-3 items-center mt-1">
+                        <input
+                          :value="getCurrentGradientColor2()"
+                          type="color"
+                          class="w-16 h-10 rounded cursor-pointer border border-white/10"
+                          @input="(e) => setCurrentGradientColor2((e.target as HTMLInputElement).value)"
+                        />
+                        <input
+                          :value="getCurrentGradientColor2()"
+                          type="text"
+                          placeholder="#764ba2"
+                          class="flex-1 form-input text-sm"
+                          @input="(e) => setCurrentGradientColor2((e.target as HTMLInputElement).value)"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="form-label text-sm">Angle (0-360°)</label>
+                      <div class="flex gap-3 items-center mt-1">
+                        <input
+                          :value="getCurrentGradientAngle()"
+                          type="range"
+                          min="0"
+                          max="360"
+                          class="flex-1"
+                          @input="(e) => setCurrentGradientAngle(Number((e.target as HTMLInputElement).value))"
+                        />
+                        <span class="text-sm text-foam-300 w-12 font-semibold">{{ getCurrentGradientAngle() }}°</span>
+                      </div>
+                    </div>
+                    <div
+                      class="w-full h-20 rounded-lg border border-white/10"
+                      :style="{ background: `linear-gradient(${getCurrentGradientAngle()}deg, ${getCurrentGradientColor1()} 0%, ${getCurrentGradientColor2()} 100%)` }"
+                    />
+                  </div>
+
+                  <!-- Image Upload -->
+                  <div v-if="getCurrentAssetType() === 'image'" class="space-y-3">
+                    <input
+                      v-if="assetCategory === 'background'"
+                      ref="backgroundAssetImageInputRef"
+                      type="file"
+                      accept="image/png,image/gif"
+                      class="hidden"
+                      @change="handleAssetImageUpload"
+                    />
+                    <input
+                      v-else
+                      ref="borderAssetImageInputRef"
+                      type="file"
+                      accept="image/png,image/gif"
+                      class="hidden"
+                      @change="handleAssetImageUpload"
+                    />
+                    <div class="flex gap-3">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        @click="triggerAssetImageInput"
+                      >
+                        {{ getCurrentImagePreview() ? '🔄 Changer l\'image' : '📤 Ajouter une image' }}
+                      </Button>
+                      <Button
+                        v-if="getCurrentImagePreview()"
+                        variant="danger"
+                        size="sm"
+                        @click="removeAssetImage"
+                      >
+                        🗑️ Supprimer
+                      </Button>
+                    </div>
+                    <p class="text-xs text-foam-300/50">PNG ou GIF, max 3MB</p>
+                    <div
+                      v-if="getCurrentImagePreview()"
+                      class="w-full h-20 rounded-lg border border-white/10 overflow-hidden"
+                    >
+                      <img
+                        :src="getCurrentImagePreview()"
+                        alt="Aperçu de l'asset"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Asset Name -->
+                  <div class="space-y-2">
+                    <label class="form-label text-sm">Nommer cet asset (pour le créer)</label>
+                    <input
+                      :value="getCurrentAssetName()"
+                      type="text"
+                      :placeholder="`ex: ${assetCategory === 'background' ? 'Ciel étoilé' : 'Bordure dorée'}`"
+                      class="form-input text-sm"
+                      @input="(e) => setCurrentAssetName((e.target as HTMLInputElement).value)"
+                    />
+                    <p class="text-xs text-foam-300/50">Laissez vide pour sélectionner un asset existant</p>
+                    <div class="flex justify-end">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        @click="applyCurrentAsset"
+                        :disabled="assetCategory === 'background' ? !isBackgroundAssetValid : !isBorderAssetValid"
+                      >
+                        ✓ Utiliser cet asset
+                      </Button>
+                    </div>
+                  </div>
+                  <p class="text-xs text-foam-300/60 p-2 bg-ink-700/30 rounded border border-white/5">
+                    💡 Vérifiez qu'un asset similaire n'existe pas déjà avant d'en créer un nouveau
+                  </p>
+                </div>
+
+                <!-- SÉLECTION FOND -->
+                <div class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <div class="flex justify-between items-center">
+                    <label class="form-label flex items-center gap-2">
+                      <span>🖼️ Fonds disponibles</span>
+                    </label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      @click="() => { selectedFrontAssetId = undefined; useCustomFrontAsset = false; }"
+                    >
+                      ✕ Aucun fond
+                    </Button>
+                  </div>
+                  <div v-if="cardStore.getCardAssetsByCategory('background').length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
+                    Aucun fond créé pour le moment.
+                  </div>
+                  <div v-else class="grid grid-cols-4 gap-3">
+                    <button
+                      v-for="asset in cardStore.getCardAssetsByCategory('background')"
+                      :key="asset.id"
+                      class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden relative"
+                      :class="selectedFrontAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
+                      :style="
+                        asset.type === 'solid'
+                          ? { background: asset.solidColor }
+                          : asset.type === 'gradient'
+                            ? { background: `linear-gradient(${asset.angle || 135}deg, ${asset.color1} 0%, ${asset.color2} 100%)` }
+                            : { background: '#1a1a2e' }
+                      "
+                      :title="asset.name"
+                      @click="() => { selectedFrontAssetId = asset.id; useCustomFrontAsset = false; }"
+                    >
+                      <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="cardStore.deleteAsset(asset.id)" />
+                      <img
+                        v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
+                        :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
+                        :alt="asset.name"
+                        class="w-full h-full object-cover"
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                <!-- SÉLECTION BORDURE -->
+                <div class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <div class="flex justify-between items-center">
+                    <label class="form-label flex items-center gap-2">
+                      <span>🔲 Bordures disponibles</span>
+                    </label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      @click="() => { selectedBorderAssetId = undefined; useCustomBorderAsset = false; }"
+                    >
+                      ✕ Aucune bordure
+                    </Button>
+                  </div>
+                  <div v-if="cardStore.getCardAssetsByCategory('border').length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
+                    Aucune bordure créée pour le moment.
+                  </div>
+                  <div v-else class="grid grid-cols-4 gap-3">
+                    <button
+                      v-for="asset in cardStore.getCardAssetsByCategory('border')"
+                      :key="asset.id"
+                      class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden bg-ink-800 relative"
+                      :class="selectedBorderAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
+                      :style="
+                        asset.type === 'solid'
+                          ? { borderColor: asset.solidColor }
+                          : {}
+                      "
+                      :title="asset.name"
+                      @click="() => { selectedBorderAssetId = asset.id; useCustomBorderAsset = false; }"
+                    >
+                      <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="cardStore.deleteAsset(asset.id)" />
+                      <img
+                        v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
+                        :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
+                        :alt="asset.name"
+                        class="w-full h-full object-cover"
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 5: EFFETS -->
+              <div v-show="activeTab === 'effects'" class="space-y-6 animate-fadeIn">
+                <!-- SECTION EFFETS -->
+                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
+                  <h3 class="text-sm font-semibold text-foam-200">✨ Effets visuels</h3>
+
+                  <!-- Remove Background Toggle -->
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-ink-700/20 hover:bg-ink-700/30 transition-all duration-200">
+                    <input
+                      v-model="removeImageBg"
+                      type="checkbox"
+                      id="removeBg"
+                      class="w-4 h-4 rounded cursor-pointer"
+                    />
+                    <label for="removeBg" class="text-sm text-foam-300 cursor-pointer flex-1">
+                      🎭 Supprimer le fond de l'image (approximatif)
+                    </label>
+                  </div>
+
+                  <!-- Holographic Effect Toggle -->
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-ink-700/20 hover:bg-ink-700/30 transition-all duration-200">
+                    <input
+                      v-model="holographicEffect"
+                      type="checkbox"
+                      id="holoEffect"
+                      class="w-4 h-4 rounded cursor-pointer"
+                    />
+                    <label for="holoEffect" class="text-sm text-foam-300 cursor-pointer flex-1">
+                      💎 Activer l'effet holographique
+                    </label>
+                  </div>
+
+                  <!-- Holographic Intensity Slider -->
+                  <div v-if="holographicEffect" class="space-y-2 ml-6 p-3 bg-ink-700/10 rounded-lg border-l-2 border-accent-500/30">
+                    <label class="text-xs text-foam-300 font-semibold">Intensité de l'effet</label>
+                    <div class="flex gap-2 items-center">
+                      <input
+                        v-model.number="holographicIntensity"
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        class="flex-1"
+                      />
+                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ Math.round(holographicIntensity * 100) }}%</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- SECTION RARETÉ -->
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <h3 class="text-sm font-semibold text-foam-200">Rareté</h3>
-
-            <!-- Rarity Selection -->
-            <div class="space-y-2">
-              <label class="text-xs text-foam-300 block">Sélectionnez la rareté de la carte</label>
-              <div class="grid grid-cols-5 gap-2">
-                <button
-                  v-for="r in ['common', 'uncommon', 'rare', 'epic', 'legendary']"
-                  :key="r"
-                  :class="rarity === r ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-2 py-2 rounded text-xs font-medium transition-colors"
-                  :title="r.charAt(0).toUpperCase() + r.slice(1)"
-                  @click="rarity = r as 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'"
-                >
-                  {{ r === 'common' ? '⚪' : r === 'uncommon' ? '🟩' : r === 'rare' ? '🟦' : r === 'epic' ? '🟪' : '🟨' }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION EFFETS -->
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <h3 class="text-sm font-semibold text-foam-200">Effets</h3>
-
-            <!-- Remove Background Toggle -->
-            <div class="flex items-center gap-3">
-              <input
-                v-model="removeImageBg"
-                type="checkbox"
-                id="removeBg"
-                class="w-4 h-4 rounded cursor-pointer"
-              />
-              <label for="removeBg" class="text-sm text-foam-300 cursor-pointer">
-                Supprimer le fond de l'image (approximatif)
-              </label>
-            </div>
-
-            <!-- Holographic Effect Toggle -->
-            <div class="flex items-center gap-3">
-              <input
-                v-model="holographicEffect"
-                type="checkbox"
-                id="holoEffect"
-                class="w-4 h-4 rounded cursor-pointer"
-              />
-              <label for="holoEffect" class="text-sm text-foam-300 cursor-pointer">
-                Activer l'effet holographique
-              </label>
-            </div>
-
-            <!-- Holographic Intensity Slider -->
-            <div v-if="holographicEffect" class="space-y-2 ml-6">
-              <label class="text-xs text-foam-300">Intensité de l'effet</label>
-              <div class="flex gap-2 items-center">
-                <input
-                  v-model.number="holographicIntensity"
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  class="flex-1"
-                />
-                <span class="text-xs text-foam-300 w-10">{{ Math.round(holographicIntensity * 100) }}%</span>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-semibold text-foam-200">Créer ou sélectionner un asset</h3>
-              <div class="flex gap-2">
-                <button
-                  :class="assetCategory === 'background' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-1 rounded text-xs font-medium transition-colors"
-                  @click="assetCategory = 'background'"
-                >
-                  Fond
-                </button>
-                <button
-                  :class="assetCategory === 'border' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                  class="px-3 py-1 rounded text-xs font-medium transition-colors"
-                  @click="assetCategory = 'border'"
-                >
-                  Bordure
-                </button>
-              </div>
-            </div>
-
-            <!-- Asset Type Tabs -->
-            <div class="flex gap-2">
-              <button
-                :class="getCurrentAssetType() === 'solid' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                class="px-3 py-2 rounded text-sm font-medium transition-colors"
-                @click="setCurrentAssetType('solid')"
-              >
-                Couleur
-              </button>
-              <button
-                v-if="assetCategory === 'background'"
-                :class="getCurrentAssetType() === 'gradient' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                class="px-3 py-2 rounded text-sm font-medium transition-colors"
-                @click="setCurrentAssetType('gradient')"
-              >
-                Dégradé
-              </button>
-              <button
-                :class="getCurrentAssetType() === 'image' ? 'bg-accent-500 text-white' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                class="px-3 py-2 rounded text-sm font-medium transition-colors"
-                @click="setCurrentAssetType('image')"
-              >
-                Image
-              </button>
-            </div>
-
-            <!-- Solid Color -->
-            <div v-if="getCurrentAssetType() === 'solid'" class="space-y-3">
-              <div class="flex gap-3 items-center">
-                <input
-                  :value="getCurrentSolidColor()"
-                  type="color"
-                  class="w-16 h-10 rounded cursor-pointer"
-                  @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
-                />
-                <input
-                  :value="getCurrentSolidColor()"
-                  type="text"
-                  placeholder="#667eea"
-                  class="flex-1 form-input text-sm"
-                  @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
-                />
-              </div>
-              <div
-                class="w-full h-20 rounded-lg border border-white/10"
-                :style="{ background: getCurrentSolidColor() }"
-              />
-            </div>
-
-            <!-- Gradient -->
-            <div v-if="getCurrentAssetType() === 'gradient' && assetCategory === 'background'" class="space-y-3">
-              <div>
-                <label class="form-label text-sm">Couleur 1</label>
-                <div class="flex gap-3 items-center mt-1">
-                  <input
-                    :value="getCurrentGradientColor1()"
-                    type="color"
-                    class="w-16 h-10 rounded cursor-pointer"
-                    @input="(e) => setCurrentGradientColor1((e.target as HTMLInputElement).value)"
-                  />
-                  <input
-                    :value="getCurrentGradientColor1()"
-                    type="text"
-                    placeholder="#667eea"
-                    class="flex-1 form-input text-sm"
-                    @input="(e) => setCurrentGradientColor1((e.target as HTMLInputElement).value)"
-                  />
-                </div>
-              </div>
-              <div>
-                <label class="form-label text-sm">Couleur 2</label>
-                <div class="flex gap-3 items-center mt-1">
-                  <input
-                    :value="getCurrentGradientColor2()"
-                    type="color"
-                    class="w-16 h-10 rounded cursor-pointer"
-                    @input="(e) => setCurrentGradientColor2((e.target as HTMLInputElement).value)"
-                  />
-                  <input
-                    :value="getCurrentGradientColor2()"
-                    type="text"
-                    placeholder="#764ba2"
-                    class="flex-1 form-input text-sm"
-                    @input="(e) => setCurrentGradientColor2((e.target as HTMLInputElement).value)"
-                  />
-                </div>
-              </div>
-              <div>
-                <label class="form-label text-sm">Angle (0-360°)</label>
-                <div class="flex gap-3 items-center mt-1">
-                  <input
-                    :value="getCurrentGradientAngle()"
-                    type="range"
-                    min="0"
-                    max="360"
-                    class="flex-1"
-                    @input="(e) => setCurrentGradientAngle(Number((e.target as HTMLInputElement).value))"
-                  />
-                  <span class="text-sm text-foam-300 w-12">{{ getCurrentGradientAngle() }}°</span>
-                </div>
-              </div>
-              <div
-                class="w-full h-20 rounded-lg border border-white/10"
-                :style="{ background: `linear-gradient(${getCurrentGradientAngle()}deg, ${getCurrentGradientColor1()} 0%, ${getCurrentGradientColor2()} 100%)` }"
-              />
-            </div>
-
-            <!-- Image Upload -->
-            <div v-if="getCurrentAssetType() === 'image'" class="space-y-3">
-              <input
-                v-if="assetCategory === 'background'"
-                ref="backgroundAssetImageInputRef"
-                type="file"
-                accept="image/png,image/gif"
-                class="hidden"
-                @change="handleAssetImageUpload"
-              />
-              <input
-                v-else
-                ref="borderAssetImageInputRef"
-                type="file"
-                accept="image/png,image/gif"
-                class="hidden"
-                @change="handleAssetImageUpload"
-              />
-              <div class="flex gap-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  @click="triggerAssetImageInput"
-                >
-                  {{ getCurrentImagePreview() ? 'Changer l\'image' : 'Ajouter une image' }}
-                </Button>
-                <Button
-                  v-if="getCurrentImagePreview()"
-                  variant="danger"
-                  size="sm"
-                  @click="removeAssetImage"
-                >
-                  Supprimer
-                </Button>
-              </div>
-              <p class="text-xs text-foam-300/50">PNG ou GIF, max 3MB</p>
-              <div
-                v-if="getCurrentImagePreview()"
-                class="w-full h-20 rounded-lg border border-white/10 overflow-hidden"
-              >
-                <img
-                  :src="getCurrentImagePreview()"
-                  alt="Aperçu de l'asset"
-                  class="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            <!-- Asset Name (only shown when creating new asset) -->
-            <div class="space-y-2">
-              <label class="form-label text-sm">Nommer cet asset (pour le créer)</label>
-              <input
-                :value="getCurrentAssetName()"
-                type="text"
-                :placeholder="`ex: ${assetCategory === 'background' ? 'Ciel étoilé' : 'Bordure dorée'}`"
-                class="form-input text-sm"
-                @input="(e) => setCurrentAssetName((e.target as HTMLInputElement).value)"
-              />
-              <p class="text-xs text-foam-300/50">Laissez vide pour sélectionner un asset existant</p>
-              <div class="flex justify-end">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  @click="applyCurrentAsset"
-                  :disabled="assetCategory === 'background' ? !isBackgroundAssetValid : !isBorderAssetValid"
-                >
-                  Utiliser cet asset
-                </Button>
-              </div>
-            </div>
-            <p class="muted text-xs text-justify">Merci de vérifier qu'un asset n'existe pas déjà avant d'en créer un nouveau pour éviter les doublons. Les assets disponibles sont juste en dessous.</p>
-          </div>
-
-          <!-- Background Assets Selector -->
-          <div class="space-y-3">
-            <label class="form-label">Fonds disponibles</label>
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-foam-300/60">Sélectionnez un fond existant ou laissez vide pour aucun.</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                @click="() => { selectedFrontAssetId = undefined; useCustomFrontAsset = false; }"
-              >
-                Aucun fond
-              </Button>
-            </div>
-            <div v-if="cardStore.getCardAssetsByCategory('background').length === 0" class="text-sm text-foam-300/60">
-              Aucun fond créé pour le moment.
-            </div>
-            <div v-else class="grid grid-cols-4 gap-3">
-              <button
-                v-for="asset in cardStore.getCardAssetsByCategory('background')"
-                :key="asset.id"
-                class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden relative"
-                :class="selectedFrontAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50' : 'border-white/10 hover:border-white/30'"
-                :style="
-                  asset.type === 'solid'
-                    ? { background: asset.solidColor }
-                    : asset.type === 'gradient'
-                      ? { background: `linear-gradient(${asset.angle || 135}deg, ${asset.color1} 0%, ${asset.color2} 100%)` }
-                      : { background: '#1a1a2e' }
-                "
-                :title="asset.name"
-                @click="() => { selectedFrontAssetId = asset.id; useCustomFrontAsset = false; }"
-              >
-                <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
-                <img
-                  v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
-                  :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
-                  :alt="asset.name"
-                  class="w-full h-full object-cover"
-                />
-              </button>
-            </div>
-          </div>
-
-          <!-- Border Assets Selector -->
-          <div class="space-y-3">
-            <label class="form-label">Bordures disponibles</label>
-            <div class="flex justify-between items-center">
-              <span class="text-xs text-foam-300/60">Sélectionnez une bordure existante ou laissez vide pour aucune.</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                @click="() => { selectedBorderAssetId = undefined; useCustomBorderAsset = false; }"
-              >
-                Aucune bordure
-              </Button>
-            </div>
-            <div v-if="cardStore.getCardAssetsByCategory('border').length === 0" class="text-sm text-foam-300/60">
-              Aucune bordure créée pour le moment.
-            </div>
-            <div v-else class="grid grid-cols-4 gap-3">
-              <button
-                v-for="asset in cardStore.getCardAssetsByCategory('border')"
-                :key="asset.id"
-                class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden bg-ink-800 relative"
-                :class="selectedBorderAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50' : 'border-white/10 hover:border-white/30'"
-                :style="
-                  asset.type === 'solid'
-                    ? { borderColor: asset.solidColor }
-                    : {}
-                "
-                :title="asset.name"
-                @click="() => { selectedBorderAssetId = asset.id; useCustomBorderAsset = false; }"
-              >
-                <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1" @click.stop="cardStore.deleteAsset(asset.id)" />
-                <img
-                  v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
-                  :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
-                  :alt="asset.name"
-                  class="w-full h-full object-cover"
-                />
-              </button>
-            </div>
-          </div>
 
           <!-- Action Buttons -->
-          <div class="flex gap-4 pt-4">
+          <div class="flex gap-4 pt-6 border-t border-white/10 mt-6">
             <Button
               variant="primary"
               :disabled="!isFormValid || cardStore.loading"
@@ -2187,13 +2322,15 @@ onUnmounted(() => {
               @click="saveCard"
               class="flex-1"
             >
-              Sauvegarder la carte
+              <span class="flex items-center gap-2">
+                {{ isFormValid ? '💾 Sauvegarder la carte' : '⚠️ Compléter les champs requis' }}
+              </span>
             </Button>
             <Button
               variant="ghost"
               @click="resetForm"
             >
-              Réinitialiser
+              🔄 Réinitialiser
             </Button>
           </div>
           </Card>
@@ -2375,3 +2512,88 @@ onUnmounted(() => {
     </div>
   </template>
 </template>
+
+<style scoped>
+/* Animation de fade-in pour les onglets */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Amélioration du style des sliders */
+input[type="range"] {
+  height: 0.5rem;
+  background-color: #1e293b;
+  border-radius: 0.5rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background-color: #8b5cf6;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background-color: #a78bfa;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background-color: #8b5cf6;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: 0;
+  transition: background-color 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background-color: #a78bfa;
+}
+
+/* Style amélioré pour les checkboxes */
+input[type="checkbox"] {
+  accent-color: #8b5cf6;
+}
+
+/* Smooth scrolling pour les contenus longs */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+</style>
+

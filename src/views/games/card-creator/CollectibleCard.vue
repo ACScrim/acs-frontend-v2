@@ -359,7 +359,7 @@ onUnmounted(() => {
           :style="{
             objectFit: imageObjectFit,
             objectPosition: `${props.card.imageCropX ?? 50}% ${props.card.imageCropY ?? 50}%`,
-            borderRadius: `${scale(props.card.imageRounded ?? 0)}%`
+            borderRadius: `${scale(props.card.imageRounded ?? 0)}px`
           }"
           :class="{ 'remove-bg-image': props.card.removeImageBg }"
           loading="lazy"
