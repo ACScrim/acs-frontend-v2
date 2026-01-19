@@ -4,7 +4,6 @@ import { useUserStore } from '@/stores/userStore';
 import type { GameProposal } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import { formatDate } from '@vueuse/core';
-import { ref } from 'vue';
 import { Avatar, Badge, Button, Card } from '../ui';
 
 const props = defineProps<{
@@ -14,13 +13,8 @@ const props = defineProps<{
 const userId = useUserStore().user?.id;
 const proposalStore = useProposalStore();
 
-const isLoading = ref(false);
-
 const handleVoteClick = (value: boolean) => {
-  isLoading.value = true;
-  proposalStore.voteOnProposal(props.proposal.id, value).finally(() => {
-    isLoading.value = false;
-  });
+  proposalStore.voteOnProposal(props.proposal.id, value);
 }
 </script>
 
@@ -78,8 +72,8 @@ const handleVoteClick = (value: boolean) => {
         <Button
           class="w-full justify-between"
           icon-position="lr"
-          :disabled="!userId || isLoading"
-          :loading="isLoading"
+          :disabled="!userId"
+          useGlobalLoading
           :variant="proposal.votes.find(vote => vote.user.id === userId) ? 'outline' : 'primary'"
           @click="handleVoteClick(proposal.votes.find(vote => vote.user.id === userId) ? false : true)"
         >

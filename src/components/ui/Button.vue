@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useLoadingState } from '@/composables/useLoadingState';
 
 interface Props {
   loading?: boolean
+  useGlobalLoading?: boolean
   iconPosition?: "r" | "l" | "lr"
   to?: string
   class?: string | string[]
@@ -23,9 +25,19 @@ const component = computed(() => {
   return "button";
 });
 
+// État global de chargement
+const globalLoadingState = useLoadingState();
+
+// Calculer l'état de chargement effectif
+const effectiveLoading = computed(() => {
+  if (props.loading) return true;
+  if (props.useGlobalLoading) return globalLoadingState.isLoading.value;
+  return false;
+});
+
 const componentProps = computed(() => {
   const baseProps: Record<string, unknown> = {
-    disabled: props.disabled || props.loading,
+    disabled: props.disabled || effectiveLoading.value,
   };
 
   if (props.to) {
@@ -41,6 +53,7 @@ const componentProps = computed(() => {
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
+  useGlobalLoading: true,
   iconPosition: "r",
   to: undefined,
   class: "",
@@ -95,7 +108,7 @@ const appliedVariant = computed<keyof typeof variantClasses>(() => {
   >
     <!-- Loading spinner -->
     <svg
-      v-if="loading"
+      v-if="effectiveLoading"
       class="animate-spin -ml-1 mr-2 h-4 w-4"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -118,7 +131,7 @@ const appliedVariant = computed<keyof typeof variantClasses>(() => {
 
     <!-- Icône gauche -->
     <span
-      v-if="$slots.icon && iconPosition !== 'r' && !loading"
+      v-if="$slots.icon && iconPosition !== 'r' && !effectiveLoading"
       class="mr-2"
     >
       <slot name="icon"></slot>
@@ -129,7 +142,7 @@ const appliedVariant = computed<keyof typeof variantClasses>(() => {
 
     <!-- Icône droite -->
     <span
-      v-if="$slots.icon && iconPosition !== 'l' && !loading"
+      v-if="$slots.icon && iconPosition !== 'l' && !effectiveLoading"
       class="ml-2"
     >
       <slot name="icon"></slot>
