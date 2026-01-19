@@ -19,6 +19,7 @@ const useGamesStore = defineStore('games', {
       todayAnswer: null as DailyAnswer | null,
       leaderboards: {
         weekly: [] as WeeklyLeaderboardEntry[],
+        lastWeekly: [] as WeeklyLeaderboardEntry[],
       }
     },
     acsdle: {
@@ -59,6 +60,14 @@ const useGamesStore = defineStore('games', {
         this.dailyQuiz.leaderboards.weekly = leaderboard;
       } catch (e: any) {
         useToastStore().error("Il y a une erreur lors de la récupération du classement hebdomadaire du quiz quotidien.", e);
+      }
+    },
+    async fetchLastWeeklyLeaderboard() {
+      try {
+        const { data: { data: leaderboard }} = await api.get<ApiResponse<WeeklyLeaderboardEntry[]>>("/games/dailyquiz/last-weekly-leaderboard");
+        this.dailyQuiz.leaderboards.lastWeekly = leaderboard;
+      } catch (e: any) {
+        useToastStore().error("Il y a une erreur lors de la récupération du classement de la semaine dernière du quiz quotidien.", e);
       }
     },
     async updateDailyAnswer(questionId: string, answerData: { cheated?: boolean, userAnswer?: string, discoveredAt?: string }) {

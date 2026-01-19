@@ -10,7 +10,7 @@ import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {shuffleArray} from "@/utils";
 import {useUserStore} from "@/stores/userStore.ts";
 
-const activeTab = ref<"today" | "yesterday" | "leaderboard">("today");
+const activeTab = ref<"today" | "yesterday" | "leaderboard" | "lastWeekLeaderboard">("today");
 
 const gamesStore = useGamesStore();
 
@@ -23,6 +23,7 @@ onMounted(async () => {
   await gamesStore.fetchYesterdayDailyQuestion();
   await gamesStore.fetchTodayDailyAnswer();
   await gamesStore.fetchWeeklyLeaderboard();
+  await gamesStore.fetchLastWeeklyLeaderboard();
 
   startAnswerTimer();
 
@@ -163,6 +164,31 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
   enableSorting: false,
 });
 
+const lastWeekTable = useVueTable<WeeklyLeaderboardEntry>({
+  get data() {
+    return gamesStore.dailyQuiz.leaderboards.lastWeekly as WeeklyLeaderboardEntry[];
+  },
+  columns: [
+    { header: "Position", cell: ({ row }) => row.index + 1 },
+    {
+      header: "Joueur",
+      accessorKey: "username",
+      cell: ({ row }) =>
+        h("div", { class: "flex items-center gap-3" }, [
+          h(Avatar, {
+            src: row.original.avatarUrl,
+            alt: `Avatar de ${row.original.username}`,
+            size: 8,
+          }),
+          row.original.username,
+        ]),
+    },
+    { header: "Points", accessorKey: "totalPoints" },
+  ],
+  getCoreRowModel: getCoreRowModel(),
+  enableSorting: false,
+});
+
 const shuffledOptions = computed(() => {
   if (gamesStore.dailyQuiz.todayQuestion) {
     return shuffleArray(gamesStore.dailyQuiz.todayQuestion.options);
@@ -186,7 +212,7 @@ const shuffledOptions = computed(() => {
     <!-- Système d'onglets -->
     <div class="flex justify-center mb-8">
       <div
-        class="bg-surface-800/50 rounded-xl p-1 border border-foam-200/10 flex w-full max-w-2xl gap-1"
+        class="bg-surface-800/50 rounded-xl p-1 border border-foam-200/10 flex w-full max-w-4xl gap-1"
       >
         <Button
           @click="activeTab = 'today'"
@@ -212,7 +238,16 @@ const shuffledOptions = computed(() => {
           class="flex-1 cursor-pointer rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
         >
           <VueIcon name="md:leaderboard" size="18" />
-          Classement
+          Cette semaine
+        </Button>
+
+        <Button
+          @click="activeTab = 'lastWeekLeaderboard'"
+          :variant="activeTab === 'lastWeekLeaderboard' ? 'outline' : 'ghost'"
+          class="flex-1 cursor-pointer rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <VueIcon name="md:history" size="18" />
+          Semaine dernière
         </Button>
       </div>
     </div>
@@ -569,6 +604,27 @@ const shuffledOptions = computed(() => {
             class="bg-gradient-to-r from-amber-500/10 to-amber-400/10 border border-amber-400/20 rounded-xl overflow-hidden"
           >
             <TableTanstack :table="table" />
+          </div>
+        </div>
+      </Card>
+
+      <!-- Onglet Classement Semaine Dernière -->
+      <Card
+        v-if="activeTab === 'lastWeekLeaderboard'"
+        class="p-8 backdrop-blur-xl border border-foam-200/10 animate-in fade-in duration-300"
+      >
+        <div class="space-y-6">
+          <div class="text-center">
+            <h2 class="text-2xl font-bold text-white mb-2">
+              Classement de la semaine dernière
+            </h2>
+            <p class="text-foam-300">Les champions de la semaine passée !</p>
+          </div>
+
+          <div
+            class="bg-gradient-to-r from-purple-500/10 to-purple-400/10 border border-purple-400/20 rounded-xl overflow-hidden"
+          >
+            <TableTanstack :table="lastWeekTable" />
           </div>
         </div>
       </Card>
