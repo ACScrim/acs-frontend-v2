@@ -31,8 +31,8 @@ const statsBlocks= [
     id: '2',
     icon: 'bs:lightning-fill',
     label: 'Activité',
-    value: formatDate(new Date(props.user.lastActivity), 'DD MMMM YYYY'),
-    footer: 'Dernière fois',
+    value: props.user.lastActivity ? formatDate(new Date(props.user.lastActivity), 'DD MMMM YYYY') : "Aucune",
+    footer: props.user.lastActivity ? 'Dernière fois' : '',
     colorClass: 'text-blush-300',
   },
   {

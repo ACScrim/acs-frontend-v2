@@ -29,13 +29,13 @@ const statsBlocks = [
     label: 'Podium',
     icon: 'ca:trophy-filled',
     text: 'De podiums',
-    value: (props.user.tournamentHistory.reduce((acc, t) => acc + (isRankingCountedAsPodium(t.teams.find(team => (team.users as unknown as string[]).includes(props.user.id))?.ranking || 100, t.teams.length) ? 1 : 0), 0)) / props.user.tournamentStats.tournamentsCount * 100,
+    value: props.user.tournamentStats.tournamentsCount > 0 ? (props.user.tournamentHistory.reduce((acc, t) => acc + (isRankingCountedAsPodium(t.teams.find(team => (team.users as unknown as string[]).includes(props.user.id))?.ranking || 100, t.teams.length) ? 1 : 0), 0)) / props.user.tournamentStats.tournamentsCount * 100 : 0,
   },
   {
     label: 'Taux',
     icon: 'cd:graph',
     text: 'de victoire',
-    value: props.user.tournamentStats.firstPlaceCount / props.user.tournamentStats.tournamentsCount * 100,
+    value: props.user.tournamentStats.tournamentsCount ? (props.user.tournamentStats.firstPlaceCount / props.user.tournamentStats.tournamentsCount * 100) : 0,
   }
 ];
 </script>
