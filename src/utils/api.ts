@@ -48,7 +48,13 @@ api.interceptors.response.use(
         requestIdMap.delete(error.config);
       }
     }
-    toastApiError(error);
+
+    // Ne pas afficher de toast pour les erreurs 401 sur /users/me
+    const is401OnUserMe = error.response?.status === 401 && error.config?.url?.includes('/users/me');
+    if (!is401OnUserMe) {
+      toastApiError(error);
+    }
+
     return Promise.reject(error);
   }
 );
