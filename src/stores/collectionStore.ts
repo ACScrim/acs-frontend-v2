@@ -22,6 +22,7 @@ const useCollectionStore = defineStore('collection', {
       if (!state.collection) return [];
       
       // Create a Map for O(1) lookup instead of O(n) find
+      // Note: Pinia getters are cached, so this Map is only created when state.collection changes
       const cardMap = new Map<string, CollectibleCard>();
       state.collection.cards.forEach(card => {
         if ((card as CollectibleCard).frontAsset) {

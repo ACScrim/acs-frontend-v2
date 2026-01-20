@@ -527,7 +527,7 @@ const removeImage = () => {
 const addCustomText = () => {
   if (customTexts.value.length < 5) {
     customTexts.value.push({
-      id: `text-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Unique ID for proper key binding
+      id: `text-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`, // Unique ID for proper key binding
       content: `Texte ${customTexts.value.length + 1}`,
       posX: 50,
       posY: 50 + (customTexts.value.length * 15),
