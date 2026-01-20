@@ -159,12 +159,14 @@ Environment variables should be prefixed with `VITE_` to be accessible in the ap
 ### API Call Pattern
 
 ```typescript
-async fetchData() {
+// In a Pinia store action
+async fetchData(): Promise<void> {
   try {
     const response = await api.get<ApiResponse<DataType>>("/endpoint");
     this.data = response.data.data;
-  } catch (error: any) {
-    useToastStore().error("Error message:", error.message || error);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    useToastStore().error("Error message:", message);
   }
 }
 ```
