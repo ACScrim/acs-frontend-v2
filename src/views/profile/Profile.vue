@@ -47,6 +47,7 @@ const handleSaveTwitchUsername = async (twitchUsername: string | undefined) => {
     useToastStore().success('Nom Twitch mis à jour avec succès.');
   } catch (error: unknown) {
     useToastStore().error('Erreur lors de la mise à jour du nom Twitch: ' + getErrorMessage(error));
+    throw error; // Propager l'erreur pour que le composant enfant puisse gérer l'état de chargement
   }
 };
 </script>

@@ -352,9 +352,9 @@ onUnmounted(() => {
       <!-- Image container -->
       <div class="absolute overflow-hidden" :style="imageStyle">
         <img
-          v-if="card.imageUrl || (props.card.imageBase64)"
-          :src="card.imageUrl || (props.card.imageBase64 ? `data:image/png;base64,${props.card.imageBase64}` : '')"
-          :alt="card.title"
+          v-if="props.card.imageUrl || props.card.imageBase64"
+          :src="props.card.imageUrl || (props.card.imageBase64 ? `data:image/png;base64,${props.card.imageBase64}` : '')"
+          :alt="props.card.title"
           class="w-full h-full"
           :style="{
             objectFit: imageObjectFit,
@@ -424,7 +424,7 @@ onUnmounted(() => {
           wordWrap: 'break-word',
         }"
       >
-        {{ card.title || 'Titre de la carte' }}
+        {{ props.card.title || 'Titre de la carte' }}
       </h3>
       
 

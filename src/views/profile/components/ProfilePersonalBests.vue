@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Card } from '@/components/ui';
 import type { UserWithStats } from '@/types/models';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
@@ -18,7 +19,22 @@ const isRankingCountedAsPodium = (rank: number, totalTeams: number): boolean => 
   return false;
 }
 
-const statsBlocks = [
+// Memoize expensive podium calculation
+const podiumRate = computed(() => {
+  if (props.user.tournamentStats.tournamentsCount === 0) return 0;
+  
+  const podiumCount = props.user.tournamentHistory.reduce((acc, t) => {
+    const userTeam = t.teams.find(team => 
+      (team.users as unknown as string[]).includes(props.user.id)
+    );
+    const ranking = userTeam?.ranking || 100;
+    return acc + (isRankingCountedAsPodium(ranking, t.teams.length) ? 1 : 0);
+  }, 0);
+  
+  return (podiumCount / props.user.tournamentStats.tournamentsCount) * 100;
+});
+
+const statsBlocks = computed(() => [
   {
     label: 'Série',
     icon: 'bs:fire',
@@ -29,7 +45,7 @@ const statsBlocks = [
     label: 'Podium',
     icon: 'ca:trophy-filled',
     text: 'De podiums',
-    value: props.user.tournamentStats.tournamentsCount > 0 ? (props.user.tournamentHistory.reduce((acc, t) => acc + (isRankingCountedAsPodium(t.teams.find(team => (team.users as unknown as string[]).includes(props.user.id))?.ranking || 100, t.teams.length) ? 1 : 0), 0)) / props.user.tournamentStats.tournamentsCount * 100 : 0,
+    value: podiumRate.value,
   },
   {
     label: 'Taux',
@@ -37,7 +53,7 @@ const statsBlocks = [
     text: 'de victoire',
     value: props.user.tournamentStats.tournamentsCount ? (props.user.tournamentStats.firstPlaceCount / props.user.tournamentStats.tournamentsCount * 100) : 0,
   }
-];
+]);
 </script>
 
 <template>

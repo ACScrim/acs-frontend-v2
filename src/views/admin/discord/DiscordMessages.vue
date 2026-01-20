@@ -191,7 +191,7 @@ onMounted(() => {
               @click="selectThread(thread.discordUserId)"
             >
               <div class="flex items-center gap-3">
-                <img :src="adminStore.discordMeta.members.find((m: any) => m.id === thread.discordUserId)?.avatar || ''" class="h-8 w-8 rounded-full border border-white/10 object-cover" />
+                <img :src="adminStore.discordMeta.members.find((m: any) => m.id === thread.discordUserId)?.avatar || ''" class="h-8 w-8 rounded-full border border-white/10 object-cover" loading="lazy" />
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-white truncate">{{ adminStore.discordMeta.members.find((m: any) => m.id === thread.discordUserId)?.username || thread.discordUserId }}</p>
                   <p class="text-xs text-foam-300/70 truncate">{{ thread.lastMessage?.content || '[embed]' }}</p>
@@ -204,7 +204,7 @@ onMounted(() => {
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <img v-if="selectedMember" :src="selectedMember.avatar" class="h-10 w-10 rounded-full border border-white/10 object-cover" />
+              <img v-if="selectedMember" :src="selectedMember.avatar" class="h-10 w-10 rounded-full border border-white/10 object-cover" loading="lazy" />
               <div>
                 <p class="text-sm font-semibold text-white">{{ selectedMember?.username || 'Sélectionnez une conversation' }}</p>
                 <p class="text-xs text-foam-300/70">{{ selectedUserId }}</p>

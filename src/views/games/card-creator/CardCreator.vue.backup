@@ -13,11 +13,14 @@ import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
 import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
 import type {CardAsset, CardCategory} from "@/types/models";
-import type {PendingCardData,} from '@/composables/useCardCustomization';
+import type {
+  CustomText,
+  PendingCardData,
+} from '@/composables/useCardCustomization';
 import {useRoute, useRouter} from 'vue-router';
 import useAdminStore from '@/stores/adminStore';
 import {useUserStore} from "@/stores/userStore.ts";
-import {useCardForm} from '@/composables/useCardForm';
+import { useCardForm } from '@/composables/useCardForm';
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
@@ -258,16 +261,6 @@ const selectedDiscordMemberId = ref<string>('');
 const discordSearchQuery = ref('');
 const selectedCloudinaryImage = ref<string>('');
 
-// Group image source UI state for BasicInfoPanel
-const imageSourceUI = computed(() => ({
-  sourceType: imageSourceType.value,
-  urlInput: imageUrlInput.value,
-  discordSearchQuery: discordSearchQuery.value,
-  selectedDiscordMemberId: selectedDiscordMemberId.value,
-  selectedCloudinaryImage: selectedCloudinaryImage.value,
-  showAllImages: showAllImages.value,
-}));
-
 // Mode édition admin quand on passe par /admin/cards/:cardId/edit
 const adminEditCardId = computed(() => (route.params as any).cardId as string | undefined);
 const isAdminEdit = computed(() => route.path.startsWith('/admin/cards/') && route.path.endsWith('/edit') && Boolean(adminEditCardId.value));
@@ -323,7 +316,7 @@ const isTabComplete = computed(() => ({
   effects: true // Always accessible
 }));
 
-const hasMainImage = computed(() => Boolean(imageBase64.value || imageUrl.value));
+const hasMainImage = computed(() => Boolean(imageBase64.value));
 
 // Computed
 const selectedFrontAsset = computed(() => {
@@ -626,6 +619,19 @@ const removeCustomText = (index: number) => {
   customTexts.value.splice(index, 1);
 };
 
+const updateCustomText = <K extends keyof CustomText>(
+  index: number, 
+  field: K, 
+  value: CustomText[K]
+) => {
+  if (index >= 0 && index < customTexts.value.length) {
+    const text = customTexts.value[index];
+    if (text) {
+      text[field] = value;
+    }
+  }
+};
+
 // Category management
 const createNewCategory = async () => {
   if (!newCategoryName.value.trim()) {
@@ -748,11 +754,8 @@ const saveCard = async () => {
     ? cardStore.discordAvatars.find(m => m.id === selectedDiscordMemberId.value)
     : null;
   const cloudinaryImage = imageSourceType.value === 'cloudinary' && selectedCloudinaryImage.value
-    ? cardStore.mainCardImages.find(img => img.secure_url === selectedCloudinaryImage.value)
+    ? cardStore.mainCardImages.find(img => img.publicId === selectedCloudinaryImage.value)
     : null;
-
-  console.log('cloudinaryImage', cloudinaryImage, selectedCloudinaryImage.value);
-  console.log('member', member, selectedDiscordMemberId.value);
 
   pendingCardData.value = {
     title: title.value,
@@ -1112,10 +1115,15 @@ watch(selectedDiscordMemberId, async (newMemberId) => {
   if (imageSourceType.value === 'discord' && newMemberId) {
     const member = cardStore.discordAvatars.find(m => m.id === newMemberId);
     if (member) {
-      // For Discord avatars, use URL directly - no base64 conversion needed
+      // For Discord avatars, use URL directly - no base64 conversion
       imageUrl.value = member.avatarUrl;
       imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
-      // Le preview utilisera directement imageUrl, pas besoin de base64
+
+      // Load for preview only
+      const base64Data = await loadImageFromUrl(member.avatarUrl);
+      if (base64Data) {
+        imageBase64.value = base64Data.base64; // Only for preview
+      }
       toastStore.success(`Avatar de ${member.username} sélectionné`);
     }
   }
@@ -1162,10 +1170,15 @@ watch(selectedCloudinaryImage, async (newImageId) => {
   if (imageSourceType.value === 'cloudinary' && newImageId) {
     const image = cardStore.mainCardImages.find(img => img.publicId === newImageId);
     if (image) {
-      // For Cloudinary images, use URL directly - no base64 conversion needed
+      // For Cloudinary images, use URL directly - no base64 conversion
       imageUrl.value = image.secure_url;
       imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
-      // Le preview utilisera directement imageUrl, pas besoin de base64
+
+      // Load for preview only
+      const base64Data = await loadImageFromUrl(image.secure_url);
+      if (base64Data) {
+        imageBase64.value = base64Data.base64; // Only for preview
+      }
       toastStore.success('Image sélectionnée');
     }
   }
@@ -1213,7 +1226,6 @@ onUnmounted(() => {
                   :card="{
                     id: 'preview',
                     title,
-                    imageUrl,
                     imageBase64,
                     frontAsset: selectedFrontAsset,
                     borderAsset: selectedBorderAsset,
@@ -1351,9 +1363,24 @@ onUnmounted(() => {
                 />
                 
                 <BasicInfoPanel
-                  :basic-info="basicInfo"
-                  :metadata="metadata"
-                  :image-source-u-i="imageSourceUI"
+                  :title="title"
+                  @update:title="title = $event"
+                  :category-id="selectedCategoryId"
+                  @update:category-id="selectedCategoryId = $event"
+                  :rarity="rarity"
+                  @update:rarity="rarity = $event"
+                  :has-main-image="hasMainImage"
+                  :image-source-type="imageSourceType"
+                  @update:image-source-type="imageSourceType = $event"
+                  :image-url-input="imageUrlInput"
+                  @update:image-url-input="imageUrlInput = $event"
+                  :discord-search-query="discordSearchQuery"
+                  @update:discord-search-query="discordSearchQuery = $event"
+                  :selected-discord-member-id="selectedDiscordMemberId"
+                  @update:selected-discord-member-id="selectedDiscordMemberId = $event"
+                  :selected-cloudinary-image="selectedCloudinaryImage"
+                  @update:selected-cloudinary-image="selectedCloudinaryImage = $event"
+                  :show-all-images="showAllImages"
                   :categories="categoryStore.categories"
                   :discord-members="cardStore.discordAvatars"
                   :cloudinary-images="cardStore.mainCardImages"
@@ -1368,55 +1395,95 @@ onUnmounted(() => {
                     }
                     const base64Data = await loadImageFromUrl(url.trim());
                     if (base64Data) {
-                      basicInfo.imageBase64 = base64Data.base64;
+                      imageBase64 = base64Data.base64;
                     }
                   }"
                   @toggle-show-all-images="toggleShowAllImages"
                   @refresh-images="showAllImages ? cardStore.fetchMainCardImages() : cardStore.fetchUsedMainCardImages()"
-                  @update:image-source-type="(type) => imageSourceType = type"
-                  @update:url-input="(value) => imageUrlInput = value"
-                  @update:discord-search="(value) => discordSearchQuery = value"
-                  @select-discord-member="async (memberId) => {
-                    selectedDiscordMemberId = memberId;
-                    const member = cardStore.discordAvatars.find(m => m.id === memberId);
-                    if (member) {
-                      basicInfo.imageUrl = member.avatarUrl;
-                    }
-                  }"
-                  @select-cloudinary-image="async (url) => {
-                    selectedCloudinaryImage = url;
-                    basicInfo.imageUrl = url;
-                  }"
                 />
               </div>
 
               <!-- TAB 2: APPARENCE -->
               <div v-show="activeTab === 'appearance'">
                 <AppearancePanel
-                  :appearance="appearance"
-                  :image-settings="imageSettings"
+                  :title-color="titleColor"
+                  @update:title-color="titleColor = $event"
+                  :title-font-size="titleFontSize"
+                  @update:title-font-size="titleFontSize = $event"
+                  :title-pos-x="titlePosX"
+                  @update:title-pos-x="titlePosX = $event"
+                  :title-pos-y="titlePosY"
+                  @update:title-pos-y="titlePosY = $event"
+                  :title-align="titleAlign"
+                  @update:title-align="titleAlign = $event"
+                  :title-width="titleWidth"
+                  @update:title-width="titleWidth = $event"
+                  :image-pos-x="imagePosX"
+                  @update:image-pos-x="imagePosX = $event"
+                  :image-pos-y="imagePosY"
+                  @update:image-pos-y="imagePosY = $event"
+                  :image-scale="imageScale"
+                  @update:image-scale="imageScale = $event"
+                  :image-width="imageWidth"
+                  @update:image-width="imageWidth = $event"
+                  :image-height="imageHeight"
+                  @update:image-height="imageHeight = $event"
+                  :image-object-fit="imageObjectFit"
+                  @update:image-object-fit="imageObjectFit = $event"
+                  :image-rounded="imageRounded"
+                  @update:image-rounded="imageRounded = $event"
+                  :image-crop-x="imageCropX"
+                  @update:image-crop-x="imageCropX = $event"
+                  :image-crop-y="imageCropY"
+                  @update:image-crop-y="imageCropY = $event"
                 />
               </div>
 
               <!-- TAB 3: TEXTES -->
               <div v-show="activeTab === 'texts'">
                 <TextsPanel
-                  :metadata="metadata"
+                  :custom-texts="customTexts"
                   @add-text="addCustomText"
                   @remove-text="removeCustomText"
+                  @update-text="updateCustomText"
                 />
               </div>
 
               <!-- TAB 4: FOND & BORDURES -->
               <div v-show="activeTab === 'assets'">
                 <AssetsPanel
-                  :asset-selection="assetSelection"
-                  :background-asset="backgroundAsset"
-                  :border-asset="borderAsset"
-                  :filtered-background-assets="filteredBackgroundAssets"
-                  :filtered-border-assets="filteredBorderAssets"
+                  :asset-category="assetCategory"
+                  @update:asset-category="assetCategory = $event"
+                  :background-asset-name="backgroundAssetName"
+                  @update:background-asset-name="backgroundAssetName = $event"
+                  :background-asset-type="backgroundAssetType"
+                  @update:background-asset-type="backgroundAssetType = $event"
+                  :background-solid-color="backgroundSolidColor"
+                  @update:background-solid-color="backgroundSolidColor = $event"
+                  :background-gradient-color1="backgroundGradientColor1"
+                  @update:background-gradient-color1="backgroundGradientColor1 = $event"
+                  :background-gradient-color2="backgroundGradientColor2"
+                  @update:background-gradient-color2="backgroundGradientColor2 = $event"
+                  :background-gradient-angle="backgroundGradientAngle"
+                  @update:background-gradient-angle="backgroundGradientAngle = $event"
+                  :background-asset-image-preview="backgroundAssetImagePreview"
+                  :border-asset-name="borderAssetName"
+                  @update:border-asset-name="borderAssetName = $event"
+                  :border-asset-type="borderAssetType"
+                  @update:border-asset-type="borderAssetType = $event"
+                  :border-solid-color="borderSolidColor"
+                  @update:border-solid-color="borderSolidColor = $event"
+                  :border-asset-image-preview="borderAssetImagePreview"
+                  :selected-front-asset-id="selectedFrontAssetId"
+                  @update:selected-front-asset-id="selectedFrontAssetId = $event"
+                  :selected-border-asset-id="selectedBorderAssetId"
+                  @update:selected-border-asset-id="selectedBorderAssetId = $event"
+                  @update:use-custom-front-asset="useCustomFrontAsset = $event"
+                  @update:use-custom-border-asset="useCustomBorderAsset = $event"
                   :is-background-asset-valid="isBackgroundAssetValid"
                   :is-border-asset-valid="isBorderAssetValid"
+                  :filtered-background-assets="filteredBackgroundAssets"
+                  :filtered-border-assets="filteredBorderAssets"
                   :show-all-assets="showAllAssets"
                   :user-id="user?.id"
                   @trigger-asset-image-input="triggerAssetImageInput"
@@ -1430,7 +1497,12 @@ onUnmounted(() => {
               <!-- TAB 5: EFFETS -->
               <div v-show="activeTab === 'effects'">
                 <EffectsPanel
-                  :effects="effects"
+                  :remove-image-bg="removeImageBg"
+                  @update:remove-image-bg="removeImageBg = $event"
+                  :holographic-effect="holographicEffect"
+                  @update:holographic-effect="holographicEffect = $event"
+                  :holographic-intensity="holographicIntensity"
+                  @update:holographic-intensity="holographicIntensity = $event"
                 />
               </div>
             </div>

@@ -185,7 +185,7 @@ const handleCancel = () => {
       </div>
 
       <div v-if="!isEditing && selectedGame" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-4 flex gap-4">
-        <img :src="selectedGame.background_image as string | undefined" class="h-24 w-24 rounded-2xl object-cover"  :alt="`Image du jeu ${selectedGame.name}`"/>
+        <img :src="selectedGame.background_image as string | undefined" class="h-24 w-24 rounded-2xl object-cover"  :alt="`Image du jeu ${selectedGame.name}`" loading="lazy"/>
         <div>
           <p class="text-lg font-semibold text-white">{{ selectedGame.name }}</p>
           <p class="text-sm text-foam-300/70">RAWG ID: {{ selectedGame.id }}</p>

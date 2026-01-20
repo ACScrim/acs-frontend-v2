@@ -11,21 +11,34 @@ const useTournamentStore = defineStore('tournament', {
   }),
   getters: {
     nextTournaments: (state) => {
-      return state.tournaments.filter(t => !t.finished).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 3);
+      // Cache sorted upcoming tournaments and return first 3
+      const upcoming = state.tournaments
+        .filter(t => !t.finished)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      return upcoming.slice(0, 3);
     },
     finishedTournaments: (state) => {
-      return state.tournaments.filter(t => t.finished).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) || [];
+      return state.tournaments
+        .filter(t => t.finished)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     },
     upcomingTournaments: (state) => {
-      return state.tournaments.filter(t => !t.finished).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+      return state.tournaments
+        .filter(t => !t.finished)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     },
     gamesPlayed: (state) => {
-      return state.tournaments.reduce((acc: Game[], tournament: Tournament) => {
-        if (acc.includes(tournament.game)) {
-          return acc;
+      // Use Set for O(1) lookups instead of Array.includes
+      const gameSet = new Set<string>();
+      const games: Game[] = [];
+      for (const tournament of state.tournaments) {
+        const gameId = tournament.game.id;
+        if (!gameSet.has(gameId)) {
+          gameSet.add(gameId);
+          games.push(tournament.game);
         }
-        return [...acc, tournament.game];
-      }, []);
+      }
+      return games;
     },
     getById: (state) => {
       return (id: string) => state.tournaments.find(t => t.id === id);

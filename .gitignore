@@ -26,3 +26,8 @@ package-lock.json
 *.sw?
 
 .env
+
+# Compiled TypeScript files (keep only .ts and .vue sources)
+src/**/*.js
+!src/**/*.config.js
+!src/**/vite.config.js

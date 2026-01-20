@@ -45,6 +45,15 @@ const displayedCards = computed(() => {
   return result;
 });
 
+// Pre-compute card counts for efficient v-memo and template access
+const cardCountMap = computed(() => {
+  const map = new Map<string, number>();
+  props.cards.forEach(c => {
+    map.set(c.card.id, c.count);
+  });
+  return map;
+});
+
 const isEmptySlot = (
   card: CollectibleCard | { id: string; isEmpty: true; index: number }
 ): card is { id: string; isEmpty: true; index: number } => {
@@ -72,7 +81,7 @@ const isEmptySlot = (
       <template v-for="card in displayedCards" :key="card.id">
         <!-- Carte existante -->
         <template v-if="!isEmptySlot(card)">
-          <div class="w-[250px]">
+          <div class="w-[250px]" v-memo="[card.id, cardCountMap.get(card.id)]">
             <CollectibleCardComponent
               :card="card"
               :data-card-id="card.id"
@@ -80,7 +89,7 @@ const isEmptySlot = (
               @click="emit('item-visible', card)"
             />
             <p class="text-end text-sm text-foam-400 mt-1">
-              {{ cards.find(c => c.card.id === card.id)?.count }} exemplaire{{ (cards.find(c => c.card.id === card.id)?.count ?? 0) > 1 ? 's' : '' }}
+              {{ cardCountMap.get(card.id) }} exemplaire{{ (cardCountMap.get(card.id) ?? 0) > 1 ? 's' : '' }}
             </p>
           </div>
         </template>
