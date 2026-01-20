@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {Button, Card} from '@/components/ui';
 import Modal from '@/components/global/Modal.vue';
 import CollectibleCard from './CollectibleCard.vue';
@@ -8,11 +8,10 @@ import AppearancePanel from './components/AppearancePanel.vue';
 import TextsPanel from './components/TextsPanel.vue';
 import AssetsPanel from './components/AssetsPanel.vue';
 import EffectsPanel from './components/EffectsPanel.vue';
-import SavedCardsGallery from './components/SavedCardsGallery.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
-import {useWindowSize} from "@vueuse/core";
+import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
 import type {CardAsset, CardCategory} from "@/types/models";
 import type {
   CustomText,
@@ -53,34 +52,102 @@ const {
   backgroundAssetImageInputRef,
   borderAssetImageInputRef,
   cardPreviewRef,
+  savedCardsContainer,
   resetForm,
 } = useCardForm();
 
-// Use image processing composable
-import { useImageProcessing } from '@/composables/useImageProcessing';
-const { loadImageFromUrl } = useImageProcessing();
-const { convertImageToBase64, handleImageUpload: handleImageUploadWrapper } = useImageProcessing();
+// Destructure for easier access in template (backward compatibility)
+const title = computed({
+  get: () => basicInfo.title,
+  set: (value) => basicInfo.title = value
+});
+const imageUrl = computed({
+  get: () => basicInfo.imageUrl,
+  set: (value) => basicInfo.imageUrl = value
+});
+const imageBase64 = computed({
+  get: () => basicInfo.imageBase64,
+  set: (value) => basicInfo.imageBase64 = value
+});
+const selectedCategoryId = computed({
+  get: () => basicInfo.categoryId,
+  set: (value) => basicInfo.categoryId = value
+});
 
-// Use asset management composable
-import { useCardAssetManagement } from '@/composables/useCardAssetManagement';
-const assetManagement = useCardAssetManagement(
-  backgroundAsset,
-  borderAsset,
-  assetSelection.assetCategory as any,
-  backgroundAssetImageInputRef,
-  borderAssetImageInputRef,
-  assetSelection.selectedFrontAssetId as any,
-  assetSelection.selectedBorderAssetId as any,
-  assetSelection.useCustomFrontAsset as any,
-  assetSelection.useCustomBorderAsset as any
-);
+const titlePosX = computed({
+  get: () => appearance.titlePosX,
+  set: (value) => appearance.titlePosX = value
+});
+const titlePosY = computed({
+  get: () => appearance.titlePosY,
+  set: (value) => appearance.titlePosY = value
+});
+const titleAlign = computed({
+  get: () => appearance.titleAlign,
+  set: (value) => appearance.titleAlign = value
+});
+const titleWidth = computed({
+  get: () => appearance.titleWidth,
+  set: (value) => appearance.titleWidth = value
+});
+const titleColor = computed({
+  get: () => appearance.titleColor,
+  set: (value) => appearance.titleColor = value
+});
+const titleFontSize = computed({
+  get: () => appearance.titleFontSize,
+  set: (value) => appearance.titleFontSize = value
+});
 
-// Use saved cards observer composable
-import { useSavedCardsObserver } from '@/composables/useSavedCardsObserver';
-useSavedCardsObserver(savedCardsContainer, cardStore);
+const imagePosX = computed({
+  get: () => imageSettings.posX,
+  set: (value) => imageSettings.posX = value
+});
+const imagePosY = computed({
+  get: () => imageSettings.posY,
+  set: (value) => imageSettings.posY = value
+});
+const imageScale = computed({
+  get: () => imageSettings.scale,
+  set: (value) => imageSettings.scale = value
+});
+const imageWidth = computed({
+  get: () => imageSettings.width,
+  set: (value) => imageSettings.width = value
+});
+const imageHeight = computed({
+  get: () => imageSettings.height,
+  set: (value) => imageSettings.height = value
+});
+const imageObjectFit = computed({
+  get: () => imageSettings.objectFit,
+  set: (value) => imageSettings.objectFit = value
+});
+const imageRounded = computed({
+  get: () => imageSettings.rounded,
+  set: (value) => imageSettings.rounded = value
+});
+const imageCropX = computed({
+  get: () => imageSettings.cropX,
+  set: (value) => imageSettings.cropX = value
+});
+const imageCropY = computed({
+  get: () => imageSettings.cropY,
+  set: (value) => imageSettings.cropY = value
+});
 
-// Import SavedCardsGallery component
-import SavedCardsGallery from './components/SavedCardsGallery.vue';
+const removeImageBg = computed({
+  get: () => effects.removeImageBg,
+  set: (value) => effects.removeImageBg = value
+});
+const holographicEffect = computed({
+  get: () => effects.holographicEffect,
+  set: (value) => effects.holographicEffect = value
+});
+const holographicIntensity = computed({
+  get: () => effects.holographicIntensity,
+  set: (value) => effects.holographicIntensity = value
+});
 
 const rarity = computed({
   get: () => metadata.rarity,
@@ -184,6 +251,9 @@ const activeTab = computed({
   set: (value) => ui.activeTab = value
 });
 
+// Container ref for saved cards section
+const activeTimeouts = new Set<number>();
+
 // Image source selection
 const imageSourceType = ref<'upload' | 'url' | 'discord' | 'cloudinary'>('cloudinary');
 const imageUrlInput = ref('');
@@ -202,45 +272,80 @@ const showAllImages = ref(false);
 // Helper to get current asset config based on category
 
 
+const setCurrentImageData = (base64: string, mimeType: string, preview: string) => {
+  if (assetCategory.value === 'background') {
+    backgroundAssetImageBase64.value = base64;
+    backgroundAssetImagePreview.value = preview;
+  } else {
+    borderAssetImageBase64.value = base64;
+    borderAssetImagePreview.value = preview;
+  }
+};
+
+const clearCurrentImageData = () => {
+  if (assetCategory.value === 'background') {
+    backgroundAssetImageBase64.value = '';
+    backgroundAssetImagePreview.value = '';
+  } else {
+    borderAssetImageBase64.value = '';
+    borderAssetImagePreview.value = '';
+  }
+};
+
+// Génère un nom explicite lorsqu’un asset n’a pas été renseigné
+const generateAssetName = (category: 'background' | 'border') => {
+  const prefix = category === 'background' ? 'Fond personnalisé' : 'Bordure personnalisée';
+  const timestamp = new Date().toLocaleString('fr-FR', {hour12: false});
+  return `${prefix} ${timestamp}`;
+};
+
+const ensureAssetName = (category: 'background' | 'border') => {
+  const target = category === 'background' ? backgroundAssetName : borderAssetName;
+  if (!target.value.trim()) {
+    target.value = generateAssetName(category);
+  }
+  return target.value;
+};
+
 // Tab completion status
 const isTabComplete = computed(() => ({
-  basics: basicInfo.title.trim().length > 0 && hasMainImage.value,
+  basics: title.value.trim().length > 0 && hasMainImage.value,
   appearance: true, // Always accessible
   texts: true, // Always accessible
   assets: true, // Always accessible
   effects: true // Always accessible
 }));
 
-const hasMainImage = computed(() => Boolean(basicInfo.imageBase64));
+const hasMainImage = computed(() => Boolean(imageBase64.value));
 
 // Computed
 const selectedFrontAsset = computed(() => {
-  if (assetSelection.selectedFrontAssetId) {
-    assetSelection.useCustomFrontAsset = false;
-    return cardStore.getCardAssetById(assetSelection.selectedFrontAssetId);
+  if (selectedFrontAssetId.value) {
+    useCustomFrontAsset.value = false;
+    return cardStore.getCardAssetById(selectedFrontAssetId.value);
   }
 
-  if (assetSelection.useCustomFrontAsset) {
-    if (backgroundAsset.type === 'solid' && assetManagement.isBackgroundAssetValid()) {
+  if (useCustomFrontAsset.value) {
+    if (backgroundAssetType.value === 'solid' && isBackgroundAssetValid.value) {
       return {
         type: 'solid' as const,
         category: 'background',
-        solidColor: backgroundAsset.solidColor
+        solidColor: backgroundSolidColor.value
       } as CardAsset;
     }
-    if (backgroundAsset.type === 'gradient' && assetManagement.isBackgroundAssetValid()) {
+    if (backgroundAssetType.value === 'gradient' && isBackgroundAssetValid.value) {
       return {
         type: 'gradient' as const,
-        color1: backgroundAsset.gradientColor1,
-        color2: backgroundAsset.gradientColor2,
-        angle: backgroundAsset.gradientAngle,
+        color1: backgroundGradientColor1.value,
+        color2: backgroundGradientColor2.value,
+        angle: backgroundGradientAngle.value,
         category: 'background',
       } as CardAsset;
     }
-    if (backgroundAsset.type === 'image' && assetManagement.isBackgroundAssetValid()) {
+    if (backgroundAssetType.value === 'image' && isBackgroundAssetValid.value) {
       return {
         type: 'image' as const,
-        imageBase64: backgroundAsset.imageBase64,
+        imageBase64: backgroundAssetImageBase64.value,
         category: 'background',
       } as CardAsset;
     }
@@ -250,23 +355,23 @@ const selectedFrontAsset = computed(() => {
 });
 
 const selectedBorderAsset = computed(() => {
-  if (assetSelection.selectedBorderAssetId) {
-    assetSelection.useCustomBorderAsset = false;
-    return cardStore.getCardAssetById(assetSelection.selectedBorderAssetId);
+  if (selectedBorderAssetId.value) {
+    useCustomBorderAsset.value = false;
+    return cardStore.getCardAssetById(selectedBorderAssetId.value);
   }
 
-  if (assetSelection.useCustomBorderAsset) {
-    if (borderAsset.type === 'solid' && assetManagement.isBorderAssetValid()) {
+  if (useCustomBorderAsset.value) {
+    if (borderAssetType.value === 'solid' && isBorderAssetValid.value) {
       return {
         type: 'solid' as const,
-        solidColor: borderAsset.solidColor,
+        solidColor: borderSolidColor.value,
         category: 'border',
       } as CardAsset;
     }
-    if (borderAsset.type === 'image' && assetManagement.isBorderAssetValid()) {
+    if (borderAssetType.value === 'image' && isBorderAssetValid.value) {
       return {
         type: 'image' as const,
-        imageBase64: borderAsset.imageBase64,
+        imageBase64: borderAssetImageBase64.value,
         category: 'border',
       } as CardAsset;
     }
@@ -276,37 +381,37 @@ const selectedBorderAsset = computed(() => {
 });
 
 const isFormValid = computed(() => {
-  const hasTitle = basicInfo.title.trim().length > 0;
+  const hasTitle = title.value.trim().length > 0;
   return hasTitle && hasMainImage.value;
 });
 
 const isBackgroundAssetValid = computed(() => {
-  if (backgroundAsset.type === 'solid') {
-    return backgroundAsset.solidColor.trim().length > 0;
+  if (backgroundAssetType.value === 'solid') {
+    return backgroundSolidColor.value.trim().length > 0;
   }
-  if (backgroundAsset.type === 'gradient') {
-    return backgroundAsset.gradientColor1.trim().length > 0 && backgroundAsset.gradientColor2.trim().length > 0;
+  if (backgroundAssetType.value === 'gradient') {
+    return backgroundGradientColor1.value.trim().length > 0 && backgroundGradientColor2.value.trim().length > 0;
   }
-  if (backgroundAsset.type === 'image') {
-    return backgroundAsset.imageBase64.length > 0;
+  if (backgroundAssetType.value === 'image') {
+    return backgroundAssetImageBase64.value.length > 0;
   }
   return false;
 });
 
 const isBorderAssetValid = computed(() => {
-  if (borderAsset.type === 'solid') {
-    return borderAsset.solidColor.trim().length > 0;
+  if (borderAssetType.value === 'solid') {
+    return borderSolidColor.value.trim().length > 0;
   }
-  if (borderAsset.type === 'image') {
-    return borderAsset.imageBase64.length > 0;
+  if (borderAssetType.value === 'image') {
+    return borderAssetImageBase64.value.length > 0;
   }
   return false;
 });
 
 const selectedCategoryName = computed(() => {
-  console.log(basicInfo.categoryId)
-  if (!basicInfo.categoryId) return undefined;
-  return categoryStore.categories.find(c => c.id === basicInfo.categoryId)?.name;
+  console.log(selectedCategoryId)
+  if (!selectedCategoryId.value) return undefined;
+  return categoryStore.categories.find(c => c.id === selectedCategoryId.value)?.name;
 });
 
 // Filtered assets - show only user's assets by default
@@ -326,6 +431,132 @@ const filteredBorderAssets = computed(() => {
   return assets.filter(asset => asset.createdBy?.id === user?.id);
 });
 
+// Handle asset image upload
+const handleAssetImageUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+
+    // Validate file type (PNG or GIF only)
+    if (!['image/png', 'image/gif'].includes(file.type)) {
+      toastStore.error('Veuillez sélectionner une image PNG ou GIF.');
+      return;
+    }
+
+    // Validate file size (max 3MB)
+    if (file.size > 3 * 1024 * 1024) {
+      toastStore.error('L\'image ne doit pas dépasser 3MB.');
+      return;
+    }
+
+    // Read file as base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64String = (e.target?.result as string).split(',')[1];
+      const mimeType = file.type;
+      const preview = e.target?.result as string;
+
+      if (!base64String) {
+        toastStore.error('Erreur lors de la lecture du fichier.');
+        return;
+      }
+
+      setCurrentImageData(base64String, mimeType, preview);
+      if (assetCategory.value === 'background') {
+        backgroundAssetType.value = 'image';
+      } else {
+        borderAssetType.value = 'image';
+      }
+    };
+    reader.onerror = () => {
+      toastStore.error('Erreur lors de la lecture du fichier.');
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const triggerAssetImageInput = () => {
+  if (assetCategory.value === 'background') {
+    backgroundAssetImageInputRef.value?.click();
+  } else {
+    borderAssetImageInputRef.value?.click();
+  }
+};
+
+const removeAssetImage = () => {
+  clearCurrentImageData();
+  if (assetCategory.value === 'background') {
+    if (backgroundAssetImageInputRef.value) {
+      backgroundAssetImageInputRef.value.value = '';
+    }
+  } else {
+    if (borderAssetImageInputRef.value) {
+      borderAssetImageInputRef.value.value = '';
+    }
+  }
+};
+
+const applyCurrentAsset = () => {
+  if (assetCategory.value === 'background') {
+    if (!isBackgroundAssetValid.value) {
+      toastStore.error('Veuillez configurer correctement le fond avant de l\'utiliser.');
+      return;
+    }
+    ensureAssetName('background');
+    selectedFrontAssetId.value = undefined;
+    useCustomFrontAsset.value = true;
+    toastStore.success('Fond personnalisé appliqué.');
+    return;
+  }
+
+  if (!isBorderAssetValid.value) {
+    toastStore.error('Veuillez configurer correctement la bordure.');
+    return;
+  }
+  ensureAssetName('border');
+  selectedBorderAssetId.value = undefined;
+  useCustomBorderAsset.value = true;
+  toastStore.success('Bordure personnalisée appliquée.');
+};
+
+// Build asset data from current form
+const buildFrontAssetData = () => {
+  if (!isBackgroundAssetValid.value) {
+    return null;
+  }
+
+  return {
+    name: ensureAssetName('background'),
+    category: 'background' as const,
+    type: backgroundAssetType.value as 'solid' | 'gradient' | 'image',
+    ...(backgroundAssetType.value === 'solid' && { solidColor: backgroundSolidColor.value }),
+    ...(backgroundAssetType.value === 'gradient' && {
+      color1: backgroundGradientColor1.value,
+      color2: backgroundGradientColor2.value,
+      angle: backgroundGradientAngle.value
+    }),
+    ...(backgroundAssetType.value === 'image' && {
+      imageBase64: backgroundAssetImageBase64.value,
+    })
+  };
+};
+
+const buildBorderAssetData = () => {
+  if (!isBorderAssetValid.value) {
+    return null;
+  }
+
+  return {
+    name: ensureAssetName('border'),
+    category: 'border' as const,
+    type: borderAssetType.value as 'solid' | 'image',
+    ...(borderAssetType.value === 'solid' && { solidColor: borderSolidColor.value }),
+    ...(borderAssetType.value === 'image' && {
+      imageBase64: borderAssetImageBase64.value,
+    })
+  };
+};
+
 // Methods
 const handleImageUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement;
@@ -341,8 +572,8 @@ const handleImageUpload = async (event: Event) => {
     // Convert to base64 with automatic resize if needed
     const base64Data = await convertImageToBase64(file);
     if (base64Data) {
-      basicInfo.imageBase64 = base64Data.base64;
-      basicInfo.imageUrl = `data:${base64Data.mimeType};base64,${base64Data.base64}`;
+      imageBase64.value = base64Data.base64;
+      imageUrl.value = `data:${base64Data.mimeType};base64,${base64Data.base64}`;
 
       const sizeInMB = file.size / 1024 / 1024;
       if (file.size > 3 * 1024 * 1024) {
@@ -361,8 +592,8 @@ const triggerFileInput = () => {
 };
 
 const removeImage = () => {
-  basicInfo.imageUrl = '';
-  basicInfo.imageBase64 = '';
+  imageUrl.value = '';
+  imageBase64.value = '';
   if (fileInputRef.value) {
     fileInputRef.value.value = '';
   }
@@ -370,12 +601,12 @@ const removeImage = () => {
 
 // Custom text management
 const addCustomText = () => {
-  if (metadata.customTexts.length < 5) {
-    metadata.customTexts.push({
+  if (customTexts.value.length < 5) {
+    customTexts.value.push({
       id: `text-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`, // Unique ID for proper key binding
-      content: `Texte ${metadata.customTexts.length + 1}`,
+      content: `Texte ${customTexts.value.length + 1}`,
       posX: 50,
-      posY: 50 + (metadata.customTexts.length * 15),
+      posY: 50 + (customTexts.value.length * 15),
       align: 'center',
       color: '#ffffff',
       width: 'w-full',
@@ -385,7 +616,7 @@ const addCustomText = () => {
 };
 
 const removeCustomText = (index: number) => {
-  metadata.customTexts.splice(index, 1);
+  customTexts.value.splice(index, 1);
 };
 
 const updateCustomText = <K extends keyof CustomText>(
@@ -393,8 +624,8 @@ const updateCustomText = <K extends keyof CustomText>(
   field: K, 
   value: CustomText[K]
 ) => {
-  if (index >= 0 && index < metadata.customTexts.length) {
-    const text = metadata.customTexts[index];
+  if (index >= 0 && index < customTexts.value.length) {
+    const text = customTexts.value[index];
     if (text) {
       text[field] = value;
     }
@@ -403,21 +634,21 @@ const updateCustomText = <K extends keyof CustomText>(
 
 // Category management
 const createNewCategory = async () => {
-  if (!categoryModal.name.trim()) {
+  if (!newCategoryName.value.trim()) {
     toastStore.error('Le nom de la catégorie est requis');
     return;
   }
 
   const category = await categoryStore.createCategory(
-    categoryModal.name,
-    categoryModal.description
+    newCategoryName.value,
+    newCategoryDescription.value
   );
 
   if (category) {
-    basicInfo.categoryId = category.id;
-    categoryModal.name = '';
-    categoryModal.description = '';
-    categoryModal.show = false;
+    selectedCategoryId.value = category.id;
+    newCategoryName.value = '';
+    newCategoryDescription.value = '';
+    showCreateCategoryModal.value = false;
     toastStore.success('Catégorie créée avec succès');
   }
 };
@@ -443,6 +674,45 @@ const toggleShowAllImages = async () => {
   }
 };
 
+// Handle saved card visibility with intersection observer
+const handleSavedCardVisible = (cardId: string) => {
+  const card = cardStore.cardsPreview.find(c => c.id === cardId);
+  if (card && !cardStore.cards.find(c => c.id === cardId)?.frontAsset) {
+    cardStore.fetchFullCard(cardId);
+  }
+};
+
+// Observe saved cards when container is mounted or updated
+const observeSavedCards = () => {
+  if (!savedCardsContainer.value) return;
+
+  const cardElements = savedCardsContainer.value.querySelectorAll('[data-saved-card-id]');
+  cardElements.forEach(element => {
+    useIntersectionObserver(
+      element as HTMLElement,
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const cardId = (entry.target as HTMLElement).getAttribute('data-saved-card-id');
+            if (cardId) {
+              handleSavedCardVisible(cardId);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+  });
+};
+
+// Reobserve saved cards when they change
+watch(() => cardStore.cardsPreview.length, () => {
+  const timeout = window.setTimeout(observeSavedCards, 100);
+  activeTimeouts.add(timeout);
+});
+
 const saveCard = async () => {
   if (!isFormValid.value) {
     toastStore.error('Veuillez remplir tous les champs requis.');
@@ -456,8 +726,8 @@ const saveCard = async () => {
 
   // Validate front asset uniquement si l'utilisateur veut en créer un
   let frontAssetData = null;
-  if (!assetSelection.selectedFrontAssetId && assetSelection.useCustomFrontAsset) {
-    frontAssetData = assetManagement.buildFrontAssetData();
+  if (!selectedFrontAssetId.value && useCustomFrontAsset.value) {
+    frontAssetData = buildFrontAssetData();
 
     if (!frontAssetData) {
       toastStore.error('Veuillez configurer correctement le fond.');
@@ -467,8 +737,8 @@ const saveCard = async () => {
 
   // Validate border asset only when user opted to use a custom one
   let borderAssetData = null;
-  if (!assetSelection.selectedBorderAssetId && assetSelection.useCustomBorderAsset) {
-    borderAssetData = assetManagement.buildBorderAssetData();
+  if (!selectedBorderAssetId.value && useCustomBorderAsset.value) {
+    borderAssetData = buildBorderAssetData();
 
     if (!borderAssetData) {
       toastStore.error('Veuillez configurer correctement la bordure.');
@@ -477,7 +747,7 @@ const saveCard = async () => {
   }
 
   // Store card data for confirmation modal WITHOUT creating assets yet
-  // For Discord avatars and Cloudinary images, use basicInfo.imageUrl directly instead of basicInfo.imageBase64
+  // For Discord avatars and Cloudinary images, use imageUrl directly instead of imageBase64
   const isDirectImageUrl = (imageSourceType.value === 'discord' && selectedDiscordMemberId.value) ||
                            (imageSourceType.value === 'cloudinary' && selectedCloudinaryImage.value);
   const member = imageSourceType.value === 'discord' && selectedDiscordMemberId.value
@@ -488,34 +758,34 @@ const saveCard = async () => {
     : null;
 
   pendingCardData.value = {
-    title: basicInfo.title,
-    imageBase64: !isDirectImageUrl ? basicInfo.imageBase64 : '',
+    title: title.value,
+    imageBase64: !isDirectImageUrl ? imageBase64.value : '',
     imageUrl: member?.avatarUrl || cloudinaryImage?.secure_url || undefined,
-    frontAssetId: assetSelection.selectedFrontAssetId,
-    borderAssetId: assetSelection.selectedBorderAssetId,
-    categoryId: basicInfo.categoryId,
+    frontAssetId: selectedFrontAssetId.value,
+    borderAssetId: selectedBorderAssetId.value,
+    categoryId: selectedCategoryId.value,
     frontAssetData,
     borderAssetData,
-    titlePosX: appearance.titlePosX,
-    titlePosY: appearance.titlePosY,
-    titleAlign: appearance.titleAlign,
-    titleWidth: appearance.titleWidth,
-    titleFontSize: appearance.titleFontSize,
-    removeImageBg: effects.removeImageBg,
-    holographicEffect: effects.holographicEffect,
-    holographicIntensity: effects.holographicIntensity,
-    titleColor: appearance.titleColor,
-    imagePosX: imageSettings.posX,
-    imagePosY: imageSettings.posY,
-    imageScale: imageSettings.scale,
-    imageWidth: imageSettings.width,
-    imageHeight: imageSettings.height,
-    imageObjectFit: imageSettings.objectFit,
-    imageRounded: imageSettings.rounded,
-    imageCropX: imageSettings.cropX,
-    imageCropY: imageSettings.cropY,
-    rarity: metadata.rarity,
-    customTexts: metadata.customTexts
+    titlePosX: titlePosX.value,
+    titlePosY: titlePosY.value,
+    titleAlign: titleAlign.value,
+    titleWidth: titleWidth.value,
+    titleFontSize: titleFontSize.value,
+    removeImageBg: removeImageBg.value,
+    holographicEffect: holographicEffect.value,
+    holographicIntensity: holographicIntensity.value,
+    titleColor: titleColor.value,
+    imagePosX: imagePosX.value,
+    imagePosY: imagePosY.value,
+    imageScale: imageScale.value,
+    imageWidth: imageWidth.value,
+    imageHeight: imageHeight.value,
+    imageObjectFit: imageObjectFit.value,
+    imageRounded: imageRounded.value,
+    imageCropX: imageCropX.value,
+    imageCropY: imageCropY.value,
+    rarity: rarity.value,
+    customTexts: customTexts.value
   };
 
   // Show confirmation modal
@@ -566,9 +836,9 @@ const confirmCardCreation = async () => {
       if (!cardId) return;
 
       const updatedCard = await adminStore.updateCard(cardId, {
-        title: pendingCardData.value.basicInfo.title,
-        imageBase64: pendingCardData.value.basicInfo.imageBase64,
-        imageUrl: pendingCardData.value.basicInfo.imageUrl,  // For Discord avatars
+        title: pendingCardData.value.title,
+        imageBase64: pendingCardData.value.imageBase64,
+        imageUrl: pendingCardData.value.imageUrl,  // For Discord avatars
         frontAssetId: finalFrontAssetId,
         borderAssetId: finalBorderAssetId,
         categoryId: pendingCardData.value.categoryId,
@@ -608,9 +878,9 @@ const confirmCardCreation = async () => {
 
     // Create the card with the asset IDs
     const card = await cardStore.createCard({
-      title: pendingCardData.value.basicInfo.title,
-      imageBase64: pendingCardData.value.basicInfo.imageBase64,
-      imageUrl: pendingCardData.value.basicInfo.imageUrl,  // For Discord avatars
+      title: pendingCardData.value.title,
+      imageBase64: pendingCardData.value.imageBase64,
+      imageUrl: pendingCardData.value.imageUrl,  // For Discord avatars
       frontAssetId: finalFrontAssetId,
       borderAssetId: finalBorderAssetId,
       categoryId: pendingCardData.value.categoryId,
@@ -640,49 +910,49 @@ const confirmCardCreation = async () => {
       toastStore.success('Carte créée avec succès ! En attente de validation admin.');
 
       // Reset form
-      basicInfo.title = '';
-      basicInfo.imageUrl = '';
-      basicInfo.imageBase64 = '';
-      assetSelection.selectedFrontAssetId = undefined;
-      assetSelection.selectedBorderAssetId = undefined;
-      assetSelection.useCustomFrontAsset = false;
-      assetSelection.useCustomBorderAsset = false;
+      title.value = '';
+      imageUrl.value = '';
+      imageBase64.value = '';
+      selectedFrontAssetId.value = undefined;
+      selectedBorderAssetId.value = undefined;
+      useCustomFrontAsset.value = false;
+      useCustomBorderAsset.value = false;
 
       // Reset personnalisation
-      appearance.titlePosX = 50;
-      appearance.titlePosY = 10;
-      appearance.titleAlign = 'center';
-      appearance.titleWidth = 'w-full';
-      appearance.titleFontSize = 18;
-      effects.removeImageBg = false;
-      effects.holographicEffect = true;
-      effects.holographicIntensity = 0.6;
-      appearance.titleColor = '#ffffff';
-      imageSettings.posX = 50;
-      imageSettings.posY = 30;
-      imageSettings.scale = 1;
-      imageSettings.width = 160;
-      imageSettings.height = 160;
-      imageSettings.objectFit = 'cover';
-      metadata.rarity = 'common';
-      metadata.customTexts = [];
+      titlePosX.value = 50;
+      titlePosY.value = 10;
+      titleAlign.value = 'center';
+      titleWidth.value = 'w-full';
+      titleFontSize.value = 18;
+      removeImageBg.value = false;
+      holographicEffect.value = true;
+      holographicIntensity.value = 0.6;
+      titleColor.value = '#ffffff';
+      imagePosX.value = 50;
+      imagePosY.value = 30;
+      imageScale.value = 1;
+      imageWidth.value = 160;
+      imageHeight.value = 160;
+      imageObjectFit.value = 'cover';
+      rarity.value = 'common';
+      customTexts.value = [];
 
       // Reset background asset
-      backgroundAsset.name = '';
-      backgroundAsset.type = 'solid';
-      backgroundAsset.solidColor = 'transparent';
-      backgroundAsset.gradientColor1 = '#667eea';
-      backgroundAsset.gradientColor2 = '#764ba2';
-      backgroundAsset.gradientAngle = 135;
-      backgroundAsset.imageBase64 = '';
-      backgroundAsset.imagePreview = '';
+      backgroundAssetName.value = '';
+      backgroundAssetType.value = 'solid';
+      backgroundSolidColor.value = 'transparent';
+      backgroundGradientColor1.value = '#667eea';
+      backgroundGradientColor2.value = '#764ba2';
+      backgroundGradientAngle.value = 135;
+      backgroundAssetImageBase64.value = '';
+      backgroundAssetImagePreview.value = '';
 
       // Reset border asset
-      borderAsset.name = '';
-      borderAsset.type = 'solid';
-      borderAsset.solidColor = 'transparent';
-      borderAsset.imageBase64 = '';
-      borderAsset.imagePreview = '';
+      borderAssetName.value = '';
+      borderAssetType.value = 'solid';
+      borderSolidColor.value = 'transparent';
+      borderAssetImageBase64.value = '';
+      borderAssetImagePreview.value = '';
 
       // Close modal and reset
       showConfirmationModal.value = false;
@@ -730,41 +1000,41 @@ onMounted(async () => {
       return;
     }
 
-    if (card.basicInfo.imageUrl) {
-      const base64Data = await loadImageFromUrl(card.basicInfo.imageUrl);
+    if (card.imageUrl) {
+      const base64Data = await loadImageFromUrl(card.imageUrl);
       if (base64Data) {
-        basicInfo.imageBase64 = base64Data.base64;
+        imageBase64.value = base64Data.base64;
       }
     }
 
     // Pré-remplissage du form
-    basicInfo.title = card.basicInfo.title ?? '';
-    basicInfo.imageUrl = card.basicInfo.imageUrl ?? '';
-    assetSelection.selectedFrontAssetId = card.frontAssetId;
-    assetSelection.selectedBorderAssetId = card.borderAssetId;
-    basicInfo.categoryId = card.categoryId;
+    title.value = card.title ?? '';
+    imageUrl.value = card.imageUrl ?? '';
+    selectedFrontAssetId.value = card.frontAssetId;
+    selectedBorderAssetId.value = card.borderAssetId;
+    selectedCategoryId.value = card.categoryId;
 
-    appearance.titlePosX = card.titlePosX ?? 50;
-    appearance.titlePosY = card.titlePosY ?? 10;
-    appearance.titleAlign = (card.titleAlign as any) ?? 'center';
-    appearance.titleWidth = (card.titleWidth as any) ?? 'w-full';
-    appearance.titleFontSize = card.titleFontSize ?? 18;
+    titlePosX.value = card.titlePosX ?? 50;
+    titlePosY.value = card.titlePosY ?? 10;
+    titleAlign.value = (card.titleAlign as any) ?? 'center';
+    titleWidth.value = (card.titleWidth as any) ?? 'w-full';
+    titleFontSize.value = card.titleFontSize ?? 18;
 
-    effects.removeImageBg = Boolean(card.removeImageBg);
-    effects.holographicEffect = card.holographicEffect ?? true;
-    effects.holographicIntensity = card.holographicIntensity ?? 0.6;
+    removeImageBg.value = Boolean(card.removeImageBg);
+    holographicEffect.value = card.holographicEffect ?? true;
+    holographicIntensity.value = card.holographicIntensity ?? 0.6;
 
-    appearance.titleColor = card.titleColor ?? '#ffffff';
+    titleColor.value = card.titleColor ?? '#ffffff';
 
-    imageSettings.posX = card.imagePosX ?? 50;
-    imageSettings.posY = card.imagePosY ?? 30;
-    imageSettings.scale = card.imageScale ?? 1;
-    imageSettings.width = card.imageWidth ?? 160;
-    imageSettings.height = card.imageHeight ?? 160;
-    imageSettings.objectFit = (card.imageObjectFit as any) ?? 'cover';
+    imagePosX.value = card.imagePosX ?? 50;
+    imagePosY.value = card.imagePosY ?? 30;
+    imageScale.value = card.imageScale ?? 1;
+    imageWidth.value = card.imageWidth ?? 160;
+    imageHeight.value = card.imageHeight ?? 160;
+    imageObjectFit.value = (card.imageObjectFit as any) ?? 'cover';
 
-    metadata.rarity = (card.rarity as any) ?? 'common';
-    metadata.customTexts = (card.customTexts as any) ?? [];
+    rarity.value = (card.rarity as any) ?? 'common';
+    customTexts.value = (card.customTexts as any) ?? [];
 
     // En mode edit, on veut éviter de montrer du state "création" résiduel
     showConfirmationModal.value = false;
@@ -772,13 +1042,71 @@ onMounted(async () => {
   }
 });
 
+// Helper to convert image to base64 with resize to 378px height
+const convertImageToBase64 = async (file: File): Promise<{ base64: string; mimeType: string } | null> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    const mimeType = file.type || 'image/png';
+    reader.onload = async (e) => {
+      const result = e.target?.result as string;
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Redimensionner à 378px de hauteur en conservant le ratio d'aspect
+        const targetHeight = 378;
+        const ratio = width / height;
+        const newHeight = targetHeight;
+        const newWidth = Math.round(newHeight * ratio);
+
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          const dataUrl = canvas.toDataURL(mimeType);
+          const base64 = dataUrl.split(',')[1] || '';
+          resolve({ base64, mimeType });
+        } else {
+          resolve(null);
+        }
+      };
+      img.onerror = () => {
+        resolve(null);
+      };
+      img.src = result;
+    };
+    reader.onerror = () => {
+      resolve(null);
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+// Helper to load image from URL
+const loadImageFromUrl = async (url: string): Promise<{ base64: string; mimeType: string } | null> => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], 'image', { type: blob.type });
+    return await convertImageToBase64(file);
+  } catch (error) {
+    toastStore.error('Erreur lors du chargement de l\'image depuis l\'URL.');
+    console.error(error);
+    return null;
+  }
+};
+
 // Watchers
 watch(imageUrlInput, async (newUrl) => {
   if (imageSourceType.value === 'url' && newUrl.trim()) {
     const base64Data = await loadImageFromUrl(newUrl.trim());
     if (base64Data) {
-      basicInfo.imageBase64 = base64Data.base64;
-      basicInfo.imageUrl = '';
+      imageBase64.value = base64Data.base64;
+      imageUrl.value = '';
     }
   }
 });
@@ -788,13 +1116,13 @@ watch(selectedDiscordMemberId, async (newMemberId) => {
     const member = cardStore.discordAvatars.find(m => m.id === newMemberId);
     if (member) {
       // For Discord avatars, use URL directly - no base64 conversion
-      basicInfo.imageUrl = member.avatarUrl;
-      basicInfo.imageBase64 = ''; // Clear base64 so backend knows to use basicInfo.imageUrl
+      imageUrl.value = member.avatarUrl;
+      imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
 
       // Load for preview only
       const base64Data = await loadImageFromUrl(member.avatarUrl);
       if (base64Data) {
-        basicInfo.imageBase64 = base64Data.base64; // Only for preview
+        imageBase64.value = base64Data.base64; // Only for preview
       }
       toastStore.success(`Avatar de ${member.username} sélectionné`);
     }
@@ -843,17 +1171,28 @@ watch(selectedCloudinaryImage, async (newImageId) => {
     const image = cardStore.mainCardImages.find(img => img.publicId === newImageId);
     if (image) {
       // For Cloudinary images, use URL directly - no base64 conversion
-      basicInfo.imageUrl = image.secure_url;
-      basicInfo.imageBase64 = ''; // Clear base64 so backend knows to use basicInfo.imageUrl
+      imageUrl.value = image.secure_url;
+      imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
 
       // Load for preview only
       const base64Data = await loadImageFromUrl(image.secure_url);
       if (base64Data) {
-        basicInfo.imageBase64 = base64Data.base64; // Only for preview
+        imageBase64.value = base64Data.base64; // Only for preview
       }
       toastStore.success('Image sélectionnée');
     }
   }
+});
+
+onMounted(() => {
+  // Initial observation of saved cards
+  observeSavedCards();
+});
+
+onUnmounted(() => {
+  // Cleanup timeouts
+  activeTimeouts.forEach(id => clearTimeout(id));
+  activeTimeouts.clear();
 });
 
 </script>
@@ -886,32 +1225,32 @@ watch(selectedCloudinaryImage, async (newImageId) => {
                 <CollectibleCard
                   :card="{
                     id: 'preview',
-                    title: basicInfo.title,
-                    imageBase64: basicInfo.imageBase64,
+                    title,
+                    imageBase64,
                     frontAsset: selectedFrontAsset,
                     borderAsset: selectedBorderAsset,
-                    titlePosX: appearance.titlePosX,
-                    titlePosY: appearance.titlePosY,
-                    titleAlign: appearance.titleAlign,
-                    titleWidth: appearance.titleWidth,
-                    titleFontSize: appearance.titleFontSize,
-                    removeImageBg: effects.removeImageBg,
-                    holographicEffect: effects.holographicEffect,
-                    holographicIntensity: effects.holographicIntensity,
-                    titleColor: appearance.titleColor,
-                    imagePosX: imageSettings.posX,
-                    imagePosY: imageSettings.posY,
-                    imageScale: imageSettings.scale,
-                    imageWidth: imageSettings.width,
-                    imageHeight: imageSettings.height,
-                    imageObjectFit: imageSettings.objectFit,
-                    imageRounded: imageSettings.rounded,
-                    imageCropX: imageSettings.cropX,
-                    imageCropY: imageSettings.cropY,
-                    rarity: metadata.rarity,
-                    customTexts: metadata.customTexts,
-                    category: basicInfo.categoryId ? {
-                      id: basicInfo.categoryId,
+                    titlePosX,
+                    titlePosY,
+                    titleAlign,
+                    titleWidth,
+                    titleFontSize,
+                    removeImageBg,
+                    holographicEffect,
+                    holographicIntensity,
+                    titleColor,
+                    imagePosX,
+                    imagePosY,
+                    imageScale,
+                    imageWidth,
+                    imageHeight,
+                    imageObjectFit,
+                    imageRounded,
+                    imageCropX,
+                    imageCropY,
+                    rarity,
+                    customTexts,
+                    category: selectedCategoryId ? {
+                      id: selectedCategoryId,
                       name: selectedCategoryName
                     } as CardCategory : undefined,
                     createdAt: '',
@@ -937,11 +1276,11 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               <button
                 :class="[
                   'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200 relative',
-                  ui.activeTab === 'basics'
+                  activeTab === 'basics'
                     ? 'bg-accent-500 text-white shadow-lg'
                     : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
                 ]"
-                @click="ui.activeTab = 'basics'"
+                @click="activeTab = 'basics'"
               >
                 <span class="flex items-center gap-2">
                   🎯 Essentiel
@@ -951,44 +1290,44 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               <button
                 :class="[
                   'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
-                  ui.activeTab === 'appearance'
+                  activeTab === 'appearance'
                     ? 'bg-accent-500 text-white shadow-lg'
                     : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
                 ]"
-                @click="ui.activeTab = 'appearance'"
+                @click="activeTab = 'appearance'"
               >
                 🎨 Apparence
               </button>
               <button
                 :class="[
                   'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
-                  ui.activeTab === 'texts'
+                  activeTab === 'texts'
                     ? 'bg-accent-500 text-white shadow-lg'
                     : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
                 ]"
-                @click="ui.activeTab = 'texts'"
+                @click="activeTab = 'texts'"
               >
                 📝 Textes
               </button>
               <button
                 :class="[
                   'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
-                  ui.activeTab === 'assets'
+                  activeTab === 'assets'
                     ? 'bg-accent-500 text-white shadow-lg'
                     : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
                 ]"
-                @click="ui.activeTab = 'assets'"
+                @click="activeTab = 'assets'"
               >
                 🖼️ Fond & Bordures
               </button>
               <button
                 :class="[
                   'px-4 py-2 rounded-t-lg text-sm font-medium transition-all duration-200',
-                  ui.activeTab === 'effects'
+                  activeTab === 'effects'
                     ? 'bg-accent-500 text-white shadow-lg'
                     : 'bg-ink-700/50 text-foam-300 hover:bg-ink-600'
                 ]"
-                @click="ui.activeTab = 'effects'"
+                @click="activeTab = 'effects'"
               >
                 ✨ Effets
               </button>
@@ -997,7 +1336,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
             <!-- Tab Content -->
             <div class="space-y-6 min-h-[500px]">
               <!-- TAB 1: ESSENTIEL -->
-              <div v-show="ui.activeTab === 'basics'">
+              <div v-show="activeTab === 'basics'">
                 <!-- Hidden file input (needs to be in parent for ref access) -->
                 <input
                   ref="fileInputRef"
@@ -1013,21 +1352,21 @@ watch(selectedCloudinaryImage, async (newImageId) => {
                   type="file"
                   accept="image/png,image/gif"
                   class="hidden"
-                  @change="assetManagement.handleAssetImageUpload"
+                  @change="handleAssetImageUpload"
                 />
                 <input
                   ref="borderAssetImageInputRef"
                   type="file"
                   accept="image/png,image/gif"
                   class="hidden"
-                  @change="assetManagement.handleAssetImageUpload"
+                  @change="handleAssetImageUpload"
                 />
                 
                 <BasicInfoPanel
-                  :basicInfo.title="basicInfo.title"
-                  @update:basicInfo.title="basicInfo.title = $event"
-                  :category-id="basicInfo.categoryId"
-                  @update:category-id="basicInfo.categoryId = $event"
+                  :title="title"
+                  @update:title="title = $event"
+                  :category-id="selectedCategoryId"
+                  @update:category-id="selectedCategoryId = $event"
                   :rarity="rarity"
                   @update:rarity="rarity = $event"
                   :has-main-image="hasMainImage"
@@ -1046,7 +1385,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
                   :discord-members="cardStore.discordAvatars"
                   :cloudinary-images="cardStore.mainCardImages"
                   :is-loading-images="cardStore.loading"
-                  @show-create-category-modal="categoryModal.show = true"
+                  @show-create-category-modal="showCreateCategoryModal = true"
                   @trigger-file-input="triggerFileInput"
                   @remove-image="removeImage"
                   @load-image-from-url="async (url) => {
@@ -1056,7 +1395,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
                     }
                     const base64Data = await loadImageFromUrl(url.trim());
                     if (base64Data) {
-                      basicInfo.imageBase64 = base64Data.base64;
+                      imageBase64 = base64Data.base64;
                     }
                   }"
                   @toggle-show-all-images="toggleShowAllImages"
@@ -1065,20 +1404,20 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               </div>
 
               <!-- TAB 2: APPARENCE -->
-              <div v-show="ui.activeTab === 'appearance'">
+              <div v-show="activeTab === 'appearance'">
                 <AppearancePanel
-                  :basicInfo.title-color="titleColor"
-                  @update:basicInfo.title-color="titleColor = $event"
-                  :basicInfo.title-font-size="titleFontSize"
-                  @update:basicInfo.title-font-size="titleFontSize = $event"
-                  :basicInfo.title-pos-x="titlePosX"
-                  @update:basicInfo.title-pos-x="titlePosX = $event"
-                  :basicInfo.title-pos-y="titlePosY"
-                  @update:basicInfo.title-pos-y="titlePosY = $event"
-                  :basicInfo.title-align="titleAlign"
-                  @update:basicInfo.title-align="titleAlign = $event"
-                  :basicInfo.title-width="titleWidth"
-                  @update:basicInfo.title-width="titleWidth = $event"
+                  :title-color="titleColor"
+                  @update:title-color="titleColor = $event"
+                  :title-font-size="titleFontSize"
+                  @update:title-font-size="titleFontSize = $event"
+                  :title-pos-x="titlePosX"
+                  @update:title-pos-x="titlePosX = $event"
+                  :title-pos-y="titlePosY"
+                  @update:title-pos-y="titlePosY = $event"
+                  :title-align="titleAlign"
+                  @update:title-align="titleAlign = $event"
+                  :title-width="titleWidth"
+                  @update:title-width="titleWidth = $event"
                   :image-pos-x="imagePosX"
                   @update:image-pos-x="imagePosX = $event"
                   :image-pos-y="imagePosY"
@@ -1101,7 +1440,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               </div>
 
               <!-- TAB 3: TEXTES -->
-              <div v-show="ui.activeTab === 'texts'">
+              <div v-show="activeTab === 'texts'">
                 <TextsPanel
                   :custom-texts="customTexts"
                   @add-text="addCustomText"
@@ -1111,54 +1450,59 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               </div>
 
               <!-- TAB 4: FOND & BORDURES -->
-              <div v-show="ui.activeTab === 'assets'">
+              <div v-show="activeTab === 'assets'">
                 <AssetsPanel
                   :asset-category="assetCategory"
                   @update:asset-category="assetCategory = $event"
-                  :background-asset-name="backgroundAsset.name"
-                  @update:background-asset-name="backgroundAsset.name = $event"
-                  :background-asset-type="backgroundAsset.type"
-                  @update:background-asset-type="backgroundAsset.type = $event"
-                  :background-solid-color="backgroundAsset.solidColor"
-                  @update:background-solid-color="backgroundAsset.solidColor = $event"
-                  :background-gradient-color1="backgroundAsset.gradientColor1"
-                  @update:background-gradient-color1="backgroundAsset.gradientColor1 = $event"
-                  :background-gradient-color2="backgroundAsset.gradientColor2"
-                  @update:background-gradient-color2="backgroundAsset.gradientColor2 = $event"
-                  :background-gradient-angle="backgroundAsset.gradientAngle"
-                  @update:background-gradient-angle="backgroundAsset.gradientAngle = $event"
-                  :background-asset-image-preview="backgroundAsset.imagePreview"
-                  :border-asset-name="borderAsset.name"
-                  @update:border-asset-name="borderAsset.name = $event"
-                  :border-asset-type="borderAsset.type"
-                  @update:border-asset-type="borderAsset.type = $event"
-                  :border-solid-color="borderAsset.solidColor"
-                  @update:border-solid-color="borderAsset.solidColor = $event"
-                  :border-asset-image-preview="borderAsset.imagePreview"
-                  :selected-front-asset-id="assetSelection.selectedFrontAssetId"
-                  @update:selected-front-asset-id="assetSelection.selectedFrontAssetId = $event"
-                  :selected-border-asset-id="assetSelection.selectedBorderAssetId"
-                  @update:selected-border-asset-id="assetSelection.selectedBorderAssetId = $event"
-                  @update:use-custom-front-asset="assetSelection.useCustomFrontAsset = $event"
-                  @update:use-custom-border-asset="assetSelection.useCustomBorderAsset = $event"
+                  :background-asset-name="backgroundAssetName"
+                  @update:background-asset-name="backgroundAssetName = $event"
+                  :background-asset-type="backgroundAssetType"
+                  @update:background-asset-type="backgroundAssetType = $event"
+                  :background-solid-color="backgroundSolidColor"
+                  @update:background-solid-color="backgroundSolidColor = $event"
+                  :background-gradient-color1="backgroundGradientColor1"
+                  @update:background-gradient-color1="backgroundGradientColor1 = $event"
+                  :background-gradient-color2="backgroundGradientColor2"
+                  @update:background-gradient-color2="backgroundGradientColor2 = $event"
+                  :background-gradient-angle="backgroundGradientAngle"
+                  @update:background-gradient-angle="backgroundGradientAngle = $event"
+                  :background-asset-image-preview="backgroundAssetImagePreview"
+                  :border-asset-name="borderAssetName"
+                  @update:border-asset-name="borderAssetName = $event"
+                  :border-asset-type="borderAssetType"
+                  @update:border-asset-type="borderAssetType = $event"
+                  :border-solid-color="borderSolidColor"
+                  @update:border-solid-color="borderSolidColor = $event"
+                  :border-asset-image-preview="borderAssetImagePreview"
+                  :selected-front-asset-id="selectedFrontAssetId"
+                  @update:selected-front-asset-id="selectedFrontAssetId = $event"
+                  :selected-border-asset-id="selectedBorderAssetId"
+                  @update:selected-border-asset-id="selectedBorderAssetId = $event"
+                  @update:use-custom-front-asset="useCustomFrontAsset = $event"
+                  @update:use-custom-border-asset="useCustomBorderAsset = $event"
                   :is-background-asset-valid="isBackgroundAssetValid"
                   :is-border-asset-valid="isBorderAssetValid"
                   :filtered-background-assets="filteredBackgroundAssets"
                   :filtered-border-assets="filteredBorderAssets"
                   :show-all-assets="showAllAssets"
                   :user-id="user?.id"
-                  @trigger-asset-image-input="assetManagement.triggerAssetImageInput"
-                  @remove-asset-image="assetManagement.removeAssetImage"
-                  @apply-current-asset="assetManagement.applyCurrentAsset"
+                  @trigger-asset-image-input="triggerAssetImageInput"
+                  @remove-asset-image="removeAssetImage"
+                  @apply-current-asset="applyCurrentAsset"
                   @delete-asset="cardStore.deleteAsset"
                   @toggle-show-all-assets="toggleShowAllAssets"
                 />
               </div>
 
               <!-- TAB 5: EFFETS -->
-              <div v-show="ui.activeTab === 'effects'">
+              <div v-show="activeTab === 'effects'">
                 <EffectsPanel
-                  :effects="effects"
+                  :remove-image-bg="removeImageBg"
+                  @update:remove-image-bg="removeImageBg = $event"
+                  :holographic-effect="holographicEffect"
+                  @update:holographic-effect="holographicEffect = $event"
+                  :holographic-intensity="holographicIntensity"
+                  @update:holographic-intensity="holographicIntensity = $event"
                 />
               </div>
             </div>
@@ -1188,7 +1532,46 @@ watch(selectedCloudinaryImage, async (newImageId) => {
       </div>
 
       <!-- Saved Cards Section -->
-      <SavedCardsGallery />
+      <div v-if="cardStore.cardsPreview.length > 0" class="space-y-6">
+        <div class="flex items-center gap-4">
+          <div class="h-px w-16 bg-gradient-to-r from-white/0 via-white/40 to-white/0" />
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Collection</p>
+            <h2 class="text-xl font-semibold text-white/90">
+              Vos Cartes <span class="text-foam-200/60">({{ cardStore.cardsPreview.length }})</span>
+            </h2>
+          </div>
+        </div>
+
+        <div ref="savedCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div
+            v-for="card in cardStore.cardsPreview"
+            :key="card.id"
+            :data-saved-card-id="card.id"
+            class="flex flex-col items-center min-w-64 w-64"
+          >
+            <CollectibleCard
+              :card="cardStore.cards.find(c => c.id === card.id) || {
+                id: card.id,
+                title: 'Carte non chargée',
+                createdAt: '',
+                updatedAt: ''
+              }"
+              :lazy-load="!cardStore.cards.find(c => c.id === card.id)"
+              interactive
+            />
+            <Button
+              variant="danger"
+              size="sm"
+              class="mt-4"
+              @click="cardStore.deleteCard(card.id)"
+              :disabled="!useUserStore().isSuperAdmin"
+            >
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <!-- Confirmation Modal -->
       <Modal :is-open="showConfirmationModal" @close="cancelCardCreation" class="!max-w-3xl">
@@ -1206,9 +1589,9 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               v-if="pendingCardData"
               :card="{
                 id: 'preview',
-                title: pendingCardData.basicInfo.title,
-                imageBase64: pendingCardData.basicInfo.imageBase64,
-                imageUrl: pendingCardData.basicInfo.imageUrl,
+                title: pendingCardData.title,
+                imageBase64: pendingCardData.imageBase64,
+                imageUrl: pendingCardData.imageUrl,
                 frontAsset: pendingCardData.frontAssetData ?? (pendingCardData.frontAssetId ? cardStore.getCardAssetById(pendingCardData.frontAssetId) : undefined),
                 borderAsset: pendingCardData.borderAssetData ?? (pendingCardData.borderAssetId ? cardStore.getCardAssetById(pendingCardData.borderAssetId) : undefined),
                 titlePosX: pendingCardData.titlePosX,
@@ -1269,7 +1652,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
       </Modal>
 
       <!-- Create Category Modal -->
-      <Modal :is-open="categoryModal.show" @close="categoryModal.show = false" class="!max-w-md">
+      <Modal :is-open="showCreateCategoryModal" @close="showCreateCategoryModal = false" class="!max-w-md">
         <template #header>
           <h2 class="text-lg font-semibold">Créer une nouvelle catégorie</h2>
         </template>
@@ -1279,7 +1662,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
           <div class="space-y-2">
             <label class="form-label text-sm">Nom de la catégorie *</label>
             <input
-              v-model="categoryModal.name"
+              v-model="newCategoryName"
               type="text"
               placeholder="Entrez le nom de la catégorie"
               class="form-input w-full"
@@ -1291,7 +1674,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
           <div class="space-y-2">
             <label class="form-label text-sm">Description (optionnel)</label>
             <textarea
-              v-model="categoryModal.description"
+              v-model="newCategoryDescription"
               placeholder="Entrez une description..."
               rows="3"
               class="form-input resize-none w-full"
@@ -1304,7 +1687,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
             <Button
               variant="ghost"
               size="sm"
-              @click="categoryModal.show = false"
+              @click="showCreateCategoryModal = false"
             >
               Annuler
             </Button>
@@ -1312,7 +1695,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
               variant="primary"
               size="sm"
               @click="createNewCategory"
-              :disabled="!categoryModal.name.trim()"
+              :disabled="!newCategoryName.trim()"
               :loading="categoryStore.loading"
             >
               Créer
