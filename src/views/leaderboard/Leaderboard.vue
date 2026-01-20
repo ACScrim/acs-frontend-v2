@@ -12,18 +12,23 @@ import { computed, h, nextTick, onMounted, ref, watch } from "vue";
 import {
   createColumnHelper,
   getCoreRowModel,
-  getPaginationRowModel, getSortedRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import ProfileLink from "@/components/global/ProfileLink.vue";
-import {useTablePaginationQueryString} from "@/composables/useTablePaginationQueryString";
+import { useTablePaginationQueryString } from "@/composables/useTablePaginationQueryString";
 
 const seasonFilter = ref("");
 const searchQuery = ref("");
 const isLoading = ref(false);
 
-const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
+const paginationQs = useTablePaginationQueryString({
+  param: "page",
+  defaultPage: 1,
+  cleanDefault: false,
+});
 
 const seasonStore = useSeasonStore();
 const seasons = computed(() => seasonStore.seasons);
@@ -105,7 +110,7 @@ const columns = [
           ),
           h(
             "span",
-            { class: "hidden md:inline text-sm text-white/70" },
+            { class: "hidden lg:inline text-sm text-white/70" },
             `#${rank}`
           ),
         ]);
@@ -132,7 +137,6 @@ const columns = [
     header: () => "Tournois",
     cell: (info) =>
       h("span", { class: "text-foam-50 font-semibold" }, info.getValue()),
-
   }),
   columnHelper.accessor("victoriesCount", {
     header: () => "Victoires",
@@ -189,13 +193,15 @@ const table = useVueTable({
         <VueIcon name="ic:leaderboard-star" class="text-3xl text-accent-300" />
       </template>
       <template #actions>
-        <div class="flex gap-3 items-center">
-          <div class="relative">
+        <div
+          class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto"
+        >
+          <div class="relative flex-1 sm:flex-none">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="🔍 Rechercher un joueur..."
-              class="w-full min-w-[200px] rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-accent-400 focus:ring-1 focus:ring-accent-400/50 transition-all duration-200"
+              class="w-full min-w-0 sm:min-w-[200px] md:min-w-[250px] rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-accent-400 focus:ring-1 focus:ring-accent-400/50 transition-all duration-200"
             />
             <VueIcon
               v-if="searchQuery"
@@ -206,7 +212,7 @@ const table = useVueTable({
           </div>
           <AcsSelect
             v-model="seasonFilter"
-            class="min-w-[180px] md:min-w-[220px]"
+            class="flex-1 sm:flex-none min-w-0 sm:min-w-[160px] md:min-w-[200px] lg:min-w-[220px]"
             :options="
               seasons.map((season) => ({
                 label: `${
@@ -224,8 +230,8 @@ const table = useVueTable({
     <LoaderACS v-if="isLoading" class="place-self-center" />
 
     <div v-else>
-      <!-- Vue mobile: cartes -->
-      <div class="md:hidden space-y-3">
+      <!-- Vue mobile et tablette: cartes -->
+      <div class="lg:hidden space-y-3">
         <div
           v-if="filteredLeaderboard.length === 0 && searchQuery"
           class="text-center py-8"
@@ -241,46 +247,54 @@ const table = useVueTable({
         <div
           v-for="entry in filteredLeaderboard"
           :key="entry.user.id"
-          class="rounded-lg border border-white/10 bg-white/5 p-3 space-y-2"
+          class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3"
         >
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 flex-1">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               <div
-                class="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 flex-shrink-0"
+                class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 flex-shrink-0"
               >
                 <VueIcon
                   v-if="leaderboard.indexOf(entry) < 3"
                   name="bs:award"
-                  :class="`text-sm ${medalColors[leaderboard.indexOf(entry)]}`"
+                  :class="`text-lg sm:text-xl ${medalColors[leaderboard.indexOf(entry)]}`"
                 />
-                <span v-else class="text-xs font-semibold text-foam-200"
+                <span
+                  v-else
+                  class="text-sm sm:text-base font-semibold text-foam-200"
                   >#{{ leaderboard.indexOf(entry) + 1 }}</span
                 >
               </div>
-              <ProfileLink :user="entry.user" :size="10" />
+              <ProfileLink
+                :user="entry.user"
+                :size="12"
+                class="min-w-0 flex-1"
+              />
             </div>
             <div class="text-right flex-shrink-0">
-              <p class="text-lg font-semibold text-white">{{ entry.points }}</p>
+              <p class="text-xl sm:text-2xl font-semibold text-white">
+                {{ entry.points }}
+              </p>
               <p class="text-xs text-foam-300/60">pts</p>
             </div>
           </div>
           <div
-            class="grid grid-cols-3 gap-2 text-xs pt-1 border-t border-white/10"
+            class="grid grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm pt-2 border-t border-white/10"
           >
             <div class="text-center">
-              <p class="text-foam-300/60">Tournois</p>
+              <p class="text-foam-300/60 mb-1">Tournois</p>
               <p class="font-semibold text-foam-50">
                 {{ entry.tournamentsCount }}
               </p>
             </div>
             <div class="text-center">
-              <p class="text-foam-300/60">Victoires</p>
+              <p class="text-foam-300/60 mb-1">Victoires</p>
               <p class="font-semibold text-foam-50">
                 {{ entry.victoriesCount }}
               </p>
             </div>
             <div class="text-center">
-              <p class="text-foam-300/60">Top 25%</p>
+              <p class="text-foam-300/60 mb-1">Top 25%</p>
               <p class="font-semibold text-foam-50">{{ entry.top25Count }}</p>
             </div>
           </div>
@@ -288,7 +302,7 @@ const table = useVueTable({
       </div>
 
       <!-- Vue desktop: tableau -->
-      <div class="hidden md:block glass-panel overflow-hidden">
+      <div class="hidden lg:block glass-panel overflow-hidden">
         <TableTanstack :table="table" paginated />
       </div>
     </div>

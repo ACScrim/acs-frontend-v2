@@ -5,7 +5,7 @@ import type { AcsdleUser } from "@/types/models";
 import { formatDate } from "@vueuse/core";
 import confetti from "canvas-confetti";
 import LoaderACS from "@/components/global/LoaderACS.vue";
-import {useUserStore} from "@/stores/userStore.ts";
+import { useUserStore } from "@/stores/userStore.ts";
 
 // Encryption/Decryption functions
 function normalizeBase64(b64: string) {
@@ -192,13 +192,12 @@ function selectUser(user: AcsdleUser) {
   searchInput.value = "";
   selectedSuggestionIndex.value = -1;
 
-  gamesStore.addAcsdleTodayGuess(user)
-    .then(() => {
-      if (user.id === decryptedUser.value?.id) {
-        gameWon.value = true;
-        useUserStore().fetchUser().then()
-      }
-    });
+  gamesStore.addAcsdleTodayGuess(user).then(() => {
+    if (user.id === decryptedUser.value?.id) {
+      gameWon.value = true;
+      useUserStore().fetchUser().then();
+    }
+  });
 }
 
 function handleKeyNavigation(event: KeyboardEvent) {
@@ -335,16 +334,16 @@ const hints = computed(() => [
 
     <div
       v-else
-      class="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-32 sm:px-6 sm:pt-8 lg:px-10"
+      class="mx-auto w-full max-w-6xl space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 xl:px-10 pt-4 sm:pt-6 lg:pt-8 pb-24 sm:pb-32"
     >
       <!-- Header -->
-      <div class="text-center space-y-3 mb-8">
+      <div class="text-center space-y-2 sm:space-y-3 mb-4 sm:mb-6 lg:mb-8">
         <h1
-          class="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-azure-400 to-accent-400 bg-clip-text text-transparent"
+          class="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-400 via-azure-400 to-accent-400 bg-clip-text text-transparent"
         >
           ACSDLE
         </h1>
-        <p class="text-foam-300 text-lg">
+        <p class="text-sm sm:text-base lg:text-lg text-foam-300 px-2">
           Devinez le joueur du jour en analysant ses statistiques
         </p>
       </div>
@@ -352,34 +351,48 @@ const hints = computed(() => [
       <!-- Win Screen -->
       <div
         v-if="gameWon && decryptedUser"
-        class="rounded-2xl border-2 border-green-500/80 bg-green-900/40 p-6 text-center shadow-2xl sm:p-8"
+        class="rounded-xl sm:rounded-2xl border-2 border-green-500/80 bg-green-900/40 p-4 sm:p-6 lg:p-8 text-center shadow-2xl"
       >
-        <h2 class="mb-3 text-3xl font-bold sm:text-4xl">🎉 Bravo! 🎉</h2>
-        <p class="mb-5 text-base sm:text-xl">
-          Vous avez trouvé le joueur en {{ guesses.length }} essai(s)!
+        <h2 class="mb-3 text-2xl sm:text-3xl lg:text-4xl font-bold">
+          🎉 Bravo! 🎉
+        </h2>
+        <p class="mb-4 sm:mb-5 text-sm sm:text-base lg:text-xl">
+          Vous avez trouvé le joueur en {{ guesses.length }} essai{{
+            guesses.length > 1 ? "s" : ""
+          }}!
         </p>
-        <div class="mb-5 rounded-2xl bg-gray-900/40 p-5 text-left sm:p-6">
-          <h3 class="mb-4 text-xl font-bold sm:text-2xl">
+        <div
+          class="mb-4 sm:mb-5 rounded-xl sm:rounded-2xl bg-gray-900/40 p-4 sm:p-5 lg:p-6 text-left"
+        >
+          <h3 class="mb-3 sm:mb-4 text-lg sm:text-xl lg:text-2xl font-bold">
             Statistiques de {{ decryptedUser.username }}
           </h3>
-          <ul class="space-y-2 text-sm sm:text-base">
-            <li>
+          <div class="grid gap-2 sm:gap-3 text-xs sm:text-sm lg:text-base">
+            <div class="flex justify-between items-center">
               <strong>Tournois joués:</strong>
-              {{ decryptedUser.tournamentsPlayed }}
-            </li>
-            <li><strong>Victoires:</strong> {{ decryptedUser.victories }}</li>
-            <li><strong>Podium:</strong> {{ decryptedUser.podiumCount }}</li>
-            <li>
+              <span>{{ decryptedUser.tournamentsPlayed }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <strong>Victoires:</strong>
+              <span>{{ decryptedUser.victories }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <strong>Podium:</strong>
+              <span>{{ decryptedUser.podiumCount }}</span>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-1">
               <strong>Jeux les plus joués:</strong>
-              {{ decryptedUser.mostPlayedGames.join(", ") }}
-            </li>
-            <li>
+              <span class="text-right sm:text-left break-words">{{
+                decryptedUser.mostPlayedGames.join(", ")
+              }}</span>
+            </div>
+            <div class="flex justify-between items-center">
               <strong>Premier ACS:</strong>
-              {{ decryptedUser.firstTournament }}
-            </li>
-          </ul>
+              <span>{{ decryptedUser.firstTournament }}</span>
+            </div>
+          </div>
         </div>
-        <p class="text-base sm:text-xl">
+        <p class="text-sm sm:text-base lg:text-xl">
           Prochain joueur dans
           <b>{{ formatDate(new Date(timeRemaining), "HH:mm:ss") }}</b>
         </p>
@@ -388,11 +401,11 @@ const hints = computed(() => [
       <!-- Game Container -->
       <div
         v-if="decryptedUser"
-        class="rounded-2xl bg-gray-800/70 p-4 shadow-2xl ring-1 ring-white/10 sm:p-6 lg:p-8"
+        class="rounded-xl sm:rounded-2xl bg-gray-800/70 p-3 sm:p-4 lg:p-6 xl:p-8 shadow-2xl ring-1 ring-white/10"
       >
         <!-- Search + stats -->
-        <div class="mb-6 space-y-5">
-          <div class="flex gap-2">
+        <div class="mb-4 sm:mb-6 space-y-3 sm:space-y-5">
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div class="relative flex-1">
               <input
                 v-model="searchInput"
@@ -400,20 +413,20 @@ const hints = computed(() => [
                 @keydown="handleKeyNavigation"
                 type="text"
                 placeholder="🔍 Tapez le nom d'un joueur..."
-                class="w-full rounded-xl border-2 border-cyan-500/50 bg-gray-700/70 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
+                class="w-full rounded-lg sm:rounded-xl border-2 border-cyan-500/50 bg-gray-700/70 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:shadow-lg focus:shadow-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
                 :disabled="gameWon"
               />
               <!-- Dropdown de suggestions amélioré -->
               <div
                 v-if="filteredUsers.length > 0"
-                class="absolute top-full left-0 right-0 mt-2 overflow-hidden rounded-xl border border-cyan-500/60 bg-gray-800/95 shadow-xl backdrop-blur-sm z-10 animate-in slide-in-from-top-2"
+                class="absolute top-full left-0 right-0 mt-2 overflow-hidden rounded-lg sm:rounded-xl border border-cyan-500/60 bg-gray-800/95 shadow-xl backdrop-blur-sm z-10 animate-in slide-in-from-top-2"
               >
                 <button
                   v-for="(user, index) in filteredUsers"
                   :key="user.id"
                   @click="selectUser(user)"
                   @mouseover="selectedSuggestionIndex = index"
-                  class="w-full text-left px-4 py-3 transition-all duration-200 flex items-center gap-3"
+                  class="w-full text-left px-3 sm:px-4 py-2 sm:py-3 transition-all duration-200 flex items-center gap-2 sm:gap-3"
                   :class="{
                     'bg-cyan-500 text-gray-900':
                       selectedSuggestionIndex === index,
@@ -421,22 +434,23 @@ const hints = computed(() => [
                   }"
                 >
                   <div
-                    class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs font-bold"
+                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs font-bold flex-shrink-0"
                   >
                     {{ user.username.charAt(0).toUpperCase() }}
                   </div>
                   <span
                     v-html="highlightMatch(user.username, searchInput)"
+                    class="flex-1 min-w-0 text-sm sm:text-base"
                   ></span>
-                  <div class="ml-auto text-xs opacity-60">
-                    {{ user.tournamentsPlayed }} tournois
+                  <div class="text-xs opacity-60 flex-shrink-0">
+                    {{ user.tournamentsPlayed }}
                   </div>
                 </button>
               </div>
             </div>
             <button
               v-if="filteredUsers.length > 0"
-              class="rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 px-5 py-3 font-bold text-gray-900 transition hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 active:scale-95"
+              class="rounded-lg sm:rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 px-4 sm:px-5 py-2 sm:py-3 font-bold text-gray-900 transition hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 active:scale-95 text-sm sm:text-base"
               @click="
                 selectUser(
                   filteredUsers[
@@ -451,27 +465,31 @@ const hints = computed(() => [
           </div>
 
           <!-- Hints améliorés -->
-          <div class="grid gap-3 sm:grid-cols-3">
+          <div class="grid gap-2 sm:gap-3 grid-cols-1 md:grid-cols-3">
             <div
               v-for="(hint, index) in hints"
               :key="index"
-              class="rounded-xl border transition-all duration-300 p-4"
+              class="rounded-lg sm:rounded-xl border transition-all duration-300 p-3 sm:p-4"
               :class="{
                 'bg-emerald-500/10 border-emerald-500/30': hint.condition(),
                 'bg-surface-600/70 border-white/10': !hint.condition(),
               }"
             >
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-lg">{{ ["📅", "🎮", "👤"][index] }}</span>
-                <span class="text-xs font-bold uppercase tracking-wider">
+                <span class="text-base sm:text-lg">{{
+                  ["📅", "🎮", "👤"][index]
+                }}</span>
+                <span class="text-xs font-bold uppercase tracking-wider flex-1">
                   {{ hint.condition() ? "Débloqué" : "Verrouillé" }}
                 </span>
-                <span v-if="hint.condition()" class="ml-auto text-green-400"
+                <span
+                  v-if="hint.condition()"
+                  class="text-green-400 flex-shrink-0"
                   >✨</span
                 >
               </div>
               <p
-                class="text-sm"
+                class="text-xs sm:text-sm break-words"
                 :class="hint.condition() ? 'text-emerald-200' : 'text-gray-400'"
               >
                 {{
@@ -481,51 +499,197 @@ const hints = computed(() => [
             </div>
           </div>
 
-          <div class="rounded-xl bg-gray-900/30 px-4 py-3 text-center">
-            <p class="text-sm text-gray-300">
+          <div
+            class="rounded-lg sm:rounded-xl bg-gray-900/30 px-3 sm:px-4 py-2 sm:py-3 text-center"
+          >
+            <p class="text-xs sm:text-sm text-gray-300">
               Vous avez utilisé
               <span class="font-semibold text-white">{{ guesses.length }}</span>
-              essais.
+              essai{{ guesses.length > 1 ? "s" : "" }}.
             </p>
           </div>
         </div>
 
-        <!-- Table: scroll horizontal + layout plus compact sur mobile -->
-        <div class="space-y-3">
-          <div
-            class="grid grid-cols-8 gap-2 items-center text-[11px] font-bold text-gray-300"
-          >
-            <div class="text-center">Joueur</div>
-            <div class="text-center">Tournois</div>
-            <div class="text-center">Victoires</div>
-            <div class="text-center">Podium</div>
-            <div class="text-center col-span-2">Jeux</div>
-            <div class="text-center col-span-2">Premier ACS</div>
+        <!-- Résultats des essais -->
+        <div v-if="guesses.length > 0" class="space-y-3">
+          <!-- Version mobile: cartes -->
+          <div class="block lg:hidden space-y-3">
+            <h4 class="text-sm font-semibold text-gray-300 mb-3">
+              Vos essais ({{ guesses.length }})
+            </h4>
+            <div
+              v-for="(guess, index) in reversedGuesses"
+              :key="index"
+              class="rounded-lg bg-gray-900/25 p-4 ring-1 ring-white/10 space-y-3 animate-in slide-in-from-bottom-2"
+              :style="{ animationDelay: `${index * 100}ms` }"
+            >
+              <!-- Header de la carte avec joueur -->
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-white text-lg">
+                  {{ guess.username }}
+                </h5>
+                <span class="text-xs text-gray-400"
+                  >#{{ reversedGuesses.length - index }}</span
+                >
+              </div>
+
+              <!-- Stats en grille -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-2">
+                  <div
+                    :class="[
+                      'rounded-lg p-3 text-center relative',
+                      getIndicatorClass(
+                        guess.tournamentsPlayed,
+                        decryptedUser?.tournamentsPlayed,
+                        'tournamentsPlayed'
+                      ),
+                    ]"
+                  >
+                    <div class="text-xs text-white/60 mb-1">Tournois</div>
+                    <div class="font-bold text-sm">
+                      {{ guess.tournamentsPlayed }}
+                    </div>
+                    <span class="absolute top-1 right-1 text-xs">{{
+                      getIndicatorIcon(
+                        guess.tournamentsPlayed,
+                        decryptedUser?.tournamentsPlayed,
+                        "tournamentsPlayed"
+                      )
+                    }}</span>
+                  </div>
+
+                  <div
+                    :class="[
+                      'rounded-lg p-3 text-center relative',
+                      getIndicatorClass(
+                        guess.victories,
+                        decryptedUser?.victories,
+                        'victories'
+                      ),
+                    ]"
+                  >
+                    <div class="text-xs text-white/60 mb-1">Victoires</div>
+                    <div class="font-bold text-sm">{{ guess.victories }}</div>
+                    <span class="absolute top-1 right-1 text-xs">{{
+                      getIndicatorIcon(
+                        guess.victories,
+                        decryptedUser?.victories,
+                        "victories"
+                      )
+                    }}</span>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <div
+                    :class="[
+                      'rounded-lg p-3 text-center relative',
+                      getIndicatorClass(
+                        guess.podiumCount,
+                        decryptedUser?.podiumCount,
+                        'podiumCount'
+                      ),
+                    ]"
+                  >
+                    <div class="text-xs text-white/60 mb-1">Podium</div>
+                    <div class="font-bold text-sm">{{ guess.podiumCount }}</div>
+                    <span class="absolute top-1 right-1 text-xs">{{
+                      getIndicatorIcon(
+                        guess.podiumCount,
+                        decryptedUser?.podiumCount,
+                        "podiumCount"
+                      )
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Jeux favoris -->
+              <div
+                :class="[
+                  'rounded-lg p-3 relative',
+                  getIndicatorClass(
+                    guess.mostPlayedGames,
+                    decryptedUser?.mostPlayedGames,
+                    'mostPlayedGames'
+                  ),
+                ]"
+              >
+                <div class="text-xs text-white/60 mb-1">
+                  Jeux les plus joués
+                </div>
+                <div class="font-bold text-xs break-words">
+                  {{ guess.mostPlayedGames.join(", ") || "N/A" }}
+                </div>
+                <span class="absolute top-2 right-2 text-xs">{{
+                  getIndicatorIcon(
+                    guess.mostPlayedGames,
+                    decryptedUser?.mostPlayedGames,
+                    "mostPlayedGames"
+                  )
+                }}</span>
+              </div>
+
+              <!-- Premier tournoi -->
+              <div
+                :class="[
+                  'rounded-lg p-3 relative',
+                  getIndicatorClass(
+                    guess.firstTournament,
+                    decryptedUser?.firstTournament,
+                    'firstTournament'
+                  ),
+                ]"
+              >
+                <div class="text-xs text-white/60 mb-1">Premier ACS</div>
+                <div class="font-bold text-sm capitalize">
+                  {{ guess.firstTournament }}
+                </div>
+                <span class="absolute top-2 right-2 text-xs">{{
+                  getIndicatorIcon(
+                    guess.firstTournament,
+                    decryptedUser?.firstTournament,
+                    "firstTournament"
+                  )
+                }}</span>
+              </div>
+            </div>
           </div>
 
-          <div
-            v-if="guesses.length > 0"
-            class="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
-          >
-            <div class="min-w-[720px] space-y-2">
+          <!-- Version desktop: tableau -->
+          <div class="hidden lg:block">
+            <div
+              class="grid grid-cols-8 gap-2 items-center text-xs font-bold text-gray-300 mb-3"
+            >
+              <div class="text-center">Joueur</div>
+              <div class="text-center">Tournois</div>
+              <div class="text-center">Victoires</div>
+              <div class="text-center">Podium</div>
+              <div class="text-center col-span-2">Jeux</div>
+              <div class="text-center col-span-2">Premier ACS</div>
+            </div>
+
+            <div class="space-y-2">
               <div
                 v-for="(guess, index) in reversedGuesses"
                 :key="index"
-                class="grid grid-cols-8 gap-2 items-center rounded-2xl bg-gray-900/25 p-3 ring-1 ring-white/10 hover:bg-gray-900/40 transition-all duration-300 animate-in slide-in-from-bottom-2"
+                class="grid grid-cols-8 gap-2 items-center rounded-xl bg-gray-900/25 p-3 ring-1 ring-white/10 hover:bg-gray-900/40 transition-all duration-300 animate-in slide-in-from-bottom-2"
                 :style="{ animationDelay: `${index * 100}ms` }"
               >
                 <div
-                  class="truncate rounded-xl bg-gray-700/70 p-3 text-center text-sm font-semibold hover:bg-gray-600/70 transition-colors duration-200"
+                  class="truncate rounded-lg bg-gray-700/70 p-3 text-center text-sm font-semibold hover:bg-gray-600/70 transition-colors duration-200"
                 >
                   {{ guess.username }}
                 </div>
 
                 <div
                   :class="[
-                    'rounded-xl',
+                    'rounded-lg',
                     'p-3',
                     'text-center',
                     'font-bold',
+                    'text-sm',
                     'relative',
                     'group',
                     'transition-all',
@@ -550,10 +714,11 @@ const hints = computed(() => [
 
                 <div
                   :class="[
-                    'rounded-xl',
+                    'rounded-lg',
                     'p-3',
                     'text-center',
                     'font-bold',
+                    'text-sm',
                     'relative',
                     'group',
                     'transition-all',
@@ -578,10 +743,11 @@ const hints = computed(() => [
 
                 <div
                   :class="[
-                    'rounded-xl',
+                    'rounded-lg',
                     'p-3',
                     'text-center',
                     'font-bold',
+                    'text-sm',
                     'relative',
                     'group',
                     'transition-all',
@@ -606,11 +772,11 @@ const hints = computed(() => [
 
                 <div
                   :class="[
-                    'rounded-xl',
+                    'rounded-lg',
                     'p-3',
                     'text-center',
                     'font-bold',
-                    'text-sm',
+                    'text-xs',
                     'col-span-2',
                     'relative',
                     'group',
@@ -636,11 +802,11 @@ const hints = computed(() => [
 
                 <div
                   :class="[
-                    'rounded-xl',
+                    'rounded-lg',
                     'p-3',
                     'text-center',
                     'font-bold',
-                    'text-sm',
+                    'text-xs',
                     'col-span-2',
                     'capitalize',
                     'relative',
@@ -658,7 +824,7 @@ const hints = computed(() => [
                   <span class="absolute -top-1 -right-1 text-xs opacity-75">{{
                     getIndicatorIcon(
                       guess.firstTournament,
-                      decryptedUser.firstTournament,
+                      decryptedUser?.firstTournament,
                       "firstTournament"
                     )
                   }}</span>
@@ -667,91 +833,96 @@ const hints = computed(() => [
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Légende améliorée avec tooltips -->
-          <div class="rounded-2xl bg-gray-700/60 p-5 ring-1 ring-white/10">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-bold flex items-center gap-2">
-                <span>🎯</span>
-                Indicateurs de couleur
-              </h3>
-              <button
-                @click="showTooltip = !showTooltip"
-                class="text-sm px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg hover:bg-cyan-500/30 transition-all duration-200"
-              >
-                {{ showTooltip ? "Masquer" : "Aide" }}
-              </button>
-            </div>
-            <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
-              <div
-                class="flex items-center gap-2 group cursor-help"
-                title="Valeur exacte"
-              >
-                <div
-                  class="h-6 w-6 rounded bg-green-500 group-hover:scale-110 transition-transform"
-                />
-                >
-                <span>✅ Correct</span>
-              </div>
-              <div
-                class="flex items-center gap-2 group cursor-help"
-                title="Valeur incorrecte"
-              >
-                <div
-                  class="h-6 w-6 rounded bg-red-500 group-hover:scale-110 transition-transform"
-                />
-                <span>❌ Incorrect</span>
-              </div>
-              <div
-                class="flex items-center gap-2 group cursor-help"
-                title="Partiellement correct (jeux en commun)"
-              >
-                <div
-                  class="h-6 w-6 rounded bg-blue-500 group-hover:scale-110 transition-transform"
-                />
-                <span>🟦 Partiel</span>
-              </div>
-              <div
-                class="flex items-center gap-2 group cursor-help"
-                title="Le vrai nombre est plus petit"
-              >
-                <div
-                  class="h-6 w-6 rounded bg-yellow-500 group-hover:scale-110 transition-transform"
-                />
-                <span>🔽 Inférieur</span>
-              </div>
-              <div
-                class="flex items-center gap-2 group cursor-help"
-                title="Le vrai nombre est plus grand"
-              >
-                <div
-                  class="h-6 w-6 rounded bg-orange-500 group-hover:scale-110 transition-transform"
-                />
-                <span>🔼 Supérieur</span>
-              </div>
-            </div>
-
-            <div
-              v-if="showTooltip"
-              class="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg animate-in slide-in-from-top-1"
+        <!-- Légende améliorée avec tooltips -->
+        <div
+          class="rounded-xl sm:rounded-2xl bg-gray-700/60 p-4 sm:p-5 ring-1 ring-white/10"
+        >
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4"
+          >
+            <h3 class="font-bold flex items-center gap-2 text-sm sm:text-base">
+              <span>🎯</span>
+              Indicateurs de couleur
+            </h3>
+            <button
+              @click="showTooltip = !showTooltip"
+              class="text-xs sm:text-sm px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg hover:bg-cyan-500/30 transition-all duration-200 self-start sm:self-auto"
             >
-              <h4 class="font-semibold text-cyan-300 mb-2">
-                💡 Conseils de jeu :
-              </h4>
-              <ul class="text-sm space-y-1 text-cyan-100/80">
-                <li>
-                  • Utilisez les flèches ↑↓ pour naviguer dans les suggestions
-                </li>
-                <li>• Appuyez sur Entrée pour valider votre sélection</li>
-                <li>
-                  • Les icônes vous indiquent la direction (plus haut/plus bas)
-                </li>
-                <li>
-                  • Les animations pulsantes indiquent une correspondance exacte
-                </li>
-                <li>• Débloquez des indices en jouant plus de coups</li>
-              </ul>
+              {{ showTooltip ? "Masquer" : "Aide" }}
+            </button>
+          </div>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 text-xs sm:text-sm"
+          >
+            <div
+              class="flex items-center gap-2 group cursor-help"
+              title="Valeur exacte"
+            >
+              <div
+                class="h-5 w-5 sm:h-6 sm:w-6 rounded bg-green-500 group-hover:scale-110 transition-transform flex-shrink-0"
+              />
+              <span>✅ Correct</span>
             </div>
+            <div
+              class="flex items-center gap-2 group cursor-help"
+              title="Valeur incorrecte"
+            >
+              <div
+                class="h-5 w-5 sm:h-6 sm:w-6 rounded bg-red-500 group-hover:scale-110 transition-transform flex-shrink-0"
+              />
+              <span>❌ Incorrect</span>
+            </div>
+            <div
+              class="flex items-center gap-2 group cursor-help"
+              title="Partiellement correct (jeux en commun)"
+            >
+              <div
+                class="h-5 w-5 sm:h-6 sm:w-6 rounded bg-blue-500 group-hover:scale-110 transition-transform flex-shrink-0"
+              />
+              <span>🟦 Partiel</span>
+            </div>
+            <div
+              class="flex items-center gap-2 group cursor-help"
+              title="Le vrai nombre est plus petit"
+            >
+              <div
+                class="h-5 w-5 sm:h-6 sm:w-6 rounded bg-yellow-500 group-hover:scale-110 transition-transform flex-shrink-0"
+              />
+              <span>🔽 Inférieur</span>
+            </div>
+            <div
+              class="flex items-center gap-2 group cursor-help"
+              title="Le vrai nombre est plus grand"
+            >
+              <div
+                class="h-5 w-5 sm:h-6 sm:w-6 rounded bg-orange-500 group-hover:scale-110 transition-transform flex-shrink-0"
+              />
+              <span>🔼 Supérieur</span>
+            </div>
+          </div>
+
+          <div
+            v-if="showTooltip"
+            class="mt-4 p-3 sm:p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg animate-in slide-in-from-top-1"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-2 text-sm sm:text-base">
+              💡 Conseils de jeu :
+            </h4>
+            <ul class="text-xs sm:text-sm space-y-1 text-cyan-100/80">
+              <li>
+                • Utilisez les flèches ↑↓ pour naviguer dans les suggestions
+              </li>
+              <li>• Appuyez sur Entrée pour valider votre sélection</li>
+              <li>
+                • Les icônes vous indiquent la direction (plus haut/plus bas)
+              </li>
+              <li>
+                • Les animations pulsantes indiquent une correspondance exacte
+              </li>
+              <li>• Débloquez des indices en jouant plus de coups</li>
+            </ul>
           </div>
         </div>
       </div>
