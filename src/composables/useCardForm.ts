@@ -73,7 +73,7 @@ const DEFAULTS = {
   ui: {
     activeTab: 'basics' as 'basics' | 'appearance' | 'texts' | 'assets' | 'effects',
   },
-} as const;
+};
 
 /**
  * Composable for managing CardCreator form state
@@ -85,7 +85,7 @@ export function useCardForm() {
   const appearance = reactive({ ...DEFAULTS.appearance });
   const imageSettings = reactive({ ...DEFAULTS.imageSettings });
   const effects = reactive({ ...DEFAULTS.effects });
-  const metadata = reactive({ ...DEFAULTS.metadata });
+  const metadata = reactive({ rarity: DEFAULTS.metadata.rarity, customTexts: [] as CustomText[] });
   const assetSelection = reactive({ ...DEFAULTS.assetSelection });
   const backgroundAsset = reactive({ ...DEFAULTS.backgroundAsset });
   const borderAsset = reactive({ ...DEFAULTS.borderAsset });
@@ -107,7 +107,8 @@ export function useCardForm() {
     Object.assign(appearance, { ...DEFAULTS.appearance });
     Object.assign(imageSettings, { ...DEFAULTS.imageSettings });
     Object.assign(effects, { ...DEFAULTS.effects });
-    Object.assign(metadata, { ...DEFAULTS.metadata, customTexts: [] });
+    metadata.rarity = DEFAULTS.metadata.rarity;
+    metadata.customTexts = [];
     Object.assign(assetSelection, { ...DEFAULTS.assetSelection });
     Object.assign(backgroundAsset, { ...DEFAULTS.backgroundAsset });
     Object.assign(borderAsset, { ...DEFAULTS.borderAsset });

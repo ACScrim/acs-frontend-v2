@@ -11,17 +11,14 @@ import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
 import type {CardAsset, CardCategory} from "@/types/models";
 import type {
   CustomText,
-  ImageObjectFit,
   PendingCardData,
-  Rarity,
-  TextAlign,
-  TextWidth
 } from '@/composables/useCardCustomization';
-import type {AssetType, BorderAssetType} from '@/composables/useCardAssets';
+import type {AssetType} from '@/composables/useCardAssets';
 import ACSSelect from "@/components/ui/ACSSelect.vue";
 import {useRoute, useRouter} from 'vue-router';
 import useAdminStore from '@/stores/adminStore';
 import {useUserStore} from "@/stores/userStore.ts";
+import { useCardForm } from '@/composables/useCardForm';
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
@@ -37,87 +34,223 @@ const {width} = useWindowSize();
 const showConfirmationModal = ref(false);
 const pendingCardData = ref<PendingCardData | null>(null);
 
-// Form state
-const title = ref('');
-const imageUrl = ref('');
-const imageBase64 = ref('');  // Temporary for preview only, NOT sent to server
-const assetCategory = ref<'background' | 'border'>('background');
+// Use the new useCardForm composable for organized state management
+const {
+  basicInfo,
+  appearance,
+  imageSettings,
+  effects,
+  metadata,
+  assetSelection,
+  backgroundAsset,
+  borderAsset,
+  categoryModal,
+  ui,
+  fileInputRef,
+  backgroundAssetImageInputRef,
+  borderAssetImageInputRef,
+  cardPreviewRef,
+  savedCardsContainer,
+  resetForm,
+} = useCardForm();
 
-// Personnalisation - Position
-const titlePosX = ref(50);
-const titlePosY = ref(10);
-const titleAlign = ref<TextAlign>('center');
-const titleWidth = ref<TextWidth>('w-full');
+// Destructure for easier access in template (backward compatibility)
+const title = computed({
+  get: () => basicInfo.title,
+  set: (value) => basicInfo.title = value
+});
+const imageUrl = computed({
+  get: () => basicInfo.imageUrl,
+  set: (value) => basicInfo.imageUrl = value
+});
+const imageBase64 = computed({
+  get: () => basicInfo.imageBase64,
+  set: (value) => basicInfo.imageBase64 = value
+});
+const selectedCategoryId = computed({
+  get: () => basicInfo.categoryId,
+  set: (value) => basicInfo.categoryId = value
+});
 
-// Personnalisation - Effets
-const removeImageBg = ref(false);
-const holographicEffect = ref(true);
-const holographicIntensity = ref(0.6);
+const titlePosX = computed({
+  get: () => appearance.titlePosX,
+  set: (value) => appearance.titlePosX = value
+});
+const titlePosY = computed({
+  get: () => appearance.titlePosY,
+  set: (value) => appearance.titlePosY = value
+});
+const titleAlign = computed({
+  get: () => appearance.titleAlign,
+  set: (value) => appearance.titleAlign = value
+});
+const titleWidth = computed({
+  get: () => appearance.titleWidth,
+  set: (value) => appearance.titleWidth = value
+});
+const titleColor = computed({
+  get: () => appearance.titleColor,
+  set: (value) => appearance.titleColor = value
+});
+const titleFontSize = computed({
+  get: () => appearance.titleFontSize,
+  set: (value) => appearance.titleFontSize = value
+});
 
-const cardPreviewRef = ref<HTMLDivElement | null>(null);
+const imagePosX = computed({
+  get: () => imageSettings.posX,
+  set: (value) => imageSettings.posX = value
+});
+const imagePosY = computed({
+  get: () => imageSettings.posY,
+  set: (value) => imageSettings.posY = value
+});
+const imageScale = computed({
+  get: () => imageSettings.scale,
+  set: (value) => imageSettings.scale = value
+});
+const imageWidth = computed({
+  get: () => imageSettings.width,
+  set: (value) => imageSettings.width = value
+});
+const imageHeight = computed({
+  get: () => imageSettings.height,
+  set: (value) => imageSettings.height = value
+});
+const imageObjectFit = computed({
+  get: () => imageSettings.objectFit,
+  set: (value) => imageSettings.objectFit = value
+});
+const imageRounded = computed({
+  get: () => imageSettings.rounded,
+  set: (value) => imageSettings.rounded = value
+});
+const imageCropX = computed({
+  get: () => imageSettings.cropX,
+  set: (value) => imageSettings.cropX = value
+});
+const imageCropY = computed({
+  get: () => imageSettings.cropY,
+  set: (value) => imageSettings.cropY = value
+});
+
+const removeImageBg = computed({
+  get: () => effects.removeImageBg,
+  set: (value) => effects.removeImageBg = value
+});
+const holographicEffect = computed({
+  get: () => effects.holographicEffect,
+  set: (value) => effects.holographicEffect = value
+});
+const holographicIntensity = computed({
+  get: () => effects.holographicIntensity,
+  set: (value) => effects.holographicIntensity = value
+});
+
+const rarity = computed({
+  get: () => metadata.rarity,
+  set: (value) => metadata.rarity = value
+});
+const customTexts = computed({
+  get: () => metadata.customTexts,
+  set: (value) => metadata.customTexts = value
+});
+
+const assetCategory = computed({
+  get: () => assetSelection.assetCategory,
+  set: (value) => assetSelection.assetCategory = value
+});
+const selectedFrontAssetId = computed({
+  get: () => assetSelection.selectedFrontAssetId,
+  set: (value) => assetSelection.selectedFrontAssetId = value
+});
+const selectedBorderAssetId = computed({
+  get: () => assetSelection.selectedBorderAssetId,
+  set: (value) => assetSelection.selectedBorderAssetId = value
+});
+const useCustomFrontAsset = computed({
+  get: () => assetSelection.useCustomFrontAsset,
+  set: (value) => assetSelection.useCustomFrontAsset = value
+});
+const useCustomBorderAsset = computed({
+  get: () => assetSelection.useCustomBorderAsset,
+  set: (value) => assetSelection.useCustomBorderAsset = value
+});
+
+const backgroundAssetName = computed({
+  get: () => backgroundAsset.name,
+  set: (value) => backgroundAsset.name = value
+});
+const backgroundAssetType = computed({
+  get: () => backgroundAsset.type,
+  set: (value) => backgroundAsset.type = value
+});
+const backgroundSolidColor = computed({
+  get: () => backgroundAsset.solidColor,
+  set: (value) => backgroundAsset.solidColor = value
+});
+const backgroundGradientColor1 = computed({
+  get: () => backgroundAsset.gradientColor1,
+  set: (value) => backgroundAsset.gradientColor1 = value
+});
+const backgroundGradientColor2 = computed({
+  get: () => backgroundAsset.gradientColor2,
+  set: (value) => backgroundAsset.gradientColor2 = value
+});
+const backgroundGradientAngle = computed({
+  get: () => backgroundAsset.gradientAngle,
+  set: (value) => backgroundAsset.gradientAngle = value
+});
+const backgroundAssetImageBase64 = computed({
+  get: () => backgroundAsset.imageBase64,
+  set: (value) => backgroundAsset.imageBase64 = value
+});
+const backgroundAssetImagePreview = computed({
+  get: () => backgroundAsset.imagePreview,
+  set: (value) => backgroundAsset.imagePreview = value
+});
+
+const borderAssetName = computed({
+  get: () => borderAsset.name,
+  set: (value) => borderAsset.name = value
+});
+const borderAssetType = computed({
+  get: () => borderAsset.type,
+  set: (value) => borderAsset.type = value
+});
+const borderSolidColor = computed({
+  get: () => borderAsset.solidColor,
+  set: (value) => borderAsset.solidColor = value
+});
+const borderAssetImageBase64 = computed({
+  get: () => borderAsset.imageBase64,
+  set: (value) => borderAsset.imageBase64 = value
+});
+const borderAssetImagePreview = computed({
+  get: () => borderAsset.imagePreview,
+  set: (value) => borderAsset.imagePreview = value
+});
+
+const showCreateCategoryModal = computed({
+  get: () => categoryModal.show,
+  set: (value) => categoryModal.show = value
+});
+const newCategoryName = computed({
+  get: () => categoryModal.name,
+  set: (value) => categoryModal.name = value
+});
+const newCategoryDescription = computed({
+  get: () => categoryModal.description,
+  set: (value) => categoryModal.description = value
+});
+
+const activeTab = computed({
+  get: () => ui.activeTab,
+  set: (value) => ui.activeTab = value
+});
 
 // Container ref for saved cards section
-const savedCardsContainer = ref<HTMLElement | null>(null);
 const activeTimeouts = new Set<number>();
-
-// UI State - Tabs and collapsible sections
-const activeTab = ref<'basics' | 'appearance' | 'texts' | 'assets' | 'effects'>('basics');
-
-// Personnalisation - Couleurs du texte
-const titleColor = ref('#ffffff');
-const titleFontSize = ref(18);
-
-// Personnalisation - Textes personnalisés (0-5)
-const customTexts = ref<CustomText[]>([]);
-
-// Personnalisation - Image principale
-const imagePosX = ref(50);
-const imagePosY = ref(30);
-const imageScale = ref(1);
-const imageWidth = ref(160);
-const imageHeight = ref(160);
-const imageObjectFit = ref<ImageObjectFit>('cover');
-const imageRounded = ref(0); // 0-50 %
-const imageCropX = ref(50); // 0-100 % position horizontale dans l'image
-const imageCropY = ref(50); // 0-100 % position verticale dans l'image
-
-// Personnalisation - Rareté
-const rarity = ref<Rarity>('common');
-
-// Catégorie
-const selectedCategoryId = ref<string | undefined>();
-const showCreateCategoryModal = ref(false);
-const newCategoryName = ref('');
-const newCategoryDescription = ref('');
-
-// Asset selection
-const selectedFrontAssetId = ref<string | undefined>();
-const selectedBorderAssetId = ref<string | undefined>();
-// Indique si l'utilisateur souhaite utiliser un asset personnalisé (créé localement) plutôt qu'un asset existant
-const useCustomFrontAsset = ref(false);
-const useCustomBorderAsset = ref(false);
-
-// Background asset state
-const backgroundAssetName = ref('');
-const backgroundAssetType = ref<AssetType>('solid');
-const backgroundSolidColor = ref('transparent');
-const backgroundGradientColor1 = ref('#667eea');
-const backgroundGradientColor2 = ref('#764ba2');
-const backgroundGradientAngle = ref(135);
-const backgroundAssetImageBase64 = ref('');  // Temporary for preview
-const backgroundAssetImagePreview = ref('');
-
-// Border asset state
-const borderAssetName = ref('');
-const borderAssetType = ref<BorderAssetType>('solid');
-const borderSolidColor = ref('transparent');
-const borderAssetImageBase64 = ref('');  // Temporary for preview
-const borderAssetImagePreview = ref('');
-
-// File input refs
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const backgroundAssetImageInputRef = ref<HTMLInputElement | null>(null);
-const borderAssetImageInputRef = ref<HTMLInputElement | null>(null);
 
 // Image source selection
 const imageSourceType = ref<'upload' | 'url' | 'discord' | 'cloudinary'>('cloudinary');
@@ -899,39 +1032,6 @@ const confirmCardCreation = async () => {
 const cancelCardCreation = () => {
   showConfirmationModal.value = false;
   pendingCardData.value = null;
-};
-
-const resetForm = () => {
-  title.value = '';
-  imageUrl.value = '';
-  imageBase64.value = '';
-  selectedFrontAssetId.value = undefined;
-  selectedBorderAssetId.value = undefined;
-  useCustomFrontAsset.value = false;
-  useCustomBorderAsset.value = false;
-
-  // Reset personnalisation
-  titlePosX.value = 50;
-  titlePosY.value = 10;
-  titleAlign.value = 'center';
-  titleWidth.value = 'w-full';
-  titleFontSize.value = 18;
-  removeImageBg.value = false;
-  holographicEffect.value = true;
-  holographicIntensity.value = 0.6;
-  titleColor.value = '#ffffff';
-  imagePosX.value = 50;
-  imagePosY.value = 30;
-  imageScale.value = 1;
-  imageWidth.value = 160;
-  imageHeight.value = 160;
-  imageObjectFit.value = 'cover';
-  rarity.value = 'common';
-  customTexts.value = [];
-
-  if (fileInputRef.value) {
-    fileInputRef.value.value = '';
-  }
 };
 
 onMounted(async () => {
