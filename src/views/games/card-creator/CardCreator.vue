@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {Button, Card} from '@/components/ui';
 import Modal from '@/components/global/Modal.vue';
 import CollectibleCard from './CollectibleCard.vue';
@@ -8,10 +8,11 @@ import AppearancePanel from './components/AppearancePanel.vue';
 import TextsPanel from './components/TextsPanel.vue';
 import AssetsPanel from './components/AssetsPanel.vue';
 import EffectsPanel from './components/EffectsPanel.vue';
+import SavedCardsGallery from './components/SavedCardsGallery.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
-import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
+import {useWindowSize} from "@vueuse/core";
 import type {CardAsset, CardCategory} from "@/types/models";
 import type {
   CustomText,
@@ -52,7 +53,6 @@ const {
   backgroundAssetImageInputRef,
   borderAssetImageInputRef,
   cardPreviewRef,
-  savedCardsContainer,
   resetForm,
 } = useCardForm();
 
@@ -250,9 +250,6 @@ const activeTab = computed({
   get: () => ui.activeTab,
   set: (value) => ui.activeTab = value
 });
-
-// Container ref for saved cards section
-const activeTimeouts = new Set<number>();
 
 // Image source selection
 const imageSourceType = ref<'upload' | 'url' | 'discord' | 'cloudinary'>('cloudinary');
@@ -673,45 +670,6 @@ const toggleShowAllImages = async () => {
     toastStore.info('Affichage des images utilisées uniquement');
   }
 };
-
-// Handle saved card visibility with intersection observer
-const handleSavedCardVisible = (cardId: string) => {
-  const card = cardStore.cardsPreview.find(c => c.id === cardId);
-  if (card && !cardStore.cards.find(c => c.id === cardId)?.frontAsset) {
-    cardStore.fetchFullCard(cardId);
-  }
-};
-
-// Observe saved cards when container is mounted or updated
-const observeSavedCards = () => {
-  if (!savedCardsContainer.value) return;
-
-  const cardElements = savedCardsContainer.value.querySelectorAll('[data-saved-card-id]');
-  cardElements.forEach(element => {
-    useIntersectionObserver(
-      element as HTMLElement,
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const cardId = (entry.target as HTMLElement).getAttribute('data-saved-card-id');
-            if (cardId) {
-              handleSavedCardVisible(cardId);
-            }
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-      }
-    );
-  });
-};
-
-// Reobserve saved cards when they change
-watch(() => cardStore.cardsPreview.length, () => {
-  const timeout = window.setTimeout(observeSavedCards, 100);
-  activeTimeouts.add(timeout);
-});
 
 const saveCard = async () => {
   if (!isFormValid.value) {
@@ -1184,17 +1142,6 @@ watch(selectedCloudinaryImage, async (newImageId) => {
   }
 });
 
-onMounted(() => {
-  // Initial observation of saved cards
-  observeSavedCards();
-});
-
-onUnmounted(() => {
-  // Cleanup timeouts
-  activeTimeouts.forEach(id => clearTimeout(id));
-  activeTimeouts.clear();
-});
-
 </script>
 
 <template>
@@ -1532,46 +1479,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Saved Cards Section -->
-      <div v-if="cardStore.cardsPreview.length > 0" class="space-y-6">
-        <div class="flex items-center gap-4">
-          <div class="h-px w-16 bg-gradient-to-r from-white/0 via-white/40 to-white/0" />
-          <div>
-            <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">Collection</p>
-            <h2 class="text-xl font-semibold text-white/90">
-              Vos Cartes <span class="text-foam-200/60">({{ cardStore.cardsPreview.length }})</span>
-            </h2>
-          </div>
-        </div>
-
-        <div ref="savedCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          <div
-            v-for="card in cardStore.cardsPreview"
-            :key="card.id"
-            :data-saved-card-id="card.id"
-            class="flex flex-col items-center min-w-64 w-64"
-          >
-            <CollectibleCard
-              :card="cardStore.cards.find(c => c.id === card.id) || {
-                id: card.id,
-                title: 'Carte non chargée',
-                createdAt: '',
-                updatedAt: ''
-              }"
-              :lazy-load="!cardStore.cards.find(c => c.id === card.id)"
-              interactive
-            />
-            <Button
-              variant="danger"
-              size="sm"
-              class="mt-4"
-              @click="cardStore.deleteCard(card.id)"
-              :disabled="!useUserStore().isSuperAdmin"
-            >
-              Supprimer
-            </Button>
-          </div>
-        </div>
-      </div>
+      <SavedCardsGallery />
 
       <!-- Confirmation Modal -->
       <Modal :is-open="showConfirmationModal" @close="cancelCardCreation" class="!max-w-3xl">
