@@ -366,9 +366,9 @@ const selectBorderAsset = (assetId: string) => {
                 : { background: '#1a1a2e' }
           "
           :title="asset.name"
-          @click="selectFrontAsset(asset.id)"
+          @click="asset.id && selectFrontAsset(asset.id)"
         >
-          <VueIcon v-if="asset.createdBy?.id === userId" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="emit('delete-asset', asset.id)" />
+          <VueIcon v-if="asset.createdBy?.id === userId && asset.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="emit('delete-asset', asset.id)" />
           <img
             v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
             :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
@@ -418,9 +418,9 @@ const selectBorderAsset = (assetId: string) => {
               : {}
           "
           :title="asset.name"
-          @click="selectBorderAsset(asset.id)"
+          @click="asset.id && selectBorderAsset(asset.id)"
         >
-          <VueIcon v-if="asset.createdBy?.id === userId" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="emit('delete-asset', asset.id)" />
+          <VueIcon v-if="asset.createdBy?.id === userId && asset.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="emit('delete-asset', asset.id)" />
           <img
             v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
             :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"

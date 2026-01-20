@@ -3,7 +3,7 @@ import type { Ref } from 'vue';
 import type { CardAsset } from '@/types/models';
 
 export interface CustomText {
-  id?: string; // Unique ID for proper Vue key binding
+  id: string; // Unique ID for proper Vue key binding
   content: string;
   posX: number;
   posY: number;
@@ -111,6 +111,7 @@ export function useCustomTextManagement(customTexts: Ref<CustomText[]>) {
   const addCustomText = () => {
     if (customTexts.value.length < 5) {
       customTexts.value.push({
+        id: crypto.randomUUID(),
         content: '',
         posX: 50,
         posY: 85,

@@ -10,7 +10,7 @@ interface CustomText {
   align: 'left' | 'center' | 'right';
   color: string;
   width: 'w-full' | 'w-auto';
-  fontSize: number;
+  fontSize?: number;
 }
 
 // Props

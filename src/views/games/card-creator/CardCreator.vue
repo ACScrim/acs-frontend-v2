@@ -11,14 +11,12 @@ import EffectsPanel from './components/EffectsPanel.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
-import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
 import type {CardAsset, CardCategory} from "@/types/models";
 import type {
   CustomText,
   PendingCardData,
 } from '@/composables/useCardCustomization';
-import type {AssetType} from '@/composables/useCardAssets';
 import {useRoute, useRouter} from 'vue-router';
 import useAdminStore from '@/stores/adminStore';
 import {useUserStore} from "@/stores/userStore.ts";
@@ -272,59 +270,7 @@ const showAllAssets = ref(false);
 const showAllImages = ref(false);
 
 // Helper to get current asset config based on category
-const getCurrentAssetName = () => assetCategory.value === 'background' ? backgroundAssetName.value : borderAssetName.value;
-const getCurrentAssetType = () => assetCategory.value === 'background' ? backgroundAssetType.value : borderAssetType.value;
-const getCurrentSolidColor = () => assetCategory.value === 'background' ? backgroundSolidColor.value : borderSolidColor.value;
-const getCurrentGradientColor1 = () => backgroundGradientColor1.value;
-const getCurrentGradientColor2 = () => backgroundGradientColor2.value;
-const getCurrentGradientAngle = () => backgroundGradientAngle.value;
-const getCurrentImagePreview = () => assetCategory.value === 'background' ? backgroundAssetImagePreview.value : borderAssetImagePreview.value;
 
-// Helper to set current asset properties
-const setCurrentAssetName = (value: string) => {
-  if (assetCategory.value === 'background') {
-    backgroundAssetName.value = value;
-  } else {
-    borderAssetName.value = value;
-  }
-};
-
-const setCurrentAssetType = (value: AssetType) => {
-  if (assetCategory.value === 'background') {
-    backgroundAssetType.value = value;
-  } else {
-    // Pour les bordures, on accepte seulement 'solid' et 'image'
-    if (value !== 'gradient') {
-      borderAssetType.value = value as 'solid' | 'image';
-    }
-  }
-};
-
-const setCurrentSolidColor = (value: string) => {
-  if (assetCategory.value === 'background') {
-    backgroundSolidColor.value = value;
-  } else {
-    borderSolidColor.value = value;
-  }
-};
-
-const setCurrentGradientColor1 = (value: string) => {
-  if (assetCategory.value === 'background') {
-    backgroundGradientColor1.value = value;
-  }
-};
-
-const setCurrentGradientColor2 = (value: string) => {
-  if (assetCategory.value === 'background') {
-    backgroundGradientColor2.value = value;
-  }
-};
-
-const setCurrentGradientAngle = (value: number) => {
-  if (assetCategory.value === 'background') {
-    backgroundGradientAngle.value = value;
-  }
-};
 
 const setCurrentImageData = (base64: string, mimeType: string, preview: string) => {
   if (assetCategory.value === 'background') {
@@ -516,7 +462,11 @@ const handleAssetImageUpload = (event: Event) => {
       }
 
       setCurrentImageData(base64String, mimeType, preview);
-      setCurrentAssetType('image');
+      if (assetCategory.value === 'background') {
+        backgroundAssetType.value = 'image';
+      } else {
+        borderAssetType.value = 'image';
+      }
     };
     reader.onerror = () => {
       toastStore.error('Erreur lors de la lecture du fichier.');
