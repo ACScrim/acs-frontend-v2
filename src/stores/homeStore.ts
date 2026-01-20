@@ -11,6 +11,7 @@ const useHomeStore = defineStore('home', {
     } as HomeStats,
     nextTournaments: [] as Tournament[],
     lastTournament: null as Tournament | null,
+    currentTournament: null as Tournament | null,
   }),
   actions: {
     async fetchHomeStats() {
@@ -24,6 +25,10 @@ const useHomeStore = defineStore('home', {
     async fetchLastTournament() {
       const response = await api.get<ApiResponse<Tournament>>('/home/last-tournament');
       this.lastTournament = response.data.data;
+    },
+    async fetchCurrentTournament() {
+      const response = await api.get<ApiResponse<Tournament>>('/home/current-tournament');
+      this.currentTournament = response.data.data;
     }
   },
 });

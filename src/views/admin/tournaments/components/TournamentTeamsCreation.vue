@@ -13,7 +13,7 @@ interface Team {
 
 const props = defineProps<{ tournament: Tournament }>();
 
-const emit = defineEmits<{
+defineEmits<{
   saved: [];
 }>();
 
@@ -39,7 +39,7 @@ const availablePlayers = computed(() => {
   const assignedPlayerIds = new Set(
     teams.value.flatMap(t => t.players.map(p => p.id))
   );
-  return props.tournament.players.filter(p => !assignedPlayerIds.has(p.id)) ?? [];
+  return props.tournament.players.filter(p => !assignedPlayerIds.has(p.id) && !p.inWaitlist && !p.isCaster) ?? [];
 });
 
 // Calculer le tier moyen nécessaire
@@ -72,7 +72,7 @@ const generateTeams = () => {
 // Recalculer le nombre d'équipes
 const recalculateTeamCount = () => {
   if (playersPerTeam.value > 0 && props.tournament) {
-    teamCount.value = Math.max(2, Math.ceil(props.tournament.playerCap / playersPerTeam.value));
+    teamCount.value = Math.max(2, Math.ceil(props.tournament.players.length / playersPerTeam.value));
   }
 };
 

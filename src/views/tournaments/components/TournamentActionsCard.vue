@@ -84,7 +84,7 @@ const headerColor = computed((): string => {
       <Button
         class="w-full"
         @click="emit('register')"
-        :variant="!canRegister() ? 'outline' : 'primary'"
+        variant="primary"
       >
         <template #icon>
           <VueIcon

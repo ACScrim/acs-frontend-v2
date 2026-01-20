@@ -12,6 +12,7 @@ const homeStore = useHomeStore();
 
 const homeStats = computed(() => homeStore.homeStats);
 const lastFinishedTournament = computed(() => homeStore.lastTournament ?? null);
+const currentTournament = computed(() => homeStore.currentTournament ?? null);
 const nextTournaments = computed(() => homeStore.nextTournaments);
 const ctaLabel = computed(() => userStore.isLoggedIn ? 'Explorer les tournois' : 'Rejoindre Discord');
 const ctaLink = computed(() => userStore.isLoggedIn ? '/tournaments' : `${API_URL}/auth/discord`);
@@ -20,6 +21,7 @@ onMounted(() => {
   homeStore.fetchHomeStats()
   homeStore.fetchNextTournaments()
   homeStore.fetchLastTournament()
+  homeStore.fetchCurrentTournament()
 })
 </script>
 
@@ -70,6 +72,20 @@ onMounted(() => {
             </div>
           </div>
         </Card>
+      </section>
+
+      <!-- Section tournoi en cours -->
+      <section v-if="currentTournament" class="xl:flex flex-col space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60">En direct</p>
+            <h3 class="text-xl font-semibold text-white/90 font-display">Tournoi en cours</h3>
+          </div>
+          <Badge tone="emerald" size="sm">Live</Badge>
+        </div>
+        <RouterLink :to="`/tournaments/${currentTournament.id}`">
+          <TournamentCard :tournament="currentTournament" />
+        </RouterLink>
       </section>
 
       <!-- Section inférieure : Tournoi clôturé (masqué sur mobile) -->

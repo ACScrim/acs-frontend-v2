@@ -99,7 +99,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
             <div class="flex items-center gap-2">
               <VueIcon name="cl:users" class="text-emerald-400" />
               <span>
-                {{ tournament.players.length }}
+                {{ tournament.players.filter(p => !p.inWaitlist && !p.isCaster).length }}
                 <template v-if="tournament.playerCap > 0"
                   >/ {{ tournament.playerCap }}</template
                 >
@@ -114,7 +114,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
                 class="h-2 rounded-full bg-gradient-to-r from-accent-500 via-blush-500 to-emerald-500"
                 :style="{
                   width: `${getPlayerPercentage(
-                    tournament.players.length,
+                    tournament.players.filter(p => !p.inWaitlist && !p.isCaster).length,
                     tournament.playerCap
                   )}%`,
                 }"
