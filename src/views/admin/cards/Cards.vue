@@ -2,6 +2,7 @@
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import { Button, Card } from "@/components/ui";
+import Modal from "@/components/global/Modal.vue";
 import useAdminStore from "@/stores/adminStore.ts";
 import { computed, h, nextTick, onMounted, ref } from "vue";
 import {
@@ -24,6 +25,20 @@ const user = useUserStore().user;
 const router = useRouter();
 
 const cards = computed(() => adminStore.cards);
+
+// Card enlargement modal
+const enlargedCard = ref<CollectibleCardType | null>(null);
+const isCardModalOpen = ref(false);
+
+const openCardModal = (card: CollectibleCardType) => {
+  enlargedCard.value = card;
+  isCardModalOpen.value = true;
+};
+
+const closeCardModal = () => {
+  isCardModalOpen.value = false;
+  enlargedCard.value = null;
+};
 
 const paginationQs = useTablePaginationQueryString({
   param: "page",
@@ -84,7 +99,16 @@ const columns: ColumnDef<CollectibleCardType>[] = [
   {
     header: "Preview",
     cell: (info) => {
-      return h(CollectibleCard, { card: info.row.original, maxWidth: 120 });
+      const card = info.row.original;
+      return h(
+        "div",
+        {
+          class: "cursor-pointer transition-transform hover:scale-105",
+          onclick: () => openCardModal(card),
+          title: "Cliquez pour agrandir",
+        },
+        [h(CollectibleCard, { card, maxWidth: 120 })]
+      );
     },
   },
   {
@@ -199,5 +223,24 @@ onMounted(async () => {
       <VueIcon name="bs:inbox" class="mx-auto mb-4 text-4xl" />
       Aucune proposition pour le moment.
     </Card>
+
+    <!-- Card Enlargement Modal -->
+    <Modal :is-open="isCardModalOpen" @close="closeCardModal">
+      <div class="flex flex-col items-center gap-4 p-6">
+        <h2 class="text-2xl font-bold text-foam-100">
+          {{ enlargedCard?.title || 'Carte' }}
+        </h2>
+        <div class="flex items-center justify-center">
+          <CollectibleCard 
+            v-if="enlargedCard" 
+            :card="enlargedCard" 
+            :maxWidth="400" 
+          />
+        </div>
+        <Button variant="outline" @click="closeCardModal">
+          Fermer
+        </Button>
+      </div>
+    </Modal>
   </section>
 </template>
