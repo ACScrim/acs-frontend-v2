@@ -4,6 +4,7 @@ import {Button, Card} from '@/components/ui';
 import Modal from '@/components/global/Modal.vue';
 import CollectibleCard from './CollectibleCard.vue';
 import BasicInfoPanel from './components/BasicInfoPanel.vue';
+import AppearancePanel from './components/AppearancePanel.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
@@ -1434,291 +1435,39 @@ onUnmounted(() => {
               </div>
 
               <!-- TAB 2: APPARENCE -->
-              <div v-show="activeTab === 'appearance'" class="space-y-6 animate-fadeIn">
-                <!-- SECTION STYLE DU TITRE -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <h3 class="text-sm font-semibold text-foam-200">🎨 Style du titre</h3>
-
-                  <!-- Title Color -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300">Couleur du titre</label>
-                    <div class="flex gap-3 items-center">
-                      <input
-                        v-model="titleColor"
-                        type="color"
-                        class="w-12 h-10 rounded cursor-pointer border border-white/10"
-                      />
-                      <input
-                        v-model="titleColor"
-                        type="text"
-                        placeholder="#ffffff"
-                        class="flex-1 form-input text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Title Font Size -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300">Taille du titre</label>
-                    <div class="flex gap-2 items-center">
-                      <input
-                        v-model.number="titleFontSize"
-                        type="range"
-                        min="8"
-                        max="40"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ titleFontSize }}px</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SECTION POSITION DU TITRE -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <h3 class="text-sm font-semibold text-foam-200">📍 Position du titre</h3>
-
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Position</label>
-                    <div class="grid grid-cols-2 gap-3">
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">X (Horizontal)</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="titlePosX"
-                            type="range"
-                            min="0"
-                            max="100"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ titlePosX }}%</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">Y (Vertical)</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="titlePosY"
-                            type="range"
-                            min="0"
-                            max="100"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ titlePosY }}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Title Alignment -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Alignement</label>
-                    <div class="flex gap-2">
-                      <button
-                        :class="titleAlign === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="titleAlign = 'left'"
-                      >
-                        ◀ Gauche
-                      </button>
-                      <button
-                        :class="titleAlign === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="titleAlign = 'center'"
-                      >
-                        ■ Centré
-                      </button>
-                      <button
-                        :class="titleAlign === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="titleAlign = 'right'"
-                      >
-                        ▶ Droite
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Title width -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Largeur du titre</label>
-                    <div class="flex gap-2">
-                      <button
-                        :class="titleWidth === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="titleWidth = 'w-full'"
-                      >
-                        Pleine largeur
-                      </button>
-                      <button
-                        :class="titleWidth === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="titleWidth = 'w-auto'"
-                      >
-                        Auto
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SECTION POSITION & TAILLE DE L'IMAGE -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <h3 class="text-sm font-semibold text-foam-200">📐 Position & Taille de l'image</h3>
-
-                  <!-- Image Positioning -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Position de l'image</label>
-                    <div class="grid grid-cols-2 gap-3">
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">X (Horizontal)</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="imagePosX"
-                            type="range"
-                            min="0"
-                            max="100"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imagePosX }}%</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">Y (Vertical)</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="imagePosY"
-                            type="range"
-                            min="0"
-                            max="100"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imagePosY }}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Image Scale -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300">Échelle de l'image</label>
-                    <div class="flex gap-2 items-center">
-                      <input
-                        v-model.number="imageScale"
-                        type="range"
-                        min="0.5"
-                        max="2"
-                        step="0.1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageScale.toFixed(1) }}x</span>
-                    </div>
-                  </div>
-
-                  <!-- Image Container Size -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Taille du conteneur</label>
-                    <div class="grid grid-cols-2 gap-3">
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">Largeur</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="imageWidth"
-                            type="range"
-                            min="40"
-                            max="250"
-                            step="1"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageWidth }}px</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">Hauteur</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="imageHeight"
-                            type="range"
-                            min="40"
-                            max="378"
-                            step="1"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageHeight }}px</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Image Object Fit -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Ajustement de l'image</label>
-                    <div class="flex gap-2">
-                      <button
-                        :class="imageObjectFit === 'cover' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="imageObjectFit = 'cover'"
-                      >
-                        Cover (rognée)
-                      </button>
-                      <button
-                        :class="imageObjectFit === 'contain' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                        @click="imageObjectFit = 'contain'"
-                      >
-                        Contain (complète)
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Image Style - Rounded -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Coins arrondis</label>
-                    <div class="flex gap-2 items-center">
-                      <input
-                        v-model.number="imageRounded"
-                        type="range"
-                        min="0"
-                        max="50"
-                        step="1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageRounded }}px</span>
-                    </div>
-                  </div>
-
-                  <!-- Image Crop Position -->
-                  <div class="space-y-2">
-                    <label class="text-xs text-foam-300 block">Position du crop</label>
-                    <div class="grid grid-cols-2 gap-3">
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">Horizontal</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="imageCropX"
-                            type="range"
-                            min="0"
-                            max="100"
-                            step="1"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageCropX }}%</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="text-xs text-foam-300/80 block mb-1">Vertical</label>
-                        <div class="flex gap-2 items-center">
-                          <input
-                            v-model.number="imageCropY"
-                            type="range"
-                            min="0"
-                            max="100"
-                            step="1"
-                            class="flex-1"
-                          />
-                          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageCropY }}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div v-show="activeTab === 'appearance'">
+                <AppearancePanel
+                  :title-color="titleColor"
+                  @update:title-color="titleColor = $event"
+                  :title-font-size="titleFontSize"
+                  @update:title-font-size="titleFontSize = $event"
+                  :title-pos-x="titlePosX"
+                  @update:title-pos-x="titlePosX = $event"
+                  :title-pos-y="titlePosY"
+                  @update:title-pos-y="titlePosY = $event"
+                  :title-align="titleAlign"
+                  @update:title-align="titleAlign = $event"
+                  :title-width="titleWidth"
+                  @update:title-width="titleWidth = $event"
+                  :image-pos-x="imagePosX"
+                  @update:image-pos-x="imagePosX = $event"
+                  :image-pos-y="imagePosY"
+                  @update:image-pos-y="imagePosY = $event"
+                  :image-scale="imageScale"
+                  @update:image-scale="imageScale = $event"
+                  :image-width="imageWidth"
+                  @update:image-width="imageWidth = $event"
+                  :image-height="imageHeight"
+                  @update:image-height="imageHeight = $event"
+                  :image-object-fit="imageObjectFit"
+                  @update:image-object-fit="imageObjectFit = $event"
+                  :image-rounded="imageRounded"
+                  @update:image-rounded="imageRounded = $event"
+                  :image-crop-x="imageCropX"
+                  @update:image-crop-x="imageCropX = $event"
+                  :image-crop-y="imageCropY"
+                  @update:image-crop-y="imageCropY = $event"
+                />
               </div>
 
               <!-- TAB 3: TEXTES -->
