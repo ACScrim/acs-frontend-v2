@@ -13,14 +13,11 @@ import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
 import {useIntersectionObserver, useWindowSize} from "@vueuse/core";
 import type {CardAsset, CardCategory} from "@/types/models";
-import type {
-  CustomText,
-  PendingCardData,
-} from '@/composables/useCardCustomization';
+import type {PendingCardData,} from '@/composables/useCardCustomization';
 import {useRoute, useRouter} from 'vue-router';
 import useAdminStore from '@/stores/adminStore';
 import {useUserStore} from "@/stores/userStore.ts";
-import { useCardForm } from '@/composables/useCardForm';
+import {useCardForm} from '@/composables/useCardForm';
 
 const cardStore = useCardStore();
 const toastStore = useToastStore();
