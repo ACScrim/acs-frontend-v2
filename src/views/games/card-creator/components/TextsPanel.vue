@@ -10,7 +10,7 @@ interface Props {
   };
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 // Emits for add/remove operations (parent needs to handle array manipulation)
 const emit = defineEmits<{

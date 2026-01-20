@@ -629,19 +629,6 @@ const removeCustomText = (index: number) => {
   customTexts.value.splice(index, 1);
 };
 
-const updateCustomText = <K extends keyof CustomText>(
-  index: number, 
-  field: K, 
-  value: CustomText[K]
-) => {
-  if (index >= 0 && index < customTexts.value.length) {
-    const text = customTexts.value[index];
-    if (text) {
-      text[field] = value;
-    }
-  }
-};
-
 // Category management
 const createNewCategory = async () => {
   if (!newCategoryName.value.trim()) {
