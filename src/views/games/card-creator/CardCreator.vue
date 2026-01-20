@@ -3,6 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {Button, Card} from '@/components/ui';
 import Modal from '@/components/global/Modal.vue';
 import CollectibleCard from './CollectibleCard.vue';
+import BasicInfoPanel from './components/BasicInfoPanel.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
@@ -14,7 +15,6 @@ import type {
   PendingCardData,
 } from '@/composables/useCardCustomization';
 import type {AssetType} from '@/composables/useCardAssets';
-import ACSSelect from "@/components/ui/ACSSelect.vue";
 import {useRoute, useRouter} from 'vue-router';
 import useAdminStore from '@/stores/adminStore';
 import {useUserStore} from "@/stores/userStore.ts";
@@ -462,17 +462,6 @@ const selectedCategoryName = computed(() => {
   console.log(selectedCategoryId)
   if (!selectedCategoryId.value) return undefined;
   return categoryStore.categories.find(c => c.id === selectedCategoryId.value)?.name;
-});
-
-// Filtered Discord members based on search query
-const filteredDiscordMembers = computed(() => {
-  if (!discordSearchQuery.value.trim()) {
-    return cardStore.discordAvatars;
-  }
-  const query = discordSearchQuery.value.toLowerCase();
-  return cardStore.discordAvatars.filter(member =>
-    member.username.toLowerCase().includes(query)
-  );
 });
 
 // Filtered assets - show only user's assets by default
@@ -1393,274 +1382,55 @@ onUnmounted(() => {
             <!-- Tab Content -->
             <div class="space-y-6 min-h-[500px]">
               <!-- TAB 1: ESSENTIEL -->
-              <div v-show="activeTab === 'basics'" class="space-y-6 animate-fadeIn">
-                <!-- SECTION CATÉGORIE -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <div
-                    class="flex items-center justify-between"
-                  >
-                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
-                      <span>📁 Catégorie</span>
-                    </h3>
-                  </div>
-
-                  <div class="space-y-2 pt-2">
-                    <label class="form-label text-sm">Sélectionner ou créer une catégorie</label>
-                    <div class="flex gap-2">
-                      <ACSSelect
-                        v-model="selectedCategoryId"
-                        defaultOptionLabel="-- Pas de catégorie --"
-                        :options="categoryStore.categories.map(category => ({ label: category.name, value: category.id }))"
-                      />
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        @click="showCreateCategoryModal = true"
-                      >
-                        + Nouvelle
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SECTION TITRE -->
-                <div class="space-y-4 p-4 border border-accent-500/20 rounded-lg bg-gradient-to-br from-accent-900/10 to-ink-800/30 shadow-lg">
-                  <div
-                    class="flex items-center justify-between"
-                  >
-                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
-                      <span>📌 Titre</span>
-                      <span class="text-xs text-red-400">*</span>
-                    </h3>
-                  </div>
-
-                  <div class="space-y-4 pt-2">
-                    <div class="space-y-2">
-                      <label class="form-label text-sm">Contenu du titre *</label>
-                      <input
-                        v-model="title"
-                        type="text"
-                        maxlength="30"
-                        placeholder="Entrez le titre de votre carte"
-                        class="form-input"
-                      />
-                      <p class="text-xs text-foam-300/50">{{ title.length }}/30 caractères</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SECTION IMAGE PRINCIPALE -->
-                <div class="space-y-4 p-4 border border-accent-500/20 rounded-lg bg-gradient-to-br from-accent-900/10 to-ink-800/30 shadow-lg">
-                  <div
-                    class="flex items-center justify-between"
-                  >
-                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
-                      <span>🖼️ Image principale</span>
-                      <span class="text-xs text-red-400">*</span>
-                    </h3>
-                  </div>
-
-                  <div class="space-y-4 pt-2">
-                    <!-- Image Upload -->
-                    <div class="space-y-2">
-                      <input
-                        ref="fileInputRef"
-                        type="file"
-                        accept="image/*"
-                        class="hidden"
-                        @change="handleImageUpload"
-                      />
-                      <div class="flex gap-3">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          @click="triggerFileInput"
-                        >
-                          {{ hasMainImage ? 'Changer l\'image' : '📤 Ajouter une image' }}
-                        </Button>
-                        <Button
-                          v-if="hasMainImage"
-                          variant="danger"
-                          size="sm"
-                          @click="removeImage"
-                        >
-                          🗑️ Supprimer
-                        </Button>
-                      </div>
-                      <p
-                        v-if="!hasMainImage"
-                        class="text-xs text-red-400"
-                      >
-                        L'image principale est obligatoire pour sauvegarder la carte.
-                      </p>
-                    </div>
-
-                    <!-- Image Source Selection -->
-                    <div class="space-y-2">
-                      <label class="text-xs text-foam-300 block">Source de l'image</label>
-                      <div class="grid grid-cols-2 gap-2">
-                        <button
-                          :class="imageSourceType === 'cloudinary' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-                          @click="imageSourceType = 'cloudinary'"
-                        >
-                          🖼️ Galerie
-                        </button>
-                        <button
-                          v-if="cardStore.discordAvatars.length > 0"
-                          :class="imageSourceType === 'discord' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-                          @click="imageSourceType = 'discord'"
-                        >
-                          💬 Discord
-                        </button>
-                        <button
-                          :class="imageSourceType === 'upload' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-                          @click="imageSourceType = 'upload'"
-                        >
-                          📤 Téléverser
-                        </button>
-                        <button
-                          :class="imageSourceType === 'url' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-                          @click="imageSourceType = 'url'"
-                        >
-                          🔗 URL
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- URL Input -->
-                    <div v-if="imageSourceType === 'url'" class="space-y-2">
-                      <label class="form-label text-sm">URL de l'image</label>
-                      <div class="flex gap-2">
-                        <input
-                          v-model="imageUrlInput"
-                          type="text"
-                          placeholder="Entrez l'URL de l'image"
-                          class="form-input flex-1"
-                        />
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          @click="async () => {
-                            if (!imageUrlInput.trim()) {
-                              toastStore.error('Veuillez entrer une URL valide.');
-                              return;
-                            }
-                            const base64Data = await loadImageFromUrl(imageUrlInput.trim());
-                            if (base64Data) {
-                              (imageBase64 as any).value = base64Data.base64;
-                            }
-                          }"
-                        >
-                          Charger
-                        </Button>
-                      </div>
-                    </div>
-
-                    <!-- Discord Member Selector -->
-                    <div v-if="imageSourceType === 'discord'" class="space-y-2">
-                      <label class="form-label text-sm">Sélectionner un avatar Discord</label>
-                      <input
-                        v-model="discordSearchQuery"
-                        type="text"
-                        placeholder="🔍 Rechercher par username..."
-                        class="form-input"
-                      />
-                      <div v-if="filteredDiscordMembers.length > 0" class="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
-                        <button
-                          v-for="member in filteredDiscordMembers"
-                          :key="member.id"
-                          :class="selectedDiscordMemberId === member.id ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
-                          class="flex flex-col items-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 hover:scale-105"
-                          :title="member.username"
-                          @click="selectedDiscordMemberId = member.id"
-                        >
-                          <img
-                            :src="member.avatarUrl"
-                            :alt="member.username"
-                            class="w-12 h-12 rounded-full object-cover border border-white/10"
-                          />
-                          <span class="text-xs text-foam-300 truncate max-w-[3rem]">{{ member.username }}</span>
-                        </button>
-                      </div>
-                      <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-                        {{ discordSearchQuery ? 'Aucun membre trouvé.' : 'Aucun membre disponible.' }}
-                      </div>
-                    </div>
-
-                    <!-- Cloudinary Images Gallery -->
-                    <div v-if="imageSourceType === 'cloudinary'" class="space-y-2">
-                      <label class="form-label text-sm">Galerie d'images</label>
-                      <div class="flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          @click="toggleShowAllImages"
-                          class="flex-1"
-                        >
-                          {{ showAllImages ? '📌 Afficher les images utilisées' : '🌐 Afficher toutes les images' }}
-                        </Button>
-                        <Button
-                          v-if="!cardStore.loading"
-                          variant="secondary"
-                          size="sm"
-                          @click="showAllImages ? cardStore.fetchMainCardImages() : cardStore.fetchUsedMainCardImages()"
-                        >
-                          🔄
-                        </Button>
-                        <div v-else class="text-xs text-foam-400 flex items-center px-2">Chargement...</div>
-                      </div>
-                      <div v-if="cardStore.mainCardImages.length > 0" class="grid grid-cols-4 gap-4 max-h-96 overflow-y-auto border border-white/10 rounded-lg p-3 bg-ink-700/20">
-                        <button
-                          v-for="image in cardStore.mainCardImages"
-                          :key="image.publicId"
-                          :class="selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
-                          class="w-full h-22 items-center gap-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
-                          @click="selectedCloudinaryImage = image.publicId"
-                        >
-                          <img
-                            :src="image.secure_url"
-                            :alt="image.publicId"
-                            class="size-full rounded object-cover"
-                          />
-                        </button>
-                      </div>
-                      <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-                        {{ showAllImages ? 'Aucune image trouvée dans la galerie.' : 'Aucune image utilisée pour le moment.' }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- SECTION RARETÉ -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <div
-                    class="flex items-center justify-between"
-                  >
-                    <h3 class="text-sm font-semibold text-foam-200 flex items-center gap-2">
-                      <span>⭐ Rareté</span>
-                    </h3>
-                  </div>
-
-                  <div class="space-y-2 pt-2">
-                    <label class="text-xs text-foam-300 block">Sélectionnez la rareté de la carte</label>
-                    <div class="grid grid-cols-5 gap-2">
-                      <button
-                        v-for="r in ['common', 'uncommon', 'rare', 'epic', 'legendary']"
-                        :key="r"
-                        :class="rarity === r ? 'bg-accent-500 text-white ring-2 ring-accent-400 scale-105' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-2 py-2 rounded text-xs font-medium transition-all duration-200"
-                        :title="r.charAt(0).toUpperCase() + r.slice(1)"
-                        @click="rarity = r as 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'"
-                      >
-                        {{ r === 'common' ? '⚪' : r === 'uncommon' ? '🟩' : r === 'rare' ? '🟦' : r === 'epic' ? '🟪' : '🟨' }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <div v-show="activeTab === 'basics'">
+                <!-- Hidden file input (needs to be in parent for ref access) -->
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="handleImageUpload"
+                />
+                
+                <BasicInfoPanel
+                  :title="title"
+                  @update:title="title = $event"
+                  :category-id="selectedCategoryId"
+                  @update:category-id="selectedCategoryId = $event"
+                  :rarity="rarity"
+                  @update:rarity="rarity = $event"
+                  :has-main-image="hasMainImage"
+                  :image-source-type="imageSourceType"
+                  @update:image-source-type="imageSourceType = $event"
+                  :image-url-input="imageUrlInput"
+                  @update:image-url-input="imageUrlInput = $event"
+                  :discord-search-query="discordSearchQuery"
+                  @update:discord-search-query="discordSearchQuery = $event"
+                  :selected-discord-member-id="selectedDiscordMemberId"
+                  @update:selected-discord-member-id="selectedDiscordMemberId = $event"
+                  :selected-cloudinary-image="selectedCloudinaryImage"
+                  @update:selected-cloudinary-image="selectedCloudinaryImage = $event"
+                  :show-all-images="showAllImages"
+                  :categories="categoryStore.categories"
+                  :discord-members="cardStore.discordAvatars"
+                  :cloudinary-images="cardStore.mainCardImages"
+                  :is-loading-images="cardStore.loading"
+                  @show-create-category-modal="showCreateCategoryModal = true"
+                  @trigger-file-input="triggerFileInput"
+                  @remove-image="removeImage"
+                  @load-image-from-url="async (url) => {
+                    if (!url.trim()) {
+                      toastStore.error('Veuillez entrer une URL valide.');
+                      return;
+                    }
+                    const base64Data = await loadImageFromUrl(url.trim());
+                    if (base64Data) {
+                      imageBase64 = base64Data.base64;
+                    }
+                  }"
+                  @toggle-show-all-images="toggleShowAllImages"
+                  @refresh-images="showAllImages ? cardStore.fetchMainCardImages() : cardStore.fetchUsedMainCardImages()"
+                />
               </div>
 
               <!-- TAB 2: APPARENCE -->
