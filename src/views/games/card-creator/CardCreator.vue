@@ -5,6 +5,9 @@ import Modal from '@/components/global/Modal.vue';
 import CollectibleCard from './CollectibleCard.vue';
 import BasicInfoPanel from './components/BasicInfoPanel.vue';
 import AppearancePanel from './components/AppearancePanel.vue';
+import TextsPanel from './components/TextsPanel.vue';
+import AssetsPanel from './components/AssetsPanel.vue';
+import EffectsPanel from './components/EffectsPanel.vue';
 import useCardStore from '@/stores/cardStore';
 import {useToastStore} from '@/stores/toastStore';
 import {useCardCategoryStore} from '@/stores/cardCategoryStore';
@@ -1392,6 +1395,22 @@ onUnmounted(() => {
                   class="hidden"
                   @change="handleImageUpload"
                 />
+
+                <!-- Hidden asset file inputs -->
+                <input
+                  ref="backgroundAssetImageInputRef"
+                  type="file"
+                  accept="image/png,image/gif"
+                  class="hidden"
+                  @change="handleAssetImageUpload"
+                />
+                <input
+                  ref="borderAssetImageInputRef"
+                  type="file"
+                  accept="image/png,image/gif"
+                  class="hidden"
+                  @change="handleAssetImageUpload"
+                />
                 
                 <BasicInfoPanel
                   :title="title"
@@ -1471,536 +1490,70 @@ onUnmounted(() => {
               </div>
 
               <!-- TAB 3: TEXTES -->
-              <div v-show="activeTab === 'texts'" class="space-y-6 animate-fadeIn">
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-foam-200">📝 Textes personnalisés ({{ customTexts.length }}/5)</h3>
-                    <Button
-                      v-if="customTexts.length < 5"
-                      variant="secondary"
-                      size="sm"
-                      @click="addCustomText"
-                    >
-                      ➕ Ajouter texte
-                    </Button>
-                  </div>
-
-                  <!-- Custom texts list -->
-                  <div v-if="customTexts.length === 0" class="text-xs text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
-                    <div class="mb-2">📝</div>
-                    Aucun texte personnalisé. Cliquez sur "+ Ajouter texte" pour en ajouter.
-                  </div>
-
-                  <div v-for="(text, index) in customTexts" :key="text.id || `text-${index}`" class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-700/20 hover:border-accent-500/30 transition-all duration-200">
-                    <!-- Text header -->
-                    <div class="flex items-center justify-between">
-                      <label class="text-xs text-foam-300 font-semibold">📄 Texte {{ index + 1 }}</label>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        @click="removeCustomText(index)"
-                      >
-                        🗑️ Supprimer
-                      </Button>
-                    </div>
-
-                    <!-- Text content -->
-                    <div class="space-y-2">
-                      <textarea
-                        :value="text.content"
-                        @input="updateCustomText(index, 'content', ($event.target as HTMLTextAreaElement).value)"
-                        rows="2"
-                        maxlength="100"
-                        placeholder="Entrez votre texte..."
-                        class="form-input resize-none w-full text-sm"
-                      />
-                      <p class="text-xs text-foam-300/50">{{ text.content.length }}/100 caractères</p>
-                    </div>
-
-                    <!-- Text color -->
-                    <div class="space-y-2">
-                      <label class="text-xs text-foam-300">Couleur</label>
-                      <div class="flex gap-3 items-center">
-                        <input
-                          :value="text.color"
-                          type="color"
-                          @input="updateCustomText(index, 'color', ($event.target as HTMLInputElement).value)"
-                          class="w-12 h-8 rounded cursor-pointer border border-white/10"
-                        />
-                        <input
-                          :value="text.color"
-                          type="text"
-                          @input="updateCustomText(index, 'color', ($event.target as HTMLInputElement).value)"
-                          placeholder="#ffffff"
-                          class="flex-1 form-input text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Text Font Size -->
-                    <div class="space-y-2">
-                      <label class="text-xs text-foam-300">Taille du texte</label>
-                      <div class="flex gap-2 items-center">
-                        <input
-                          :value="text.fontSize || 14"
-                          @input="updateCustomText(index, 'fontSize', Number(($event.target as HTMLInputElement).value))"
-                          type="range"
-                          min="8"
-                          max="32"
-                          class="flex-1"
-                        />
-                        <span class="text-xs text-foam-300 w-12 font-semibold">{{ text.fontSize || 14 }}px</span>
-                      </div>
-                    </div>
-
-                    <!-- Text positioning -->
-                    <div class="space-y-2">
-                      <label class="text-xs text-foam-300 block">Position</label>
-                      <div class="grid grid-cols-2 gap-3">
-                        <div>
-                          <label class="text-xs text-foam-300/80 block mb-1">X</label>
-                          <div class="flex gap-2 items-center">
-                            <input
-                              :value="text.posX"
-                              @input="updateCustomText(index, 'posX', Number(($event.target as HTMLInputElement).value))"
-                              type="range"
-                              min="0"
-                              max="100"
-                              class="flex-1"
-                            />
-                            <span class="text-xs text-foam-300 w-12 font-semibold">{{ text.posX }}%</span>
-                          </div>
-                        </div>
-                        <div>
-                          <label class="text-xs text-foam-300/80 block mb-1">Y</label>
-                          <div class="flex gap-2 items-center">
-                            <input
-                              :value="text.posY"
-                              @input="updateCustomText(index, 'posY', Number(($event.target as HTMLInputElement).value))"
-                              type="range"
-                              min="0"
-                              max="100"
-                              class="flex-1"
-                            />
-                            <span class="text-xs text-foam-300 w-12 font-semibold">{{ text.posY }}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Text alignment -->
-                    <div class="space-y-2">
-                      <label class="text-xs text-foam-300 block">Alignement</label>
-                      <div class="flex gap-2">
-                        <button
-                          :class="text.align === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                          @click="updateCustomText(index, 'align', 'left')"
-                        >
-                          ◀ Gauche
-                        </button>
-                        <button
-                          :class="text.align === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                          @click="updateCustomText(index, 'align', 'center')"
-                        >
-                          ■ Centré
-                        </button>
-                        <button
-                          :class="text.align === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                          @click="updateCustomText(index, 'align', 'right')"
-                        >
-                          ▶ Droite
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Text width -->
-                    <div class="space-y-2">
-                      <label class="text-xs text-foam-300 block">Largeur du texte</label>
-                      <div class="flex gap-2">
-                        <button
-                          :class="text.width === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                          @click="updateCustomText(index, 'width', 'w-full')"
-                        >
-                          Pleine largeur
-                        </button>
-                        <button
-                          :class="text.width === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                          class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-                          @click="updateCustomText(index, 'width', 'w-auto')"
-                        >
-                          Auto
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div v-show="activeTab === 'texts'">
+                <TextsPanel
+                  :custom-texts="customTexts"
+                  @add-text="addCustomText"
+                  @remove-text="removeCustomText"
+                  @update-text="updateCustomText"
+                />
               </div>
 
               <!-- TAB 4: FOND & BORDURES -->
-              <div v-show="activeTab === 'assets'" class="space-y-6 animate-fadeIn">
-                <!-- CRÉER UN ASSET -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-foam-200">🎨 Créer un asset personnalisé</h3>
-                    <div class="flex gap-2">
-                      <button
-                        :class="assetCategory === 'background' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200"
-                        @click="assetCategory = 'background'"
-                      >
-                        🖼️ Fond
-                      </button>
-                      <button
-                        :class="assetCategory === 'border' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                        class="px-3 py-1 rounded text-xs font-medium transition-all duration-200"
-                        @click="assetCategory = 'border'"
-                      >
-                        🔲 Bordure
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Asset Type Tabs -->
-                  <div class="flex gap-2">
-                    <button
-                      :class="getCurrentAssetType() === 'solid' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                      class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
-                      @click="setCurrentAssetType('solid')"
-                    >
-                      🎨 Couleur
-                    </button>
-                    <button
-                      v-if="assetCategory === 'background'"
-                      :class="getCurrentAssetType() === 'gradient' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                      class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
-                      @click="setCurrentAssetType('gradient')"
-                    >
-                      🌈 Dégradé
-                    </button>
-                    <button
-                      :class="getCurrentAssetType() === 'image' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
-                      class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
-                      @click="setCurrentAssetType('image')"
-                    >
-                      📷 Image
-                    </button>
-                  </div>
-
-                  <!-- Solid Color -->
-                  <div v-if="getCurrentAssetType() === 'solid'" class="space-y-3">
-                    <div class="flex gap-3 items-center">
-                      <input
-                        :value="getCurrentSolidColor()"
-                        type="color"
-                        class="w-16 h-10 rounded cursor-pointer border border-white/10"
-                        @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
-                      />
-                      <input
-                        :value="getCurrentSolidColor()"
-                        type="text"
-                        placeholder="#667eea"
-                        class="flex-1 form-input text-sm"
-                        @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
-                      />
-                    </div>
-                    <div
-                      class="w-full h-20 rounded-lg border border-white/10"
-                      :style="{ background: getCurrentSolidColor() }"
-                    />
-                  </div>
-
-                  <!-- Gradient -->
-                  <div v-if="getCurrentAssetType() === 'gradient' && assetCategory === 'background'" class="space-y-3">
-                    <div>
-                      <label class="form-label text-sm">Couleur 1</label>
-                      <div class="flex gap-3 items-center mt-1">
-                        <input
-                          :value="getCurrentGradientColor1()"
-                          type="color"
-                          class="w-16 h-10 rounded cursor-pointer border border-white/10"
-                          @input="(e) => setCurrentGradientColor1((e.target as HTMLInputElement).value)"
-                        />
-                        <input
-                          :value="getCurrentGradientColor1()"
-                          type="text"
-                          placeholder="#667eea"
-                          class="flex-1 form-input text-sm"
-                          @input="(e) => setCurrentGradientColor1((e.target as HTMLInputElement).value)"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label class="form-label text-sm">Couleur 2</label>
-                      <div class="flex gap-3 items-center mt-1">
-                        <input
-                          :value="getCurrentGradientColor2()"
-                          type="color"
-                          class="w-16 h-10 rounded cursor-pointer border border-white/10"
-                          @input="(e) => setCurrentGradientColor2((e.target as HTMLInputElement).value)"
-                        />
-                        <input
-                          :value="getCurrentGradientColor2()"
-                          type="text"
-                          placeholder="#764ba2"
-                          class="flex-1 form-input text-sm"
-                          @input="(e) => setCurrentGradientColor2((e.target as HTMLInputElement).value)"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label class="form-label text-sm">Angle (0-360°)</label>
-                      <div class="flex gap-3 items-center mt-1">
-                        <input
-                          :value="getCurrentGradientAngle()"
-                          type="range"
-                          min="0"
-                          max="360"
-                          class="flex-1"
-                          @input="(e) => setCurrentGradientAngle(Number((e.target as HTMLInputElement).value))"
-                        />
-                        <span class="text-sm text-foam-300 w-12 font-semibold">{{ getCurrentGradientAngle() }}°</span>
-                      </div>
-                    </div>
-                    <div
-                      class="w-full h-20 rounded-lg border border-white/10"
-                      :style="{ background: `linear-gradient(${getCurrentGradientAngle()}deg, ${getCurrentGradientColor1()} 0%, ${getCurrentGradientColor2()} 100%)` }"
-                    />
-                  </div>
-
-                  <!-- Image Upload -->
-                  <div v-if="getCurrentAssetType() === 'image'" class="space-y-3">
-                    <input
-                      v-if="assetCategory === 'background'"
-                      ref="backgroundAssetImageInputRef"
-                      type="file"
-                      accept="image/png,image/gif"
-                      class="hidden"
-                      @change="handleAssetImageUpload"
-                    />
-                    <input
-                      v-else
-                      ref="borderAssetImageInputRef"
-                      type="file"
-                      accept="image/png,image/gif"
-                      class="hidden"
-                      @change="handleAssetImageUpload"
-                    />
-                    <div class="flex gap-3">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        @click="triggerAssetImageInput"
-                      >
-                        {{ getCurrentImagePreview() ? '🔄 Changer l\'image' : '📤 Ajouter une image' }}
-                      </Button>
-                      <Button
-                        v-if="getCurrentImagePreview()"
-                        variant="danger"
-                        size="sm"
-                        @click="removeAssetImage"
-                      >
-                        🗑️ Supprimer
-                      </Button>
-                    </div>
-                    <p class="text-xs text-foam-300/50">PNG ou GIF, max 3MB</p>
-                    <div
-                      v-if="getCurrentImagePreview()"
-                      class="w-full h-20 rounded-lg border border-white/10 overflow-hidden"
-                    >
-                      <img
-                        :src="getCurrentImagePreview()"
-                        alt="Aperçu de l'asset"
-                        class="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Asset Name -->
-                  <div class="space-y-2">
-                    <label class="form-label text-sm">Nommer cet asset (pour le créer)</label>
-                    <input
-                      :value="getCurrentAssetName()"
-                      type="text"
-                      :placeholder="`ex: ${assetCategory === 'background' ? 'Ciel étoilé' : 'Bordure dorée'}`"
-                      class="form-input text-sm"
-                      @input="(e) => setCurrentAssetName((e.target as HTMLInputElement).value)"
-                    />
-                    <p class="text-xs text-foam-300/50">Laissez vide pour sélectionner un asset existant</p>
-                    <div class="flex justify-end">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        @click="applyCurrentAsset"
-                        :disabled="assetCategory === 'background' ? !isBackgroundAssetValid : !isBorderAssetValid"
-                      >
-                        ✓ Utiliser cet asset
-                      </Button>
-                    </div>
-                  </div>
-                  <p class="text-xs text-foam-300/60 p-2 bg-ink-700/30 rounded border border-white/5">
-                    💡 Vérifiez qu'un asset similaire n'existe pas déjà avant d'en créer un nouveau
-                  </p>
-                </div>
-
-                <!-- SÉLECTION FOND -->
-                <div class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <div class="flex justify-between items-center">
-                    <label class="form-label flex items-center gap-2">
-                      <span>🖼️ Fonds disponibles</span>
-                    </label>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      @click="() => { selectedFrontAssetId = undefined; useCustomFrontAsset = false; }"
-                    >
-                      ✕ Aucun fond
-                    </Button>
-                  </div>
-                  <div class="flex justify-center">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      @click="toggleShowAllAssets"
-                      class="w-full max-w-xs"
-                    >
-                      {{ showAllAssets ? '👤 Afficher mes assets uniquement' : '👥 Afficher tous les assets' }}
-                    </Button>
-                  </div>
-                  <div v-if="filteredBackgroundAssets.length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
-                    {{ showAllAssets ? 'Aucun fond créé pour le moment.' : 'Vous n\'avez créé aucun fond. Cliquez sur "Afficher tous les assets" pour voir ceux des autres utilisateurs.' }}
-                  </div>
-                  <div v-else class="grid grid-cols-4 gap-3">
-                    <button
-                      v-for="asset in filteredBackgroundAssets"
-                      :key="asset.id"
-                      class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden relative"
-                      :class="selectedFrontAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
-                      :style="
-                        asset.type === 'solid'
-                          ? { background: asset.solidColor }
-                          : asset.type === 'gradient'
-                            ? { background: `linear-gradient(${asset.angle || 135}deg, ${asset.color1} 0%, ${asset.color2} 100%)` }
-                            : { background: '#1a1a2e' }
-                      "
-                      :title="asset.name"
-                      @click="() => { selectedFrontAssetId = asset.id; useCustomFrontAsset = false; }"
-                    >
-                      <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="cardStore.deleteAsset(asset.id)" />
-                      <img
-                        v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
-                        :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
-                        :alt="asset.name"
-                        class="w-full h-full object-cover"
-                      />
-                    </button>
-                  </div>
-                </div>
-
-                <!-- SÉLECTION BORDURE -->
-                <div class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <div class="flex justify-between items-center">
-                    <label class="form-label flex items-center gap-2">
-                      <span>🔲 Bordures disponibles</span>
-                    </label>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      @click="() => { selectedBorderAssetId = undefined; useCustomBorderAsset = false; }"
-                    >
-                      ✕ Aucune bordure
-                    </Button>
-                  </div>
-                  <div class="flex justify-center">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      @click="toggleShowAllAssets"
-                      class="w-full max-w-xs"
-                    >
-                      {{ showAllAssets ? '👤 Afficher mes assets uniquement' : '👥 Afficher tous les assets' }}
-                    </Button>
-                  </div>
-                  <div v-if="filteredBorderAssets.length === 0" class="text-sm text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
-                    {{ showAllAssets ? 'Aucune bordure créée pour le moment.' : 'Vous n\'avez créé aucune bordure. Cliquez sur "Afficher tous les assets" pour voir ceux des autres utilisateurs.' }}
-                  </div>
-                  <div v-else class="grid grid-cols-4 gap-3">
-                    <button
-                      v-for="asset in filteredBorderAssets"
-                      :key="asset.id"
-                      class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden bg-ink-800 relative"
-                      :class="selectedBorderAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
-                      :style="
-                        asset.type === 'solid'
-                          ? { borderColor: asset.solidColor }
-                          : {}
-                      "
-                      :title="asset.name"
-                      @click="() => { selectedBorderAssetId = asset.id; useCustomBorderAsset = false; }"
-                    >
-                      <VueIcon v-if="asset.createdBy?.id === user?.id" name="fa:trash" class="text-red-400 cursor-pointer absolute top-1 right-1 hover:scale-125 transition-transform" @click.stop="cardStore.deleteAsset(asset.id)" />
-                      <img
-                        v-if="asset.type === 'image' && (asset.imageUrl || asset.imageBase64)"
-                        :src="asset.imageUrl || `data:image/png;base64,${asset.imageBase64}`"
-                        :alt="asset.name"
-                        class="w-full h-full object-cover"
-                      />
-                    </button>
-                  </div>
-                </div>
+              <div v-show="activeTab === 'assets'">
+                <AssetsPanel
+                  :asset-category="assetCategory"
+                  @update:asset-category="assetCategory = $event"
+                  :background-asset-name="backgroundAssetName"
+                  @update:background-asset-name="backgroundAssetName = $event"
+                  :background-asset-type="backgroundAssetType"
+                  @update:background-asset-type="backgroundAssetType = $event"
+                  :background-solid-color="backgroundSolidColor"
+                  @update:background-solid-color="backgroundSolidColor = $event"
+                  :background-gradient-color1="backgroundGradientColor1"
+                  @update:background-gradient-color1="backgroundGradientColor1 = $event"
+                  :background-gradient-color2="backgroundGradientColor2"
+                  @update:background-gradient-color2="backgroundGradientColor2 = $event"
+                  :background-gradient-angle="backgroundGradientAngle"
+                  @update:background-gradient-angle="backgroundGradientAngle = $event"
+                  :background-asset-image-preview="backgroundAssetImagePreview"
+                  :border-asset-name="borderAssetName"
+                  @update:border-asset-name="borderAssetName = $event"
+                  :border-asset-type="borderAssetType"
+                  @update:border-asset-type="borderAssetType = $event"
+                  :border-solid-color="borderSolidColor"
+                  @update:border-solid-color="borderSolidColor = $event"
+                  :border-asset-image-preview="borderAssetImagePreview"
+                  :selected-front-asset-id="selectedFrontAssetId"
+                  @update:selected-front-asset-id="selectedFrontAssetId = $event"
+                  :selected-border-asset-id="selectedBorderAssetId"
+                  @update:selected-border-asset-id="selectedBorderAssetId = $event"
+                  @update:use-custom-front-asset="useCustomFrontAsset = $event"
+                  @update:use-custom-border-asset="useCustomBorderAsset = $event"
+                  :is-background-asset-valid="isBackgroundAssetValid"
+                  :is-border-asset-valid="isBorderAssetValid"
+                  :filtered-background-assets="filteredBackgroundAssets"
+                  :filtered-border-assets="filteredBorderAssets"
+                  :show-all-assets="showAllAssets"
+                  :user-id="user?.id"
+                  @trigger-asset-image-input="triggerAssetImageInput"
+                  @remove-asset-image="removeAssetImage"
+                  @apply-current-asset="applyCurrentAsset"
+                  @delete-asset="cardStore.deleteAsset"
+                  @toggle-show-all-assets="toggleShowAllAssets"
+                />
               </div>
 
               <!-- TAB 5: EFFETS -->
-              <div v-show="activeTab === 'effects'" class="space-y-6 animate-fadeIn">
-                <!-- SECTION EFFETS -->
-                <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
-                  <h3 class="text-sm font-semibold text-foam-200">✨ Effets visuels</h3>
-
-                  <!-- Remove Background Toggle -->
-                  <div class="flex items-center gap-3 p-3 rounded-lg bg-ink-700/20 hover:bg-ink-700/30 transition-all duration-200">
-                    <input
-                      v-model="removeImageBg"
-                      type="checkbox"
-                      id="removeBg"
-                      class="w-4 h-4 rounded cursor-pointer"
-                    />
-                    <label for="removeBg" class="text-sm text-foam-300 cursor-pointer flex-1">
-                      🎭 Supprimer le fond de l'image (approximatif)
-                    </label>
-                  </div>
-
-                  <!-- Holographic Effect Toggle -->
-                  <div class="flex items-center gap-3 p-3 rounded-lg bg-ink-700/20 hover:bg-ink-700/30 transition-all duration-200">
-                    <input
-                      v-model="holographicEffect"
-                      type="checkbox"
-                      id="holoEffect"
-                      class="w-4 h-4 rounded cursor-pointer"
-                    />
-                    <label for="holoEffect" class="text-sm text-foam-300 cursor-pointer flex-1">
-                      💎 Activer l'effet holographique
-                    </label>
-                  </div>
-
-                  <!-- Holographic Intensity Slider -->
-                  <div v-if="holographicEffect" class="space-y-2 ml-6 p-3 bg-ink-700/10 rounded-lg border-l-2 border-accent-500/30">
-                    <label class="text-xs text-foam-300 font-semibold">Intensité de l'effet</label>
-                    <div class="flex gap-2 items-center">
-                      <input
-                        v-model.number="holographicIntensity"
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        class="flex-1"
-                      />
-                      <span class="text-xs text-foam-300 w-12 font-semibold">{{ Math.round(holographicIntensity * 100) }}%</span>
-                    </div>
-                  </div>
-                </div>
+              <div v-show="activeTab === 'effects'">
+                <EffectsPanel
+                  :remove-image-bg="removeImageBg"
+                  @update:remove-image-bg="removeImageBg = $event"
+                  :holographic-effect="holographicEffect"
+                  @update:holographic-effect="holographicEffect = $event"
+                  :holographic-intensity="holographicIntensity"
+                  @update:holographic-intensity="holographicIntensity = $event"
+                />
               </div>
             </div>
 
