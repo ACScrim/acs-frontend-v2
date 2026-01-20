@@ -527,6 +527,7 @@ const removeImage = () => {
 const addCustomText = () => {
   if (customTexts.value.length < 5) {
     customTexts.value.push({
+      id: `text-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Unique ID for proper key binding
       content: `Texte ${customTexts.value.length + 1}`,
       posX: 50,
       posY: 50 + (customTexts.value.length * 15),
@@ -1871,7 +1872,7 @@ onUnmounted(() => {
                     Aucun texte personnalisé. Cliquez sur "+ Ajouter texte" pour en ajouter.
                   </div>
 
-                  <div v-for="(text, index) in customTexts" :key="index" class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-700/20 hover:border-accent-500/30 transition-all duration-200">
+                  <div v-for="(text, index) in customTexts" :key="text.id || `text-${index}`" class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-700/20 hover:border-accent-500/30 transition-all duration-200">
                     <!-- Text header -->
                     <div class="flex items-center justify-between">
                       <label class="text-xs text-foam-300 font-semibold">📄 Texte {{ index + 1 }}</label>

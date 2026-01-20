@@ -36,7 +36,7 @@ watch(
     });
     editableTeams.value = snapshot;
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 );
 
 const getTeamTierInfo = (team: Tournament['teams'][number]) => {

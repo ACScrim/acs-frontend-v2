@@ -24,20 +24,22 @@ import useTournamentStore from '@/stores/tournamentStore';
 import type { Tournament, User } from '@/types/models';
 import { getTournamentLink, getErrorMessage } from '@/utils';
 import { whenever } from '@vueuse/core';
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue';
 import { useRoute, type NavigationGuardNext, type RouteLocationNormalizedGeneric, type RouteLocationNormalizedLoadedGeneric } from 'vue-router';
-import TournamentActionsCard from './components/TournamentActionsCard.vue';
-import TournamentCastersList from './components/TournamentCastersList.vue';
-import TournamentClips from './components/TournamentClips.vue';
-import TournamentDetailsHeader from './components/TournamentDetailsHeader.vue';
-import TournamentLeaderboard from './components/TournamentLeaderboard.vue';
-import TournamentMvp from './components/TournamentMvp.vue';
-import TournamentPlayersList from './components/TournamentPlayersList.vue';
-import TournamentTeamsList from './components/TournamentTeamsList.vue';
-import TournamentBracket from './components/TournamentBracket.vue';
 import { useUserStore } from '@/stores/userStore';
-import TournamentPlayerGameLevel from './components/TournamentPlayerGameLevel.vue';
 import { useToastStore } from '@/stores/toastStore';
+
+// Lazy load tournament sub-components for better code splitting
+const TournamentActionsCard = defineAsyncComponent(() => import('./components/TournamentActionsCard.vue'));
+const TournamentCastersList = defineAsyncComponent(() => import('./components/TournamentCastersList.vue'));
+const TournamentClips = defineAsyncComponent(() => import('./components/TournamentClips.vue'));
+const TournamentDetailsHeader = defineAsyncComponent(() => import('./components/TournamentDetailsHeader.vue'));
+const TournamentLeaderboard = defineAsyncComponent(() => import('./components/TournamentLeaderboard.vue'));
+const TournamentMvp = defineAsyncComponent(() => import('./components/TournamentMvp.vue'));
+const TournamentPlayersList = defineAsyncComponent(() => import('./components/TournamentPlayersList.vue'));
+const TournamentTeamsList = defineAsyncComponent(() => import('./components/TournamentTeamsList.vue'));
+const TournamentBracket = defineAsyncComponent(() => import('./components/TournamentBracket.vue'));
+const TournamentPlayerGameLevel = defineAsyncComponent(() => import('./components/TournamentPlayerGameLevel.vue'));
 
 const route = useRoute();
 const tournamentStore = useTournamentStore();

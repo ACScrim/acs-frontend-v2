@@ -3,6 +3,7 @@ import type { Ref } from 'vue';
 import type { CardAsset } from '@/types/models';
 
 export interface CustomText {
+  id?: string; // Unique ID for proper Vue key binding
   content: string;
   posX: number;
   posY: number;

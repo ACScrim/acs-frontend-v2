@@ -111,7 +111,7 @@ const resetForm = () => {
                   ]"
                 >
                   <div class="flex items-center gap-4">
-                    <img v-if="option.background_image" :src="option.background_image" alt="" class="size-12 rounded-lg object-cover" />
+                    <img v-if="option.background_image" :src="option.background_image" alt="" class="size-12 rounded-lg object-cover" loading="lazy" />
                     <div>
                       <p class="font-semibold">{{ option.label }}</p>
                       <p v-if="option.release_date" class="text-xs text-foam-300/70">Sortie : {{ option.release_date }}</p>

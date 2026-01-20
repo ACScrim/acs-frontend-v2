@@ -357,6 +357,7 @@ const shuffledOptions = computed(() => {
                 :src="gamesStore.dailyQuiz.todayQuestion?.image"
                 :alt="`Image pour la question du jour : ${gamesStore.dailyQuiz.todayQuestion?.question}`"
                 class="w-full object-contain rounded-xl shadow-lg"
+                loading="lazy"
                 :class="{
                   'max-h-72':
                     gamesStore.dailyQuiz.todayQuestion?.category === 'Pokémon',

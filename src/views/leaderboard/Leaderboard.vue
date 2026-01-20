@@ -9,6 +9,7 @@ import api from "@/utils/api";
 import { getErrorMessage } from "@/utils";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import { computed, h, nextTick, onMounted, ref, watch } from "vue";
+import { refDebounced } from "@vueuse/core";
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -21,6 +22,8 @@ import {useTablePaginationQueryString} from "@/composables/useTablePaginationQue
 
 const seasonFilter = ref("");
 const searchQuery = ref("");
+// Debounce search to avoid filtering on every keystroke
+const debouncedSearchQuery = refDebounced(searchQuery, 300);
 const isLoading = ref(false);
 
 const paginationQs = useTablePaginationQueryString({ param: 'page', defaultPage: 1, cleanDefault: false });
@@ -31,11 +34,11 @@ const seasons = computed(() => seasonStore.seasons);
 const leaderboard = ref<LeaderboardEntry[]>([]);
 
 const filteredLeaderboard = computed(() => {
-  if (!searchQuery.value.trim()) {
+  if (!debouncedSearchQuery.value.trim()) {
     return leaderboard.value;
   }
 
-  const query = searchQuery.value.toLowerCase().trim();
+  const query = debouncedSearchQuery.value.toLowerCase().trim();
   return leaderboard.value.filter((entry) =>
     entry.user.username.toLowerCase().includes(query)
   );
