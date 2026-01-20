@@ -36,8 +36,17 @@ export const useUserStore = defineStore('acs-user', {
       try {
         const response = await api.patch<ApiResponse<User>>("/users/me/twitch", { twitchUsername: username });
         this.user = response.data.data;
+
+        // Mettre à jour également le cache des utilisateurs pour éviter l'affichage d'anciennes données
+        if (this.user?.id) {
+          const cachedUser = this.users[this.user.id];
+          if (cachedUser) {
+            cachedUser.twitchUsername = response.data.data.twitchUsername;
+          }
+        }
       } catch (error: any) {
         useToastStore().error("Error updating Twitch username:", error.message || error);
+        throw error; // Propager l'erreur pour que le composant puisse la gérer
       }
     },
     async logout() {

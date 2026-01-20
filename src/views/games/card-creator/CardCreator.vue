@@ -326,7 +326,7 @@ const isTabComplete = computed(() => ({
   effects: true // Always accessible
 }));
 
-const hasMainImage = computed(() => Boolean(imageBase64.value));
+const hasMainImage = computed(() => Boolean(imageBase64.value || imageUrl.value));
 
 // Computed
 const selectedFrontAsset = computed(() => {
@@ -764,8 +764,11 @@ const saveCard = async () => {
     ? cardStore.discordAvatars.find(m => m.id === selectedDiscordMemberId.value)
     : null;
   const cloudinaryImage = imageSourceType.value === 'cloudinary' && selectedCloudinaryImage.value
-    ? cardStore.mainCardImages.find(img => img.publicId === selectedCloudinaryImage.value)
+    ? cardStore.mainCardImages.find(img => img.secure_url === selectedCloudinaryImage.value)
     : null;
+
+  console.log('cloudinaryImage', cloudinaryImage, selectedCloudinaryImage.value);
+  console.log('member', member, selectedDiscordMemberId.value);
 
   pendingCardData.value = {
     title: title.value,
@@ -1125,15 +1128,10 @@ watch(selectedDiscordMemberId, async (newMemberId) => {
   if (imageSourceType.value === 'discord' && newMemberId) {
     const member = cardStore.discordAvatars.find(m => m.id === newMemberId);
     if (member) {
-      // For Discord avatars, use URL directly - no base64 conversion
+      // For Discord avatars, use URL directly - no base64 conversion needed
       imageUrl.value = member.avatarUrl;
       imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
-
-      // Load for preview only
-      const base64Data = await loadImageFromUrl(member.avatarUrl);
-      if (base64Data) {
-        imageBase64.value = base64Data.base64; // Only for preview
-      }
+      // Le preview utilisera directement imageUrl, pas besoin de base64
       toastStore.success(`Avatar de ${member.username} sélectionné`);
     }
   }
@@ -1180,15 +1178,10 @@ watch(selectedCloudinaryImage, async (newImageId) => {
   if (imageSourceType.value === 'cloudinary' && newImageId) {
     const image = cardStore.mainCardImages.find(img => img.publicId === newImageId);
     if (image) {
-      // For Cloudinary images, use URL directly - no base64 conversion
+      // For Cloudinary images, use URL directly - no base64 conversion needed
       imageUrl.value = image.secure_url;
       imageBase64.value = ''; // Clear base64 so backend knows to use imageUrl
-
-      // Load for preview only
-      const base64Data = await loadImageFromUrl(image.secure_url);
-      if (base64Data) {
-        imageBase64.value = base64Data.base64; // Only for preview
-      }
+      // Le preview utilisera directement imageUrl, pas besoin de base64
       toastStore.success('Image sélectionnée');
     }
   }
@@ -1236,6 +1229,7 @@ onUnmounted(() => {
                   :card="{
                     id: 'preview',
                     title,
+                    imageUrl,
                     imageBase64,
                     frontAsset: selectedFrontAsset,
                     borderAsset: selectedBorderAsset,
@@ -1402,20 +1396,12 @@ onUnmounted(() => {
                     selectedDiscordMemberId = memberId;
                     const member = cardStore.discordAvatars.find(m => m.id === memberId);
                     if (member) {
-                      const base64Data = await loadImageFromUrl(member.avatarUrl);
-                      if (base64Data) {
-                        basicInfo.imageBase64 = base64Data.base64;
-                        basicInfo.imageUrl = member.avatarUrl;
-                      }
+                      basicInfo.imageUrl = member.avatarUrl;
                     }
                   }"
-                  @select-cloudinary-image="async (imageUrl) => {
-                    selectedCloudinaryImage = imageUrl;
-                    const base64Data = await loadImageFromUrl(imageUrl);
-                    if (base64Data) {
-                      basicInfo.imageBase64 = base64Data.base64;
-                      basicInfo.imageUrl = imageUrl;
-                    }
+                  @select-cloudinary-image="async (url) => {
+                    selectedCloudinaryImage = url;
+                    basicInfo.imageUrl = url;
                   }"
                 />
               </div>

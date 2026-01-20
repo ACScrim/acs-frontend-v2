@@ -168,7 +168,7 @@ const selectBorderAsset = (assetId: string) => {
           🎨 Couleur
         </button>
         <button
-          v-if="assetCategory === 'background'"
+          v-if="assetSelection.assetCategory === 'background'"
           :class="getCurrentAssetType === 'gradient' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
           class="px-3 py-2 rounded text-sm font-medium transition-all duration-200"
           @click="setCurrentAssetType('gradient')"
