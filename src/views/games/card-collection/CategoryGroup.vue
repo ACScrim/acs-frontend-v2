@@ -72,7 +72,7 @@ const isEmptySlot = (
       <template v-for="card in displayedCards" :key="card.id">
         <!-- Carte existante -->
         <template v-if="!isEmptySlot(card)">
-          <div class="w-[250px]">
+          <div class="w-[250px]" v-memo="[card.id, cards.find(c => c.card.id === card.id)?.count]">
             <CollectibleCardComponent
               :card="card"
               :data-card-id="card.id"

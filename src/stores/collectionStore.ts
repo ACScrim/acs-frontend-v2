@@ -19,10 +19,21 @@ const useCollectionStore = defineStore('collection', {
   }),
   getters: {
     cards(state): CollectibleCard[] {
-      return state.collection ? state.collection.cardIds.map(id => {
-        const card = state.collection?.cards.find(c => c.id === id);
-        if (card && (card as CollectibleCard).frontAsset) {
-          return card as CollectibleCard;
+      if (!state.collection) return [];
+      
+      // Create a Map for O(1) lookup instead of O(n) find
+      const cardMap = new Map<string, CollectibleCard>();
+      state.collection.cards.forEach(card => {
+        if ((card as CollectibleCard).frontAsset) {
+          cardMap.set(card.id, card as CollectibleCard);
+        }
+      });
+      
+      // Map cardIds to cards with O(1) lookup
+      return state.collection.cardIds.map(id => {
+        const card = cardMap.get(id);
+        if (card) {
+          return card;
         }
         return {
           id,
@@ -40,7 +51,7 @@ const useCollectionStore = defineStore('collection', {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         } as CollectibleCard;
-      }) : [];
+      });
     }
   },
   actions: {
