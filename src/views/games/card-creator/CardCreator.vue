@@ -261,6 +261,16 @@ const selectedDiscordMemberId = ref<string>('');
 const discordSearchQuery = ref('');
 const selectedCloudinaryImage = ref<string>('');
 
+// Group image source UI state for BasicInfoPanel
+const imageSourceUI = computed(() => ({
+  sourceType: imageSourceType.value,
+  urlInput: imageUrlInput.value,
+  discordSearchQuery: discordSearchQuery.value,
+  selectedDiscordMemberId: selectedDiscordMemberId.value,
+  selectedCloudinaryImage: selectedCloudinaryImage.value,
+  showAllImages: showAllImages.value,
+}));
+
 // Mode édition admin quand on passe par /admin/cards/:cardId/edit
 const adminEditCardId = computed(() => (route.params as any).cardId as string | undefined);
 const isAdminEdit = computed(() => route.path.startsWith('/admin/cards/') && route.path.endsWith('/edit') && Boolean(adminEditCardId.value));
@@ -1363,24 +1373,9 @@ onUnmounted(() => {
                 />
                 
                 <BasicInfoPanel
-                  :title="title"
-                  @update:title="title = $event"
-                  :category-id="selectedCategoryId"
-                  @update:category-id="selectedCategoryId = $event"
-                  :rarity="rarity"
-                  @update:rarity="rarity = $event"
-                  :has-main-image="hasMainImage"
-                  :image-source-type="imageSourceType"
-                  @update:image-source-type="imageSourceType = $event"
-                  :image-url-input="imageUrlInput"
-                  @update:image-url-input="imageUrlInput = $event"
-                  :discord-search-query="discordSearchQuery"
-                  @update:discord-search-query="discordSearchQuery = $event"
-                  :selected-discord-member-id="selectedDiscordMemberId"
-                  @update:selected-discord-member-id="selectedDiscordMemberId = $event"
-                  :selected-cloudinary-image="selectedCloudinaryImage"
-                  @update:selected-cloudinary-image="selectedCloudinaryImage = $event"
-                  :show-all-images="showAllImages"
+                  :basic-info="basicInfo"
+                  :metadata="metadata"
+                  :image-source-u-i="imageSourceUI"
                   :categories="categoryStore.categories"
                   :discord-members="cardStore.discordAvatars"
                   :cloudinary-images="cardStore.mainCardImages"
@@ -1395,7 +1390,7 @@ onUnmounted(() => {
                     }
                     const base64Data = await loadImageFromUrl(url.trim());
                     if (base64Data) {
-                      imageBase64 = base64Data.base64;
+                      basicInfo.imageBase64 = base64Data.base64;
                     }
                   }"
                   @toggle-show-all-images="toggleShowAllImages"
@@ -1406,84 +1401,30 @@ onUnmounted(() => {
               <!-- TAB 2: APPARENCE -->
               <div v-show="activeTab === 'appearance'">
                 <AppearancePanel
-                  :title-color="titleColor"
-                  @update:title-color="titleColor = $event"
-                  :title-font-size="titleFontSize"
-                  @update:title-font-size="titleFontSize = $event"
-                  :title-pos-x="titlePosX"
-                  @update:title-pos-x="titlePosX = $event"
-                  :title-pos-y="titlePosY"
-                  @update:title-pos-y="titlePosY = $event"
-                  :title-align="titleAlign"
-                  @update:title-align="titleAlign = $event"
-                  :title-width="titleWidth"
-                  @update:title-width="titleWidth = $event"
-                  :image-pos-x="imagePosX"
-                  @update:image-pos-x="imagePosX = $event"
-                  :image-pos-y="imagePosY"
-                  @update:image-pos-y="imagePosY = $event"
-                  :image-scale="imageScale"
-                  @update:image-scale="imageScale = $event"
-                  :image-width="imageWidth"
-                  @update:image-width="imageWidth = $event"
-                  :image-height="imageHeight"
-                  @update:image-height="imageHeight = $event"
-                  :image-object-fit="imageObjectFit"
-                  @update:image-object-fit="imageObjectFit = $event"
-                  :image-rounded="imageRounded"
-                  @update:image-rounded="imageRounded = $event"
-                  :image-crop-x="imageCropX"
-                  @update:image-crop-x="imageCropX = $event"
-                  :image-crop-y="imageCropY"
-                  @update:image-crop-y="imageCropY = $event"
+                  :appearance="appearance"
+                  :image-settings="imageSettings"
                 />
               </div>
 
               <!-- TAB 3: TEXTES -->
               <div v-show="activeTab === 'texts'">
                 <TextsPanel
-                  :custom-texts="customTexts"
+                  :metadata="metadata"
                   @add-text="addCustomText"
                   @remove-text="removeCustomText"
-                  @update-text="updateCustomText"
                 />
               </div>
 
               <!-- TAB 4: FOND & BORDURES -->
               <div v-show="activeTab === 'assets'">
                 <AssetsPanel
-                  :asset-category="assetCategory"
-                  @update:asset-category="assetCategory = $event"
-                  :background-asset-name="backgroundAssetName"
-                  @update:background-asset-name="backgroundAssetName = $event"
-                  :background-asset-type="backgroundAssetType"
-                  @update:background-asset-type="backgroundAssetType = $event"
-                  :background-solid-color="backgroundSolidColor"
-                  @update:background-solid-color="backgroundSolidColor = $event"
-                  :background-gradient-color1="backgroundGradientColor1"
-                  @update:background-gradient-color1="backgroundGradientColor1 = $event"
-                  :background-gradient-color2="backgroundGradientColor2"
-                  @update:background-gradient-color2="backgroundGradientColor2 = $event"
-                  :background-gradient-angle="backgroundGradientAngle"
-                  @update:background-gradient-angle="backgroundGradientAngle = $event"
-                  :background-asset-image-preview="backgroundAssetImagePreview"
-                  :border-asset-name="borderAssetName"
-                  @update:border-asset-name="borderAssetName = $event"
-                  :border-asset-type="borderAssetType"
-                  @update:border-asset-type="borderAssetType = $event"
-                  :border-solid-color="borderSolidColor"
-                  @update:border-solid-color="borderSolidColor = $event"
-                  :border-asset-image-preview="borderAssetImagePreview"
-                  :selected-front-asset-id="selectedFrontAssetId"
-                  @update:selected-front-asset-id="selectedFrontAssetId = $event"
-                  :selected-border-asset-id="selectedBorderAssetId"
-                  @update:selected-border-asset-id="selectedBorderAssetId = $event"
-                  @update:use-custom-front-asset="useCustomFrontAsset = $event"
-                  @update:use-custom-border-asset="useCustomBorderAsset = $event"
-                  :is-background-asset-valid="isBackgroundAssetValid"
-                  :is-border-asset-valid="isBorderAssetValid"
+                  :asset-selection="assetSelection"
+                  :background-asset="backgroundAsset"
+                  :border-asset="borderAsset"
                   :filtered-background-assets="filteredBackgroundAssets"
                   :filtered-border-assets="filteredBorderAssets"
+                  :is-background-asset-valid="isBackgroundAssetValid"
+                  :is-border-asset-valid="isBorderAssetValid"
                   :show-all-assets="showAllAssets"
                   :user-id="user?.id"
                   @trigger-asset-image-input="triggerAssetImageInput"
@@ -1497,12 +1438,7 @@ onUnmounted(() => {
               <!-- TAB 5: EFFETS -->
               <div v-show="activeTab === 'effects'">
                 <EffectsPanel
-                  :remove-image-bg="removeImageBg"
-                  @update:remove-image-bg="removeImageBg = $event"
-                  :holographic-effect="holographicEffect"
-                  @update:holographic-effect="holographicEffect = $event"
-                  :holographic-intensity="holographicIntensity"
-                  @update:holographic-intensity="holographicIntensity = $event"
+                  :effects="effects"
                 />
               </div>
             </div>
