@@ -3,97 +3,96 @@ import type { CustomText, ImageObjectFit, Rarity, TextAlign, TextWidth } from '.
 import type { AssetType, BorderAssetType } from './useCardAssets';
 
 /**
- * Composable pour gérer l'état du formulaire CardCreator
- * Regroupe logiquement les refs éparpillés en objets réactifs
+ * Default values for card form fields
+ * Single source of truth for initial/reset state
  */
-export function useCardForm() {
-  // Basic card information
-  const basicInfo = reactive({
+const DEFAULTS = {
+  basicInfo: {
     title: '',
     imageUrl: '',
-    imageBase64: '', // Temporary for preview only
+    imageBase64: '',
     categoryId: undefined as string | undefined,
-  });
-
-  // Title appearance settings
-  const appearance = reactive({
+  },
+  appearance: {
     titlePosX: 50,
     titlePosY: 10,
     titleAlign: 'center' as TextAlign,
     titleWidth: 'w-full' as TextWidth,
     titleColor: '#ffffff',
     titleFontSize: 18,
-  });
-
-  // Main image settings
-  const imageSettings = reactive({
+  },
+  imageSettings: {
     posX: 50,
     posY: 30,
     scale: 1,
     width: 160,
     height: 160,
     objectFit: 'cover' as ImageObjectFit,
-    rounded: 0, // 0-50 %
-    cropX: 50, // 0-100 %
-    cropY: 50, // 0-100 %
-  });
-
-  // Visual effects
-  const effects = reactive({
+    rounded: 0,
+    cropX: 50,
+    cropY: 50,
+  },
+  effects: {
     removeImageBg: false,
     holographicEffect: true,
     holographicIntensity: 0.6,
-  });
-
-  // Card metadata
-  const metadata = reactive({
+  },
+  metadata: {
     rarity: 'common' as Rarity,
     customTexts: [] as CustomText[],
-  });
-
-  // Asset selection state
-  const assetSelection = reactive({
+  },
+  assetSelection: {
     assetCategory: 'background' as 'background' | 'border',
     selectedFrontAssetId: undefined as string | undefined,
     selectedBorderAssetId: undefined as string | undefined,
     useCustomFrontAsset: false,
     useCustomBorderAsset: false,
-  });
-
-  // Background asset configuration
-  const backgroundAsset = reactive({
+  },
+  backgroundAsset: {
     name: '',
     type: 'solid' as AssetType,
     solidColor: 'transparent',
     gradientColor1: '#667eea',
     gradientColor2: '#764ba2',
     gradientAngle: 135,
-    imageBase64: '', // Temporary for preview
+    imageBase64: '',
     imagePreview: '',
-  });
-
-  // Border asset configuration
-  const borderAsset = reactive({
+  },
+  borderAsset: {
     name: '',
     type: 'solid' as BorderAssetType,
     solidColor: 'transparent',
-    imageBase64: '', // Temporary for preview
+    imageBase64: '',
     imagePreview: '',
-  });
-
-  // Category modal state
-  const categoryModal = reactive({
+  },
+  categoryModal: {
     show: false,
     name: '',
     description: '',
-  });
-
-  // UI state
-  const ui = reactive({
+  },
+  ui: {
     activeTab: 'basics' as 'basics' | 'appearance' | 'texts' | 'assets' | 'effects',
-  });
+  },
+} as const;
 
-  // File input refs (can't be reactive)
+/**
+ * Composable for managing CardCreator form state
+ * Groups scattered refs into logical reactive objects for better organization
+ */
+export function useCardForm() {
+  // Create reactive state from defaults
+  const basicInfo = reactive({ ...DEFAULTS.basicInfo });
+  const appearance = reactive({ ...DEFAULTS.appearance });
+  const imageSettings = reactive({ ...DEFAULTS.imageSettings });
+  const effects = reactive({ ...DEFAULTS.effects });
+  const metadata = reactive({ ...DEFAULTS.metadata });
+  const assetSelection = reactive({ ...DEFAULTS.assetSelection });
+  const backgroundAsset = reactive({ ...DEFAULTS.backgroundAsset });
+  const borderAsset = reactive({ ...DEFAULTS.borderAsset });
+  const categoryModal = reactive({ ...DEFAULTS.categoryModal });
+  const ui = reactive({ ...DEFAULTS.ui });
+
+  // File input refs (cannot be reactive)
   const fileInputRef = ref<HTMLInputElement | null>(null);
   const backgroundAssetImageInputRef = ref<HTMLInputElement | null>(null);
   const borderAssetImageInputRef = ref<HTMLInputElement | null>(null);
@@ -104,91 +103,16 @@ export function useCardForm() {
    * Reset all form fields to initial state
    */
   const resetForm = () => {
-    // Basic info
-    Object.assign(basicInfo, {
-      title: '',
-      imageUrl: '',
-      imageBase64: '',
-      categoryId: undefined,
-    });
-
-    // Appearance
-    Object.assign(appearance, {
-      titlePosX: 50,
-      titlePosY: 10,
-      titleAlign: 'center',
-      titleWidth: 'w-full',
-      titleColor: '#ffffff',
-      titleFontSize: 18,
-    });
-
-    // Image settings
-    Object.assign(imageSettings, {
-      posX: 50,
-      posY: 30,
-      scale: 1,
-      width: 160,
-      height: 160,
-      objectFit: 'cover',
-      rounded: 0,
-      cropX: 50,
-      cropY: 50,
-    });
-
-    // Effects
-    Object.assign(effects, {
-      removeImageBg: false,
-      holographicEffect: true,
-      holographicIntensity: 0.6,
-    });
-
-    // Metadata
-    Object.assign(metadata, {
-      rarity: 'common',
-      customTexts: [],
-    });
-
-    // Asset selection
-    Object.assign(assetSelection, {
-      assetCategory: 'background',
-      selectedFrontAssetId: undefined,
-      selectedBorderAssetId: undefined,
-      useCustomFrontAsset: false,
-      useCustomBorderAsset: false,
-    });
-
-    // Background asset
-    Object.assign(backgroundAsset, {
-      name: '',
-      type: 'solid',
-      solidColor: 'transparent',
-      gradientColor1: '#667eea',
-      gradientColor2: '#764ba2',
-      gradientAngle: 135,
-      imageBase64: '',
-      imagePreview: '',
-    });
-
-    // Border asset
-    Object.assign(borderAsset, {
-      name: '',
-      type: 'solid',
-      solidColor: 'transparent',
-      imageBase64: '',
-      imagePreview: '',
-    });
-
-    // Category modal
-    Object.assign(categoryModal, {
-      show: false,
-      name: '',
-      description: '',
-    });
-
-    // UI
-    Object.assign(ui, {
-      activeTab: 'basics',
-    });
+    Object.assign(basicInfo, { ...DEFAULTS.basicInfo });
+    Object.assign(appearance, { ...DEFAULTS.appearance });
+    Object.assign(imageSettings, { ...DEFAULTS.imageSettings });
+    Object.assign(effects, { ...DEFAULTS.effects });
+    Object.assign(metadata, { ...DEFAULTS.metadata, customTexts: [] });
+    Object.assign(assetSelection, { ...DEFAULTS.assetSelection });
+    Object.assign(backgroundAsset, { ...DEFAULTS.backgroundAsset });
+    Object.assign(borderAsset, { ...DEFAULTS.borderAsset });
+    Object.assign(categoryModal, { ...DEFAULTS.categoryModal });
+    Object.assign(ui, { ...DEFAULTS.ui });
   };
 
   /**
@@ -197,17 +121,7 @@ export function useCardForm() {
   const resetImageFields = () => {
     basicInfo.imageUrl = '';
     basicInfo.imageBase64 = '';
-    Object.assign(imageSettings, {
-      posX: 50,
-      posY: 30,
-      scale: 1,
-      width: 160,
-      height: 160,
-      objectFit: 'cover',
-      rounded: 0,
-      cropX: 50,
-      cropY: 50,
-    });
+    Object.assign(imageSettings, { ...DEFAULTS.imageSettings });
   };
 
   /**

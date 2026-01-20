@@ -92,7 +92,6 @@ onBeforeUnmount(() => {
       class="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/70 backdrop-blur-lg text-white"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
     >
       <div
         ref="target"
@@ -102,7 +101,7 @@ onBeforeUnmount(() => {
         <button 
           class="absolute right-6 top-6 text-foam-300/70 hover:text-white" 
           @click="$emit('close')"
-          aria-label="Fermer le modal"
+          aria-label="Close modal"
         >
           &times;
         </button>
