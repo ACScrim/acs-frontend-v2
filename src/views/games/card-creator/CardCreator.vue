@@ -1395,6 +1395,28 @@ onUnmounted(() => {
                   }"
                   @toggle-show-all-images="toggleShowAllImages"
                   @refresh-images="showAllImages ? cardStore.fetchMainCardImages() : cardStore.fetchUsedMainCardImages()"
+                  @update:image-source-type="(type) => imageSourceType = type"
+                  @update:url-input="(value) => imageUrlInput = value"
+                  @update:discord-search="(value) => discordSearchQuery = value"
+                  @select-discord-member="async (memberId) => {
+                    selectedDiscordMemberId = memberId;
+                    const member = cardStore.discordAvatars.find(m => m.id === memberId);
+                    if (member) {
+                      const base64Data = await loadImageFromUrl(member.avatarUrl);
+                      if (base64Data) {
+                        basicInfo.imageBase64 = base64Data.base64;
+                        basicInfo.imageUrl = member.avatarUrl;
+                      }
+                    }
+                  }"
+                  @select-cloudinary-image="async (imageUrl) => {
+                    selectedCloudinaryImage = imageUrl;
+                    const base64Data = await loadImageFromUrl(imageUrl);
+                    if (base64Data) {
+                      basicInfo.imageBase64 = base64Data.base64;
+                      basicInfo.imageUrl = imageUrl;
+                    }
+                  }"
                 />
               </div>
 

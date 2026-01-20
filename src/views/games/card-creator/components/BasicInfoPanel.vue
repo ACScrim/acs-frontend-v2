@@ -49,6 +49,11 @@ const emit = defineEmits<{
   'load-image-from-url': [url: string];
   'toggle-show-all-images': [];
   'refresh-images': [];
+  'update:image-source-type': [type: 'upload' | 'url' | 'discord' | 'cloudinary'];
+  'update:url-input': [value: string];
+  'update:discord-search': [value: string];
+  'select-discord-member': [memberId: string];
+  'select-cloudinary-image': [imageUrl: string];
 }>();
 
 // Computed
@@ -164,7 +169,7 @@ const hasMainImage = computed(() => {
             <button
               :class="imageSourceUI.sourceType === 'cloudinary' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="imageSourceUI.sourceType = 'cloudinary'"
+              @click="emit('update:image-source-type', 'cloudinary')"
             >
               🖼️ Galerie
             </button>
@@ -172,21 +177,21 @@ const hasMainImage = computed(() => {
               v-if="discordMembers.length > 0"
               :class="imageSourceUI.sourceType === 'discord' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="imageSourceUI.sourceType = 'discord'"
+              @click="emit('update:image-source-type', 'discord')"
             >
               💬 Discord
             </button>
             <button
               :class="imageSourceUI.sourceType === 'upload' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="imageSourceUI.sourceType = 'upload'"
+              @click="emit('update:image-source-type', 'upload')"
             >
               📤 Téléverser
             </button>
             <button
               :class="imageSourceUI.sourceType === 'url' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="imageSourceUI.sourceType = 'url'"
+              @click="emit('update:image-source-type', 'url')"
             >
               🔗 URL
             </button>
@@ -199,7 +204,7 @@ const hasMainImage = computed(() => {
           <div class="flex gap-2">
             <input
               :value="imageSourceUI.urlInput"
-              @input="imageSourceUI.urlInput = ($event.target as HTMLInputElement).value"
+              @input="emit('update:url-input', ($event.target as HTMLInputElement).value)"
               type="text"
               placeholder="Entrez l'URL de l'image"
               class="form-input flex-1"
@@ -219,7 +224,7 @@ const hasMainImage = computed(() => {
           <label class="form-label text-sm">Sélectionner un avatar Discord</label>
           <input
             :value="imageSourceUI.discordSearchQuery"
-            @input="imageSourceUI.discordSearchQuery = ($event.target as HTMLInputElement).value"
+            @input="emit('update:discord-search', ($event.target as HTMLInputElement).value)"
             type="text"
             placeholder="🔍 Rechercher par username..."
             class="form-input"
@@ -231,7 +236,7 @@ const hasMainImage = computed(() => {
               :class="imageSourceUI.selectedDiscordMemberId === member.id ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
               class="flex flex-col items-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 hover:scale-105"
               :title="member.username"
-              @click="imageSourceUI.selectedDiscordMemberId = member.id"
+              @click="emit('select-discord-member', member.id)"
             >
               <img
                 :src="member.avatarUrl"
@@ -275,7 +280,7 @@ const hasMainImage = computed(() => {
               :key="image.publicId"
               :class="imageSourceUI.selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
               class="w-full h-22 items-center gap-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
-              @click="imageSourceUI.selectedCloudinaryImage = image.publicId"
+              @click="emit('select-cloudinary-image', image.secure_url)"
             >
               <img
                 :src="image.secure_url"
