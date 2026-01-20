@@ -1,30 +1,21 @@
 <script setup lang="ts">
 import Button from '@/components/ui/Button.vue';
+import type { CustomText } from '@/composables/useCardCustomization';
 
-// CustomText type (must match parent)
-interface CustomText {
-  id: string;
-  content: string;
-  posX: number;
-  posY: number;
-  align: 'left' | 'center' | 'right';
-  color: string;
-  width: 'w-full' | 'w-auto';
-  fontSize?: number;
-}
-
-// Props
+// Props - Accept reactive metadata object with customTexts array
 interface Props {
-  customTexts: CustomText[];
+  metadata: {
+    rarity: any;
+    customTexts: CustomText[];
+  };
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-// Emits
+// Emits for add/remove operations (parent needs to handle array manipulation)
 const emit = defineEmits<{
   'add-text': [];
   'remove-text': [index: number];
-  'update-text': [index: number, field: keyof CustomText, value: any];
 }>();
 </script>
 
@@ -32,9 +23,9 @@ const emit = defineEmits<{
   <div class="space-y-6 animate-fadeIn">
     <div class="space-y-4 p-4 border border-white/10 rounded-lg bg-ink-800/30">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-foam-200">📝 Textes personnalisés ({{ customTexts.length }}/5)</h3>
+        <h3 class="text-sm font-semibold text-foam-200">📝 Textes personnalisés ({{ metadata.customTexts.length }}/5)</h3>
         <Button
-          v-if="customTexts.length < 5"
+          v-if="metadata.customTexts.length < 5"
           variant="secondary"
           size="sm"
           @click="emit('add-text')"
@@ -44,12 +35,12 @@ const emit = defineEmits<{
       </div>
 
       <!-- Custom texts list -->
-      <div v-if="customTexts.length === 0" class="text-xs text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
+      <div v-if="metadata.customTexts.length === 0" class="text-xs text-foam-300/60 py-8 text-center border border-dashed border-white/10 rounded-lg">
         <div class="mb-2">📝</div>
         Aucun texte personnalisé. Cliquez sur "+ Ajouter texte" pour en ajouter.
       </div>
 
-      <div v-for="(text, index) in customTexts" :key="text.id || `text-${index}`" class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-700/20 hover:border-accent-500/30 transition-all duration-200">
+      <div v-for="(text, index) in metadata.customTexts" :key="text.id || `text-${index}`" class="space-y-3 p-4 border border-white/10 rounded-lg bg-ink-700/20 hover:border-accent-500/30 transition-all duration-200">
         <!-- Text header -->
         <div class="flex items-center justify-between">
           <label class="text-xs text-foam-300 font-semibold">📄 Texte {{ index + 1 }}</label>
@@ -66,7 +57,7 @@ const emit = defineEmits<{
         <div class="space-y-2">
           <textarea
             :value="text.content"
-            @input="emit('update-text', index, 'content', ($event.target as HTMLTextAreaElement).value)"
+            @input="text.content = ($event.target as HTMLTextAreaElement).value"
             rows="2"
             maxlength="100"
             placeholder="Entrez votre texte..."
@@ -82,13 +73,13 @@ const emit = defineEmits<{
             <input
               :value="text.color"
               type="color"
-              @input="emit('update-text', index, 'color', ($event.target as HTMLInputElement).value)"
+              @input="text.color = ($event.target as HTMLInputElement).value"
               class="w-12 h-8 rounded cursor-pointer border border-white/10"
             />
             <input
               :value="text.color"
               type="text"
-              @input="emit('update-text', index, 'color', ($event.target as HTMLInputElement).value)"
+              @input="text.color = ($event.target as HTMLInputElement).value"
               placeholder="#ffffff"
               class="flex-1 form-input text-sm"
             />
@@ -101,7 +92,7 @@ const emit = defineEmits<{
           <div class="flex gap-2 items-center">
             <input
               :value="text.fontSize || 14"
-              @input="emit('update-text', index, 'fontSize', Number(($event.target as HTMLInputElement).value))"
+              @input="text.fontSize = Number(($event.target as HTMLInputElement).value)"
               type="range"
               min="8"
               max="32"
@@ -120,7 +111,7 @@ const emit = defineEmits<{
               <div class="flex gap-2 items-center">
                 <input
                   :value="text.posX"
-                  @input="emit('update-text', index, 'posX', Number(($event.target as HTMLInputElement).value))"
+                  @input="text.posX = Number(($event.target as HTMLInputElement).value)"
                   type="range"
                   min="0"
                   max="100"
@@ -134,7 +125,7 @@ const emit = defineEmits<{
               <div class="flex gap-2 items-center">
                 <input
                   :value="text.posY"
-                  @input="emit('update-text', index, 'posY', Number(($event.target as HTMLInputElement).value))"
+                  @input="text.posY = Number(($event.target as HTMLInputElement).value)"
                   type="range"
                   min="0"
                   max="100"
@@ -153,21 +144,21 @@ const emit = defineEmits<{
             <button
               :class="text.align === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-              @click="emit('update-text', index, 'align', 'left')"
+              @click="text.align = 'left'"
             >
               ◀ Gauche
             </button>
             <button
               :class="text.align === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-              @click="emit('update-text', index, 'align', 'center')"
+              @click="text.align = 'center'"
             >
               ■ Centré
             </button>
             <button
               :class="text.align === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-              @click="emit('update-text', index, 'align', 'right')"
+              @click="text.align = 'right'"
             >
               ▶ Droite
             </button>
@@ -181,14 +172,14 @@ const emit = defineEmits<{
             <button
               :class="text.width === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-              @click="emit('update-text', index, 'width', 'w-full')"
+              @click="text.width = 'w-full'"
             >
               Pleine largeur
             </button>
             <button
               :class="text.width === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-              @click="emit('update-text', index, 'width', 'w-auto')"
+              @click="text.width = 'w-auto'"
             >
               Auto
             </button>
