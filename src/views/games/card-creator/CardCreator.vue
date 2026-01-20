@@ -82,7 +82,6 @@ useSavedCardsObserver(savedCardsContainer, cardStore);
 // Import SavedCardsGallery component
 import SavedCardsGallery from './components/SavedCardsGallery.vue';
 
-<<<<<<< HEAD
 const rarity = computed({
   get: () => metadata.rarity,
   set: (value) => metadata.rarity = value
@@ -184,8 +183,6 @@ const activeTab = computed({
   get: () => ui.activeTab,
   set: (value) => ui.activeTab = value
 });
-=======
->>>>>>> 94730bf1ca7fc4dfa01f93b5db5e2ca40a2cb78e
 
 // Image source selection
 const imageSourceType = ref<'upload' | 'url' | 'discord' | 'cloudinary'>('cloudinary');
@@ -446,12 +443,6 @@ const toggleShowAllImages = async () => {
   }
 };
 
-<<<<<<< HEAD
-=======
-// Observe saved cards when container is mounted or updated
-
-
->>>>>>> 94730bf1ca7fc4dfa01f93b5db5e2ca40a2cb78e
 const saveCard = async () => {
   if (!isFormValid.value) {
     toastStore.error('Veuillez remplir tous les champs requis.');
@@ -865,13 +856,6 @@ watch(selectedCloudinaryImage, async (newImageId) => {
   }
 });
 
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> 94730bf1ca7fc4dfa01f93b5db5e2ca40a2cb78e
 </script>
 
 <template>
@@ -1204,14 +1188,7 @@ watch(selectedCloudinaryImage, async (newImageId) => {
       </div>
 
       <!-- Saved Cards Section -->
-<<<<<<< HEAD
       <SavedCardsGallery />
-=======
-      <SavedCardsGallery 
-        :card-store="cardStore"
-        :saved-cards-container="savedCardsContainer"
-      />
->>>>>>> 94730bf1ca7fc4dfa01f93b5db5e2ca40a2cb78e
 
       <!-- Confirmation Modal -->
       <Modal :is-open="showConfirmationModal" @close="cancelCardCreation" class="!max-w-3xl">
