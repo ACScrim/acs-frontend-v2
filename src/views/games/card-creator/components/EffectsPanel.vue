@@ -1,19 +1,14 @@
 <script setup lang="ts">
-// Props
+// Props - Accept reactive effects object
 interface Props {
-  removeImageBg: boolean;
-  holographicEffect: boolean;
-  holographicIntensity: number;
+  effects: {
+    removeImageBg: boolean;
+    holographicEffect: boolean;
+    holographicIntensity: number;
+  };
 }
 
 defineProps<Props>();
-
-// Emits
-const emit = defineEmits<{
-  'update:removeImageBg': [value: boolean];
-  'update:holographicEffect': [value: boolean];
-  'update:holographicIntensity': [value: number];
-}>();
 </script>
 
 <template>
@@ -25,11 +20,11 @@ const emit = defineEmits<{
       <!-- Remove Background Toggle -->
       <div class="flex items-center gap-3 p-3 rounded-lg bg-ink-700/20 hover:bg-ink-700/30 transition-all duration-200">
         <input
-          :checked="removeImageBg"
+          :checked="effects.removeImageBg"
           type="checkbox"
           id="removeBg"
           class="w-4 h-4 rounded cursor-pointer"
-          @change="(e) => emit('update:removeImageBg', (e.target as HTMLInputElement).checked)"
+          @change="effects.removeImageBg = ($event.target as HTMLInputElement).checked"
         />
         <label for="removeBg" class="text-sm text-foam-300 cursor-pointer flex-1">
           🎭 Supprimer le fond de l'image (approximatif)
@@ -39,11 +34,11 @@ const emit = defineEmits<{
       <!-- Holographic Effect Toggle -->
       <div class="flex items-center gap-3 p-3 rounded-lg bg-ink-700/20 hover:bg-ink-700/30 transition-all duration-200">
         <input
-          :checked="holographicEffect"
+          :checked="effects.holographicEffect"
           type="checkbox"
           id="holoEffect"
           class="w-4 h-4 rounded cursor-pointer"
-          @change="(e) => emit('update:holographicEffect', (e.target as HTMLInputElement).checked)"
+          @change="effects.holographicEffect = ($event.target as HTMLInputElement).checked"
         />
         <label for="holoEffect" class="text-sm text-foam-300 cursor-pointer flex-1">
           💎 Activer l'effet holographique
@@ -51,19 +46,19 @@ const emit = defineEmits<{
       </div>
 
       <!-- Holographic Intensity Slider -->
-      <div v-if="holographicEffect" class="space-y-2 ml-6 p-3 bg-ink-700/10 rounded-lg border-l-2 border-accent-500/30">
+      <div v-if="effects.holographicEffect" class="space-y-2 ml-6 p-3 bg-ink-700/10 rounded-lg border-l-2 border-accent-500/30">
         <label class="text-xs text-foam-300 font-semibold">Intensité de l'effet</label>
         <div class="flex gap-2 items-center">
           <input
-            :value="holographicIntensity"
+            :value="effects.holographicIntensity"
             type="range"
             min="0"
             max="1"
             step="0.1"
             class="flex-1"
-            @input="(e) => emit('update:holographicIntensity', Number((e.target as HTMLInputElement).value))"
+            @input="effects.holographicIntensity = Number(($event.target as HTMLInputElement).value)"
           />
-          <span class="text-xs text-foam-300 w-12 font-semibold">{{ Math.round(holographicIntensity * 100) }}%</span>
+          <span class="text-xs text-foam-300 w-12 font-semibold">{{ Math.round(effects.holographicIntensity * 100) }}%</span>
         </div>
       </div>
     </div>

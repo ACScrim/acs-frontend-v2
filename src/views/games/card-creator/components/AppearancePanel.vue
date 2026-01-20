@@ -1,48 +1,30 @@
 <script setup lang="ts">
-// Props
+import type { TextAlign, TextWidth, ImageObjectFit } from '@/composables/useCardCustomization';
+
+// Props - Accept reactive objects directly
 interface Props {
-  // Title style
-  titleColor: string;
-  titleFontSize: number;
-  
-  // Title position
-  titlePosX: number;
-  titlePosY: number;
-  titleAlign: 'left' | 'center' | 'right';
-  titleWidth: 'w-full' | 'w-auto';
-  
-  // Image position & size
-  imagePosX: number;
-  imagePosY: number;
-  imageScale: number;
-  imageWidth: number;
-  imageHeight: number;
-  imageObjectFit: 'cover' | 'contain';
-  imageRounded: number;
-  imageCropX: number;
-  imageCropY: number;
+  appearance: {
+    titlePosX: number;
+    titlePosY: number;
+    titleAlign: TextAlign;
+    titleWidth: TextWidth;
+    titleColor: string;
+    titleFontSize: number;
+  };
+  imageSettings: {
+    posX: number;
+    posY: number;
+    scale: number;
+    width: number;
+    height: number;
+    objectFit: ImageObjectFit;
+    rounded: number;
+    cropX: number;
+    cropY: number;
+  };
 }
 
 defineProps<Props>();
-
-// Emits
-const emit = defineEmits<{
-  'update:titleColor': [value: string];
-  'update:titleFontSize': [value: number];
-  'update:titlePosX': [value: number];
-  'update:titlePosY': [value: number];
-  'update:titleAlign': [value: 'left' | 'center' | 'right'];
-  'update:titleWidth': [value: 'w-full' | 'w-auto'];
-  'update:imagePosX': [value: number];
-  'update:imagePosY': [value: number];
-  'update:imageScale': [value: number];
-  'update:imageWidth': [value: number];
-  'update:imageHeight': [value: number];
-  'update:imageObjectFit': [value: 'cover' | 'contain'];
-  'update:imageRounded': [value: number];
-  'update:imageCropX': [value: number];
-  'update:imageCropY': [value: number];
-}>();
 </script>
 
 <template>
@@ -56,14 +38,14 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300">Couleur du titre</label>
         <div class="flex gap-3 items-center">
           <input
-            :value="titleColor"
-            @input="emit('update:titleColor', ($event.target as HTMLInputElement).value)"
+            :value="appearance.titleColor"
+            @input="appearance.titleColor = ($event.target as HTMLInputElement).value"
             type="color"
             class="w-12 h-10 rounded cursor-pointer border border-white/10"
           />
           <input
-            :value="titleColor"
-            @input="emit('update:titleColor', ($event.target as HTMLInputElement).value)"
+            :value="appearance.titleColor"
+            @input="appearance.titleColor = ($event.target as HTMLInputElement).value"
             type="text"
             placeholder="#ffffff"
             class="flex-1 form-input text-sm"
@@ -76,14 +58,14 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300">Taille du titre</label>
         <div class="flex gap-2 items-center">
           <input
-            :value="titleFontSize"
-            @input="emit('update:titleFontSize', Number(($event.target as HTMLInputElement).value))"
+            :value="appearance.titleFontSize"
+            @input="appearance.titleFontSize = Number(($event.target as HTMLInputElement).value)"
             type="range"
             min="8"
             max="40"
             class="flex-1"
           />
-          <span class="text-xs text-foam-300 w-12 font-semibold">{{ titleFontSize }}px</span>
+          <span class="text-xs text-foam-300 w-12 font-semibold">{{ appearance.titleFontSize }}px</span>
         </div>
       </div>
     </div>
@@ -99,28 +81,28 @@ const emit = defineEmits<{
             <label class="text-xs text-foam-300/80 block mb-1">X (Horizontal)</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="titlePosX"
-                @input="emit('update:titlePosX', Number(($event.target as HTMLInputElement).value))"
+                :value="appearance.titlePosX"
+                @input="appearance.titlePosX = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="0"
                 max="100"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-12 font-semibold">{{ titlePosX }}%</span>
+              <span class="text-xs text-foam-300 w-12 font-semibold">{{ appearance.titlePosX }}%</span>
             </div>
           </div>
           <div>
             <label class="text-xs text-foam-300/80 block mb-1">Y (Vertical)</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="titlePosY"
-                @input="emit('update:titlePosY', Number(($event.target as HTMLInputElement).value))"
+                :value="appearance.titlePosY"
+                @input="appearance.titlePosY = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="0"
                 max="100"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-12 font-semibold">{{ titlePosY }}%</span>
+              <span class="text-xs text-foam-300 w-12 font-semibold">{{ appearance.titlePosY }}%</span>
             </div>
           </div>
         </div>
@@ -131,23 +113,23 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300 block">Alignement</label>
         <div class="flex gap-2">
           <button
-            :class="titleAlign === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="appearance.titleAlign === 'left' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:titleAlign', 'left')"
+            @click="appearance.titleAlign = 'left'"
           >
             ◀ Gauche
           </button>
           <button
-            :class="titleAlign === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="appearance.titleAlign === 'center' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:titleAlign', 'center')"
+            @click="appearance.titleAlign = 'center'"
           >
             ■ Centré
           </button>
           <button
-            :class="titleAlign === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="appearance.titleAlign === 'right' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:titleAlign', 'right')"
+            @click="appearance.titleAlign = 'right'"
           >
             ▶ Droite
           </button>
@@ -159,16 +141,16 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300 block">Largeur du titre</label>
         <div class="flex gap-2">
           <button
-            :class="titleWidth === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="appearance.titleWidth === 'w-full' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:titleWidth', 'w-full')"
+            @click="appearance.titleWidth = 'w-full'"
           >
             Pleine largeur
           </button>
           <button
-            :class="titleWidth === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="appearance.titleWidth === 'w-auto' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-2 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:titleWidth', 'w-auto')"
+            @click="appearance.titleWidth = 'w-auto'"
           >
             Auto
           </button>
@@ -188,28 +170,28 @@ const emit = defineEmits<{
             <label class="text-xs text-foam-300/80 block mb-1">X (Horizontal)</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="imagePosX"
-                @input="emit('update:imagePosX', Number(($event.target as HTMLInputElement).value))"
+                :value="imageSettings.posX"
+                @input="imageSettings.posX = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="0"
                 max="100"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imagePosX }}%</span>
+              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageSettings.posX }}%</span>
             </div>
           </div>
           <div>
             <label class="text-xs text-foam-300/80 block mb-1">Y (Vertical)</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="imagePosY"
-                @input="emit('update:imagePosY', Number(($event.target as HTMLInputElement).value))"
+                :value="imageSettings.posY"
+                @input="imageSettings.posY = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="0"
                 max="100"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imagePosY }}%</span>
+              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageSettings.posY }}%</span>
             </div>
           </div>
         </div>
@@ -220,15 +202,15 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300">Échelle de l'image</label>
         <div class="flex gap-2 items-center">
           <input
-            :value="imageScale"
-            @input="emit('update:imageScale', Number(($event.target as HTMLInputElement).value))"
+            :value="imageSettings.scale"
+            @input="imageSettings.scale = Number(($event.target as HTMLInputElement).value)"
             type="range"
             min="0.5"
             max="2"
             step="0.1"
             class="flex-1"
           />
-          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageScale.toFixed(1) }}x</span>
+          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageSettings.scale.toFixed(1) }}x</span>
         </div>
       </div>
 
@@ -240,30 +222,30 @@ const emit = defineEmits<{
             <label class="text-xs text-foam-300/80 block mb-1">Largeur</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="imageWidth"
-                @input="emit('update:imageWidth', Number(($event.target as HTMLInputElement).value))"
+                :value="imageSettings.width"
+                @input="imageSettings.width = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="40"
                 max="250"
                 step="1"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageWidth }}px</span>
+              <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageSettings.width }}px</span>
             </div>
           </div>
           <div>
             <label class="text-xs text-foam-300/80 block mb-1">Hauteur</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="imageHeight"
-                @input="emit('update:imageHeight', Number(($event.target as HTMLInputElement).value))"
+                :value="imageSettings.height"
+                @input="imageSettings.height = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="40"
                 max="378"
                 step="1"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageHeight }}px</span>
+              <span class="text-xs text-foam-300 w-14 font-semibold">{{ imageSettings.height }}px</span>
             </div>
           </div>
         </div>
@@ -274,16 +256,16 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300 block">Ajustement de l'image</label>
         <div class="flex gap-2">
           <button
-            :class="imageObjectFit === 'cover' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="imageSettings.objectFit === 'cover' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:imageObjectFit', 'cover')"
+            @click="imageSettings.objectFit = 'cover'"
           >
             Cover (rognée)
           </button>
           <button
-            :class="imageObjectFit === 'contain' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="imageSettings.objectFit === 'contain' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-3 py-1 rounded text-xs font-medium transition-all duration-200 flex-1"
-            @click="emit('update:imageObjectFit', 'contain')"
+            @click="imageSettings.objectFit = 'contain'"
           >
             Contain (complète)
           </button>
@@ -295,15 +277,15 @@ const emit = defineEmits<{
         <label class="text-xs text-foam-300 block">Coins arrondis</label>
         <div class="flex gap-2 items-center">
           <input
-            :value="imageRounded"
-            @input="emit('update:imageRounded', Number(($event.target as HTMLInputElement).value))"
+            :value="imageSettings.rounded"
+            @input="imageSettings.rounded = Number(($event.target as HTMLInputElement).value)"
             type="range"
             min="0"
             max="50"
             step="1"
             class="flex-1"
           />
-          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageRounded }}px</span>
+          <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageSettings.rounded }}px</span>
         </div>
       </div>
 
@@ -315,30 +297,30 @@ const emit = defineEmits<{
             <label class="text-xs text-foam-300/80 block mb-1">Horizontal</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="imageCropX"
-                @input="emit('update:imageCropX', Number(($event.target as HTMLInputElement).value))"
+                :value="imageSettings.cropX"
+                @input="imageSettings.cropX = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="0"
                 max="100"
                 step="1"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageCropX }}%</span>
+              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageSettings.cropX }}%</span>
             </div>
           </div>
           <div>
             <label class="text-xs text-foam-300/80 block mb-1">Vertical</label>
             <div class="flex gap-2 items-center">
               <input
-                :value="imageCropY"
-                @input="emit('update:imageCropY', Number(($event.target as HTMLInputElement).value))"
+                :value="imageSettings.cropY"
+                @input="imageSettings.cropY = Number(($event.target as HTMLInputElement).value)"
                 type="range"
                 min="0"
                 max="100"
                 step="1"
                 class="flex-1"
               />
-              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageCropY }}%</span>
+              <span class="text-xs text-foam-300 w-12 font-semibold">{{ imageSettings.cropY }}%</span>
             </div>
           </div>
         </div>

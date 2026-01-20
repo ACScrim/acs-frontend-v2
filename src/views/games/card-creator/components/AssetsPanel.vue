@@ -3,38 +3,41 @@ import { computed } from 'vue';
 import { Button } from '@/components/ui';
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import type { CardAsset } from '@/types/models';
-import type { AssetType } from '@/composables/useCardAssets';
+import type { AssetType, BorderAssetType } from '@/composables/useCardAssets';
 
-// Props
+// Props - Accept reactive objects from useCardForm
 interface Props {
-  // Asset category selection
-  assetCategory: 'background' | 'border';
+  // Reactive asset state objects
+  assetSelection: {
+    assetCategory: 'background' | 'border';
+    selectedFrontAssetId: string | undefined;
+    selectedBorderAssetId: string | undefined;
+    useCustomFrontAsset: boolean;
+    useCustomBorderAsset: boolean;
+  };
+  backgroundAsset: {
+    name: string;
+    type: AssetType;
+    solidColor: string;
+    gradientColor1: string;
+    gradientColor2: string;
+    gradientAngle: number;
+    imageBase64: string;
+    imagePreview: string;
+  };
+  borderAsset: {
+    name: string;
+    type: BorderAssetType;
+    solidColor: string;
+    imageBase64: string;
+    imagePreview: string;
+  };
   
-  // Current asset configuration
-  backgroundAssetName: string;
-  backgroundAssetType: AssetType;
-  backgroundSolidColor: string;
-  backgroundGradientColor1: string;
-  backgroundGradientColor2: string;
-  backgroundGradientAngle: number;
-  backgroundAssetImagePreview: string;
-  
-  borderAssetName: string;
-  borderAssetType: 'solid' | 'image';
-  borderSolidColor: string;
-  borderAssetImagePreview: string;
-  
-  // Asset selection state
-  selectedFrontAssetId: string | undefined;
-  selectedBorderAssetId: string | undefined;
-  
-  // Asset validation
-  isBackgroundAssetValid: boolean;
-  isBorderAssetValid: boolean;
-  
-  // Asset lists
+  // Asset lists and validation
   filteredBackgroundAssets: CardAsset[];
   filteredBorderAssets: CardAsset[];
+  isBackgroundAssetValid: boolean;
+  isBorderAssetValid: boolean;
   showAllAssets: boolean;
   
   // User ID for delete permission
@@ -43,22 +46,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Emits
+// Emits for parent-level operations
 const emit = defineEmits<{
-  'update:assetCategory': [value: 'background' | 'border'];
-  'update:backgroundAssetName': [value: string];
-  'update:backgroundAssetType': [value: AssetType];
-  'update:backgroundSolidColor': [value: string];
-  'update:backgroundGradientColor1': [value: string];
-  'update:backgroundGradientColor2': [value: string];
-  'update:backgroundGradientAngle': [value: number];
-  'update:borderAssetName': [value: string];
-  'update:borderAssetType': [value: 'solid' | 'image'];
-  'update:borderSolidColor': [value: string];
-  'update:selectedFrontAssetId': [value: string | undefined];
-  'update:selectedBorderAssetId': [value: string | undefined];
-  'update:useCustomFrontAsset': [value: boolean];
-  'update:useCustomBorderAsset': [value: boolean];
   'trigger-asset-image-input': [];
   'remove-asset-image': [];
   'apply-current-asset': [];
@@ -68,70 +57,80 @@ const emit = defineEmits<{
 
 // Helper computed properties
 const getCurrentAssetName = computed(() => 
-  props.assetCategory === 'background' ? props.backgroundAssetName : props.borderAssetName
+  props.assetSelection.assetCategory === 'background' 
+    ? props.backgroundAsset.name 
+    : props.borderAsset.name
 );
 
 const getCurrentAssetType = computed(() => 
-  props.assetCategory === 'background' ? props.backgroundAssetType : props.borderAssetType
+  props.assetSelection.assetCategory === 'background' 
+    ? props.backgroundAsset.type 
+    : props.borderAsset.type
 );
 
 const getCurrentSolidColor = computed(() => 
-  props.assetCategory === 'background' ? props.backgroundSolidColor : props.borderSolidColor
+  props.assetSelection.assetCategory === 'background' 
+    ? props.backgroundAsset.solidColor 
+    : props.borderAsset.solidColor
 );
 
 const getCurrentImagePreview = computed(() => 
-  props.assetCategory === 'background' ? props.backgroundAssetImagePreview : props.borderAssetImagePreview
+  props.assetSelection.assetCategory === 'background' 
+    ? props.backgroundAsset.imagePreview 
+    : props.borderAsset.imagePreview
 );
 
 const isCurrentAssetValid = computed(() => 
-  props.assetCategory === 'background' ? props.isBackgroundAssetValid : props.isBorderAssetValid
+  props.assetSelection.assetCategory === 'background' 
+    ? props.isBackgroundAssetValid 
+    : props.isBorderAssetValid
 );
 
-// Helper methods
+// Helper methods for setting values
 const setCurrentAssetName = (value: string) => {
-  if (props.assetCategory === 'background') {
-    emit('update:backgroundAssetName', value);
+  if (props.assetSelection.assetCategory === 'background') {
+    props.backgroundAsset.name = value;
   } else {
-    emit('update:borderAssetName', value);
+    props.borderAsset.name = value;
   }
 };
 
 const setCurrentAssetType = (value: AssetType) => {
-  if (props.assetCategory === 'background') {
-    emit('update:backgroundAssetType', value);
+  if (props.assetSelection.assetCategory === 'background') {
+    props.backgroundAsset.type = value;
   } else {
     if (value !== 'gradient') {
-      emit('update:borderAssetType', value as 'solid' | 'image');
+      props.borderAsset.type = value as BorderAssetType;
     }
   }
 };
 
 const setCurrentSolidColor = (value: string) => {
-  if (props.assetCategory === 'background') {
-    emit('update:backgroundSolidColor', value);
+  if (props.assetSelection.assetCategory === 'background') {
+    props.backgroundAsset.solidColor = value;
   } else {
-    emit('update:borderSolidColor', value);
+    props.borderAsset.solidColor = value;
   }
 };
 
 const clearFrontAssetSelection = () => {
-  emit('update:selectedFrontAssetId', undefined);
-  emit('update:useCustomFrontAsset', false);
+  props.assetSelection.selectedFrontAssetId = undefined;
+  props.assetSelection.useCustomFrontAsset = false;
 };
 
 const clearBorderAssetSelection = () => {
-  emit('update:selectedBorderAssetId', undefined);
-  emit('update:useCustomBorderAsset', false);
+  props.assetSelection.selectedBorderAssetId = undefined;
+  props.assetSelection.useCustomBorderAsset = false;
 };
 
 const selectFrontAsset = (assetId: string) => {
-  emit('update:selectedFrontAssetId', assetId);
-  emit('update:useCustomFrontAsset', false);
+  props.assetSelection.selectedFrontAssetId = assetId;
+  props.assetSelection.useCustomFrontAsset = false;
 };
 
 const selectBorderAsset = (assetId: string) => {
-  emit('update:selectedBorderAssetId', assetId);
-  emit('update:useCustomBorderAsset', false);
+  props.assetSelection.selectedBorderAssetId = assetId;
+  props.assetSelection.useCustomBorderAsset = false;
 };
 </script>
 
@@ -143,16 +142,16 @@ const selectBorderAsset = (assetId: string) => {
         <h3 class="text-sm font-semibold text-foam-200">🎨 Créer un asset personnalisé</h3>
         <div class="flex gap-2">
           <button
-            :class="assetCategory === 'background' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="assetSelection.assetCategory === 'background' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-3 py-1 rounded text-xs font-medium transition-all duration-200"
-            @click="emit('update:assetCategory', 'background')"
+            @click="assetSelection.assetCategory = 'background'"
           >
             🖼️ Fond
           </button>
           <button
-            :class="assetCategory === 'border' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="assetSelection.assetCategory === 'border' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-3 py-1 rounded text-xs font-medium transition-all duration-200"
-            @click="emit('update:assetCategory', 'border')"
+            @click="assetSelection.assetCategory = 'border'"
           >
             🔲 Bordure
           </button>
@@ -192,14 +191,14 @@ const selectBorderAsset = (assetId: string) => {
             :value="getCurrentSolidColor"
             type="color"
             class="w-16 h-10 rounded cursor-pointer border border-white/10"
-            @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
+            @input="setCurrentSolidColor(($event.target as HTMLInputElement).value)"
           />
           <input
             :value="getCurrentSolidColor"
             type="text"
             placeholder="#667eea"
             class="flex-1 form-input text-sm"
-            @input="(e) => setCurrentSolidColor((e.target as HTMLInputElement).value)"
+            @input="setCurrentSolidColor(($event.target as HTMLInputElement).value)"
           />
         </div>
         <div
@@ -209,22 +208,22 @@ const selectBorderAsset = (assetId: string) => {
       </div>
 
       <!-- Gradient -->
-      <div v-if="getCurrentAssetType === 'gradient' && assetCategory === 'background'" class="space-y-3">
+      <div v-if="getCurrentAssetType === 'gradient' && assetSelection.assetCategory === 'background'" class="space-y-3">
         <div>
           <label class="form-label text-sm">Couleur 1</label>
           <div class="flex gap-3 items-center mt-1">
             <input
-              :value="backgroundGradientColor1"
+              :value="backgroundAsset.gradientColor1"
               type="color"
               class="w-16 h-10 rounded cursor-pointer border border-white/10"
-              @input="(e) => emit('update:backgroundGradientColor1', (e.target as HTMLInputElement).value)"
+              @input="backgroundAsset.gradientColor1 = ($event.target as HTMLInputElement).value"
             />
             <input
-              :value="backgroundGradientColor1"
+              :value="backgroundAsset.gradientColor1"
               type="text"
               placeholder="#667eea"
               class="flex-1 form-input text-sm"
-              @input="(e) => emit('update:backgroundGradientColor1', (e.target as HTMLInputElement).value)"
+              @input="backgroundAsset.gradientColor1 = ($event.target as HTMLInputElement).value"
             />
           </div>
         </div>
@@ -232,17 +231,17 @@ const selectBorderAsset = (assetId: string) => {
           <label class="form-label text-sm">Couleur 2</label>
           <div class="flex gap-3 items-center mt-1">
             <input
-              :value="backgroundGradientColor2"
+              :value="backgroundAsset.gradientColor2"
               type="color"
               class="w-16 h-10 rounded cursor-pointer border border-white/10"
-              @input="(e) => emit('update:backgroundGradientColor2', (e.target as HTMLInputElement).value)"
+              @input="backgroundAsset.gradientColor2 = ($event.target as HTMLInputElement).value"
             />
             <input
-              :value="backgroundGradientColor2"
+              :value="backgroundAsset.gradientColor2"
               type="text"
               placeholder="#764ba2"
               class="flex-1 form-input text-sm"
-              @input="(e) => emit('update:backgroundGradientColor2', (e.target as HTMLInputElement).value)"
+              @input="backgroundAsset.gradientColor2 = ($event.target as HTMLInputElement).value"
             />
           </div>
         </div>
@@ -250,19 +249,19 @@ const selectBorderAsset = (assetId: string) => {
           <label class="form-label text-sm">Angle (0-360°)</label>
           <div class="flex gap-3 items-center mt-1">
             <input
-              :value="backgroundGradientAngle"
+              :value="backgroundAsset.gradientAngle"
               type="range"
               min="0"
               max="360"
               class="flex-1"
-              @input="(e) => emit('update:backgroundGradientAngle', Number((e.target as HTMLInputElement).value))"
+              @input="backgroundAsset.gradientAngle = Number(($event.target as HTMLInputElement).value)"
             />
-            <span class="text-sm text-foam-300 w-12 font-semibold">{{ backgroundGradientAngle }}°</span>
+            <span class="text-sm text-foam-300 w-12 font-semibold">{{ backgroundAsset.gradientAngle }}°</span>
           </div>
         </div>
         <div
           class="w-full h-20 rounded-lg border border-white/10"
-          :style="{ background: `linear-gradient(${backgroundGradientAngle}deg, ${backgroundGradientColor1} 0%, ${backgroundGradientColor2} 100%)` }"
+          :style="{ background: `linear-gradient(${backgroundAsset.gradientAngle}deg, ${backgroundAsset.gradientColor1} 0%, ${backgroundAsset.gradientColor2} 100%)` }"
         />
       </div>
 
@@ -304,9 +303,9 @@ const selectBorderAsset = (assetId: string) => {
         <input
           :value="getCurrentAssetName"
           type="text"
-          :placeholder="`ex: ${assetCategory === 'background' ? 'Ciel étoilé' : 'Bordure dorée'}`"
+          :placeholder="`ex: ${assetSelection.assetCategory === 'background' ? 'Ciel étoilé' : 'Bordure dorée'}`"
           class="form-input text-sm"
-          @input="(e) => setCurrentAssetName((e.target as HTMLInputElement).value)"
+          @input="setCurrentAssetName(($event.target as HTMLInputElement).value)"
         />
         <p class="text-xs text-foam-300/50">Laissez vide pour sélectionner un asset existant</p>
         <div class="flex justify-end">
@@ -357,7 +356,7 @@ const selectBorderAsset = (assetId: string) => {
           v-for="asset in filteredBackgroundAssets"
           :key="asset.id"
           class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden relative"
-          :class="selectedFrontAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
+          :class="assetSelection.selectedFrontAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
           :style="
             asset.type === 'solid'
               ? { background: asset.solidColor }
@@ -411,7 +410,7 @@ const selectBorderAsset = (assetId: string) => {
           v-for="asset in filteredBorderAssets"
           :key="asset.id"
           class="w-full aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden bg-ink-800 relative"
-          :class="selectedBorderAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
+          :class="assetSelection.selectedBorderAssetId === asset.id ? 'border-accent-400 ring-2 ring-accent-400/50 scale-105' : 'border-white/10 hover:border-white/30'"
           :style="
             asset.type === 'solid'
               ? { borderColor: asset.solidColor }

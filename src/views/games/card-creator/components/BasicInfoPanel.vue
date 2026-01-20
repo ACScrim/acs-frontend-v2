@@ -3,22 +3,34 @@ import { computed } from 'vue';
 import { Button } from '@/components/ui';
 import ACSSelect from "@/components/ui/ACSSelect.vue";
 import type { CardCategory } from '@/types/models';
+import type { Rarity } from '@/composables/useCardCustomization';
 
-// Props
-interface Props {
-  // Basic info
-  title: string;
-  categoryId: string | undefined;
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-  hasMainImage: boolean;
-  
-  // Image source state
-  imageSourceType: 'upload' | 'url' | 'discord' | 'cloudinary';
-  imageUrlInput: string;
+// Image source UI state (not in form state)
+interface ImageSourceUIState {
+  sourceType: 'upload' | 'url' | 'discord' | 'cloudinary';
+  urlInput: string;
   discordSearchQuery: string;
   selectedDiscordMemberId: string;
   selectedCloudinaryImage: string;
   showAllImages: boolean;
+}
+
+// Props - Accept reactive objects
+interface Props {
+  // Reactive form state from useCardForm
+  basicInfo: {
+    title: string;
+    imageUrl: string;
+    imageBase64: string;
+    categoryId: string | undefined;
+  };
+  metadata: {
+    rarity: Rarity;
+    customTexts: any[];
+  };
+  
+  // UI state for image source selection
+  imageSourceUI: ImageSourceUIState;
   
   // Data from stores
   categories: CardCategory[];
@@ -29,16 +41,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Emits
+// Emits for UI events that need parent handling
 const emit = defineEmits<{
-  'update:title': [value: string];
-  'update:categoryId': [value: string | undefined];
-  'update:rarity': [value: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'];
-  'update:imageSourceType': [value: 'upload' | 'url' | 'discord' | 'cloudinary'];
-  'update:imageUrlInput': [value: string];
-  'update:discordSearchQuery': [value: string];
-  'update:selectedDiscordMemberId': [value: string];
-  'update:selectedCloudinaryImage': [value: string];
   'show-create-category-modal': [];
   'trigger-file-input': [];
   'remove-image': [];
@@ -49,11 +53,15 @@ const emit = defineEmits<{
 
 // Computed
 const filteredDiscordMembers = computed(() => {
-  if (!props.discordSearchQuery.trim()) return props.discordMembers;
-  const query = props.discordSearchQuery.toLowerCase();
+  if (!props.imageSourceUI.discordSearchQuery.trim()) return props.discordMembers;
+  const query = props.imageSourceUI.discordSearchQuery.toLowerCase();
   return props.discordMembers.filter(m => 
     m.username.toLowerCase().includes(query)
   );
+});
+
+const hasMainImage = computed(() => {
+  return !!props.basicInfo.imageUrl || !!props.basicInfo.imageBase64;
 });
 </script>
 
@@ -71,8 +79,8 @@ const filteredDiscordMembers = computed(() => {
         <label class="form-label text-sm">Sélectionner ou créer une catégorie</label>
         <div class="flex gap-2">
           <ACSSelect
-            :model-value="categoryId"
-            @update:model-value="emit('update:categoryId', $event)"
+            :model-value="basicInfo.categoryId"
+            @update:model-value="basicInfo.categoryId = $event"
             defaultOptionLabel="-- Pas de catégorie --"
             :options="categories.map(category => ({ label: category.name, value: category.id }))"
           />
@@ -100,14 +108,14 @@ const filteredDiscordMembers = computed(() => {
         <div class="space-y-2">
           <label class="form-label text-sm">Contenu du titre *</label>
           <input
-            :value="title"
-            @input="emit('update:title', ($event.target as HTMLInputElement).value)"
+            :value="basicInfo.title"
+            @input="basicInfo.title = ($event.target as HTMLInputElement).value"
             type="text"
             maxlength="30"
             placeholder="Entrez le titre de votre carte"
             class="form-input"
           />
-          <p class="text-xs text-foam-300/50">{{ title.length }}/30 caractères</p>
+          <p class="text-xs text-foam-300/50">{{ basicInfo.title.length }}/30 caractères</p>
         </div>
       </div>
     </div>
@@ -154,31 +162,31 @@ const filteredDiscordMembers = computed(() => {
           <label class="text-xs text-foam-300 block">Source de l'image</label>
           <div class="grid grid-cols-2 gap-2">
             <button
-              :class="imageSourceType === 'cloudinary' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+              :class="imageSourceUI.sourceType === 'cloudinary' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="emit('update:imageSourceType', 'cloudinary')"
+              @click="imageSourceUI.sourceType = 'cloudinary'"
             >
               🖼️ Galerie
             </button>
             <button
               v-if="discordMembers.length > 0"
-              :class="imageSourceType === 'discord' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+              :class="imageSourceUI.sourceType === 'discord' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="emit('update:imageSourceType', 'discord')"
+              @click="imageSourceUI.sourceType = 'discord'"
             >
               💬 Discord
             </button>
             <button
-              :class="imageSourceType === 'upload' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+              :class="imageSourceUI.sourceType === 'upload' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="emit('update:imageSourceType', 'upload')"
+              @click="imageSourceUI.sourceType = 'upload'"
             >
               📤 Téléverser
             </button>
             <button
-              :class="imageSourceType === 'url' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+              :class="imageSourceUI.sourceType === 'url' ? 'bg-accent-500 text-white ring-2 ring-accent-400' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
               class="px-3 py-2 rounded text-xs font-medium transition-all duration-200"
-              @click="emit('update:imageSourceType', 'url')"
+              @click="imageSourceUI.sourceType = 'url'"
             >
               🔗 URL
             </button>
@@ -186,12 +194,12 @@ const filteredDiscordMembers = computed(() => {
         </div>
 
         <!-- URL Input -->
-        <div v-if="imageSourceType === 'url'" class="space-y-2">
+        <div v-if="imageSourceUI.sourceType === 'url'" class="space-y-2">
           <label class="form-label text-sm">URL de l'image</label>
           <div class="flex gap-2">
             <input
-              :value="imageUrlInput"
-              @input="emit('update:imageUrlInput', ($event.target as HTMLInputElement).value)"
+              :value="imageSourceUI.urlInput"
+              @input="imageSourceUI.urlInput = ($event.target as HTMLInputElement).value"
               type="text"
               placeholder="Entrez l'URL de l'image"
               class="form-input flex-1"
@@ -199,7 +207,7 @@ const filteredDiscordMembers = computed(() => {
             <Button
               variant="secondary"
               size="sm"
-              @click="emit('load-image-from-url', imageUrlInput)"
+              @click="emit('load-image-from-url', imageSourceUI.urlInput)"
             >
               Charger
             </Button>
@@ -207,11 +215,11 @@ const filteredDiscordMembers = computed(() => {
         </div>
 
         <!-- Discord Member Selector -->
-        <div v-if="imageSourceType === 'discord'" class="space-y-2">
+        <div v-if="imageSourceUI.sourceType === 'discord'" class="space-y-2">
           <label class="form-label text-sm">Sélectionner un avatar Discord</label>
           <input
-            :value="discordSearchQuery"
-            @input="emit('update:discordSearchQuery', ($event.target as HTMLInputElement).value)"
+            :value="imageSourceUI.discordSearchQuery"
+            @input="imageSourceUI.discordSearchQuery = ($event.target as HTMLInputElement).value"
             type="text"
             placeholder="🔍 Rechercher par username..."
             class="form-input"
@@ -220,10 +228,10 @@ const filteredDiscordMembers = computed(() => {
             <button
               v-for="member in filteredDiscordMembers"
               :key="member.id"
-              :class="selectedDiscordMemberId === member.id ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
+              :class="imageSourceUI.selectedDiscordMemberId === member.id ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
               class="flex flex-col items-center gap-2 p-2 rounded-lg border-2 transition-all duration-200 hover:scale-105"
               :title="member.username"
-              @click="emit('update:selectedDiscordMemberId', member.id)"
+              @click="imageSourceUI.selectedDiscordMemberId = member.id"
             >
               <img
                 :src="member.avatarUrl"
@@ -235,12 +243,12 @@ const filteredDiscordMembers = computed(() => {
             </button>
           </div>
           <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-            {{ discordSearchQuery ? 'Aucun membre trouvé.' : 'Aucun membre disponible.' }}
+            {{ imageSourceUI.discordSearchQuery ? 'Aucun membre trouvé.' : 'Aucun membre disponible.' }}
           </div>
         </div>
 
         <!-- Cloudinary Images Gallery -->
-        <div v-if="imageSourceType === 'cloudinary'" class="space-y-2">
+        <div v-if="imageSourceUI.sourceType === 'cloudinary'" class="space-y-2">
           <label class="form-label text-sm">Galerie d'images</label>
           <div class="flex gap-2">
             <Button
@@ -249,7 +257,7 @@ const filteredDiscordMembers = computed(() => {
               @click="emit('toggle-show-all-images')"
               class="flex-1"
             >
-              {{ showAllImages ? '📌 Afficher les images utilisées' : '🌐 Afficher toutes les images' }}
+              {{ imageSourceUI.showAllImages ? '📌 Afficher les images utilisées' : '🌐 Afficher toutes les images' }}
             </Button>
             <Button
               v-if="!isLoadingImages"
@@ -265,9 +273,9 @@ const filteredDiscordMembers = computed(() => {
             <button
               v-for="image in cloudinaryImages"
               :key="image.publicId"
-              :class="selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
+              :class="imageSourceUI.selectedCloudinaryImage === image.publicId ? 'ring-2 ring-accent-400 border-accent-400 scale-105' : 'border-white/10 hover:border-white/30'"
               class="w-full h-22 items-center gap-2 rounded-lg border-2 transition-all duration-200 hover:scale-105 overflow-hidden"
-              @click="emit('update:selectedCloudinaryImage', image.publicId)"
+              @click="imageSourceUI.selectedCloudinaryImage = image.publicId"
             >
               <img
                 :src="image.secure_url"
@@ -278,7 +286,7 @@ const filteredDiscordMembers = computed(() => {
             </button>
           </div>
           <div v-else class="text-xs text-foam-300/60 py-4 text-center">
-            {{ showAllImages ? 'Aucune image trouvée dans la galerie.' : 'Aucune image utilisée pour le moment.' }}
+            {{ imageSourceUI.showAllImages ? 'Aucune image trouvée dans la galerie.' : 'Aucune image utilisée pour le moment.' }}
           </div>
         </div>
       </div>
@@ -298,10 +306,10 @@ const filteredDiscordMembers = computed(() => {
           <button
             v-for="r in ['common', 'uncommon', 'rare', 'epic', 'legendary']"
             :key="r"
-            :class="rarity === r ? 'bg-accent-500 text-white ring-2 ring-accent-400 scale-105' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
+            :class="metadata.rarity === r ? 'bg-accent-500 text-white ring-2 ring-accent-400 scale-105' : 'bg-ink-700 text-foam-300 hover:bg-ink-600'"
             class="px-2 py-2 rounded text-xs font-medium transition-all duration-200"
             :title="r.charAt(0).toUpperCase() + r.slice(1)"
-            @click="emit('update:rarity', r as 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary')"
+            @click="metadata.rarity = r as Rarity"
           >
             {{ r === 'common' ? '⚪' : r === 'uncommon' ? '🟩' : r === 'rare' ? '🟦' : r === 'epic' ? '🟪' : '🟨' }}
           </button>

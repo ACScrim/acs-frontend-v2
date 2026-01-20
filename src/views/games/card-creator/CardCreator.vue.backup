@@ -56,33 +56,8 @@ const {
   resetForm,
 } = useCardForm();
 
-// Use image processing composable
-import { useImageProcessing } from '@/composables/useImageProcessing';
-const { convertImageToBase64, loadImageFromUrl, handleImageUpload: handleImageUploadWrapper } = useImageProcessing();
-
-// Use asset management composable
-import { useCardAssetManagement } from '@/composables/useCardAssetManagement';
-const assetManagement = useCardAssetManagement(
-  backgroundAsset,
-  borderAsset,
-  assetSelection.assetCategory as any,
-  backgroundAssetImageInputRef,
-  borderAssetImageInputRef,
-  assetSelection.selectedFrontAssetId as any,
-  assetSelection.selectedBorderAssetId as any,
-  assetSelection.useCustomFrontAsset as any,
-  assetSelection.useCustomBorderAsset as any
-);
-
-// Use saved cards observer composable
-import { useSavedCardsObserver } from '@/composables/useSavedCardsObserver';
-useSavedCardsObserver(savedCardsContainer, cardStore);
-
-// Import SavedCardsGallery component
-import SavedCardsGallery from './components/SavedCardsGallery.vue';
-
-// Container ref for saved cards section - activeTimeouts moved to composable
-
+// Destructure for easier access in template (backward compatibility)
+const title = computed({
   get: () => basicInfo.title,
   set: (value) => basicInfo.title = value
 });
