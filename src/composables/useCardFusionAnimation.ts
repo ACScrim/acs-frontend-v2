@@ -44,7 +44,7 @@ export function useCardFusionAnimation() {
         // Easing pour accélération progressive
         const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-        spiralCards.value = spiralCards.value.map((spiralCard, index) => {
+        spiralCards.value = spiralCards.value.map((spiralCard, _) => {
           // Rotation de plus en plus rapide
           const rotationSpeed = 2 + progress * 8;
           const newAngle = spiralCard.angle + rotationSpeed;
