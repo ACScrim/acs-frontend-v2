@@ -7,6 +7,7 @@ import type { CardTrade } from '@/types/models';
 import CollectibleCardComponent from '@/views/games/card-creator/CollectibleCard.vue';
 import { Button } from '@/components/ui';
 import {useElementSize, useWindowSize} from "@vueuse/core";
+import {useResponsiveCardGrid} from "@/composables/useResponsiveCardGrid.ts";
 
 const router = useRouter();
 const tradeStore = useTradeStore();
@@ -61,10 +62,12 @@ const myActiveProposals = computed(() => {
 });
 
 const cardsGrid = ref<HTMLElement |null>(null);
-const { width: gridWidth } = useElementSize(cardsGrid);
-const maxCardWidth = computed(() => {
-  return gridWidth.value / 3 - 6; // 3 cards per row with some gap
-})
+const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
+  breakpoints: {
+    0: { cells: 3, gap: 8 }
+  },
+  defaultWidth: 150
+});
 </script>
 
 <template>

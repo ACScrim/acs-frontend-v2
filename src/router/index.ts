@@ -244,6 +244,18 @@ const routes: RouterOptions["routes"] = [
     },
   },
   {
+    path: "/scrimdeck/fusion",
+    component: () => import("@/views/games/card-fusion/CardFusion.vue"),
+    name: "CardFusion",
+    meta: {
+      title: "Fusion de cartes",
+      showInAdminBar: false,
+      showInAside: false,
+      showInMobileFooter: false,
+      icon: "bx:merge",
+    },
+  },
+  {
     path: "/games/acsdle",
     component: () => import("@/views/games/acsdle/Acsdle.vue"),
     name: "Acsdle",

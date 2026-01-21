@@ -185,6 +185,9 @@ const formatTimeLeft = (time: number) => {
               <li>
                 <SidebarLink :route="$router.getRoutes().find(r => r.name === 'CardTrades')" />
               </li>
+              <li>
+                <SidebarLink :route="$router.getRoutes().find(r => r.name === 'CardFusion')" />
+              </li>
             </ul>
           </Transition>
         </div>

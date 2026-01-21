@@ -8,6 +8,7 @@ import type { CollectibleCard, TradeProposal } from '@/types/models';
 import CollectibleCardComponent from '@/views/games/card-creator/CollectibleCard.vue';
 import { Button } from '@/components/ui';
 import {useElementSize, useWindowSize} from "@vueuse/core";
+import {useResponsiveCardGrid} from "@/composables/useResponsiveCardGrid.ts";
 
 const route = useRoute();
 const router = useRouter();
@@ -119,16 +120,14 @@ const goBack = () => {
   router.push('/scrimdeck/trades');
 };
 
-const { width: windowWidth } = useWindowSize();
-const cardsGrid = ref<HTMLElement |null>(null);
-const { width: gridWidth } = useElementSize(cardsGrid);
-const maxCardWidth = computed(() => {
-  if (windowWidth.value >= 768) {
-    return (cardsGrid ? (gridWidth.value / 5) : 150) - 8; // Medium screens
-  } else {
-    return (cardsGrid ? (gridWidth.value / 2) : 150) - 8; // Small screens
-  }
-})
+const cardsGrid = ref<HTMLElement | null>(null);
+const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
+  breakpoints: {
+    768: { cells: 5, gap: 16 },
+    0: { cells: 2, gap: 16 }
+  },
+  defaultWidth: 150
+});
 </script>
 
 <template>

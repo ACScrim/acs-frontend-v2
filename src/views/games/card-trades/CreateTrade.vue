@@ -6,7 +6,7 @@ import useTradeStore from '@/stores/tradeStore';
 import type { CollectibleCard } from '@/types/models';
 import CollectibleCardComponent from '@/views/games/card-creator/CollectibleCard.vue';
 import { Button } from '@/components/ui';
-import {useElementSize, useWindowSize} from "@vueuse/core";
+import { useResponsiveCardGrid } from '@/composables/useResponsiveCardGrid';
 
 const router = useRouter();
 const collectionStore = useCollectionStore();
@@ -81,18 +81,15 @@ const cancel = () => {
   router.push('/scrimdeck/trades');
 };
 
-const { width: windowWidth } = useWindowSize();
-const cardsGrid = ref<HTMLElement |null>(null);
-const { width: gridWidth } = useElementSize(cardsGrid);
-const maxCardWidth = computed(() => {
-  if (windowWidth.value >= 1024) {
-    return (cardsGrid ? (gridWidth.value / 6) : 150) - 14; // Large screens
-  } else if (windowWidth.value >= 768) {
-    return (cardsGrid ? (gridWidth.value / 4) : 150) - 12; // Medium screens
-  } else {
-    return (cardsGrid ? (gridWidth.value / 2) : 150) - 8; // Small screens
-  }
-})
+const cardsGrid = ref<HTMLElement | null>(null);
+const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
+  breakpoints: {
+    1024: { cells: 6, gap: 16 },
+    768: { cells: 4, gap: 12 },
+    0: { cells: 2, gap: 8 }
+  },
+  defaultWidth: 150
+});
 </script>
 
 <template>
