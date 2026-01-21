@@ -435,3 +435,27 @@ export interface ChallongeMatch {
     isProcessed: boolean;
   }
 }
+
+export interface TradeProposal {
+  _id?: string;
+  proposedBy: User;
+  proposedCards: {
+    cardId: CollectibleCard;
+    count: number;
+  }[];
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+export interface CardTrade {
+  id: string;
+  offeredBy: User;
+  offeredCards: {
+    cardId: CollectibleCard;
+    count: number;
+  }[];
+  status: 'active' | 'completed' | 'cancelled';
+  proposals: TradeProposal[];
+  createdAt: string;
+  updatedAt: string;
+}

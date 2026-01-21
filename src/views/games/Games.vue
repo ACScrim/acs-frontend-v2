@@ -34,6 +34,17 @@ const games: Game[] = [
     category: "Puzzle",
     gradient: "from-green-500/20 to-emerald-500/20",
     players: "Solo",
+  },
+  {
+    id: "3",
+    name: "Marché des échanges",
+    description:
+      "Échangez vos cartes avec d'autres joueurs pour compléter votre collection.",
+    route: "/scrimdeck/trades",
+    icon: "🔄",
+    category: "Collection",
+    gradient: "from-amber-500/20 to-orange-500/20",
+    players: "Multi",
   }
 ];
 

@@ -182,6 +182,9 @@ const formatTimeLeft = (time: number) => {
                   {{ Math.floor((userStore.user?.scrimium.balance ?? 0) / 250) }} disponible(s)
                 </span>
               </li>
+              <li>
+                <SidebarLink :route="$router.getRoutes().find(r => r.name === 'CardTrades')" />
+              </li>
             </ul>
           </Transition>
         </div>

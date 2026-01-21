@@ -199,6 +199,51 @@ const routes: RouterOptions["routes"] = [
     },
   },
   {
+    path: "/scrimdeck/trades",
+    component: () => import("@/views/games/card-trades/CardTrades.vue"),
+    name: "CardTrades",
+    meta: {
+      title: "Échanges",
+      showInAdminBar: false,
+      showInAside: false,
+      showInMobileFooter: false,
+      icon: "bx:transfer",
+    },
+  },
+  {
+    path: "/scrimdeck/trades/create",
+    component: () => import("@/views/games/card-trades/CreateTrade.vue"),
+    name: "CreateTrade",
+    meta: {
+      title: "Créer une offre",
+      showInAdminBar: false,
+      showInAside: false,
+      showInMobileFooter: false,
+    },
+  },
+  {
+    path: "/scrimdeck/trades/me",
+    component: () => import("@/views/games/card-trades/MyTrades.vue"),
+    name: "MyTrades",
+    meta: {
+      title: "Mes échanges",
+      showInAdminBar: false,
+      showInAside: false,
+      showInMobileFooter: false,
+    },
+  },
+  {
+    path: "/scrimdeck/trades/:id",
+    component: () => import("@/views/games/card-trades/TradeDetails.vue"),
+    name: "TradeDetails",
+    meta: {
+      title: "Détails de l'offre",
+      showInAdminBar: false,
+      showInAside: false,
+      showInMobileFooter: false,
+    },
+  },
+  {
     path: "/games/acsdle",
     component: () => import("@/views/games/acsdle/Acsdle.vue"),
     name: "Acsdle",
