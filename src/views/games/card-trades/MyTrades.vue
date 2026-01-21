@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import {computed, onMounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
 import useTradeStore from '@/stores/tradeStore';
-import { useUserStore } from '@/stores/userStore';
-import type { CardTrade } from '@/types/models';
+import {useUserStore} from '@/stores/userStore';
+import type {CardTrade} from '@/types/models';
 import CollectibleCardComponent from '@/views/games/card-creator/CollectibleCard.vue';
-import { Button } from '@/components/ui';
-import {useElementSize, useWindowSize} from "@vueuse/core";
+import {Button} from '@/components/ui';
 import {useResponsiveCardGrid} from "@/composables/useResponsiveCardGrid.ts";
 
 const router = useRouter();
