@@ -86,10 +86,10 @@ const selectedCardsGroupedByRarity = computed(() => {
 
 // Déterminer quelle fusion est possible
 const fusionInfo = computed(() => {
-  if (selectedCardsGroupedByRarity.value.size === 0) {
-    return null;
-  }
+  // Aucune sélection
+  if (selectedCards.value.size === 0) return null;
 
+  // Doit être une seule rareté
   if (selectedCardsGroupedByRarity.value.size > 1) {
     return {
       canFuse: false,
@@ -100,31 +100,92 @@ const fusionInfo = computed(() => {
   const entries = Array.from(selectedCardsGroupedByRarity.value.entries());
   if (entries.length === 0) return null;
 
-  const firstEntry = entries[0];
-  if (!firstEntry) return null;
-
-  const [rarity, cards] = firstEntry;
-  const requiredCount = fusionStore.fusionCost(rarity);
+  const [rarity, cards] = entries[0];
+  const count = cards.length;
   const nextRarity = fusionStore.nextRarity(rarity);
 
-  if (cards.length < requiredCount) {
+  const ids: string[] = [];
+  selectedCards.value.forEach(({ card, count }) => {
+    for (let i = 0; i < count; i++) ids.push(card.id);
+  });
+  const uniqueIds = new Set(ids);
+
+  // Règle: soit 3 cartes identiques, soit 5 cartes différentes (toujours même rareté)
+  if (count === 3 || uniqueIds.size === 1) {
+    // Vérifier qu'il s'agit de 3 exemplaires de la même carte
+    if (uniqueIds.size !== 1) {
+      return {
+        canFuse: false,
+        rarity,
+        count,
+        required: 3,
+        nextRarity,
+        error: 'Pour fusionner 3 cartes, sélectionnez 3 exemplaires d\'une même carte'
+      };
+    }
+
+    return {
+      canFuse: true,
+      rarity,
+      count,
+      required: 3,
+      nextRarity,
+      cards
+    };
+  }
+
+  if (count === 5) {
+    return {
+      canFuse: true,
+      rarity,
+      count,
+      required: 5,
+      nextRarity,
+      cards
+    };
+  }
+
+  // Cas intermédiaire: count <3 ou count == 4 ou >5 (UI limite à 5 mais on gère)
+  if (count < 3) {
     return {
       canFuse: false,
       rarity,
-      count: cards.length,
-      required: requiredCount,
+      count,
+      required: 3,
       nextRarity,
-      error: `${requiredCount} cartes ${rarity} nécessaires`
+      error: `Sélectionnez au moins 3 cartes (${3 - count} de plus)`
+    };
+  }
+
+  if (count === 4) {
+    return {
+      canFuse: false,
+      rarity,
+      count,
+      required: 5,
+      nextRarity,
+      error: 'La sélection de 4 cartes n\'est pas acceptée — choisissez 3 exemplaires identiques ou 5 cartes différentes'
+    };
+  }
+
+  if (count > 5) {
+    return {
+      canFuse: false,
+      rarity,
+      count,
+      required: 5,
+      nextRarity,
+      error: 'Vous ne pouvez pas sélectionner plus de 5 cartes pour une fusion'
     };
   }
 
   return {
-    canFuse: true,
+    canFuse: false,
     rarity,
-    count: cards.length,
-    required: requiredCount,
+    count,
+    required: 3,
     nextRarity,
-    cards
+    error: 'Sélection invalide pour la fusion'
   };
 });
 
@@ -139,7 +200,8 @@ const totalSelectedCardsCount = computed(() => {
 
 // Obtenir le maximum de cartes autorisé pour une rareté
 const getMaxCardsForRarity = (rarity: string): number => {
-  return fusionStore.fusionCost(rarity);
+  // On permet de sélectionner jusqu'à 5 cartes (nouvelle règle)
+  return 5;
 };
 
 // Vérifier si on peut ajouter plus de cartes
@@ -362,7 +424,7 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
 
       <ACSSelect
         v-model="selectedRarity"
-        :options="[
+        :options=" [
             { label: 'Toutes les raretés', value: 'all' },
             { label: 'Commun', value: 'common' },
             { label: 'Peu commun', value: 'uncommon' },
