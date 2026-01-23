@@ -454,6 +454,7 @@ export interface CardTrade {
     cardId: CollectibleCard;
     count: number;
   }[];
+  description?: string;
   status: 'active' | 'completed' | 'cancelled';
   proposals: TradeProposal[];
   createdAt: string;

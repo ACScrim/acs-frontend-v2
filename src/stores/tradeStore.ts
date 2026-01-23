@@ -62,11 +62,12 @@ const useTradeStore = defineStore('trades', {
       }
     },
 
-    async createTrade(offeredCards: { cardId: string; count: number }[]) {
+    async createTrade(offeredCards: { cardId: string; count: number }[], description?: string) {
       this.loading = true;
       try {
         const { data: { data: trade } } = await api.post<ApiResponse<CardTrade>>("/card-trades", {
-          offeredCards
+          offeredCards,
+          description
         });
         this.trades.unshift(trade);
         this.myTrades.unshift(trade);

@@ -13,6 +13,7 @@ const collectionStore = useCollectionStore();
 const tradeStore = useTradeStore();
 
 const selectedCards = ref<Map<string, { card: CollectibleCard; count: number; maxCount: number }>>(new Map());
+const description = ref('');
 const searchQuery = ref('');
 
 onMounted(async () => {
@@ -71,7 +72,7 @@ const createTrade = async () => {
     count
   }));
 
-  const trade = await tradeStore.createTrade(offeredCards);
+  const trade = await tradeStore.createTrade(offeredCards, description.value);
   if (trade) {
     router.push(`/scrimdeck/trades/${trade.id}`);
   }
@@ -150,6 +151,16 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
               ✕
             </button>
           </div>
+        </div>
+
+        <div>
+          <label for="trade-description" class="form-label">Description</label>
+          <input
+            id="trade-description"
+            class="form-input"
+            placeholder="Donnez des informations sur les cartes que vous recherchez..."
+            v-model="description"
+          />
         </div>
 
         <!-- Actions -->

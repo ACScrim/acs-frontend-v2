@@ -159,7 +159,7 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
         </div>
 
         <!-- Owner info -->
-        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6">
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6 space-y-2">
           <div class="flex items-center gap-3">
             <img
               :src="trade.offeredBy.avatarUrl"
@@ -173,6 +173,7 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
               </p>
             </div>
           </div>
+          <p v-if="trade.description" class="text-foam-300 bg-gray-700 p-2 rounded-md">{{ trade.description }}</p>
         </div>
 
         <!-- Offered cards -->
