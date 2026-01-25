@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import api from '@/utils/api';
 import type { ApiResponse } from '@/types/models';
 import { useToastStore } from './toastStore';
+import {useUserStore} from "@/stores/userStore.ts";
 
 interface State {
   played: boolean;
@@ -59,7 +60,9 @@ export const useThreeBoxesStore = defineStore('threeBoxes', {
           this.choice = info.choice ?? info.choice;
           this.reward = info.reward ?? info.reward;
           this.credited = info.credited ?? info.credited;
+          this.permutation = info.permutation ?? info.permutation;
         }
+        useUserStore().fetchUser().then()
       } catch (e: any) {
         useToastStore().error("Erreur lors du choix de la boîte.", e.message || e);
         throw e;

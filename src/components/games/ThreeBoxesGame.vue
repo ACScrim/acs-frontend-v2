@@ -44,7 +44,7 @@ const choose = async (n: number) => {
             class="w-44 h-44 rounded-2xl flex flex-col items-center justify-center transition-transform transform hover:scale-105 shadow-lg"
             :class="[
               store.played ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer',
-              selected && selected === n ? 'ring-4 ring-emerald-400/30' : 'bg-gradient-to-br from-surface-700/60 to-surface-800/40'
+              (selected ?? store.choice) === n ? 'ring-4 ring-emerald-400/30' : 'bg-gradient-to-br from-surface-700/60 to-surface-800/40'
             ]"
             :disabled="store.played"
             @click="choose(n)"

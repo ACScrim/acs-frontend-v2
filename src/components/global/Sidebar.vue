@@ -94,6 +94,11 @@ const isAcsdleCompleted = computed(() => {
   return userStore.user.scrimium.transactions.filter(t => t.description === 'acsdle | completion' && new Date(t.date).toDateString() === new Date().toDateString()).length > 0;
 });
 
+const isThreeBoxesCompleted = computed(() => {
+  if (!userStore.user) return false;
+  return userStore.user.scrimium.transactions.filter(t => t.description.includes('threeboxes | reward_') && new Date(t.date).toDateString() === new Date().toDateString()).length > 0;
+});
+
 const now = useNow({ interval: 1000 });
 const timeUntilMidnight = computed(() => {
   const midnight = new Date();
@@ -204,7 +209,7 @@ const formatTimeLeft = (time: number) => {
               />
             </div>
             <div class="flex flex-col">
-              <span class="font-semibold">Jeux du jour ({{ Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) }} / 2)</span>
+              <span class="font-semibold">Jeux du jour ({{ Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) + Number(isThreeBoxesCompleted) }} / 3)</span>
             </div>
             <VueIcon
                 name="bs:chevron-down"
@@ -218,7 +223,7 @@ const formatTimeLeft = (time: number) => {
                   <template #labelSuffix>
                     <span
                         v-if="!isAcsdleCompleted"
-                        class="inline-flex items-center px-2 py-0.5 font-medium text-white"
+                        class="inline-flex items-center py-0.5 font-medium text-white"
                     >
                       ( 150 <img alt="scrimium" title="scrimium" src="/scrimium.svg" class="inline size-3 ml-1"/>)
                     </span>
@@ -244,7 +249,7 @@ const formatTimeLeft = (time: number) => {
                   <template #labelSuffix>
                     <span
                         v-if="!isDailyQuizCompleted"
-                        class="inline-flex items-center px-2 py-0.5 font-medium text-white"
+                        class="inline-flex items-center py-0.5 font-medium text-white"
                     >
                       ( 50 <img alt="scrimium" title="scrimium" src="/scrimium.svg" class="inline size-3 ml-1"/>)
                     </span>
@@ -252,6 +257,32 @@ const formatTimeLeft = (time: number) => {
                 </SidebarLink>
                 <span
                     v-if="!isDailyQuizCompleted"
+                    :class="{
+                    'absolute -top-1 -right-1 text-xs text-white px-1.5 py-0.5 rounded-full ring-2 ring-slate-800': true,
+                    'bg-emerald-500': timeUntilMidnight > 3600000,
+                    'bg-yellow-500': timeUntilMidnight <= 3600000 && timeUntilMidnight > 600000,
+                    'bg-red-500 animate-pulse': timeUntilMidnight <= 600000
+                  }"
+                >
+                  <VueIcon name="md:clock" />
+                  {{ formatTimeLeft(timeUntilMidnight)  }}
+                </span>
+              </li>
+              <li class="relative">
+                <SidebarLink
+                    :route="$router.getRoutes().find(r => r.name === 'ThreeBoxes')"
+                >
+                  <template #labelSuffix>
+                    <span
+                        v-if="!isThreeBoxesCompleted"
+                        class="inline-flex items-center py-0.5 font-medium text-white"
+                    >
+                      ( Max 100 <img alt="scrimium" title="scrimium" src="/scrimium.svg" class="inline size-3 ml-1"/>)
+                    </span>
+                  </template>
+                </SidebarLink>
+                <span
+                    v-if="!isThreeBoxesCompleted"
                     :class="{
                     'absolute -top-1 -right-1 text-xs text-white px-1.5 py-0.5 rounded-full ring-2 ring-slate-800': true,
                     'bg-emerald-500': timeUntilMidnight > 3600000,

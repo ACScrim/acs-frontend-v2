@@ -268,6 +268,18 @@ const routes: RouterOptions["routes"] = [
     },
   },
   {
+    path: "/games/three-boxes",
+    component: () => import("@/views/games/ThreeBoxesView.vue"),
+    name: "ThreeBoxes",
+    meta: {
+      title: "3 boîtes",
+      showInAdminBar: false,
+      showInAside: false,
+      showInMobileFooter: false,
+      icon: "fa:box"
+    },
+  },
+  {
     path: "/:pathMatch(.*)",
     component: () => import("@/views/notfound/NotFound.vue"),
     name: "NotFound",
