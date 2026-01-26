@@ -100,7 +100,7 @@ const fusionInfo = computed(() => {
   const entries = Array.from(selectedCardsGroupedByRarity.value.entries());
   if (entries.length === 0) return null;
 
-  const [rarity, cards] = entries[0];
+  const [rarity, cards] = entries[0] as [string, CollectibleCard[]];
   const count = cards.length;
   const nextRarity = fusionStore.nextRarity(rarity);
 
