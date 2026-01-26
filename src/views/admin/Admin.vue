@@ -12,7 +12,7 @@ const eventSource = ref<EventSource | null>(null);
 
 onMounted(() => {
   adminStore.fetchLogsHistory();
-  eventSource.value = new EventSource(`${import.meta.env.VITE_API_URL}/admin/logs`);
+  eventSource.value = new EventSource(`${import.meta.env.VITE_API_URL}/admin/logs`, { withCredentials: true });
 });
 
 onBeforeUnmount(() => {

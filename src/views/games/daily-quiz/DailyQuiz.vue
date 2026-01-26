@@ -9,6 +9,7 @@ import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
 import {shuffleArray} from "@/utils";
 import {useUserStore} from "@/stores/userStore.ts";
+import {useHead} from "@vueuse/head";
 
 const activeTab = ref<"today" | "yesterday" | "leaderboard" | "lastWeekLeaderboard">("today");
 
@@ -17,6 +18,12 @@ const gamesStore = useGamesStore();
 const userAnswer = ref<string>("");
 const answerTimeInterval = ref<number | null>(null);
 const isAnswerCorrect = ref<boolean | null>(null);
+
+// Garder le titre courant et exposer un ref réactif utilisé par useHead
+const previousTitle = ref<string | null>(null);
+const pageTitle = ref<string>(typeof document !== 'undefined' ? document.title : 'ACS | Question du jour');
+useHead({ title: pageTitle });
+let visibilityChangeHandler: (() => void) | null = null;
 
 onMounted(async () => {
   await gamesStore.fetchDailyQuestion();
@@ -27,23 +34,38 @@ onMounted(async () => {
 
   startAnswerTimer();
 
-  document.addEventListener("visibilitychange", () => {
-    if (dailyQuestionAnswered) return;
+  // Sauvegarde du titre actuel pour restauration au onUnmounted
+  previousTitle.value = pageTitle.value;
+
+  // Définir et garder une référence au handler pour pouvoir le retirer proprement
+  visibilityChangeHandler = () => {
+    // utiliser .value pour accéder aux computed refs
+    if (dailyQuestionAnswered.value) return;
     if (document.hidden) {
-      document.title = "Arrête de tricher ! 🧐";
+      // Mettre à jour la ref utilisée par useHead — le head manager appliquera le changement
+      pageTitle.value = "Arrête de tricher ! 🧐";
       if (gamesStore.dailyQuiz.todayAnswer?.discoveredAt)
         updateAnswer({ cheated: true });
     } else {
-      document.title = "ACS | Question du jour"; // Restaurer le titre original
+      pageTitle.value = "ACS | Question du jour";
     }
-  });
+  };
+
+  document.addEventListener("visibilitychange", visibilityChangeHandler);
 });
 
 onUnmounted(() => {
   if (answerTimeInterval.value) {
     clearInterval(answerTimeInterval.value);
   }
-  document.removeEventListener("visibilitychange", () => {});
+  // Retirer le handler précis et restaurer le titre précédent via la ref
+  if (visibilityChangeHandler) {
+    document.removeEventListener("visibilitychange", visibilityChangeHandler);
+    visibilityChangeHandler = null;
+  }
+  if (previousTitle.value) {
+    pageTitle.value = previousTitle.value;
+  }
 });
 
 const startAnswerTimer = () => {
