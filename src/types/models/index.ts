@@ -35,7 +35,10 @@ export interface User {
   twitchSubscriptionId: string;
   createdAt: string;
   updatedAt: string;
-  scrimium: Scrimium
+  scrimium: Scrimium;
+  dailyquizParticipatedToday: boolean;
+  acsdleParticipatedToday: boolean;
+  boxesParticipatedToday: boolean;
 }
 
 export interface UserWithStats extends User {

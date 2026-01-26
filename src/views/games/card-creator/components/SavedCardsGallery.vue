@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue';
-import { useIntersectionObserver } from '@vueuse/core';
+import {onUnmounted, ref, watch} from 'vue';
+import {useIntersectionObserver} from '@vueuse/core';
 import CollectibleCard from '../CollectibleCard.vue';
-import { Button } from '@/components/ui';
+import {Button} from '@/components/ui';
 import useCardStore from '@/stores/cardStore';
-import { useUserStore } from '@/stores/userStore';
+import {useUserStore} from '@/stores/userStore';
 
 const cardStore = useCardStore();
 const userStore = useUserStore();
@@ -56,6 +56,13 @@ onUnmounted(() => {
   activeTimeouts.forEach(timeout => clearTimeout(timeout));
   activeTimeouts.clear();
 });
+
+const deleteButtonDisabled = (card: typeof cardStore.cardsPreview[0]) => {
+  if (userStore.isSuperAdmin) {
+    return false;
+  }
+  if (card.status === "active") return true;
+};
 </script>
 
 <template>
@@ -92,7 +99,7 @@ onUnmounted(() => {
           size="sm"
           class="mt-4"
           @click="cardStore.deleteCard(card.id)"
-          :disabled="!userStore.isSuperAdmin"
+          :disabled="deleteButtonDisabled(card)"
         >
           Supprimer
         </Button>

@@ -86,17 +86,17 @@ const notifyBoosterAvailable = computed(() => userStore.user && userStore.user.s
 
 const isDailyQuizCompleted = computed(() => {
   if (!userStore.user) return false;
-  return userStore.user.scrimium.transactions.filter(t => t.description === 'dailyquiz | participation' && new Date(t.date).toDateString() === new Date().toDateString()).length > 0;
+  return userStore.user.dailyquizParticipatedToday;
 });
 
 const isAcsdleCompleted = computed(() => {
   if (!userStore.user) return false;
-  return userStore.user.scrimium.transactions.filter(t => t.description === 'acsdle | completion' && new Date(t.date).toDateString() === new Date().toDateString()).length > 0;
+  return userStore.user.acsdleParticipatedToday;
 });
 
 const isThreeBoxesCompleted = computed(() => {
   if (!userStore.user) return false;
-  return userStore.user.scrimium.transactions.filter(t => t.description.includes('threeboxes | reward_') && new Date(t.date).toDateString() === new Date().toDateString()).length > 0;
+  return userStore.user.boxesParticipatedToday;
 });
 
 const now = useNow({ interval: 1000 });
