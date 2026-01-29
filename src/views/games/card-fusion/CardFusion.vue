@@ -362,24 +362,24 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
 
     <!-- Fusion Info Panel -->
     <div v-if="fusionInfo" class="rounded-xl bg-surface-800/50 p-4 border border-surface-700">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="flex flex-col md:flex-row items-center gap-4 mb-4 md:mb-0">
           <div class="flex items-center gap-2">
             <span class="text-sm text-foam-300">Cartes sélectionnées:</span>
             <span
               v-if="fusionInfo.rarity && fusionInfo.count !== undefined && fusionInfo.required !== undefined"
-              class="text-lg font-bold"
+              class="text-sm md:text-lg font-bold"
               :style="{ color: rarityColors[fusionInfo.rarity] }"
             >
               {{ fusionInfo.count }} / {{ fusionInfo.required }} {{ rarityLabels[fusionInfo.rarity] }}
             </span>
           </div>
 
-          <VueIcon name="bs:arrow-right" class="size-5 text-foam-400" />
+          <VueIcon name="bs:arrow-right" class="size-5 text-foam-400 hidden md:block" />
 
           <div class="flex items-center gap-2">
             <span class="text-sm text-foam-300">Résultat:</span>
-            <span v-if="fusionInfo.nextRarity" class="text-lg font-bold" :style="{ color: rarityColors[fusionInfo.nextRarity] }">
+            <span v-if="fusionInfo.nextRarity" class="text-sm md:text-lg font-bold" :style="{ color: rarityColors[fusionInfo.nextRarity] }">
               1 {{ rarityLabels[fusionInfo.nextRarity] }}
             </span>
           </div>
@@ -414,7 +414,7 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
     </div>
 
     <!-- Filters -->
-    <div class="flex gap-4">
+    <div class="flex flex-col md:flex-row gap-4">
       <input
         v-model="searchQuery"
         type="text"

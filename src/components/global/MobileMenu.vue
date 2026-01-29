@@ -23,6 +23,8 @@ const menuRoutes = computed(() => [
   { label: 'Daily Quiz', to: '/games/dailyQuiz', icon: 'md:outlined-quiz' },
   { label: 'Collection de cartes', to: '/scrimdeck/collection', icon: 'ch:cards' },
   { label: 'Boutique de boosters', to: '/scrimdeck/booster', icon: 'ci:shop' },
+  { label: 'Fusion de cartes', to: '/scrimdeck/fusion', icon: 'bx:merge' },
+  { label: 'Marché des échanges', to: '/scrimdeck/trades', icon: 'bx:transfer' },
 ]);
 
 const closeMenu = () => {
