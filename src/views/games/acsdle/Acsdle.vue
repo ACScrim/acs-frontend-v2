@@ -93,6 +93,7 @@ const filteredUsers = computed(() => {
       .filter((user) =>
         user.username.toLowerCase().includes(searchInput.value.toLowerCase())
       )
+      .filter((user) => user.tournamentsPlayed >= 3)
       .slice(0, 5) ?? []
   );
 });
@@ -257,11 +258,23 @@ function getIndicatorClass(
 ): string {
   if (targetValue === null || targetValue === undefined) return "bg-gray-600";
 
+  if (field === "firstTournament") {
+    const guessObj = guessValue as { name: string, date: Date } | null | undefined;
+    const targetObj = targetValue as { name: string, date: Date } | null | undefined;
+    if (!guessObj || !targetObj) return "bg-gray-600";
+    const guessDate = new Date(guessObj.date);
+    const targetDate = new Date(targetObj.date);
+
+    if (guessObj.name === targetObj.name) return "bg-green-500 animate-pulse";
+    if (guessDate > targetDate) return "bg-yellow-500"; // Earlier
+    return "bg-orange-500"; // Later
+  }
+
   const guessStr = String(guessValue).toLowerCase().trim();
   const targetStr = String(targetValue).toLowerCase().trim();
 
   // Pour les champs texte (mostGamePlayed)
-  if (field === "mostPlayedGames" || field === "firstTournament") {
+  if (field === "mostPlayedGames") {
     if (guessStr === targetStr) return "bg-green-500 animate-pulse";
     if (guessStr.includes(targetStr)) return "bg-blue-500";
     return "bg-red-500";
@@ -284,6 +297,18 @@ function getIndicatorIcon(
   field: string
 ): string {
   if (targetValue === null || targetValue === undefined) return "❓";
+
+  if (field === "firstTournament") {
+    const guessObj = guessValue as { name: string, date: Date } | null | undefined;
+    const targetObj = targetValue as { name: string, date: Date } | null | undefined;
+    if (!guessObj || !targetObj) return "bg-gray-600";
+    const guessDate = new Date(guessObj.date);
+    const targetDate = new Date(targetObj.date);
+
+    if (guessObj.name === targetObj.name) return "✅";
+    if (guessDate > targetDate) return "🔽"; // Earlier
+    return "🔼"; // Later
+  }
 
   const guessStr = String(guessValue).toLowerCase().trim();
   const targetStr = String(targetValue).toLowerCase().trim();
@@ -308,7 +333,7 @@ const hints = computed(() => [
   {
     condition: () => guesses.value.length > 3,
     messageActive: decryptedUser.value?.firstTournament
-      ? `Premier ACS : ${decryptedUser.value?.firstTournament}`
+      ? `Premier ACS : ${decryptedUser.value?.firstTournament.name}`
       : "ERREUR",
     messageInactive: "Indice disponible au 4ème essai",
   },
@@ -375,7 +400,7 @@ const hints = computed(() => [
             </li>
             <li>
               <strong>Premier ACS:</strong>
-              {{ decryptedUser.firstTournament }}
+              {{ decryptedUser.firstTournament.name }}
             </li>
           </ul>
         </div>
@@ -656,13 +681,13 @@ const hints = computed(() => [
                   ]"
                 >
                   <span class="absolute -top-1 -right-1 text-xs opacity-75">{{
-                    getIndicatorIcon(
-                      guess.firstTournament,
-                      decryptedUser.firstTournament,
-                      "firstTournament"
-                    )
-                  }}</span>
-                  {{ guess.firstTournament }}
+                      getIndicatorIcon(
+                          guess.firstTournament,
+                          decryptedUser.firstTournament,
+                          "firstTournament"
+                      )
+                    }}</span>
+                  {{ guess.firstTournament?.name }}
                 </div>
               </div>
             </div>
