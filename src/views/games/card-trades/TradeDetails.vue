@@ -40,6 +40,15 @@ const pendingProposals = computed(() => {
   return trade.value.proposals.filter(p => p.status === 'pending');
 });
 
+const allProposals = computed(() => {
+  if (!trade.value) return [];
+  // Sort proposals: accepted first, then pending, then rejected
+  return [...trade.value.proposals].sort((a, b) => {
+    const order = { accepted: 0, pending: 1, rejected: 2 };
+    return order[a.status] - order[b.status];
+  });
+});
+
 const availableCards = () => {
   const cards: { card: CollectibleCard; count: number }[] = [];
 
@@ -211,18 +220,23 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
         <!-- Proposals section for owner -->
         <div v-if="isOwner" class="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6">
           <h2 class="text-xl font-semibold mb-3">
-            Propositions reçues ({{ pendingProposals.length }})
+            Propositions reçues ({{ pendingProposals.length }} en attente / {{ allProposals.length }} au total)
           </h2>
 
-          <div v-if="pendingProposals.length === 0" class="text-center py-8 text-gray-400">
+          <div v-if="allProposals.length === 0" class="text-center py-8 text-gray-400">
             Aucune proposition pour le moment
           </div>
 
           <div v-else class="space-y-4">
             <div
-              v-for="proposal in pendingProposals"
+              v-for="proposal in allProposals"
               :key="proposal._id"
-              class="bg-gray-900 rounded-lg p-4 border border-gray-700"
+              :class="[
+                'rounded-lg p-4 border',
+                proposal.status === 'accepted' ? 'bg-green-900/20 border-green-700' :
+                proposal.status === 'rejected' ? 'bg-red-900/20 border-red-700' :
+                'bg-gray-900 border-gray-700'
+              ]"
             >
               <!-- Proposer info -->
               <div class="flex items-center gap-3 mb-3">
@@ -231,11 +245,22 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
                   :alt="proposal.proposedBy.username"
                   class="w-10 h-10 rounded-full"
                 />
-                <div>
+                <div class="flex-1">
                   <p class="font-semibold">{{ proposal.proposedBy.username }}</p>
                   <p class="text-sm text-gray-400">
                     {{ new Date(proposal.createdAt).toLocaleDateString('fr-FR') }}
                   </p>
+                </div>
+                <div
+                  :class="[
+                    'px-3 py-1 rounded-full text-sm font-semibold',
+                    proposal.status === 'accepted' ? 'bg-green-600 text-white' :
+                    proposal.status === 'rejected' ? 'bg-red-600 text-white' :
+                    'bg-yellow-600 text-white'
+                  ]"
+                >
+                  {{ proposal.status === 'accepted' ? 'Acceptée' :
+                     proposal.status === 'rejected' ? 'Refusée' : 'En attente' }}
                 </div>
               </div>
 
@@ -261,8 +286,8 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
                 </div>
               </div>
 
-              <!-- Actions -->
-              <div class="flex gap-2">
+              <!-- Actions (only for pending proposals) -->
+              <div v-if="proposal.status === 'pending'" class="flex gap-2">
                 <Button
                   @click="acceptProposal(proposal)"
                   class="flex-1 bg-green-600 hover:bg-green-700"
