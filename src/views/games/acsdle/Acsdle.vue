@@ -93,7 +93,6 @@ const filteredUsers = computed(() => {
       .filter((user) =>
         user.username.toLowerCase().includes(searchInput.value.toLowerCase())
       )
-      .filter((user) => user.tournamentsPlayed >= 3)
       .slice(0, 5) ?? []
   );
 });
