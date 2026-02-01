@@ -150,13 +150,6 @@ onMounted(() => {
         >
           <TournamentCard :tournament="tournament" class="h-full w-full hover:shadow-[0_0_30px_rgba(123,109,255,0.15)]" />
         </RouterLink>
-        <!-- Placeholder si moins de 2 tournois supplémentaires -->
-        <Card v-if="nextTournaments.length < 3" class="flex items-center justify-center p-8 text-center text-foam-300/70 border-dashed border-2">
-          <div>
-            <VueIcon name="bs:calendar-plus" class="text-4xl mb-2 opacity-30" />
-            <p>Aucun tournoi</p>
-          </div>
-        </Card>
       </div>
 
       <!-- Message si aucun tournoi -->
