@@ -399,7 +399,7 @@ const hints = computed(() => [
             </li>
             <li>
               <strong>Premier ACS:</strong>
-              {{ decryptedUser.firstTournament.name }}
+              {{ decryptedUser.firstTournament?.name }}
             </li>
           </ul>
         </div>

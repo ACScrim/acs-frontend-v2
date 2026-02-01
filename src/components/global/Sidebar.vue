@@ -115,30 +115,31 @@ const formatTimeLeft = (time: number) => {
 
 <template>
   <div class="hidden lg:flex flex-col gap-8 px-6 py-8 overflow-visible">
-    <RouterLink to="/" class="flex items-center justify-center">
+    <!-- Logo avec animation -->
+    <RouterLink to="/" class="flex items-center justify-center group">
       <img
           src="/acs.avif"
           alt="ACS"
-          class="h-16 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)]"
+          class="h-16 w-auto drop-shadow-[0_25px_45px_rgba(0,0,0,0.35)] transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_30px_60px_rgba(123,109,255,0.4)]"
           width="142"
           height="64"
       />
     </RouterLink>
 
-    <nav class="flex flex-col gap-2">
-      <!-- Bouton retour en mode non-admin -->
+    <nav class="flex flex-col gap-3">
+      <!-- Bouton retour en mode non-admin avec animation -->
       <RouterLink
           v-if="route.path.startsWith('/admin')"
           to="/"
-          class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-foam-200 transition hover:bg-white/5 border border-white/10"
+          class="group flex items-center gap-4 rounded-2xl px-4 py-3.5 text-foam-200 transition-all duration-300 hover:bg-gradient-to-r hover:from-blush-500/10 hover:to-accent-500/10 border border-white/10 hover:border-blush-300/30 hover:shadow-[0_0_20px_rgba(255,95,143,0.15)]"
       >
         <div
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-blush-300 transition group-hover:bg-white/10 group-hover:text-blush-200"
+            class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-white/5 to-white/10 text-blush-300 transition-all duration-300 group-hover:from-blush-500/20 group-hover:to-blush-400/20 group-hover:scale-110 group-hover:text-blush-200 group-hover:shadow-lg"
         >
           <VueIcon name="bs:arrow-left" class="size-5"/>
         </div>
         <div class="flex flex-col">
-          <span class="font-semibold">Retour à l'app</span>
+          <span class="font-semibold group-hover:text-white transition-colors">Retour à l'app</span>
         </div>
       </RouterLink>
 
@@ -153,26 +154,36 @@ const formatTimeLeft = (time: number) => {
 
       <template v-else>
         <SidebarLink :route="$router.getRoutes().find(r => r.name === 'Tournois')" />
+
+        <!-- Menu ScrimDeck avec effet de glow -->
         <div class="cursor-pointer" @click="toggleMenu('ScrimDeck')">
-          <div :class="{'group flex items-center gap-3 rounded-2xl px-4 py-3 text-foam-200 transition hover:bg-white/5': true, 'bg-white/10 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)]': expandedMenus.has('ScrimDeck')}">
+          <div :class="{
+            'group flex items-center gap-4 rounded-2xl px-4 py-3.5 text-foam-200 transition-all duration-300': true,
+            'bg-gradient-to-r from-accent-500/20 to-emerald-500/10 text-white shadow-[0_0_35px_rgba(123,109,255,0.25)] border border-accent-400/40': expandedMenus.has('ScrimDeck'),
+            'hover:bg-white/5 hover:border-accent-400/30': !expandedMenus.has('ScrimDeck')
+          }">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-accent-300 transition group-hover:bg-white/10 group-hover:text-accent-200"
+              :class="{
+                'flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-300': true,
+                'bg-gradient-to-br from-accent-500/30 to-emerald-500/20 text-accent-200 shadow-lg scale-110': expandedMenus.has('ScrimDeck'),
+                'bg-white/5 text-accent-300 group-hover:bg-gradient-to-br group-hover:from-accent-500/20 group-hover:to-emerald-500/10 group-hover:scale-105 group-hover:text-accent-200': !expandedMenus.has('ScrimDeck')
+              }"
             >
               <VueIcon
                 name="ch:cards"
-                class="size-5"
+                class="size-6"
               />
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col flex-1">
               <span class="font-semibold">ScrimDeck</span>
             </div>
             <VueIcon
               name="bs:chevron-down"
-              :class="['ml-auto transition-transform', expandedMenus.has('ScrimDeck') ? 'rotate-180' : 'rotate-0']"
+              :class="['transition-all duration-300', expandedMenus.has('ScrimDeck') ? 'rotate-180 text-accent-200' : 'rotate-0 text-foam-300']"
             />
           </div>
           <Transition name="expand">
-            <ul v-if="expandedMenus.has('ScrimDeck')" class="mt-2 space-y-1 pl-4">
+            <ul v-if="expandedMenus.has('ScrimDeck')" class="mt-2 space-y-2 pl-4">
               <li>
                 <SidebarLink :route="$router.getRoutes().find(r => r.name === 'CardCreator')" />
               </li>
@@ -183,8 +194,8 @@ const formatTimeLeft = (time: number) => {
                 <SidebarLink :route="$router.getRoutes().find(r => r.name === 'BoosterShop')" />
                 <span
                   v-if="notifyBoosterAvailable"
-                  class="absolute -top-1 -right-1 inline-flex text-xs p-1 px-2 rounded-full bg-emerald-500 ring-2 ring-slate-800 animate-pulse">
-                  {{ Math.floor((userStore.user?.scrimium.balance ?? 0) / 250) }} disponible(s)
+                  class="absolute -top-1 -right-1 inline-flex text-xs font-semibold p-1 px-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 text-white ring-2 ring-slate-800 animate-bounce shadow-[0_0_20px_rgba(20,220,180,0.5)]">
+                  {{ Math.floor((userStore.user?.scrimium.balance ?? 0) / 250) }}
                 </span>
               </li>
               <li>
@@ -196,103 +207,96 @@ const formatTimeLeft = (time: number) => {
             </ul>
           </Transition>
         </div>
+
         <SidebarLink :route="$router.getRoutes().find(r => r.name === 'Classement')" />
         <SidebarLink :route="$router.getRoutes().find(r => r.name === 'Propositions de jeux')" />
+
+        <!-- Menu Jeux du jour avec progression -->
         <div class="cursor-pointer" @click="toggleMenu('JeuxDuJour')">
-          <div :class="{'group flex items-center gap-3 rounded-2xl px-4 py-3 text-foam-200 transition hover:bg-white/5': true, 'bg-white/10 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)]': expandedMenus.has('JeuxDuJour')}">
+          <div :class="{
+            'group flex items-center gap-4 rounded-2xl px-4 py-3.5 text-foam-200 transition-all duration-300': true,
+            'bg-gradient-to-r from-blush-500/20 to-amber-500/10 text-white shadow-[0_0_35px_rgba(255,95,143,0.25)] border border-blush-400/40': expandedMenus.has('JeuxDuJour'),
+            'hover:bg-white/5 hover:border-blush-400/30': !expandedMenus.has('JeuxDuJour')
+          }">
             <div
-                class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-accent-300 transition group-hover:bg-white/10 group-hover:text-accent-200"
+                :class="{
+                  'flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-300': true,
+                  'bg-gradient-to-br from-blush-500/30 to-amber-500/20 text-blush-200 shadow-lg scale-110': expandedMenus.has('JeuxDuJour'),
+                  'bg-white/5 text-blush-300 group-hover:bg-gradient-to-br group-hover:from-blush-500/20 group-hover:to-amber-500/10 group-hover:scale-105 group-hover:text-blush-200': !expandedMenus.has('JeuxDuJour')
+                }"
             >
               <VueIcon
                   name="ca:game-console"
-                  class="size-5"
+                  class="size-6"
               />
             </div>
-            <div class="flex flex-col">
-              <span class="font-semibold">Jeux du jour ({{ Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) + Number(isThreeBoxesCompleted) }} / 3)</span>
+            <div class="flex flex-col flex-1 min-w-0">
+              <span class="font-semibold">Jeux du jour</span>
+              <div class="flex items-center gap-2 mt-1">
+                <div class="flex gap-1">
+                  <div v-for="i in 3" :key="i" :class="{
+                    'w-2 h-2 rounded-full transition-all duration-300': true,
+                    'bg-emerald-400 shadow-[0_0_8px_rgba(20,220,180,0.6)]': i <= (Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) + Number(isThreeBoxesCompleted)),
+                    'bg-white/20': i > (Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) + Number(isThreeBoxesCompleted))
+                  }"></div>
+                </div>
+                <span class="text-xs text-foam-300/80">{{ Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) + Number(isThreeBoxesCompleted) }}/3</span>
+                <!-- Indicateur temps restant discret -->
+                <span
+                  v-if="(Number(isDailyQuizCompleted) + Number(isAcsdleCompleted) + Number(isThreeBoxesCompleted)) < 3"
+                  :class="{
+                    'text-[10px] ml-auto px-1.5 py-0.5 rounded font-medium': true,
+                    'text-emerald-400/70': timeUntilMidnight > 3600000,
+                    'text-yellow-400/90 animate-pulse': timeUntilMidnight <= 3600000 && timeUntilMidnight > 600000,
+                    'text-red-400/90 animate-pulse': timeUntilMidnight <= 600000
+                  }"
+                >
+                  {{ formatTimeLeft(timeUntilMidnight) }}
+                </span>
+                <span v-else class="text-[9px] ml-auto py-0.5 text-emerald-400/90">
+                  Bonus récupéré !
+                </span>
+              </div>
             </div>
             <VueIcon
                 name="bs:chevron-down"
-                :class="['ml-auto transition-transform', expandedMenus.has('JeuxDuJour') ? 'rotate-180' : 'rotate-0']"
+                :class="['transition-all duration-300', expandedMenus.has('JeuxDuJour') ? 'rotate-180 text-blush-200' : 'rotate-0 text-foam-300']"
             />
           </div>
           <Transition name="expand">
-            <ul v-if="expandedMenus.has('JeuxDuJour')" class="mt-2 space-y-1 pl-4">
-              <li class="relative">
+            <ul v-if="expandedMenus.has('JeuxDuJour')" class="mt-2 space-y-2 pl-4">
+              <li class="relative group/item">
                 <SidebarLink :route="$router.getRoutes().find(r => r.name === 'Acsdle')">
                   <template #labelSuffix>
-                    <span
-                        v-if="!isAcsdleCompleted"
-                        class="inline-flex items-center py-0.5 font-medium text-white"
-                    >
-                      ( 150 <img alt="scrimium" title="scrimium" src="/scrimium.svg" class="inline size-3 ml-1"/>)
-                    </span>
+                    <div class="flex items-center gap-1.5 ml-auto">
+                      <span v-if="!isAcsdleCompleted" class="text-[11px] font-semibold text-emerald-400/90">Max +150</span>
+                      <span v-else class="text-[11px] font-semibold text-foam-300/70">Complété</span>
+                      <img v-if="!isAcsdleCompleted" alt="scrimium" title="scrimium" src="/scrimium.svg" class="size-3 opacity-70"/>
+                    </div>
                   </template>
                 </SidebarLink>
-                <span
-                  v-if="!isAcsdleCompleted"
-                  :class="{
-                    'absolute -top-1 -right-1 text-xs text-white px-1.5 py-0.5 rounded-full ring-2 ring-slate-800': true,
-                    'bg-emerald-500': timeUntilMidnight > 3600000,
-                    'bg-yellow-500': timeUntilMidnight <= 3600000 && timeUntilMidnight > 600000,
-                    'bg-red-500 animate-pulse': timeUntilMidnight <= 600000
-                  }"
-                >
-                  <VueIcon name="md:clock" />
-                  {{ formatTimeLeft(timeUntilMidnight)  }}
-                </span>
               </li>
-              <li class="relative">
-                <SidebarLink
-                    :route="$router.getRoutes().find(r => r.name === 'DailyQuiz')"
-                >
+              <li class="relative group/item">
+                <SidebarLink :route="$router.getRoutes().find(r => r.name === 'DailyQuiz')">
                   <template #labelSuffix>
-                    <span
-                        v-if="!isDailyQuizCompleted"
-                        class="inline-flex items-center py-0.5 font-medium text-white"
-                    >
-                      ( 50 <img alt="scrimium" title="scrimium" src="/scrimium.svg" class="inline size-3 ml-1"/>)
-                    </span>
+                    <div class="flex items-center gap-1.5 ml-auto">
+                      <span v-if="!isDailyQuizCompleted" class="text-[11px] font-semibold text-emerald-400/90">Max +150</span>
+                      <span v-else class="text-[11px] font-semibold text-foam-300/70">Complété</span>
+                      <img v-if="!isDailyQuizCompleted" alt="scrimium" title="scrimium" src="/scrimium.svg" class="size-3 opacity-70"/>
+                    </div>
                   </template>
                 </SidebarLink>
-                <span
-                    v-if="!isDailyQuizCompleted"
-                    :class="{
-                    'absolute -top-1 -right-1 text-xs text-white px-1.5 py-0.5 rounded-full ring-2 ring-slate-800': true,
-                    'bg-emerald-500': timeUntilMidnight > 3600000,
-                    'bg-yellow-500': timeUntilMidnight <= 3600000 && timeUntilMidnight > 600000,
-                    'bg-red-500 animate-pulse': timeUntilMidnight <= 600000
-                  }"
-                >
-                  <VueIcon name="md:clock" />
-                  {{ formatTimeLeft(timeUntilMidnight)  }}
-                </span>
               </li>
-              <li class="relative">
-                <SidebarLink
-                    :route="$router.getRoutes().find(r => r.name === 'ThreeBoxes')"
-                >
+              <li class="relative group/item">
+                <SidebarLink :route="$router.getRoutes().find(r => r.name === 'ThreeBoxes')">
                   <template #labelSuffix>
-                    <span
-                        v-if="!isThreeBoxesCompleted"
-                        class="inline-flex items-center py-0.5 font-medium text-white"
-                    >
-                      ( Max 100 <img alt="scrimium" title="scrimium" src="/scrimium.svg" class="inline size-3 ml-1"/>)
-                    </span>
+                    <div class="flex items-center gap-1.5 ml-auto">
+                      <span v-if="!isThreeBoxesCompleted" class="text-[11px] font-semibold text-emerald-400/90">Max +100</span>
+                      <span v-else class="text-[11px] font-semibold text-foam-300/70">Complété</span>
+                      <img v-if="!isThreeBoxesCompleted" alt="scrimium" title="scrimium" src="/scrimium.svg" class="size-3 opacity-70"/>
+                    </div>
                   </template>
                 </SidebarLink>
-                <span
-                    v-if="!isThreeBoxesCompleted"
-                    :class="{
-                    'absolute -top-1 -right-1 text-xs text-white px-1.5 py-0.5 rounded-full ring-2 ring-slate-800': true,
-                    'bg-emerald-500': timeUntilMidnight > 3600000,
-                    'bg-yellow-500': timeUntilMidnight <= 3600000 && timeUntilMidnight > 600000,
-                    'bg-red-500 animate-pulse': timeUntilMidnight <= 600000
-                  }"
-                >
-                  <VueIcon name="md:clock" />
-                  {{ formatTimeLeft(timeUntilMidnight)  }}
-                </span>
               </li>
             </ul>
           </Transition>
@@ -309,33 +313,33 @@ const formatTimeLeft = (time: number) => {
         id="profileButton"
         @mouseenter="handleMouseEnter"
         @mouseleave="handleMouseLeave"
-        class="w-full rounded-[var(--radius-lg)] border border-white/10 bg-gradient-to-br from-accent-500/10 to-blush-500/10 p-3 hover:from-accent-500/20 hover:to-blush-500/20 transition"
+        class="w-full rounded-2xl border border-white/10 bg-gradient-to-br from-accent-500/10 to-blush-500/10 p-4 hover:from-accent-500/20 hover:to-blush-500/20 transition-all duration-300 hover:shadow-[0_0_30px_rgba(123,109,255,0.3)] hover:scale-[1.02]"
       >
         <div class="flex items-center gap-3 text-left">
           <div class="relative">
             <Avatar
               :src="userStore.user.avatarUrl"
-              class="size-10 ring-2 ring-accent-400/50"
+              class="size-11 ring-2 ring-accent-400/50 transition-all duration-300 hover:ring-accent-300"
             />
             <div
-              class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-xs text-white"
+              class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-xs text-white shadow-[0_0_8px_rgba(20,220,180,0.6)]"
             >
               <VueIcon name="bs:check" class="text-[10px]"/>
             </div>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="truncate font-semibold text-white">
+            <p class="truncate font-semibold text-white text-sm">
               {{ userStore.user.username }}
             </p>
-            <p class="text-xs truncate text-foam-300/70">
-              {{ userStore.user.scrimium.balance }}
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-xs text-foam-300/70 font-medium">{{ userStore.user.scrimium.balance }}</span>
               <img
                 src="/scrimium.svg"
                 title="Scrimium"
                 alt="Scrimium"
-                class="size-3 inline"
+                class="size-3.5 inline opacity-70"
               />
-            </p>
+            </div>
           </div>
         </div>
       </button>
@@ -426,5 +430,11 @@ const formatTimeLeft = (time: number) => {
 .expand-leave-from {
   opacity: 1;
   max-height: 500px;
+}
+</style>
+
+<style>
+aside::-webkit-scrollbar {
+  width: 3px
 }
 </style>
