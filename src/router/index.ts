@@ -449,6 +449,19 @@ const adminRoutes: RouterOptions["routes"] = [
       order: 9,
     },
   },
+  {
+    path: "/admin/inactive-players",
+    component: () => import("@/views/admin/inactive-players/InactivePlayers.vue"),
+    name: "Joueurs inactifs",
+    meta: {
+      title: "Joueurs inactifs",
+      icon: "bs:person-x",
+      showInAside: false,
+      showInMobileFooter: false,
+      showInAdminBar: (user: User) => user.role.includes("admin"),
+      order: 10,
+    },
+  },
 ];
 
 const router = createRouter({

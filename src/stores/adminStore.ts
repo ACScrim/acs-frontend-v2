@@ -4,7 +4,7 @@ import type {
   ChallongeBracketSettings,
   CollectibleCard,
   Game,
-  GameProposal,
+  GameProposal, InactivePlayerList,
   LogEntry,
   PlayerGameLevel,
   Report,
@@ -42,7 +42,8 @@ const useAdminStore = defineStore('admin', {
     discordDMs: [] as Array<any>,
     discordThreads: [] as Array<any>,
     discordMeta: { channels: [], members: [] } as any,
-    discordDMTotal: 0
+    discordDMTotal: 0,
+    inactivePlayerLists: [] as Array<InactivePlayerList>
   }),
   getters: {
     getTournaments: (state) => {
@@ -455,6 +456,100 @@ const useAdminStore = defineStore('admin', {
         throw error;
       }
     },
+
+    // INACTIVE PLAYERS ACTIONS
+    async fetchInactivePlayerLists() {
+      try {
+        const response = await api.get<ApiResponse<InactivePlayerList[]>>("/admin/inactive-players");
+        this.inactivePlayerLists = response.data.data;
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de la récupération des listes:", error.message || error);
+        throw error;
+      }
+    },
+
+    async analyzeInactivePlayers(inactivityMonths: number = 3, batchSize: number = 5) {
+      try {
+        const response = await api.post<ApiResponse<{ success: boolean; inactiveCount: number; listsCreated: number; lists: InactivePlayerList[] }>>(
+          "/admin/inactive-players/analyze",
+          { inactivityMonths, batchSize }
+        );
+        await this.fetchInactivePlayerLists();
+        useToastStore().success(`${response.data.data.inactiveCount} joueurs inactifs trouvés, ${response.data.data.listsCreated} listes créées`);
+        return response.data;
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de l'analyse:", error.message || error);
+        throw error;
+      }
+    },
+
+    async addUserToList(listId: string, userId: string) {
+      try {
+        const response = await api.post<ApiResponse<InactivePlayerList>>(`/admin/inactive-players/${listId}/users`, { userId });
+        const index = this.inactivePlayerLists.findIndex(l => l.id === listId);
+        if (index !== -1) {
+          this.inactivePlayerLists[index] = response.data.data;
+        }
+        useToastStore().success("Utilisateur ajouté à la liste");
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de l'ajout:", error.message || error);
+        throw error;
+      }
+    },
+
+    async removeUserFromList(listId: string, userId: string) {
+      try {
+        const response = await api.delete<ApiResponse<InactivePlayerList>>(`/admin/inactive-players/${listId}/users/${userId}`);
+        const index = this.inactivePlayerLists.findIndex(l => l.id === listId);
+        if (index !== -1) {
+          this.inactivePlayerLists[index] = response.data.data;
+        }
+        useToastStore().success("Utilisateur retiré de la liste");
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de la suppression:", error.message || error);
+        throw error;
+      }
+    },
+
+    async sendMessagesToList(listId: string, messageContent: string, messageType: 'text' | 'embed' = 'text') {
+      try {
+        const response = await api.post<ApiResponse<{ success: boolean; results: { success: number; failed: number; errors: string[] } }>>(
+          `/admin/inactive-players/${listId}/send`,
+          { messageContent, messageType }
+        );
+        await this.fetchInactivePlayerLists();
+        useToastStore().success(`Messages envoyés: ${response.data.data.results.success} succès, ${response.data.data.results.failed} échecs`);
+        return response.data.data.results;
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de l'envoi:", error.message || error);
+        throw error;
+      }
+    },
+
+    async updateList(listId: string, updates: { name?: string; status?: 'pending' | 'sent' | 'archived'; messageContent?: string }) {
+      try {
+        const response = await api.patch<ApiResponse<InactivePlayerList>>(`/admin/inactive-players/${listId}`, updates);
+        const index = this.inactivePlayerLists.findIndex(l => l.id === listId);
+        if (index !== -1) {
+          this.inactivePlayerLists[index] = response.data.data;
+        }
+        useToastStore().success("Liste mise à jour");
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de la mise à jour:", error.message || error);
+        throw error;
+      }
+    },
+
+    async deleteList(listId: string) {
+      try {
+        await api.delete(`/admin/inactive-players/${listId}`);
+        this.inactivePlayerLists = this.inactivePlayerLists.filter(l => l.id !== listId);
+        useToastStore().success("Liste supprimée");
+      } catch (error: any) {
+        useToastStore().error("Erreur lors de la suppression:", error.message || error);
+        throw error;
+      }
+    }
   }
 })
 

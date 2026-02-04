@@ -73,6 +73,25 @@ export interface Report {
   updatedAt: string;
 }
 
+export interface InactivePlayerListUser {
+  userId: string;
+  username: string;
+  discordId?: string;
+  lastTournamentDate?: string;
+  messageSent: boolean;
+}
+
+export interface InactivePlayerList {
+  id: string;
+  name: string;
+  batchSize: number;
+  users: InactivePlayerListUser[];
+  createdAt: string;
+  updatedAt: string;
+  status: 'pending' | 'sent' | 'archived';
+  messageContent?: string;
+}
+
 export interface Tournament {
   id: string;
   name: string;
