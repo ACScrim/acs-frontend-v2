@@ -90,6 +90,8 @@ export interface InactivePlayerList {
   updatedAt: string;
   status: 'pending' | 'sent' | 'archived';
   messageContent?: string;
+  gameId?: string;
+  game?: Pick<Game, 'id' | 'name' | 'imageUrl'>;
 }
 
 export interface Tournament {

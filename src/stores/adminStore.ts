@@ -468,11 +468,11 @@ const useAdminStore = defineStore('admin', {
       }
     },
 
-    async analyzeInactivePlayers(inactivityMonths: number = 3, batchSize: number = 5) {
+    async analyzeInactivePlayers(inactivityMonths: number = 3, batchSize: number = 5, gameId?: string) {
       try {
         const response = await api.post<ApiResponse<{ success: boolean; inactiveCount: number; listsCreated: number; lists: InactivePlayerList[] }>>(
           "/admin/inactive-players/analyze",
-          { inactivityMonths, batchSize }
+          { inactivityMonths, batchSize, gameId }
         );
         await this.fetchInactivePlayerLists();
         useToastStore().success(`${response.data.data.inactiveCount} joueurs inactifs trouvés, ${response.data.data.listsCreated} listes créées`);

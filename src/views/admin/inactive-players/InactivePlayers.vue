@@ -11,6 +11,7 @@ const selectedList = ref<InactivePlayerList | null>(null);
 const messageContent = ref('');
 const inactivityMonths = ref(3);
 const batchSize = ref(5);
+const selectedGameId = ref<string>('');
 const isAnalyzing = ref(false);
 const isSending = ref(false);
 const filterStatus = ref<'all' | 'pending' | 'sent' | 'archived'>('all');
@@ -18,6 +19,7 @@ const filterStatus = ref<'all' | 'pending' | 'sent' | 'archived'>('all');
 onMounted(async () => {
   await adminStore.fetchInactivePlayerLists();
   await adminStore.fetchUsers();
+  await adminStore.fetchGames();
 });
 
 const filteredLists = computed(() => {
@@ -30,7 +32,7 @@ const filteredLists = computed(() => {
 const analyzeInactivePlayers = async () => {
   isAnalyzing.value = true;
   try {
-    await adminStore.analyzeInactivePlayers(inactivityMonths.value, batchSize.value);
+    await adminStore.analyzeInactivePlayers(inactivityMonths.value, batchSize.value, selectedGameId.value || undefined);
   } finally {
     isAnalyzing.value = false;
   }
@@ -141,7 +143,20 @@ const resetToDefaultMessage = () => {
         <h2 class="text-xl font-semibold">Analyser les joueurs inactifs</h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm text-white/70 mb-2">Jeu (optionnel)</label>
+          <select
+            v-model="selectedGameId"
+            class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blush-500"
+          >
+            <option value="">Tous les jeux</option>
+            <option v-for="game in adminStore.games" :key="game.id" :value="game.id">
+              {{ game.name }}
+            </option>
+          </select>
+        </div>
+
         <div>
           <label class="block text-sm text-white/70 mb-2">Inactivité (mois)</label>
           <input
@@ -238,7 +253,12 @@ const resetToDefaultMessage = () => {
         >
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h3 class="text-white font-medium">{{ list.name }}</h3>
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-white font-medium">{{ list.name }}</h3>
+                <Badge v-if="list.game" class="bg-blush-500/20 text-blush-300 border-blush-500/40">
+                  {{ list.game.name }}
+                </Badge>
+              </div>
               <div class="flex items-center gap-4 mt-2 text-sm text-white/60">
                 <span class="flex items-center gap-1">
                   <VueIcon name="bs:people" />
