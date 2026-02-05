@@ -4,6 +4,7 @@ import useAdminStore from '@/stores/adminStore';
 import { Button, Card, Badge } from '@/components/ui';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import type { InactivePlayerList } from '@/types/models';
+import ACSSelect from "@/components/ui/ACSSelect.vue";
 
 const adminStore = useAdminStore();
 
@@ -146,15 +147,13 @@ const resetToDefaultMessage = () => {
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm text-white/70 mb-2">Jeu (optionnel)</label>
-          <select
+
+          <ACSSelect
+            :options="adminStore.games.map(game => ({ label: game.name, value: game.id }))"
             v-model="selectedGameId"
-            class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blush-500"
-          >
-            <option value="">Tous les jeux</option>
-            <option v-for="game in adminStore.games" :key="game.id" :value="game.id">
-              {{ game.name }}
-            </option>
-          </select>
+            defaultOptionLabel="Tous les jeux"
+            custom-class="w-full! px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blush-500"
+          />
         </div>
 
         <div>
