@@ -3,7 +3,7 @@ import useGamesStore from "@/stores/gamesStore.ts";
 import {computed, h, onMounted, onUnmounted, ref} from "vue";
 import {Avatar, Button, Card} from "@/components/ui";
 import {useToastStore} from "@/stores/toastStore.ts";
-import {getCoreRowModel, useVueTable} from "@tanstack/vue-table";
+import {type ColumnDef, getCoreRowModel, useVueTable} from "@tanstack/vue-table";
 import type {WeeklyLeaderboardEntry} from "@/types/models";
 import TableTanstack from "@/components/global/TableTanstack.vue";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
@@ -161,16 +161,12 @@ const timeTaken = computed(() => {
   return "00:00:00";
 });
 
-const table = useVueTable<WeeklyLeaderboardEntry>({
-  get data() {
-    return gamesStore.dailyQuiz.leaderboards.weekly as WeeklyLeaderboardEntry[];
-  },
-  columns: [
-    { header: "Position", cell: ({ row }) => row.index + 1 },
-    {
-      header: "Joueur",
-      accessorKey: "username",
-      cell: ({ row }) =>
+const columns: ColumnDef<WeeklyLeaderboardEntry, any>[] = [
+  { header: "Position", cell: ({ row }) => row.index + 1 },
+  {
+    header: "Joueur",
+    accessorKey: "username",
+    cell: ({ row }) =>
         h("div", { class: "flex items-center gap-3" }, [
           h(Avatar, {
             src: row.original.avatarUrl,
@@ -179,9 +175,17 @@ const table = useVueTable<WeeklyLeaderboardEntry>({
           }),
           row.original.username,
         ]),
-    },
-    { header: "Points", accessorKey: "totalPoints" },
-  ],
+  },
+  { header: "Points", accessorKey: "totalPoints" },
+  { header: "Questions", accessorKey: "totalQuestions" },
+  { header: "Bonnes réponses", accessorKey: "correctAnswers" }
+];
+
+const table = useVueTable<WeeklyLeaderboardEntry>({
+  get data() {
+    return gamesStore.dailyQuiz.leaderboards.weekly as WeeklyLeaderboardEntry[];
+  },
+  columns,
   getCoreRowModel: getCoreRowModel(),
   enableSorting: false,
 });
@@ -190,23 +194,7 @@ const lastWeekTable = useVueTable<WeeklyLeaderboardEntry>({
   get data() {
     return gamesStore.dailyQuiz.leaderboards.lastWeekly as WeeklyLeaderboardEntry[];
   },
-  columns: [
-    { header: "Position", cell: ({ row }) => row.index + 1 },
-    {
-      header: "Joueur",
-      accessorKey: "username",
-      cell: ({ row }) =>
-        h("div", { class: "flex items-center gap-3" }, [
-          h(Avatar, {
-            src: row.original.avatarUrl,
-            alt: `Avatar de ${row.original.username}`,
-            size: 8,
-          }),
-          row.original.username,
-        ]),
-    },
-    { header: "Points", accessorKey: "totalPoints" },
-  ],
+  columns,
   getCoreRowModel: getCoreRowModel(),
   enableSorting: false,
 });

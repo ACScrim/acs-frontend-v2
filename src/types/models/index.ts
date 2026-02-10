@@ -273,6 +273,8 @@ export interface WeeklyLeaderboardEntry {
   username: string;
   avatarUrl: string;
   totalPoints: number;
+  totalQuestions: number;
+  correctAnswers: number;
 }
 
 export interface CardAsset {

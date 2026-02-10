@@ -9,10 +9,15 @@ import {computed, ref} from 'vue';
 import VueIcon from '@kalimahapps/vue-icons/VueIcon';
 import {getGameColor} from '../composables/useGameColor';
 import {getProfileLinkExample, getUsernameExample} from "@/utils";
+import Modal from "@/components/global/Modal.vue";
 
 const props = defineProps<{
   tournament: Tournament;
 }>();
+
+const emits = defineEmits<{
+  register: []
+}>()
 
 const playerLevelStore = usePlayerLevelStore();
 const toastStore = useToastStore();
@@ -23,8 +28,7 @@ const gameProfileLink = ref('');
 const profileLinkError = ref('');
 const gameUsername = ref('');
 const usernameError = ref('');
-
-// ...existing code...
+const showConfirmationModal = ref(false);
 
 const headerColor = computed((): string => {
   const gameId = props.tournament.gameId || 'default';
@@ -113,6 +117,7 @@ const onSubmitHandler = async (e: Event) => {
   });
 
   await useTournamentStore().fetchTournaments();
+  showConfirmationModal.value = true;
 
   showLevelForm.value = false;
   gameProfileLink.value = '';
@@ -215,4 +220,13 @@ const onSubmitHandler = async (e: Event) => {
       </div>
     </form>
   </Card>
+
+  <Modal :isOpen="showConfirmationModal" @close="showConfirmationModal = false">
+    <p class="text-lg md:text-2xl">Ton niveau de jeu a été enregistré !</p>
+    <p class="text-lg md:text-2xl">Tu veux t'inscrire à l'ACS : <b class="text-amber-600">{{ tournament.name }}</b> ?</p>
+
+    <template #footer>
+      <Button @click="emits('register'); showConfirmationModal = false" class="self-end w-full">Oui, je m'inscris !</Button>
+    </template>
+  </Modal>
 </template>

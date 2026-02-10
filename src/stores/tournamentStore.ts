@@ -3,6 +3,7 @@ import {type ApiResponse, type ChallongeMatch, type Game, type Tournament} from 
 import {defineStore} from "pinia";
 import api from "@/utils/api.ts";
 import {useUserStore} from "@/stores/userStore.ts";
+import {useToastStore} from "@/stores/toastStore.ts";
 
 const useTournamentStore = defineStore('tournament', {
   state: () => ({
@@ -63,13 +64,18 @@ const useTournamentStore = defineStore('tournament', {
       this.isLoading = false;
     },
     async registerToTournament(tournamentId: string, registrationType: "caster" | "player" = "player") {
-      this.isLoading = true;
-      const updatedTournament = await tournamentService.registerToTournament(tournamentId, registrationType);
-      const index = this.tournaments.findIndex(t => t.id === tournamentId);
-      if (index !== -1) {
-        this.tournaments[index] = updatedTournament;
+      try {
+        this.isLoading = true;
+        const updatedTournament = await tournamentService.registerToTournament(tournamentId, registrationType);
+        const index = this.tournaments.findIndex(t => t.id === tournamentId);
+        if (index !== -1) {
+          this.tournaments[index] = updatedTournament;
+          useToastStore().success('Vous être inscrit au tournoi avec succès ! Pensez à mettre à jour votre niveau de jeu !');
+        }
+        this.isLoading = false;
+      } catch (error) {
+        throw error;
       }
-      this.isLoading = false;
     },
     async unregisterFromTournament(tournamentId: string) {
       this.isLoading = true;

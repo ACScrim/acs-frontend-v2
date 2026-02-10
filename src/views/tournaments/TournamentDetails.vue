@@ -93,7 +93,6 @@ const handleRegister = () => {
     }
 
     tournamentStore.registerToTournament(tournament.value!.id);
-    useToastStore().success('Vous être inscrit au tournoi avec succès ! Pensez à mettre à jour votre niveau de jeu !');
   } catch (error: unknown) {
     useToastStore().error('Erreur lors de l\'inscription au tournoi : ' + getErrorMessage(error));
   }
@@ -249,7 +248,7 @@ onUnmounted(() => {
           @check-out="handleCheckOut"
         />
         
-        <TournamentPlayerGameLevel :tournament="tournament" />
+        <TournamentPlayerGameLevel :tournament="tournament" @register="handleRegister" />
 
         <!-- Casters -->
         <TournamentCastersList 
