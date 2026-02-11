@@ -422,7 +422,7 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
         placeholder="Rechercher une carte..."
         class="form-input"
       />
-      <div class="relative w-1/2">
+      <div class="relative mt-2 md:mt-0 md:w-1/2">
         <label class="absolute form-label text-[10px] text-foam-400 -top-5 left-2">
           Cartes possédées X fois
         </label>
