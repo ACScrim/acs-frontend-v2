@@ -16,6 +16,7 @@ const fusionStore = useFusionStore();
 
 const selectedCards = ref<Map<string, { card: CollectibleCard; count: number; maxCount: number }>>(new Map());
 const searchQuery = ref('');
+const minCountFilter = ref<number>(4);
 const selectedRarity = ref<string>('all');
 const showAnimation = ref(false);
 
@@ -62,7 +63,7 @@ const filteredCards = computed(() => {
   }
 
   // Ne montrer que les raretés fusionnables
-  cards = cards.filter(c => fusionStore.canFuseRarity(c.card.rarity || 'common'));
+  cards = cards.filter(c => fusionStore.canFuseRarity(c.card.rarity || 'common') && c.count >= minCountFilter.value);
 
   return cards;
 });
@@ -421,7 +422,16 @@ const { maxCardWidth } = useResponsiveCardGrid(cardsGrid, {
         placeholder="Rechercher une carte..."
         class="form-input"
       />
-
+      <div class="relative w-1/2">
+        <label class="absolute form-label text-[10px] text-foam-400 -top-5 left-2">
+          Cartes possédées X fois
+        </label>
+        <input
+            v-model="minCountFilter"
+            class="form-input"
+            type="number"
+        />
+      </div>
       <ACSSelect
         v-model="selectedRarity"
         :options=" [
