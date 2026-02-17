@@ -45,20 +45,20 @@ const availablePlayers = computed(() => {
 // Calculer le tier moyen nécessaire
 const averageTierPerTeam = computed(() => {
   if (teams.value.length === 0 || props.tournament.players.length === 0) return 0;
-  const totalTier = props.tournament.players.reduce((sum, p) => sum + parseInt(p.tier), 0);
+  const totalTier = props.tournament.players.reduce((sum, p) => sum + p.tier ? parseInt(p.tier) : 0, 0);
   return (totalTier / teams.value.length).toFixed(2);
 });
 
 // Calculer le tier moyen d'une équipe
 const getTeamAverageTier = (team: Team) => {
   if (team.players.length === 0) return 0;
-  const sum = team.players.reduce((acc, p) => acc + parseInt(p.tier), 0);
+  const sum = team.players.reduce((acc, p) => acc + p.tier ? parseInt(p.tier) : 0, 0);
   return (sum / team.players.length).toFixed(2);
 };
 
 // Calculer le tier total d'une équipe
 const getTeamTotalTier = (team: Team) => {
-  return team.players.reduce((sum, p) => sum + parseInt(p.tier), 0);
+  return team.players.reduce((sum, p) => sum + p.tier ? parseInt(p.tier) : 0, 0);
 };
 
 // Générer les équipes
@@ -72,7 +72,7 @@ const generateTeams = () => {
 // Recalculer le nombre d'équipes
 const recalculateTeamCount = () => {
   if (playersPerTeam.value > 0 && props.tournament) {
-    teamCount.value = Math.max(2, Math.ceil(playersPerTeam.value / props.tournament.playerCap));
+    teamCount.value = Math.max(2, Math.ceil(props.tournament.playerCap / playersPerTeam.value));
   }
 };
 
