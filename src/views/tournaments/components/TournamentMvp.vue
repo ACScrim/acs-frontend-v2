@@ -71,11 +71,11 @@ const headerColor = computed((): string => {
     </template>
     <!-- Mvp Vote -->
     <div v-if="tournament.mvpVoteOpen">
-      <ListView :data="tournament.players.filter(p => !p.inWaitlist || !p.isCaster)">
+      <ListView :data="tournament.players.filter(p => !p.inWaitlist && !p.isCaster)">
         <template #item="{ item }">
           <div
             @click="emit('vote', item.id)"
-            class="w-full flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all duration-300 hover:scale-[1.02] transform"
+            class="w-full flex flex-row items-center justify-between p-4 rounded-lg border cursor-pointer transition-all duration-300 hover:scale-[1.02] transform"
             :class="{
               'bg-emerald-500/20 border-emerald-400/50 shadow-emerald-400/20 shadow-lg':
                 userIdIVotedFor === item.user.id,
