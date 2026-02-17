@@ -82,7 +82,7 @@ const handleSubmit = async (formData: TournamentFormData) => {
             <VueIcon name="cl:users" />
             Joueurs
           </p>
-          <p class="text-2xl font-bold text-white">{{ tournament.players.length }}<span class="text-lg text-foam-300">/{{ tournament.playerCap === 0 ? '∞' : tournament.playerCap }}</span></p>
+          <p class="text-2xl font-bold text-white">{{ tournament.players.filter(p => !p.inWaitlist || !p.isCaster).length }}<span class="text-lg text-foam-300">/{{ tournament.playerCap === 0 ? '∞' : tournament.playerCap }}</span></p>
         </Card>
         <Card class="p-4 bg-ink-900/70 border border-white/10">
           <p class="text-xs text-foam-300/70 mb-1 flex items-center gap-1">

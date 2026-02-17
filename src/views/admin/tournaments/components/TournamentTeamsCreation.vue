@@ -72,7 +72,7 @@ const generateTeams = () => {
 // Recalculer le nombre d'équipes
 const recalculateTeamCount = () => {
   if (playersPerTeam.value > 0 && props.tournament) {
-    teamCount.value = Math.max(2, Math.ceil(props.tournament.players.length / playersPerTeam.value));
+    teamCount.value = Math.max(2, Math.ceil(playersPerTeam.value / props.tournament.playerCap));
   }
 };
 

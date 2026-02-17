@@ -71,7 +71,7 @@ const headerColor = computed((): string => {
     </template>
     <!-- Mvp Vote -->
     <div v-if="tournament.mvpVoteOpen">
-      <ListView :data="tournament.players">
+      <ListView :data="tournament.players.filter(p => !p.inWaitlist || !p.isCaster)">
         <template #item="{ item }">
           <div
             @click="emit('vote', item.id)"
