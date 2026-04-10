@@ -262,6 +262,16 @@ const useAdminStore = defineStore('admin', {
         useToastStore().error("Error publishing tournament teams:", error.message || error);
       }
     },
+    async toggleDraftMode(tournamentId: string, isDraft: boolean) {
+      try {
+        const response = await api.patch<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}`, { isDraft });
+        const tournament = response.data.data;
+        updateOneElementInArray(this.tournaments, tournament);
+      } catch (error: any) {
+        useToastStore().error("Error toggling draft mode:", error.message || error);
+        throw error;
+      }
+    },
     async updateTeamDetails(tournamentId: string, teamId: string, data: { score?: number; ranking?: number, name?: string }) {
       const response = await api.patch<ApiResponse<Tournament>>(`/admin/tournaments/${tournamentId}/teams`, { oldName: teamId, ...data });
       const tournament = response.data.data;

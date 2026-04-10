@@ -121,6 +121,8 @@ export interface Tournament {
   }[];
   challongeUrl?: string;
   challongeTournamentId?: string;
+  isDraft?: boolean;
+  draftStatus?: 'pending' | 'in_progress' | 'completed';
 }
 
 export interface TournamentPlayer {
@@ -139,6 +141,7 @@ export interface TournamentPlayer {
 export interface Team {
   id?: string;
   name: string;
+  captainId?: string;
   users: User[];
   score: number;
   ranking: number;
@@ -243,6 +246,7 @@ export interface TournamentFormData {
   discordChannelName: string;
   discordReminderDate: string;
   privateReminderDate: string;
+  isDraft?: boolean;
 }
 
 export interface DailyQuestion {

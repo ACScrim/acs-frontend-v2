@@ -47,6 +47,14 @@ const handleEditTeams = () => {
     });
 };
 
+const handleToggleDraft = async () => {
+  if (tournament.value?.isDraft && tournament.value?.draftStatus === 'in_progress') {
+    useToastStore().error('Impossible de désactiver le mode draft : la draft est en cours.');
+    return;
+  }
+  await adminStore.toggleDraftMode(route.params.id as string, !tournament.value?.isDraft);
+};
+
 const handleTeamsSaved = () => {
   adminStore.fetchTournamentDetails(route.params.id as string);
 };
@@ -179,6 +187,27 @@ const handleSubmit = async (formData: TournamentFormData) => {
 
     <!-- Teams Tab -->
     <div v-show="activeTab === 'teams'" class="space-y-6 animate-in fade-in duration-200">
+      <div class="flex items-center gap-3">
+        <button
+          @click="handleToggleDraft"
+          :disabled="tournament.isDraft && tournament.draftStatus === 'in_progress'"
+          :class="[
+            'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all border',
+            tournament.isDraft
+              ? 'bg-amber-500/20 border-amber-400/50 text-amber-300 hover:bg-amber-500/30'
+              : 'bg-white/5 border-white/10 text-foam-300/70 hover:text-white hover:bg-white/10',
+            (tournament.isDraft && tournament.draftStatus === 'in_progress') ? 'opacity-50 cursor-not-allowed' : ''
+          ]"
+        >
+          <VueIcon :name="tournament.isDraft ? 'bs:shuffle' : 'bs:people-fill'" />
+          {{ tournament.isDraft ? 'Mode draft (bot Discord)' : 'Mode normal' }}
+        </button>
+        <span v-if="tournament.isDraft && tournament.draftStatus === 'in_progress'" class="text-xs text-amber-400/80">
+          Draft en cours — modification des équipes désactivée
+        </span>
+        <span v-else-if="tournament.isDraft" class="text-xs text-foam-300/60">Les équipes sont gérées par le bot Discord</span>
+      </div>
+
       <TournamentTeamsDisplay 
         v-if="tournament.teamsPublished && !editingTeams"
         :tournament="tournament"
@@ -188,8 +217,17 @@ const handleSubmit = async (formData: TournamentFormData) => {
       <TournamentTeamsCreation 
         v-if="!tournament.teamsPublished || editingTeams"
         :tournament="tournament"
+        :draft-mode="tournament.isDraft"
         @saved="handleTeamsSaved"
       />
+
+      <div
+        v-if="tournament.isDraft && (!tournament.teamsPublished || editingTeams)"
+        class="rounded-xl border border-amber-400/20 bg-amber-500/10 p-4 text-sm text-amber-200/80"
+      >
+        <VueIcon name="bs:info-circle" class="inline mr-2" />
+        Définissez le tier de chaque joueur avant de lancer la draft via le bot Discord.
+      </div>
     </div>
 
     <!-- Players Tab -->

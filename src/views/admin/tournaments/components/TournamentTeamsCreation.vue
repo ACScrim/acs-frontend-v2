@@ -11,11 +11,15 @@ interface Team {
   players: TournamentPlayer[];
 }
 
-const props = defineProps<{ tournament: Tournament }>();
+const props = defineProps<{ tournament: Tournament; draftMode?: boolean }>();
 
 defineEmits<{
   saved: [];
 }>();
+
+const allActivePlayers = computed(() =>
+  props.tournament.players.filter(p => !p.inWaitlist && !p.isCaster)
+);
 
 const adminStore = useAdminStore();
 
@@ -197,7 +201,46 @@ const autoBalanceTeams = () => {
 
 <template>
   <div class="space-y-6">
-    <Card class="glass-panel p-6">
+    <!-- Draft mode: player list only for tier editing -->
+    <Card v-if="draftMode" class="glass-panel p-4">
+      <template #header>
+        <h3 class="text-sm uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
+          <VueIcon name="cl:users" /> Joueurs
+          <span class="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white">{{ allActivePlayers.length }}</span>
+        </h3>
+      </template>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-for="player in allActivePlayers"
+          :key="player.id"
+          class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm space-y-2"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="font-semibold text-white">{{ player.user.username }}</p>
+              <p class="text-xs text-foam-300/70">{{ getPlayerLevel(player) }}</p>
+            </div>
+            <span class="rounded bg-white/10 px-2 py-1 text-xs text-white font-semibold">{{ player.tier ?? '-' }}</span>
+          </div>
+          <input
+            :value="player.tier"
+            @input.stop="(e) => updatePlayerTier(player, (e.target as HTMLInputElement).value)"
+            type="number" min="1" max="10"
+            placeholder="Tier..."
+            class="form-input text-xs"
+          />
+          <input
+            :value="player.description ?? ''"
+            @input.stop="(e) => updatePlayerDescription(player, (e.target as HTMLInputElement).value)"
+            type="text" placeholder="Notes..."
+            class="form-input text-xs"
+          />
+        </div>
+        <p v-if="allActivePlayers.length === 0" class="col-span-full py-6 text-center text-xs text-foam-300/60">Aucun joueur inscrit</p>
+      </div>
+    </Card>
+
+    <Card v-if="!draftMode" class="glass-panel p-6">
       <template #header>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -243,15 +286,15 @@ const autoBalanceTeams = () => {
       </div>
     </Card>
 
-    <div v-if="teams.length > 0" class="grid gap-6 lg:grid-cols-4">
-      <Card class="glass-panel sticky top-6 max-h-[70vh] overflow-hidden p-4" @dragover="onDragOver" @drop="onDropToAvailable" @dragenter="onDragEnterAvailable" @dragleave="onDragLeaveAvailable" :class="dragOverAvailable ? 'border-accent-300' : 'border-white/5'">
+    <div v-if="!draftMode && teams.length > 0" class="grid gap-6 lg:grid-cols-4">
+      <Card class="glass-panel sticky top-6 max-h-[70vh] flex flex-col overflow-hidden p-4" @dragover="onDragOver" @drop="onDropToAvailable" @dragenter="onDragEnterAvailable" @dragleave="onDragLeaveAvailable" :class="dragOverAvailable ? 'border-accent-300' : 'border-white/5'">
         <template #header>
           <h3 class="text-sm uppercase tracking-[0.3em] text-foam-300/70 flex items-center gap-2">
             <VueIcon name="cl:users" /> Disponibles
             <span class="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white">{{ availablePlayers.length }}</span>
           </h3>
         </template>
-        <div class="flex-1 space-y-2 overflow-y-auto">
+        <div class="flex-1 min-h-0 space-y-2 overflow-y-auto">
           <div v-for="player in availablePlayers" :key="player.id" draggable="true" @dragstart="onDragStart(player)" @dragover="onDragOver" @drop="onDropToAvailable" class="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-3 text-sm">
             <div class="flex items-start justify-between gap-3">
               <div>

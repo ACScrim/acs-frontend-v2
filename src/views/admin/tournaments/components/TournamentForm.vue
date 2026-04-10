@@ -37,7 +37,8 @@ const formData = ref<TournamentFormData>({
   description: '',
   discordChannelName: '',
   discordReminderDate: '',
-  privateReminderDate: ''
+  privateReminderDate: '',
+  isDraft: false
 });
 
 const isEditMode = computed(() => !!props.tournament);
@@ -88,7 +89,8 @@ watch(
         description: tournament.description,
         discordChannelName: tournament.discordChannelName,
         discordReminderDate: formatDateTime(tournament.discordReminderDate),
-        privateReminderDate: formatDateTime(tournament.privateReminderDate)
+        privateReminderDate: formatDateTime(tournament.privateReminderDate),
+        isDraft: tournament.isDraft ?? false
       };
     }
   },
@@ -193,6 +195,14 @@ const autoFillReminders = () => {
       <div>
         <label class="text-xs uppercase tracking-[0.3em] text-foam-300/70">Salon Discord *</label>
         <input v-model="formData.discordChannelName" type="text" class="form-input" placeholder="Ex: tournament-s1" />
+      </div>
+
+      <div class="flex items-center gap-3">
+        <input id="isDraft" v-model="formData.isDraft" type="checkbox" class="h-4 w-4 rounded border border-white/20 bg-surface-700/60 accent-accent-300" />
+        <label for="isDraft" class="text-sm text-foam-200 cursor-pointer">
+          Mode draft
+          <span class="ml-1 text-xs text-foam-300/60">(les équipes seront composées via le bot Discord)</span>
+        </label>
       </div>
 
       <div>
