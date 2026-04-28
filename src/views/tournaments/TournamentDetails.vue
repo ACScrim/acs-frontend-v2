@@ -211,7 +211,7 @@ onUnmounted(() => {
 
         <!-- Liste des joueurs -->
         <TournamentPlayersList 
-          v-if="!tournament.teamsPublished && !tournament.isDraft"
+          v-if="!tournament.teamsPublished || (tournament.isDraft && tournament.draftStatus === 'pending')"
           :players="players"
           :waitlist="waitlist"
           :tournament="tournament"
