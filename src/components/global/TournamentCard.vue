@@ -129,7 +129,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
           icon-position="lr"
           :variant="
             tournament.playerCap > 0 &&
-            tournament.players.length >= tournament.playerCap
+            tournament.players.filter(p => !p.isCaster).length >= tournament.playerCap
               ? 'outline'
               : 'primary'
           "
@@ -138,7 +138,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
             <VueIcon
               :name="
                 tournament.playerCap > 0 &&
-                tournament.players.length >= tournament.playerCap
+                tournament.players.filter(p => !p.isCaster).length >= tournament.playerCap
                   ? 'bs:clock'
                   : 'bs:controller'
               "
@@ -147,7 +147,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
           <span class="text-left">
             {{
               tournament.playerCap > 0 &&
-              tournament.players.length >= tournament.playerCap
+              tournament.players.filter(p => !p.isCaster).length >= tournament.playerCap
                 ? "Rejoindre la liste d'attente"
                 : "Je veux m'inscrire !"
             }}
