@@ -3,16 +3,56 @@ import type { Tournament } from "@/types/models";
 import { formatDate, useTimeAgoIntl } from "@vueuse/core";
 import { Card, Button, Badge } from "../ui";
 import VueIcon from "@kalimahapps/vue-icons/VueIcon";
+import { computed } from "vue";
 
 interface Props {
   tournament: Tournament;
 }
-defineProps<Props>();
+const props = defineProps<Props>();
 
-// Fonction pour calculer le pourcentage de joueurs
-const getPlayerPercentage = (current: number, cap: number) => {
-  return cap > 0 ? Math.round((current / cap) * 100) : 0;
-};
+const tournamentDate = computed(() => new Date(props.tournament.date));
+const dayLabel = computed(() =>
+  formatDate(tournamentDate.value, "dddd", { locales: "fr" })
+);
+const dateLabel = computed(() =>
+  formatDate(tournamentDate.value, "DD/MM/YYYY HH:mm")
+);
+const timeAgo = useTimeAgoIntl(tournamentDate, { locale: "fr" });
+
+const registeredPlayerCount = computed(
+  () => props.tournament.players.filter((player) => !player.inWaitlist && !player.isCaster).length
+);
+const nonCasterPlayerCount = computed(
+  () => props.tournament.players.filter((player) => !player.isCaster).length
+);
+const playerPluralSuffix = computed(() =>
+  props.tournament.players.length > 1 ? "s" : ""
+);
+const isCapacityFull = computed(
+  () =>
+    props.tournament.playerCap > 0 &&
+    props.tournament.players.length >= props.tournament.playerCap
+);
+const isRegistrationFull = computed(
+  () =>
+    props.tournament.playerCap > 0 &&
+    nonCasterPlayerCount.value >= props.tournament.playerCap
+);
+const playerProgress = computed(() =>
+  props.tournament.playerCap > 0
+    ? Math.round((registeredPlayerCount.value / props.tournament.playerCap) * 100)
+    : 0
+);
+const winnerName = computed(
+  () =>
+    props.tournament.teams.find(
+      (team) =>
+        team.ranking === 1 ||
+        (team.ranking === null && props.tournament.teams[0] === team)
+    )?.name ??
+    props.tournament.teams[0]?.name ??
+    "À déterminer"
+);
 </script>
 
 <template>
@@ -35,27 +75,15 @@ const getPlayerPercentage = (current: number, cap: number) => {
             tone="neutral"
             size="md"
             class="bg-black/60 backdrop-blur-sm border border-white/20"
-            >{{
-              formatDate(new Date(tournament.date), "dddd", { locales: "fr" })
-            }}</Badge
+            >{{ dayLabel }}</Badge
           >
           <Badge
             v-if="!tournament.finished"
-            :tone="
-              tournament.playerCap > 0 &&
-              tournament.players.length >= tournament.playerCap
-                ? 'blush'
-                : 'emerald'
-            "
+            :tone="isCapacityFull ? 'blush' : 'emerald'"
             size="md"
             class="bg-black/60 backdrop-blur-sm border border-white/20 font-semibold"
           >
-            {{
-              tournament.playerCap > 0 &&
-              tournament.players.length >= tournament.playerCap
-                ? "Complet"
-                : "Ouvert"
-            }}
+            {{ isCapacityFull ? "Complet" : "Ouvert" }}
           </Badge>
         </div>
       </div>
@@ -76,13 +104,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
           <div class="space-y-3 text-sm text-foam-200/80">
             <div class="flex items-center gap-2">
               <VueIcon name="ak:calendar" class="text-accent-300" />
-              <span
-                >{{ formatDate(new Date(tournament.date), "DD/MM/YYYY HH:mm") }}
-                ·
-                {{
-                  useTimeAgoIntl(new Date(tournament.date), { locale: "fr" })
-                }}</span
-              >
+              <span>{{ dateLabel }} · {{ timeAgo }}</span>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
@@ -99,11 +121,11 @@ const getPlayerPercentage = (current: number, cap: number) => {
             <div class="flex items-center gap-2">
               <VueIcon name="cl:users" class="text-emerald-400" />
               <span>
-                {{ tournament.players.filter(p => !p.inWaitlist && !p.isCaster).length }}
+                {{ registeredPlayerCount }}
                 <template v-if="tournament.playerCap > 0"
                   >/ {{ tournament.playerCap }}</template
                 >
-                joueur{{ tournament.players.length > 1 ? "s" : "" }}
+                joueur{{ playerPluralSuffix }}
               </span>
             </div>
             <div
@@ -113,10 +135,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
               <div
                 class="h-2 rounded-full bg-gradient-to-r from-accent-500 via-blush-500 to-emerald-500"
                 :style="{
-                  width: `${getPlayerPercentage(
-                    tournament.players.filter(p => !p.inWaitlist && !p.isCaster).length,
-                    tournament.playerCap
-                  )}%`,
+                  width: `${playerProgress}%`,
                 }"
               />
             </div>
@@ -127,27 +146,16 @@ const getPlayerPercentage = (current: number, cap: number) => {
           v-if="!tournament.finished"
           class="w-full justify-between"
           icon-position="lr"
-          :variant="
-            tournament.playerCap > 0 &&
-            tournament.players.filter(p => !p.isCaster).length >= tournament.playerCap
-              ? 'outline'
-              : 'primary'
-          "
+          :variant="isRegistrationFull ? 'outline' : 'primary'"
         >
           <template #icon>
             <VueIcon
-              :name="
-                tournament.playerCap > 0 &&
-                tournament.players.filter(p => !p.isCaster).length >= tournament.playerCap
-                  ? 'bs:clock'
-                  : 'bs:controller'
-              "
+              :name="isRegistrationFull ? 'bs:clock' : 'bs:controller'"
             />
           </template>
           <span class="text-left">
             {{
-              tournament.playerCap > 0 &&
-              tournament.players.filter(p => !p.isCaster).length >= tournament.playerCap
+              isRegistrationFull
                 ? "Rejoindre la liste d'attente"
                 : "Je veux m'inscrire !"
             }}
@@ -164,15 +172,7 @@ const getPlayerPercentage = (current: number, cap: number) => {
               Vainqueur
             </p>
             <p class="text-lg font-semibold text-amber-300">
-              {{
-                tournament.teams.find(
-                  (team) =>
-                    team.ranking === 1 ||
-                    (team.ranking === null && tournament.teams[0] === team)
-                )?.name ??
-                tournament.teams[0]?.name ??
-                "À déterminer"
-              }}
+              {{ winnerName }}
             </p>
           </div>
         </div>

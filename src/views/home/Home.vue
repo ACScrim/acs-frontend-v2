@@ -28,13 +28,13 @@ onMounted(() => {
 <template>
   <div class="grid gap-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] relative">
     <!-- Colonne gauche : Hero + Tournoi clôturé -->
-    <div class="space-y-8 flex flex-col xl:sticky xl:top-5 xl:self-start">
+    <div class="space-y-8 flex flex-col">
       <!-- Section supérieure : Programme hebdomadaire -->
       <section>
-        <Card class="relative overflow-hidden p-8 border-2 border-accent-400/20 hover:border-accent-400/40 transition-all duration-500 hover:shadow-[0_0_60px_rgba(123,109,255,0.25)]">
+        <Card class="relative overflow-hidden p-8 border-2 border-accent-400/20 hover:border-accent-400/40 transition-colors duration-300">
           <!-- Orbes d'ambiance en arrière-plan -->
-          <div class="absolute -top-24 -right-24 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blush-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -top-16 -right-16 w-64 h-64 bg-[radial-gradient(circle,rgba(123,109,255,0.12),transparent_70%)] pointer-events-none"></div>
+          <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-[radial-gradient(circle,rgba(255,95,143,0.1),transparent_70%)] pointer-events-none"></div>
 
           <template #header>
             <div class="space-y-5 relative z-10">
@@ -52,7 +52,7 @@ onMounted(() => {
           </template>
 
           <div class="mt-8 flex flex-wrap gap-4 relative z-10">
-            <Button :to="ctaLink" class="gap-3 shadow-lg hover:shadow-accent-500/20 hover:shadow-2xl transition-all duration-300" variant="primary">
+            <Button :to="ctaLink" class="gap-3 shadow-lg hover:shadow-accent-500/20 transition-shadow duration-300" variant="primary">
               <template #icon>
                 <VueIcon :name="userStore.isLoggedIn ? 'bs:trophy' : 'bs:discord'" class="text-xl" />
               </template>
@@ -67,15 +67,15 @@ onMounted(() => {
           </div>
 
           <div class="mt-12 grid grid-cols-2 gap-5 xl:grid-cols-3 relative z-10">
-            <div class="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5 hover:from-accent-500/10 hover:to-accent-500/5 hover:border-accent-400/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(123,109,255,0.15)] hover:-translate-y-1">
+            <div class="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5 hover:from-accent-500/10 hover:to-accent-500/5 hover:border-accent-400/30 transition-colors duration-300">
               <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60 font-semibold mb-2">Tournois</p>
               <p class="text-4xl font-bold bg-gradient-to-br from-foam-50 to-accent-200 bg-clip-text text-transparent">{{ homeStats.tournaments }}</p>
             </div>
-            <div class="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5 hover:from-emerald-500/10 hover:to-emerald-500/5 hover:border-emerald-400/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(20,220,180,0.15)] hover:-translate-y-1">
+            <div class="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5 hover:from-emerald-500/10 hover:to-emerald-500/5 hover:border-emerald-400/30 transition-colors duration-300">
               <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60 font-semibold mb-2">Joueurs</p>
               <p class="text-4xl font-bold bg-gradient-to-br from-foam-50 to-emerald-200 bg-clip-text text-transparent">{{ homeStats.users }}</p>
             </div>
-            <div class="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5 hover:from-blush-500/10 hover:to-blush-500/5 hover:border-blush-400/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,95,143,0.15)] hover:-translate-y-1 col-span-2 xl:col-span-1">
+            <div class="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5 hover:from-blush-500/10 hover:to-blush-500/5 hover:border-blush-400/30 transition-colors duration-300 col-span-2 xl:col-span-1">
               <p class="text-xs uppercase tracking-[0.4em] text-foam-300/60 font-semibold mb-2">Jeux</p>
               <p class="text-4xl font-bold bg-gradient-to-br from-foam-50 to-blush-200 bg-clip-text text-transparent">{{ homeStats.gamesPlayed }}</p>
             </div>
